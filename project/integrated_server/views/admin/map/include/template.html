@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+	<meta charset="utf-8" />
+    <style>
+        .map_id {
+             width:100%;
+             text-align:left;
+             font: bold 18px normal; 
+             padding-top:5px;
+        }
+            .map_id span {
+                margin-left:10px;
+                line-height:20px;
+            }
+        hr {
+            border: 1px solid #dcdcdc;
+        }
+        .map_salt td input {
+            text-align: left; padding-left: 10px; height:20px;
+        }
+        #closeBtn {
+            float: right; margin-right: 14px;
+        }
+        #saveBtn {
+            float:right; margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!--Device type 별로 불러오는 template --> 
+    <script id="type_Device" type="text/template">
+
+        <div class="map_Class">
+            <div class="map_id"><span ><?= ID ?></span></div>
+            <hr/>
+            <table id="trData" class="map_salt">
+
+                <!--<tr id=" trData">
+                <!--<tr id="trData">-->
+
+                <tr>
+                    <td width="60px">이름</td>
+                    <td>
+                        <input  type="text" maxlength="15" name="Name" value="<?- Name ?>" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>IP</td>
+                    <td>
+                        <input type="text" maxlength="15" name="IP" value="<?- IP ?>" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Port</td>
+                    <td>
+                        <input type="text" maxlength="5" name="Port" value="<?- Port ?>" />
+                    </td>
+                </tr>
+            </table>
+            <hr/>
+            <input id="closeBtn" type="button" class="button" value="닫기" onclick="$('.map_Class').remove();" />
+            <input id="saveBtn" type="button"  class="button" value="저장" onclick="changeDeviceData('<?- ID ?>');" />
+
+
+            <!--</tr>-->
+
+        </div>
+
+    </script>
+
+    <!--Panel type 별로 띄워주는 template-->
+    <script id="type_Panel" type="text/template">
+        <div class="map_Class" style="height:255px;">
+            <div class="map_id"><span><?= ID ?></span></div>
+            <hr/>
+            <table id="trData" class="map_salt">
+                <tr>
+                    <td>이름</td>
+                    <td>
+                        <input type="text" size="18" maxlength="15" name="Name" value="<?- Name ?>" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>최대수위</td>
+                    <td>
+                        <input type="text" size="18" maxlength="5" name="MaxWaterLevel" value="<?- MaxWaterLevel ?>" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>최소수위</td>
+                    <td>
+                        <input type="text" size="18" maxlength="5" name="MinWaterLevel" value="<?- MinWaterLevel ?>" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>설정염도</td>
+                    <td>
+                        <input type="text" size="18" maxlength="5" name="SettingSalinity" value="<?- SettingSalinity ?>" />
+                    </td>
+                </tr>
+            </table>
+            <hr/>
+
+            <input id="closeBtn" type="button" class="button" value="닫기" onclick="$('.map_Class').remove();" />
+            <input id="saveBtn" type="button"  class="button" value="저장" onclick="changePanData('<?- ID ?>'); " />
+
+
+            <p></p>
+        </div>
+
+    </script>
+</body>
+</html>

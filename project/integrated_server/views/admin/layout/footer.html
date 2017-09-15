@@ -1,0 +1,57 @@
+<div class="footer"></div>
+
+<script>
+    $(document).ready(function () {
+        jQuery('.content_middle tr').each(function (i) {
+            this.style.backgroundColor = (i % 2) ? '#f7f7f7' : '#ffffff';
+
+        });
+    });
+
+
+
+
+
+    function menu1() {
+        $("#menu_count1").css("background-color", "#293846")
+        $("#menu_count1").css("color", "#FFFFFF")
+        $("#menu_count1").css("font-weight", "bold")
+        $("#menu_count2").css("background-color", "#2f4050")
+        $("#menu_count3").css("background-color", "#2f4050")
+        $("#menu_count4").css("background-color", "#2f4050")
+    }
+
+    function menu2() {
+        $("#menu_count1").css("background-color", "#2f4050")
+        $("#menu_count2").css("background-color", "#293846")
+        $("#menu_count2").css("color", "#FFFFFF")
+        $("#menu_count2").css("font-weight", "bold")
+        $("#menu_count3").css("background-color", "#2f4050")
+        $("#menu_count4").css("background-color", "#2f4050")
+    }
+
+    function menu3() {
+        $("#menu_count1").css("background-color", "#2f4050")
+        $("#menu_count2").css("background-color", "#2f4050")
+        $("#menu_count3").css("background-color", "#293846")
+        $("#menu_count3").css("color", "#FFFFFF")
+        $("#menu_count3").css("font-weight", "bold")
+        $("#menu_count4").css("background-color", "#2f4050")
+    }
+
+    function menu4() {
+        $("#menu_count1").css("background-color", "#2f4050")
+        $("#menu_count2").css("background-color", "#2f4050")
+        $("#menu_count3").css("background-color", "#2f4050")
+        $("#menu_count4").css("background-color", "#293846")
+        $("#menu_count4").css("color", "#FFFFFF")
+        $("#menu_count4").css("font-weight", "bold")
+    }
+
+
+    var setSize = function () {
+        var height = $(document).height();
+        $("#leftSide").css("height", height + "px");
+
+    }
+</script>

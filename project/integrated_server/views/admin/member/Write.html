@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>염전 추가</title>
+  <%- include("../layout/init-lib.html") %>
+    <style>
+      table .table_c2 {
+        text-align: left;
+        padding-left: 10px;
+      }
+    </style>
+</head>
+
+<body>
+  <!--submit-->
+  <script src="/js/member/submit.js"></script>
+  <%- include("../layout/sidebar.html") %>
+
+
+    <div class="main">
+
+      <div class="header">
+        <span>관리자페이지</span>
+        <spanb> > 회원등록</spanb>
+        <a href="/auth/logout">
+          <p>로그아웃</p>
+        </a>
+        <br />
+      </div>
+
+      <div class="content">
+
+        <div class="content_middle">
+
+          회원정보
+          <hr />
+          <%
+                        if(modelMember == null){
+                    %>
+            <form id="form1" action="/admin/member" method="post">
+              <% 
+                        }else{
+                    %>
+                <form id="form1" action="/admin/member/<%= modelMember.member_seq %>?_method=PATCH" method="post">
+                  <% 
+                        }
+                    %>
+                    <input type="hidden" name="saltern_info_seq" id="saltern_info_seq" value="<%= modelMember.saltern_info_seq %>" />
+
+                    <div class="Wcenter_content">
+                      <table class="table_pro_c">
+                        <tr>
+                          <td width="25%" class="table_c1">성명</td>
+                          <td width="75%" class="table_c2"><input class="input_size1 input_h" type="text" maxlength="10" value="<%- modelMember.username %>"
+                              name="username" /></td>
+                        </tr>
+
+                        <tr>
+                          <td class="table_c1">주소</td>
+                          <td class="table_c2"><input class="input_size2 input_h" style="margin-right:10px;" type="text" maxlength="50" size="40"
+                              value="<%- modelMember.address %>" name="address" /></td>
+                        </tr>
+
+                        <tr>
+                          <td class="table_c1">id</td>
+                          <%
+                                            var isRealOnly = 'readonly="readonly"';
+                                            if(modelMember.member_seq == undefined)
+                                            {
+                                            IsRealOnly = "";
+                                            }
+                                            %>
+                            <td class="table_c2"><input class="input_size1 input_h" maxlength="15" type="text" value="<%= modelMember.userid %>"
+                                name="userid" <%=i sRealOnly %> /> </td>
+                        </tr>
+
+                        <tr>
+                          <td class="table_c1 ">비밀번호 입력/수정</td>
+                          <td class="table_c2 "><input class="input_size1 input_h " type="password" maxlength="15 " name="password" /><span style="font-size:11px; "> * 수정 시에만 입력하세요.</span></td>
+
+                        </tr>
+
+                        <tr>
+                          <td class="table_c1 ">비밀번호 입력/수정 확인</td>
+                          <td class="table_c2 "><input class="input_size1 input_h " type="password" maxlength="15 " name="passwordCheck" /> </td>
+                        </tr>
+
+
+                        <tr>
+                          <td class="table_c1 ">휴대폰</td>
+                          <td class="table_c2 "><input class="input_size1 input_h " type="text" maxlength="13 " value="<%- modelMember.tel%>" name="tel"
+                            /> ex) 010-1234-1234
+                          </td>
+                        </tr>
+
+
+                        <tr>
+                          <td class="table_c1">관리염전</td>
+                          <td class="table_c2">
+                            <input class="input_size1 input_h" type="text" value="<%- modelMember.salternName %>" name="salternName" id="salternName"
+                              readonly="readonly" />
+                            <input class="button" type="button" value="검색" onclick="openSearchPopServer()" />
+                          </td>
+                        </tr>
+
+                      </table>
+
+                      <hr />
+
+                      <div style="text-align:right; padding-right:10px;">
+                        <input class="button" type="button" onclick="save()" value="등록/수정" />
+                        <input class="button" type="button" onclick="javascript:window.history.back(-1);" value="취소" />
+                      </div>
+                    </div>
+                </form>
+        </div>
+      </div>
+
+    </div>
+    <script>
+      function checkStringFormat(string) {
+        var stringRegx = /^[0-9a-zA-Z가-힝]*$/;
+        //var stringRegx = /[~!@\#$%<>^&*\()\-=+_\’]/gi; 
+        var isValid = true;
+        if (stringRegx.test(string)) {
+          isValid = false;
+        }
+
+        return isValid;
+      }
+
+
+      function openSearchPopServer() {
+
+        var winWidth = 900;
+        var winHeight = 700;
+        var winURL = "";
+        var popUrl = "/admin/member/popup/server"; //팝업창에 출력될 페이지 URL
+        var winName = "";
+        var winPosLeft = (screen.width - winWidth) / 2;
+        var winPosTop = (screen.height - winHeight) / 2;
+        var winOpt = "width=" + winWidth + ",height=" + winHeight + ",top=" + winPosTop + ",left=" + winPosLeft;
+        window.open(popUrl, winName, winOpt + ",menubar=no,status=no,scrollbars=no,resizable=no"); //팝업창 옵션(optoin)
+
+
+      }
+
+
+      function checkServer(saltern_info_seq, name) {
+        console.log(saltern_info_seq, name);
+        $("#saltern_info_seq").val(saltern_info_seq);
+        $("#salternName").val(name);
+
+      }
+    </script>
+
+    <%- include("../layout/footer.html") %>
+
+
+</body>
+
+</html>

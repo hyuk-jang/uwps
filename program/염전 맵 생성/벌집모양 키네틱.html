@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="./jquery-1.10.2.min.js"></script>
+    <script src="./kinetic-v5.1.0.min.js"></script>
+    <script src="./IndexSetting.js"></script>
+    <script src="./underscore-min.js"></script>
+</head>
+
+<body>
+    <div id="container" style="border: 1px solid silver; width: 512px; height: 512px; margin:20px"></div>
+    <script>
+        // hexagon dimensions
+        var radius = 16;
+        var height = (radius * Math.sqrt(2.5));
+        var side = radius * 2;
+
+        // grid size
+        var gridWidth = 30;
+        var gridHeight = 30;
+
+        // set up stage and layer
+        var stage = new Kinetic.Stage({
+            container: 'container',
+            x: 0,
+            y: 0,
+            width: 512,
+            height: 512,
+            draggable: true
+        });
+        var layer = new Kinetic.Layer();
+
+        // position polygons
+        for (var i = 0; i < gridWidth; i++) {
+            for (var j = 0; j < gridHeight; j++) {
+                mX = radius + (i * 0.8 * side);
+                // mX = radius + (i * side);
+                // mY = radius + (height * (3 * j + (i % 1)) / 3);
+                mY = radius + height * j;
+
+                hexagon = new Kinetic.RegularPolygon({
+                    x: mX,
+                    y: mY,
+                    sides: 4,
+                    radius: radius,
+                    fill: 'blue',
+                    stroke: 'black',
+                    strokeWidth: 1,
+                    rotationDeg: 45
+                });
+                layer.add(hexagon);
+            }
+        }
+
+        // generate an image from the current layer
+        layer.toImage({
+            width: (gridWidth * side) + radius,
+            height: (gridHeight * height) + radius,
+            callback: function (img) {
+                var image = new Kinetic.Image({
+                    image: img,
+                    x: 0,
+                    y: 0,
+                });
+
+                // remove all the hexagon nodes
+                layer.removeChildren();
+
+                // add image to layer and draw the stage
+                layer.add(image);
+                stage.add(layer);
+                stage.draw();
+            }
+        });
+    </script>
+</body>
+
+</html>

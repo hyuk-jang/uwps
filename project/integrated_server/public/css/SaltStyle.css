@@ -1,0 +1,301 @@
+﻿
+
+
+.header span {
+    font-size:25px; 
+    
+}
+.header spanb {
+    font-size:15px; 
+}
+.header a p {
+    line-height: 70px; 
+    float: right; 
+    font-size: 15px; 
+    font-weight: bold; 
+    margin-right: 30px; 
+}
+
+
+
+/*################    PUBLIC   ######################### */
+a {
+    text-decoration: none !important;
+}
+
+span15 {
+}
+
+span12 {
+}
+
+spanB {
+    font-weight: bold;
+}
+
+.tx_center {
+    text-align: center;
+}
+
+.tx_left {
+    text-align: left;
+}
+
+.tx_right {
+    text-align: right;
+}
+
+
+
+.input_size1 {
+    width: 300px;
+}
+
+.input_size2 {
+    width: 600px;
+}
+
+.input_h {
+    /*height: 18px;*/
+    padding: 3px 10px;
+}
+
+
+/*################    PUBLIC   ######################### */
+
+html {
+    width: 100%;
+    background-color: #f3f3f4;
+    height: 100%;
+    margin: 0;
+    min-width: 1410px;
+}
+
+body {
+    width: 100%;
+    background-color: #f3f3f4;
+    height: 100%;
+    margin: 0;
+    min-width: 1410px;
+}
+
+
+.side {
+    float: left;
+    height: 100%;
+    width: 18%;
+    background-color: #253848;
+    min-width: 250px;
+}
+
+.side_header {
+    height: 100px;
+    color: #dbe1ea;
+    text-align: center;
+    font-size: 15px;
+    line-height: 90px;
+    font-size: 26px;
+}
+
+.side_content {
+    height: 160px;
+    background-color: #2f4050;
+}
+
+.side_menu {
+    height: 40px;
+    background-color: #2f4050;
+    font-size: 15px;
+    color: #a7b1c2;
+    padding: 5px 30px;
+    line-height: 37px;
+    border: 1px solid #2f4050;
+}
+
+    .side_menu:hover {
+        background-color: #293846;
+        color: #FFFFFF;
+    }
+
+
+.main {
+    float: left;
+    height: 100%;
+    width: 82%;
+}
+
+
+
+.header {
+    height: 100px;
+    background-color: #FFFFFF;
+    padding-left: 30px;
+    border: 1px solid #e7eaec;
+    line-height: 95px;
+    font-size: 27px;
+    color: #253848;
+}
+
+
+
+
+
+
+
+.content {
+    margin: 0 25px;
+}
+
+.content_middle {
+    margin-top: 25px;
+    padding: 20px;
+    border: 1px solid #e7eaec;
+    background-color: #FFFFFF;
+}
+
+    .content_middle td {
+        text-align: center;
+    }
+
+
+
+
+.content_low {
+    margin-top: 10px;
+    background-color: #FFFFFF;
+}
+
+    .content_low tr {
+        background-color: white;
+    }
+
+
+
+.table_list {
+    width: 100%;
+    border-bottom: 1px solid #e7eaec;
+    border-collapse: collapse;
+}
+
+    .table_list th {
+        border-bottom: 1px solid #e7eaec;
+        height: 39px;
+    }
+
+    .table_list td {
+        border-bottom: 1px solid #e7eaec;
+        height: 39px;
+    }
+
+.pageNa a {
+    margin: 10px;
+}
+
+.pageNa strong {
+    margin: 10px;
+}
+
+.button {
+    background-color: #FFFFFF;
+    color: #2f4050;
+    border: 1px solid #253848;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
+    font-size: 12px;
+    padding: 6px 15px;
+}
+
+    .button:hover {
+        background-color: #2f4050;
+        border: 1px solid #253848;
+        color: #FFFFFF;
+        font-size: 12px;
+        padding: 6px 15px;
+        cursor: pointer;
+    }
+
+.button2 {
+    height: 30px !important;
+}
+
+
+.content2 {
+    margin: 0 auto;
+}
+
+    .content2 tr {
+        height: 30px;
+    }
+
+.content_hign2 {
+    margin-top: 25px;
+    padding: 20px 40px;
+    border: 1px solid #e7eaec;
+    background-color: #FFFFFF;
+}
+
+    .content_hign2 tr {
+        background-color: white;
+    }
+
+.table_pro_c {
+    border-radius: 5px;
+    width: 100%;
+}
+
+    .table_pro_c th {
+        border-bottom: 1px solid #e7eaec;
+        height: 45px;
+    }
+
+    .table_pro_c td {
+        border-bottom: 1px solid #e7eaec;
+        height: 45px;
+    }
+/* .table_pro_c input {height:20px; padding:3px 10px;}*/
+
+
+
+.table_c2 select {
+    height: 30px;
+    padding: 3px 10px;
+}
+
+/*box-shadow: 0 0 6px 4px #253848;*/
+
+.footer {
+}
+
+
+.sideOn {
+    background-color: #293846;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+
+.sideOff {
+    background-color: #2f4050;
+    color: #8cb1ba;
+}
+
+
+/*테이블 관련 CSS*/
+.map_Class {
+    position:absolute;
+    background-color: white;
+    z-index: 9999;
+    border: 1px solid #000;
+    height: 225px;
+    width: 250px;
+    border-radius:5px;
+    padding:5px;
+}
+
+.map_salt tr{
+    height:35px; 
+}
+
+
+

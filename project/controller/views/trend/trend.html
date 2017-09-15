@@ -1,0 +1,306 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>SM부트스트랩 테마디자인</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- 위 3개의 메타 태그는 *반드시* head 태그의 처음에 와야합니다; 어떤 다른 콘텐츠들은 반드시 이 태그들 *다음에* 와야 합니다 -->
+
+  <!-- 부트스트랩 -->
+  <link href="css/bootstrap.min.css" rel="stylesheet" />
+  <link href="css/datepicker3.css" rel="stylesheet" />
+  <link href="css/StyleSheet.css" rel="stylesheet" />
+
+  <script src="js/jquery-3.1.1.min.js"></script>
+
+</head>
+
+<body>
+  <!-- jQuery (부트스트랩의 자바스크립트 플러그인을 위해 필요합니다) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <!-- 모든 컴파일된 플러그인을 포함합니다 (아래), 원하지 않는다면 필요한 각각의 파일을 포함하세요 -->
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/bootstrap-datepicker.js"></script>
+  <script src="js/bootstrap-datepicker.kr.js"></script>
+  <!-- 차트 관련 -->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://code.highcharts.com/highcharts.src.js"></script>
+  <link href="fonts/font-awesome.min.css" rel="stylesheet" />
+  <!--네비-->
+  <%- include("../master/header.html") %>
+
+    <!--메인-->
+
+
+
+    <div class="jumbotron text-center jumbotron_line">
+      <div class="row row_st_line">
+
+        <div class="row row_width">
+
+          <div class="col-sm-7">
+            <div class="input_st">
+              <label class="radio-inline"><input type="radio" class="right_check"  name="optradio"value="day" >일일</label>
+              <label class="radio-inline"><input type="radio" class="right_check" name="optradio"value="month" >월간</label>
+              <label class="radio-inline"><input type="radio" class="right_check" name="optradio"value="year" >년간</label>
+              <label class="radio-inline"><input type="radio" class="right_check_2" name="optradio"value="select">기간선택</label>
+            </div>
+          </div>
+
+          <div class="col-sm-5 serch_st">
+            날짜 &nbsp;
+            <input class="input_tre" name="start" id="start" type="text" readonly>
+            <input class="input_tre" name="end" id="end" type="text" readonly hidden="hidden">
+            <button type="button" class="btn btn-primary" style="margin-bottom:3px; height:28px;" id="search">검색</button>
+
+          </div>
+        </div>
+
+
+
+
+        <div class="row_width">
+
+          <div class="row row_title">
+            <div class="title title_trend">모듈별 발전량</div>
+            <p class="title_p" id="during">
+              <%=date%>
+            </p>
+          </div>
+
+          <div class="title_box" id="moduleChart_1">
+
+
+          </div>
+
+          <div class="row row_title">
+            <div class="title title_trend">기상 장치 정보</div>
+          </div>
+
+          <div class="title_box" id="moduleChart_2"></div>
+
+        </div>
+      </div>
+
+      <div style="margin:0 auto;  margin-top:70px; text-align: center;">
+
+        <p style="font-size: 13px;"> COPYRIGHT 2005. 에스엠소프트웨어(주) ALL RIGHTS RESERVED.</p>
+      </div>
+
+    </div>
+
+    <script type="text/javascript">
+      $(function () {
+        var data =<%- chartList_1 %>; 
+        $('#moduleChart_1').highcharts({
+          title: {
+            text: ' '
+          },
+          xAxis: {
+            title: {
+              text: '시간(Time)'
+            },
+            tickInterval: 1
+          },
+          yAxis: {
+            title: {
+              text: '발전량(Wh)'
+            }
+          },
+          plotOptions: {
+            series: {
+              pointStart: 0
+            }
+          },
+          legend: {  //범례
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+          },
+          series: [{   //값
+            name: '모듈1',
+            data: data[0]
+          }, {
+            name: '모듈2',
+            data: data[1]
+          }, {
+            name: '모듈3',
+            data: data[2]
+          }, {
+            name: '모듈4',
+            data: data[3]
+          }, {
+            name: '모듈5',
+            data: data[4]
+          }, {
+            name: '모듈6',
+            data: data[5]
+          }
+          ]
+        });
+      });
+    </script>
+    <script>
+      var moduleChart =<%-moduleChart %>;
+      Highcharts.chart('moduleChart_2', {
+        chart: {
+          type: 'column'
+        },
+        title: {
+          text: ' '
+        },
+        xAxis: {
+          categories: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
+        },
+        yAxis: [{
+          min: 0,
+          title: {
+            text: '수치'
+          }
+        }, {
+          min: 0,
+          title: {
+            text: '일사량'
+          },
+          opposite: true
+        }],
+
+        plotOptions: {
+          column: {
+            pointPadding: 0.2,
+            borderWidth: 0
+          }
+        },
+        series: [{
+          name: '습도(%)',
+          data: moduleChart[0],
+          tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">습도: </td>' +
+            '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+          }
+        }, {
+          name: '기온(℃)',
+          data: moduleChart[1],
+          tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">기온: </td>' +
+            '<td style="padding:0"><b>{point.y:.1f} ℃</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+          }
+        }, {
+          name: '일사량',
+          data: moduleChart[2],
+          tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">일사량: </td>' +
+            '<td style="padding:0"><b>{point.y:.1f} W/m2</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+          },
+          yAxis: 1
+        }]
+      });
+    </script>
+    <script>
+      //refresh할때 라디오버튼 체크 유지하기
+      var optradio = '<%-optradio%>';
+      $('input[value=' + optradio + ']').prop('checked', true);
+      if (optradio == 'select') {
+        $('#end').show();
+        startDatePicker(0, 'yyyy-mm-dd');
+        endDatePicker();
+        // searchClick();
+      } else if (optradio == 'month') {
+        startDatePicker(1, 'yyyy-mm');
+      } else if (optradio == 'day') {
+        startDatePicker(0, 'yyyy-mm-dd');
+      } else if (optradio == 'year') {
+        startDatePicker(2, 'yyyy');
+      }
+
+      // startDatePicker(0, 'yyyy-mm-dd');
+      $('input[type=radio][name=optradio]').change(function () {
+        var checkRadio = $('input[type=radio][name=optradio]:checked').val();
+        if (checkRadio == 'select') {
+          $('#end').show();
+          startDatePicker(0, 'yyyy-mm-dd');
+          endDatePicker();
+          // searchClick();
+        } else {
+          $('#end').hide();
+          if (checkRadio == 'month') {
+            startDatePicker(1, 'yyyy-mm');
+          } else if (checkRadio == 'day') {
+            startDatePicker(0, 'yyyy-mm-dd');
+          } else if (checkRadio == 'year') {
+            startDatePicker(2, 'yyyy');
+          }
+        }
+      });
+
+      $('#search').click(function () {
+        var checkRadio = $('input[type=radio][name=optradio]:checked').val();
+        var start = $('#start').val();
+        var end = $('#end').val();
+
+        if (checkRadio == 'select') {
+          if (start == '' || end == '') {
+            alert('날짜를 선택해주세요');
+          } else {
+            if (start > end) {
+              alert('종료일이 시작일보다 빠를수 없습니다.');
+              $('#end').val('');
+            } else {
+              return location.href = '/trend?start=' + start + '&end=' + end + '&checkradio=' + checkRadio;
+            }
+          }
+        } else {
+          if (start == '') {
+            alert('날짜를 선택해주세요');
+          } else {
+            return location.href = '/trend?start=' + start + '&end=' + end + '&checkradio=' + checkRadio;
+          }
+        }
+      });
+
+      //DatePicker++
+      function startDatePicker(mode, format) {
+        $('#start').datepicker('remove');
+        $('#start').val('');
+        $('#end').val('');
+
+        $('#start').datepicker({
+          format: format,
+          language: "kr",
+          autoclose: 1,
+          todayHighlight: 1,
+          clearBtn: 1,
+          minViewMode: mode
+          //mode: 0-일,1-월,2-년
+        });
+      }
+      function endDatePicker() {
+        $('#end').datepicker({
+          format: "yyyy-mm-dd",
+          language: "kr",
+          autoclose: 1,
+          todayHighlight: 1,
+          clearBtn: 1,
+        });
+      }
+    </script>
+
+</body>
+
+</html>

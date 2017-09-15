@@ -1,0 +1,330 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>염전 추가</title>
+    <%- include("../layout/init-lib.html") %>
+    <style>
+        table .table_c2 {
+            text-align: left;
+            padding-left: 10px;
+        }
+    </style>
+
+    <!--submit-->
+    <script src="/js/server/submit.js"></script>
+    <!--ipformat check-->
+    <script src="/js/ipformat.js"></script>
+</head>
+
+<body>
+    
+    <%
+    if(salternInfo == null){
+        Model = {};
+        Model.saltern_info_seq = "0";
+        Model.weather_location_seq = "0";
+        Model.name = "";
+        Model.address = "";
+        Model.ip = "";
+        Model.push_port = "";
+        Model.base_port = "";
+        Model.cmd_port = "";
+        Model.web_port = "";
+        Model.gcm_senderid = "";
+        Model.is_deleted = "";
+        Model.weahername = "";
+    } else {
+        Model = salternInfo;
+    }
+%>
+
+        <%- include("../layout/sidebar.html") %>
+       
+
+            <div class="main">
+                <div class="header">
+                    <span>관리자페이지</span><spanb> > 염전서버추가</spanb>
+                    <a href="/auth/logout">
+                        <p>로그아웃</p>
+                    </a>
+                    <br />
+                </div>
+
+
+                <div class="content">
+                    <div class="content_middle">
+                        서버정보
+                        <hr />
+                    <%
+                        if(salternInfo == null){
+                    %>
+                        <form id="form1" action="/admin/server" method="post">
+                    <% 
+                        }else{
+                    %>
+                        <form id="form1" action="/admin/server/<%= Model.saltern_info_seq %>?_method=PATCH" method="post">
+                    <% 
+                        }
+                    %>
+                                            <input type="hidden" name="weather_location_seq" id="weather_location_seq" value="<%= Model.weather_location_seq %>" />
+
+                                            <div class="Wcenter_content">
+                                                <table class="table_pro_c">
+
+                                                    <tr>
+                                                        <td width="25%" class="table_c1">서버명</td>
+                                                        <td width="75%" class="table_c2"><input class="input_size1 input_h" type="text" maxlength="15" name="name"
+                                                                value="<%-Model.name %>" /></td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td class="table_c1">주소</td>
+                                                        <td class="table_c2"><input class="input_size2 input_h" type="text" maxlength="50" name="address"
+                                                                value="<%-Model.address %>" /></td>
+                                                    </tr>
+
+
+                                                    <tr>
+                                                        <td class="table_c1">IP</td>
+                                                        <td class="table_c2"><input class="input_size1 input_h" type="text" maxlength="15" name="ip"
+                                                                id="IP_Check" value="<%-Model.ip %>" autocomplete='off' />
+                                                            <span id="check_text" style="margin-left:20px"></span>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td class="table_c1">Base Port</td>
+                                                        <td class="table_c2"><input class="input_size1 input_h" type="text" maxlength="5" name="base_port"
+                                                                value="<%-Model.base_port %>" /></td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td class="table_c1">Push Port</td>
+                                                        <td class="table_c2"><input class="input_size1 input_h" type="text" maxlength="5" name="push_port"
+                                                                value="<%-Model.push_port %>" /></td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td class="table_c1">CMD Port</td>
+                                                        <td class="table_c2" style="text-align:left; padding-left:10px;"><input class="input_size1 input_h" type="text" maxlength="5" name="cmd_port"
+                                                                value="<%-Model.cmd_port %>" /></td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td class="table_c1">UDP Port</td>
+                                                        <td class="table_c2"><input class="input_size1 input_h" type="text" maxlength="5" name="udp_port"
+                                                                value="<%-Model.udp_port %>" /></td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td class="table_c1">web_port</td>
+                                                        <td class="table_c2"><input class="input_size1 input_h" type="text" maxlength="5" name="web_port"
+                                                                value="<%-Model.web_port %>" /></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="table_c1">Gcm Sender Id</td>
+                                                        <td id="GCM" class="table_c2"><input class="input_size2 input_h" type="text" maxlength="50" name="gcm_senderid"
+                                                                value="<%-Model.gcm_senderid %>" /></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="table_c1">기상청 서버 위치</td>
+                                                        <td class="table_c2">
+                                                            <select onchange="changeProvince(this)" id="Province">
+                                                                <option value="">시,도 선택</option>
+                                                                <%
+                                                                var List = provinceList;
+                                                                for(var i = 0 ; i < List.length ; i++){
+                                                                    var Data = List[i];
+                                                                %>
+                                                                <option value="<%-Data.province %>"><%=Data.province%></option>
+                                                                <%
+                                                                }
+                                                                %>
+                                                            </select>
+                                                            <select onchange="changeCity(this)" id="City">
+                                                                <option value="">구군 선택</option>
+                                                            </select>
+                                                            <select id="Town">
+                                                                <option value="">읍면동 선택</option>
+                                                            </select>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <hr/>
+
+                                                <div style="text-align:right; padding-right:10px;">
+                                                    <input class="button" type="button" onclick="save()" value="등록/수정" />
+                                                    <input class="button" type="button" onclick="javascript:window.history.back(-1);" value="취소" />
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                            </div>
+
+                </div>
+                <script>
+                    //ip 저장
+                    var IPvalue = $('#IP_Check').val();
+                    //ip 검사
+                    $('#IP_Check').on('keyup', function () {
+                        var IP = this.value;
+                        var IP_check = false;
+
+                        //ip 유효성 검사
+                        var filter =
+                            /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
+                        if (filter.test(IP) == true) {
+                            IP_check = true;
+                        } else {
+                            IP_check = false;
+                        }
+                        if (IP_check == false) {
+                            $('#check_text').empty();
+                            $('#check_text').append("IP형식이 올바르지 못합니다.").css("color", "pink");
+                        }
+
+                        if (IP_check == true) {
+                            if (IPvalue == IP) {
+                                $('#check_text').empty();
+                            } else {
+                                IP_CHECK(IP);
+                            }
+                        }
+
+                    });
+
+
+
+
+                    // 구군 리스트 가져오기
+                    function changeProvince(obj, callback) {
+                        var value = $("#Province option:selected").val();
+                        var arrCity = $("#City option");
+                        var arrTown = $("#Town option");
+                        if (value == "") {
+                            _.each(arrCity, function (ele) {
+                                var eleValue = $(ele).val();
+                                if (eleValue != "") {
+                                    $(ele).remove();
+                                }
+                            });
+                            _.each(arrTown, function (ele) {
+                                var eleValue = $(ele).val();
+                                if (eleValue != "") {
+                                    $(ele).remove();
+                                }
+                            });
+                        } else {
+                            $.ajax({
+                                type: "GET",
+                                url: "/admin/ajax/provinces/" + encodeURIComponent(value)
+                            }).done(function (data, msg, res) {
+                                // Check for a successful (blank) response
+                                var arrCity = data;
+                                var html = '<option value="">구군선택</option>';
+                                _.each(arrCity, function (data) {
+                                    var city = data.City;
+                                    html += '<option value="' + city + '">' + city +
+                                        '</option>';
+                                });
+                                $("#City").html(html);
+                                callback();
+                            }).fail(function (req, sts, err) {
+                                alert(err);
+                            });
+                        }
+                    }
+                    // 읍면동 리스트 가져오기
+                    function changeCity(obj, callback) {
+                        var strCity = $("#City option:selected").val();
+                        var strProvince = $("#Province option:selected").val();
+                        var arrTown = $("#Town option");
+                        if (strCity == "") {
+                            _.each(arrTown, function (ele) {
+                                var eleValue = $(ele).val();
+                                if (eleValue != "") {
+                                    $(ele).remove();
+                                }
+                            });
+                        } else {
+                            $.ajax({
+                                type: "GET",
+                                url: "/admin/ajax/provinces/" + encodeURIComponent(strProvince) + "/cities/" +
+                                    encodeURIComponent(strCity)
+                            }).done(function (data, msg, res) {
+                                // Check for a successful (blank) response
+                                var arrCity = data;
+                                var html = '<option value="">읍면동 선택</option>';
+                                _.each(arrCity, function (data) {
+                                    var city = data.town;
+                                    var weather_location_seq = data.weather_location_seq;
+                                    html += '<option value="' + weather_location_seq + '">' +
+                                        city + '</option>';
+                                });
+                                $("#Town").html(html);
+                                callback();
+                            }).fail(function (req, sts, err) {
+                                alert(err);
+                            });
+                        }
+                    }
+
+                    //지역정보 가져오기
+                    $(document).ready(function () {
+
+                        var LocationIdx = "<%= Model.weather_location_seq %>";
+
+                        if (LocationIdx != 0) {
+                            $.ajax({
+                                type: "GET",
+                                url: "/admin/ajax/location/" + encodeURIComponent(LocationIdx)
+                            }).done(function (data, msg, res) {
+                                if (res.status === 204) {
+                                    return alert("지역 정보 Error");
+                                } else {
+                                    var Model = data[0];
+                                    var arrProvince = $("#Province option");
+
+
+                                    var province = Model.province;
+                                    var city = Model.city;
+                                    var town = Model.town;
+
+                                    _.each(arrProvince, function (option) {
+                                        if ($(option).val() == province) {
+                                            option.selected = true;
+                                        }
+                                    });
+
+                                    changeProvince($("#Province").get(0), function () {
+                                        var arrCity = $("#City option");
+                                        _.each(arrCity, function (option) {
+                                            if ($(option).val() == city) {
+                                                option.selected = true;
+                                            }
+                                        });
+                                        changeCity($("#City").get(0), function () {
+                                            var arrTown = $("#Town option");
+                                            _.each(arrTown, function (option) {
+                                                if ($(option).text() ==
+                                                    town) {
+                                                    option.selected = true;
+                                                }
+                                            });
+
+                                        });
+                                    });
+                                }
+                            }).fail(function (req, sts, err) {
+                                alert(err);
+                            });
+                        }
+                    });
+                </script>
+                <%- include("../layout/footer.html") %>
+
+</body>
+
+</html>

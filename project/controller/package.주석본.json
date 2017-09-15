@@ -1,0 +1,36 @@
+{
+  "name": "controller",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "async": "^2.3.0", // powerful functions for working with asynchronous JavaScript
+    "body-parser": "^1.17.1", // middleware for Node.js body parsing 
+    "connect-flash": "^0.1.1", // middleware for special area of the session used for storing messages
+    "cron": "^1.2.1", // tiny task scheduler in pure JavaScript for node.js based on GNU crontab
+    "ejs": "^2.5.6", // client-side templating language that was originally part of JavaScriptMVC
+    "express": "^4.15.2", // Node.js web application framework
+    "express-mysql-session": "^1.2.0", // session을 mysql에 관리
+    "express-session": "^1.15.2", // web service session 관리
+    "joi": "^10.4.1", // Object schema description language and validator for JavaScript objects.
+    "method-override": "^2.3.8", // Lets you use HTTP verbs such as PUT or DELETE in places where the client doesn't support it.
+    "morgan": "^1.8.1", // middleware for HTTP request logger
+    "multer": "^1.3.0", // middleware for handling multipart/form-data
+    "mysql": "^2.13.0", // A pure node.js JavaScript Client implementing the MySql protocol.
+    "passport": "^0.3.2", // middleware for authentication
+    "passport-local": "^1.0.0", // Passport strategy for authenticating
+    "request": "^2.81.0", // simplest way possible to make http calls.
+    "underscore": "^1.8.3", // JavaScript library that provides a whole mess of useful functional programming helpers
+    "xml2js": "^0.4.17", // Simple XML to JavaScript object convert
+    "node-gcm": "^0.14.6",
+    "serialport": "^5.0.0",
+    "xbee-api": "^0.5.2"
+  },
+  "description": "염전 제어서버",
+  "main": "index.js",
+  "devDependencies": {},
+  "author": "smsoft",
+  "license": "ISC"
+}

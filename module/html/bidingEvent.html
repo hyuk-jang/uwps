@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+  <title></title>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
+</head>
+
+<body>
+  <input type='button' onclick='addRows()' value='+' />
+  <input type='button' onclick='deleteRows()' value='-' />
+  <input type='button' onclick='getCheckedRows()' value='체크 확인' />
+  <colgroup>
+    <col style='width:10%' />
+    <col style='width:10%' />
+    <col style='width:20%' />
+    <col style='width:20%' />
+    <col style='width:20%' />
+    <col style='width:20%' />
+  </colgroup>
+  <table id='test_table' style='width:500px'>
+    <thead>
+      <tr>
+        <th><input type='checkbox' name='' id='checkAll' onclick='checkAll(event)'></th>
+        <th>번호</th>
+        <th>산단</th>
+        <th>계좌</th>
+        <th>전화</th>
+        <th>옵션</th>
+      </tr>
+    </thead>
+    <tbody>
+
+
+      <template id='mytemplate'>
+        <tr data-method='' data-location='' data-bank='' data-tel='' data-option='' data-checked=''>
+          <td><input type='checkbox' name='mycheck' value=''></td>
+          <td></td>
+          <td data-type='location'></td>
+          <td data-type='bank'></td>
+          <td><input type='text' data-type='tel' value=''> </td>
+          <td>
+            <select data-type='option'>
+              <option value="1요">1</option>
+              <option value="2요">2</option>
+              <option value="3요">3</option>
+              <option value="4요">4</option>
+            </select>
+          </td>
+        </tr>
+      </template>
+
+      <tr data-seq='1' data-method='' data-num='1' data-location='NongGong' data-bank='12' data-tel='0102345223' data-checked='0'>
+        <td><input type='checkbox' name='mycheck' value=''></td>
+        <td>1</td>
+        <td data-type='location'>농공산단</td>
+        <td data-type='bank'>1111111</td>
+        <td><input type='text' data-type='tel' value='0102345223'> </td>
+        <td>
+          <select data-type='option'>
+              <option value="1요">1</option>
+              <option value="2요">2</option>
+              <option value="3요">3</option>
+              <option value="4요">4</option>
+            </select>
+        </td>
+      </tr>
+      <tr data-seq='2' data-method='' data-num='2' data-location='NongGong' data-bank='12' data-checked='0'>
+        <td><input type='checkbox' name='mycheck' value=''></td>
+        <td>2</td>
+        <td data-type='location'>농공산단</td>
+        <td data-type='bank'>1111111</td>
+        <td><input type='text' data-type='tel' value='0102345223'> </td>
+        <td>
+          <select data-type='option'>
+              <option value="1요">1</option>
+              <option value="2요">2</option>
+              <option value="3요">3</option>
+              <option value="4요">4</option>
+            </select>
+        </td>
+      </tr>
+      <tr data-seq='3' data-method='' data-num='3' data-location='NongGong' data-bank='13' data-tel='0102345223' data-checked='0'>
+        <td><input type='checkbox' name='mycheck' value=''></td>
+        <td>2</td>
+        <td data-type='location'>농공산단</td>
+        <td data-type='bank'>1111111</td>
+        <td><input type='text' data-type='tel' value='0102345223'> </td>
+        <td>
+          <select data-type='option'>
+              <option value="1요">1</option>
+              <option value="2요">2</option>
+              <option value="3요">3</option>
+              <option value="4요">4</option>
+            </select>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div id='deleteRows' hidden>
+
+  </div>
+
+  <script>
+    function checkAjax() {
+      let trList = document.querySelectorAll('#test_table tbody tr');
+      let test = {};
+      trList.forEach((trElement) => {
+        let trEle = trElement.dataset;
+        test = Object.assign({}, trEle)
+        console.log(test);
+      })
+
+    }
+  </script>
+
+  <script>
+    let trList = document.querySelectorAll('#test_table tbody tr');
+    // console.log(trList)
+    trList.forEach((trElement) => {
+      console.log(trElement.dataset)
+    })
+  </script>
+
+  <script>
+    let testList = [];
+    document.querySelectorAll('#test_table tbody tr').forEach(function (trEle) {
+      if (trEle.dataset.bank === '12') {
+        return testList.push(Object.assign({}, trEle.dataset)) ;
+      } else {
+        return false;
+      }
+    });
+    console.log(testList)
+  </script>
+
+
+  <script>
+    // checked rows를 가져옴
+    function getCheckedRows() {
+      var rows = document.querySelectorAll('#test_table tbody tr[data-checked="1"]');
+      console.log(rows);
+      return rows;
+    }
+
+    function addRows() {
+      var template = document.querySelector('#mytemplate');
+      var clone = document.importNode(template.content, true);
+      document.querySelector('#test_table tbody').prepend(clone);
+    }
+
+    function deleteRows() {
+      var checkedList = getCheckedRows();
+      checkedList.forEach(function (row) {
+        var dataSet = row.dataset;
+        if (dataSet.seq === null || dataSet.seq === undefined || dataSet.seq === '') {
+          row.remove();
+        } else {
+          document.getElementById('deleteRows').prepend(row);
+        }
+      })
+    }
+    // checkbox checkec 값만 변경시키면  binding 함수가 인식을 못하므로 click 이벤트 발생.
+    function checkAll(event) {
+      var hasChecked = document.getElementById('checkAll').checked;
+      var rows = document.querySelectorAll('#test_table tbody input[type="checkbox"]');
+
+      rows.forEach(function (row) {
+        row.checked = !hasChecked;
+        $(row).trigger('click');
+      })
+    }
+  </script>
+
+
+  <!--binding 관련-->
+  <script>
+    // 체크 박스를 클릭했을 경우 값에 따라 http method attribute 적용
+    $('#test_table tbody').on('change', 'input[type="checkbox"]', function (event) {
+      var parent = this.closest('tr');
+      if (this.checked) {
+        parent.dataset.checked = '1';
+        if (parent.dataset.seq) {
+          parent.dataset.method = 'update';
+        } else {
+          parent.dataset.method = 'insert';
+        }
+      } else {
+        parent.dataset.checked = '0';
+        parent.dataset.method = '';
+      }
+    });
+
+    $('#test_table').on('change', '[data-type]', function (event) {
+      var parent = this.closest('tr');
+      parent.dataset[this.dataset.type] = this.value;
+    });
+  </script>
+
+  <script>
+    var drList = [{
+        seq: 1,
+        location: '농공산단',
+        bank: 1234567,
+        tel: 010324567
+      },
+      {
+        seq: 2,
+        location: '철원산단',
+        bank: 235263,
+        tel: 46845657
+      },
+      {
+        seq: 3,
+        location: '에스산단',
+        bank: 98644,
+        tel: 236523
+      },
+      {
+        seq: 4,
+        location: '히월산단',
+        bank: 3465346,
+        tel: 346346
+      }, {
+        seq: 5,
+        location: '203산단',
+        bank: 453363,
+        tel: 5986198
+      }
+    ];
+  </script>
+
+</body>
+
+</html>

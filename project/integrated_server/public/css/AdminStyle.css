@@ -1,0 +1,63 @@
+﻿body {}
+
+
+/*####################   LIST   ####################*/
+
+
+.wrap{ width:940px; margin:0 auto 0 auto;}
+
+
+.header {background-color:#090909; height:90px; border-top-right-radius:5px; border-top-left-radius:5px;}
+   .header_inner{background-color:#090909; padding-left:80px; height:50px; color:white; font-size:30px; border-top-right-radius:5px; border-top-left-radius:5px;}
+   .menu {background-color:#090909; height:40px;}
+      .menu_inner {background-color:#090909; width:70%; height:100%; min-width:800px; margin:0 auto 0 auto;}
+      .menu_count {float:left; background-color:#222222; width:24.5%; height:100%; margin-left:2px; color:#fff; text-align:center; font-size:18px; line-height:35px; border:1px solid white ; border-top-left-radius: 5px; border-top-right-radius: 5px;}
+
+
+
+.center_wrap {height:600px; }
+.center {height:100%; width:70%; min-width:940px;}
+   .center_top{font-size:16px; margin:10px 0 0 20px;}
+   .center_head{width:95%; margin:0 auto;}
+   .center_contents{width:940px; float:right; margin:10px 0 10px 0; }
+       .table_pro{text-align:center;  width:95%; margin:0 auto; border:1px solid #555555; border-radius:5px;}
+       .table_pro th{ height:45px; background: #c8c8c8; color: BLACK; }
+       .table_pro td{border-bottom:1px dotted #555555; height:30px;}
+       .table_pro tr:hover td{background: #afd0f1;}
+       .table_pro tr.selected{background-color:#f2f2f2;}
+
+       .table_pro_under{text-align:center;  width:95%; margin:0 auto; border:1px solid #555555; border-radius:5px;}
+       .table_pro_under td{border-bottom:1px dotted #555555; height:30px;}
+
+
+       .content_btn{float:right; margin-right:5px;}
+
+
+
+.footer {background-color:#f2f2f2; height:120px;}
+
+/*####################   LIST   ####################*/
+
+
+
+
+
+/*####################   WRITE   ####################**/
+
+
+
+
+
+
+.Wcenter_content{ width:60%; margin:30px auto 0 auto;}
+.Wcenter_foot{ width:60%; margin:0 auto;}
+.Wcenter_content2{ width:75%; margin:30px auto 0 auto;}
+
+.table_pro_c{border:1px solid #555555; border-radius:5px;}
+.table_c0 {text-align: center; height: 35px; background: #bedaec; }
+.table_c1{text-align:center; height:30px; border-bottom:1px dotted black;}
+.table_c2{padding-left:30px; border-bottom:1px dotted black;}
+.table_c3{height: 35px;}
+
+
+/*####################   WRITE   ####################**/

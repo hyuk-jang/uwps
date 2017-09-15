@@ -1,0 +1,31 @@
+﻿
+body { width:900px; margin:0 auto;
+}
+a{text-decoration: none !important;}
+     .add_header{margin-top:30px; height:60px; background-color:#253848; color:#FFFFFF; font-size:20px; padding-left:30px; line-height:55px;}
+     .content{ margin:0 25px;}
+          .content_hign{margin-top:25px;  padding:20px; border:1px solid #e7eaec; background-color:#FFFFFF;}
+               .content_hign tr{background-color:white}
+
+          .content_middle{margin-top:10px; padding:20px; border:1px solid #e7eaec; background-color:#FFFFFF}
+               .content_middle td{text-align:center;}
+
+
+
+           
+          .content_low{margin-top:10px; background-color:#FFFFFF;}
+               .content_low tr{background-color:white;}
+
+               .table_list{width:100%; border-bottom:1px solid #e7eaec; border-collapse:collapse;}
+    
+               .table_list th{border-bottom:1px solid #e7eaec; height:25px;}
+               .table_list td{border-bottom:1px solid #e7eaec; height:25px;}
+                   .pageNa a{margin:10px;}
+                   .pageNa strong{margin:10px;}
+                   .button{background-color:#FFFFFF; color:#2f4050; border: 1px solid #253848; border-radius: 5px; font-weight:bold; text-align:center; font-size:12px; padding:6px 15px;}
+                   .button:hover{background-color: #2f4050;  border: 1px solid #253848;  color:#FFFFFF; font-size:12px; padding:6px 15px; cursor:pointer;}
+                   .button2{height:30px !important;}
+
+
+
+                   .input_h{height:18px; padding:3px 10px;}

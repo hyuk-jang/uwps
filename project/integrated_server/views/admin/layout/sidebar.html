@@ -1,0 +1,36 @@
+<!--<script>-->
+<%
+function matchSidebar(base,target) {
+    var returnvalue = "";
+    if (base == target) {
+        returnvalue = "sideOn";
+
+    }
+    return returnvalue;
+}
+%>
+<!--</script>-->
+<div class="side" id="leftSide">
+    <div class="side_header">
+        <span>스마트염전 <b style="font-size:12px">v1.0</b></span>
+    </div>
+    <div class="side_content">
+
+        <a href="/admin/server">
+                <div id="menu_count1" class="side_menu <%= matchSidebar(1,sidebarNum)%>"  onclick="menu1()">
+                    염전관리
+                </div>
+            </a>
+
+        <a href="/admin/map">
+                <div id="menu_count2" class="side_menu <%= matchSidebar(2,sidebarNum)%>" onclick="menu2()">
+                    염전맵관리
+                </div>
+            </a>
+        <a href="/admin/member">
+                <div id="menu_count4" class="side_menu <%= matchSidebar(4,sidebarNum)%>" onclick="menu4()">
+                    회원관리
+                </div>
+            </a>
+    </div>
+</div>

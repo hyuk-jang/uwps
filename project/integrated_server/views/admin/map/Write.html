@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>염전 추가</title>
+    <%- include("../layout/init-lib.html") %>
+    <style>
+
+        .header {
+            min-width:98%;
+        }
+        .content {
+            min-width:97%;
+            min-height:86%;
+        }
+        textarea {
+             min-width:98%;
+            min-height:100%;
+        }
+
+        .selectedButton {
+            background-color: #2f4050;
+            border: 1px solid #253848;
+            color: #FFFFFF;
+            font-size: 12px;
+            padding: 6px 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <!--텍스트수정 및 맵수정 script-->
+    <script src="/js/map/mapwrite.js"></script>
+    <!--맵수정 팝업레이어 값 및 수정 ,kinetic 드로우-->
+    <script defer src="/js/map/mapviewedit.js" ></script>
+    <!--ipformat check-->
+    <script src="/js/ipformat.js"></script>
+    <!--맵수정 팝업레이어 template-->
+    <%- include("include/template.html") %>
+    <!--사이드 메뉴--> 
+    <%- include("../layout/sidebar.html") %>
+    
+        <div class="main">
+            <div class="header">
+                <span>관리자페이지</span>  <spanb> > 염전서버추가</spanb>
+                <a href="/auth/logout">
+                    <p>로그아웃</p>
+                </a>
+                <br />
+            </div>
+            <div class="content">
+                <form id="form1" action="/admin/map/<%= saltern_info.saltern_info_seq %>?_method=PATCH" method="post">
+                    <div class="content_middle">
+                        맵 정보
+                        <hr />
+
+                        <table class="table_list" style="visibility:visible">
+                            <tr>
+                                
+                                <td width="100%" style="text-align:left;">
+                                    <input class="button" type="button" value="목록" onclick="javascript:window.history.back(-1);$('.btn_hide').css('visibility','visible');" />
+                                    &nbsp&nbsp
+                                    <input class="button" type="button" value="맵파일 서버 적용" onclick="updateResource();" />
+                                    <input id="btnText" class="button" type="button" value="텍스트수정" onclick="changeEditor('text');resizeText();$('.btn_hide').css('visibility','visible');"/>
+                                    <input id="btnMap" class="button" type="button" value="맵수정" onclick="changeEditor('map');resizeFull();$('.btn_hide').css('visibility','hidden')"/>
+                                    
+                                </td>
+                            </tr>
+                        </table>
+
+
+                        <div id="mapEdit" style="display:none;">
+                            <div id="editViewDiv">
+                            </div>
+                            <div style="margin: 0 auto;" id="container" class="floatLeft"></div>
+                        </div>
+                        <div>
+                            <div id="textEdit">
+                                <div>
+                                    <textarea id="jsonText" name="mapResource"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+ 
+ 
+
+    <!--맵을 불러옴-->
+            <script>
+                var Map = <%- map %>;
+                var err = "<%- err %>";
+                if(err){
+                    alert("map을 불러오는데 실패하였습니다.");
+                }
+
+                var strJSON = JSON.stringify(Map, null, '\t');
+                $("#jsonText").val(strJSON);
+
+                var mouseX = 0;
+                var mouseY = 0;
+                var mapWidth = 0;
+                var mapHeight = 0;
+
+                $(document).mousemove(function (e) {
+                    mouseX = e.pageX;
+                    mouseY = e.pageY;
+                });
+
+                //function showMouse() {
+                //    console.log("X : " + mouseX + " , Y : " + mouseY + "");
+                //}               
+               
+                //MAP의 각종 data를 mapData로 arrFindObj push
+                function getId(ID) {
+                    var mapData = Map.MAP;
+                    var setData = Map.SETINFO;
+                    var realation = Map.RELATION;
+
+                    var arrFindObj = [];
+                    arrFindObj.push(mapData.SaltPlateList);
+                    arrFindObj.push(mapData.WaterTankList);
+                    arrFindObj.push(mapData.WaterOutList);
+                    arrFindObj.push(mapData.WaterDoorList);
+                    arrFindObj.push(mapData.PumpList);
+                    arrFindObj.push(mapData.ValveList);
+                    arrFindObj.push(mapData.WaterWayList);
+                    arrFindObj.push(mapData.WaterLevelSensorList);
+                    arrFindObj.push(mapData.SaltRateSensorList);
+                    _.each(setData, function (data) {
+                        arrFindObj.push(data);
+                    });
+
+                    _.each(setData, function (data) {
+                        arrFindObj.push(data);
+                    });
+                    _.each(realation, function (data) {
+                        arrFindObj.push(data);
+                    });
+
+                    arrFindObj = _.flatten(arrFindObj);
+
+                    var realData = _.filter(arrFindObj, function (data) {
+                        if (data.ID == ID) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    });
+
+                    return realData;
+                };
+
+            </script>
+</body>
+
+</html>

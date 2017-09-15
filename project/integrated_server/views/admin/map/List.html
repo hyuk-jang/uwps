@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>염전 맵 관리</title>
+    <%- include("../layout/init-lib.html") %>
+
+    <style>
+
+        table {
+            background-color: white
+        }
+    </style>
+</head>
+
+<body>
+    <%- include("../layout/sidebar.html") %>
+        <div class="header">
+            <span>염전 맵 관리</span>
+            <a href="/auth/logout">
+                <p>로그아웃</p>
+            </a>
+        </div>
+        <div class="content">
+            <div class="main">
+                <div class="content_middle">
+                    <table class="table_list">
+                        <tr>
+                            <td class="totalServer" width="30%" style="text-align:left">서버수: <span style="color:red"><%= totalCount %></span></td>
+                            <td width="40%"></td>
+                            <td class="tx_right" style="text-align:right" width="30%">
+                                <input type="text" maxlength="10" id="search" class="input_h" onkeypress="searchPress(event, '<%- pathName %>')" value="<%-search%>"
+                                    placeholder="서버명을 입력하세요." />
+                                <input type="button" class="button" onclick="search('<%- pathName %>')" value="검색" />
+                            </td>
+                        </tr>
+                    </table>
+
+
+                    <table class="table_list">
+                        <tr>
+                            <th>
+                                <input type="checkbox" name="checkAll" onchange="changeCheckAll(this)" />
+                            </th>
+                            <th>번호</th>
+                            <th>서버명</th>
+                            <th>주소</th>
+                            <th>IP</th>
+                            <th>맵유무</th>
+                            <th>생성일</th>
+                        </tr>
+                        <%
+                            for(var i = 0 ;i < list.length ; i++)
+                            {
+                                var Data = list[i];
+                                var createdate = BU.convertDateToText(Data.writedate);
+                                
+                                createdate = createdate.substring(0, 10);
+                                var No = (totalCount - (page - 1) * pageCount ) - i;
+                                var MapString = "X";
+                                if(Data.mapCount != 0)
+                                {
+                                    MapString = "O";
+                                }
+                        %>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="check" value="<%=Data.saltern_info_seq%>" />
+                                </td>
+                                <td>
+                                    <%= No %>
+                                </td>
+                                <td>
+                                    <a href="<%- pathName %>/<%= Data.saltern_info_seq %>/edit">
+                                        <%= Data.name %>
+                                    </a>
+                                </td>
+                                <td>
+                                    <%= Data.address %>
+                                </td>
+                                <td>
+                                    <%= Data.ip %>
+                                </td>
+                                <td>
+                                    <%= MapString %>
+                                </td>
+                                <td>
+                                    <%= createdate %>
+                                </td>
+                            </tr>
+                            <%
+                        }
+                        %>
+                    </table>
+
+                    <div class="content_low">
+                        <table class="table_list">
+                            <tr>
+                                <td width="30%"></td>
+                                <td class="tx_center" width="40%">
+                                    <div class="pageNa">
+                                        <%- pagination %>
+                                    </div>
+                                </td>
+                                <td class="tx_right" width="30%" style="text-align:right">
+                                    <input class="button" type="button" value="삭제" onclick="deleteResource('<%- pathName %>')" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="/js/common-html/dom-control.js">
+        </script>
+        <%- include("../layout/footer.html") %>
+</body>
+
+</html>

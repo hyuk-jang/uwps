@@ -1,0 +1,274 @@
+<!DOCTYPE>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="https://code.highcharts.com/highcharts.src.js"></script>
+</head>
+<body>
+  <div id="chart1" style="border: 1px solid #888"></div>  
+  <div id="chart2" style="border: 1px solid #888"></div>  
+  <div id="chart3" style="border: 1px solid #888"></div>  
+  <div id="chart4" style="border: 1px solid #888"></div>  
+  <div id="chart5" style="border: 1px solid #888"></div>  
+  <div id="chart6" style="border: 1px solid #888"></div>  
+  <div id="chart7" style="border: 1px solid #888"></div>  
+</body>
+
+
+<script>
+  var data=<%-chart1%>
+  Highcharts.chart('chart1', {
+    chart: {
+        type: 'line'
+    },
+    title: {
+        text: '2017-09-05 2시20분~2시22분'
+    },
+    subtitle: {
+        text: '약하게 2분동안'
+    },
+    xAxis: {
+        categories: data[2]
+    },
+    yAxis: {
+        title: {
+            text: 'Value'
+        }
+    },
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
+    series: [{
+        name: 'NewSmRainSensor',
+        data: data[0]
+    }, {
+        name: 'OldSmRainSensor',
+        data: data[1]
+    }]});
+</script>
+<script>
+  var data=<%-chart2%>
+  Highcharts.chart('chart2', {
+    chart: {
+        type: 'line'
+    },
+    title: {
+        text: '2017-09-05 2시22분~2시26분'
+    },
+    subtitle: {
+        text: '중간으로 2분동안'
+    },
+    xAxis: {
+        categories: data[2]
+    },
+    yAxis: {
+        title: {
+            text: 'Value'
+        }
+    },
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
+    series: [{
+        name: 'NewSmRainSensor',
+        data: data[0]
+    }, {
+        name: 'OldSmRainSensor',
+        data: data[1]
+    }]});
+</script>
+<script>
+  var data=<%-chart3%>
+  Highcharts.chart('chart3', {
+    chart: {
+        type: 'line'
+    },
+    title: {
+        text: '2017-09-05 2시26분~2시28분'
+    },
+    subtitle: {
+        text: '강하게 2분동안'
+    },
+    xAxis: {
+        categories: data[2]
+    },
+    yAxis: {
+        title: {
+            text: 'Value'
+        }
+    },
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
+    series: [{
+        name: 'NewSmRainSensor',
+        data: data[0]
+    }, {
+        name: 'OldSmRainSensor',
+        data: data[1]
+    }]});
+</script>
+<script>
+  var data=<%-chart4%>
+  Highcharts.chart('chart4', {
+    chart: {
+        type: 'line'
+    },
+    title: {
+        text: '2017-09-05 2시30분~2시32분'
+    },
+    subtitle: {
+        text: '약하게 2분동안'
+    },
+    xAxis: {
+        categories: data[2]
+    },
+    yAxis: {
+        title: {
+            text: 'Value'
+        }
+    },
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
+    series: [{
+        name: 'NewSmRainSensor',
+        data: data[0]
+    }, {
+        name: 'OldSmRainSensor',
+        data: data[1]
+    }]});
+</script>
+<script>
+  var data=<%-chart5%>
+  Highcharts.chart('chart5', {
+    chart: {
+        type: 'line'
+    },
+    title: {
+        text: '2017-09-05 2시32분~2시34분'
+    },
+    subtitle: {
+        text: '중간으로 2분동안'
+    },
+    xAxis: {
+        categories: data[2]
+    },
+    yAxis: {
+        title: {
+            text: 'Value'
+        }
+    },
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
+    series: [{
+        name: 'NewSmRainSensor',
+        data: data[0]
+    }, {
+        name: 'OldSmRainSensor',
+        data: data[1]
+    }]});
+</script>
+<script>
+  var data=<%-chart6%>
+  Highcharts.chart('chart6', {
+    chart: {
+        type: 'line'
+    },
+    title: {
+        text: '2017-09-05 2시37분~2시38분'
+    },
+    subtitle: {
+        text: '중간으로 2분동안'
+    },
+    xAxis: {
+        categories: data[2]
+    },
+    yAxis: {
+        title: {
+            text: 'Value'
+        }
+    },
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
+    series: [{
+        name: 'NewSmRainSensor',
+        data: data[0]
+    }, {
+        name: 'OldSmRainSensor',
+        data: data[1]
+    }]});
+</script>
+<script>
+  var data=<%-chart7%>
+  Highcharts.chart('chart7', {
+    chart: {
+        type: 'line'
+    },
+    title: {
+        text: '2017-09-05 2시39분~2시41분'
+    },
+    subtitle: {
+        text: '강하게 2분동안'
+    },
+    xAxis: {
+        categories: data[2]
+    },
+    yAxis: {
+        title: {
+            text: 'Value'
+        }
+    },
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
+    series: [{
+        name: 'NewSmRainSensor',
+        data: data[0]
+    }, {
+        name: 'OldSmRainSensor',
+        data: data[1]
+    }]});
+</script>
+</html>

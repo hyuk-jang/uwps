@@ -1,0 +1,844 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+  <script src="./underscore-min.js"></script>
+  <meta />
+  <style>
+    body {
+      margin: 0px;
+      padding: 0px;
+    }
+
+    .wrap {
+      width: 1280px;
+    }
+
+    .floatLeft {
+      float: left
+    }
+  </style>
+</head>
+
+<body onclick="showMouse()">
+  <div class="wrap">   
+    <div id="container" class="floatLeft" style="border:1px solid red"></div>
+    <div class="floatLeft">
+      <table>
+        <colgroup>
+          <col style="width:100px" />
+          <col style="width:100px" />
+          <col style="width:100px" />
+          <col style="width:100px" />
+          <col style="width:100px" />
+        </colgroup>
+        <tr>
+          <th>ID</th>
+          <th>ID</th>
+          <th>ID</th>
+          <th>ID</th>
+          <th>ID</th>
+        </tr>
+        <tr>
+          <td id="idValue"> </td>
+          <td id="idValue"> </td>
+          <td id="idValue"> </td>
+          <td id="idValue"> </td>
+          <td id="idValue"> </td>
+        </tr>
+
+      </table>
+    </div>
+
+  </div>
+
+
+
+  <script src="./jquery-1.10.2.min.js"></script>
+  <script src="./kinetic-v5.1.0.min.js"></script>
+  <script src="./IndexSetting2.js"></script>
+  <script>
+    var MouseX = 0;
+    var MouseY = 0;
+
+    $(document).mousemove(function (e) {
+      MouseX = e.pageX;
+      MouseY = e.pageY;
+    });
+
+    function showMouse() {
+      console.log("X : " + MouseX + " , Y : " + MouseY + "");
+    }
+
+
+
+    $(document).ready(function () {
+
+
+      var X = Map.MAP.MapSizeX;
+      var Y = Map.MAP.MapSizeY;
+
+
+      $("#container").css("width", X);
+      $("#container").css("height", Y);
+
+      ShowImg(X, Y);
+
+
+
+    });
+  </script>
+
+
+
+
+
+  <script defer="defer">
+    function GetImgObj(ID) {
+      var ImgObjList = Map.MAP.ImgObjList;
+
+      for (var i = 0; i < ImgObjList.length; i++) {
+        var ImgObj = ImgObjList[i];
+        if (ImgObj.ID == ID) {
+          return ImgObj;
+        }
+      }
+    }
+
+
+    function ShowImg(SizeX, SizeY) {
+
+      var stage = new Kinetic.Stage({
+        container: 'container',
+        width: SizeX,
+        height: SizeY
+      });
+
+
+    //   var layer = new Kinetic.Layer();
+    //   var SaltPondFrameList = Map.MAP.SaltPondFrameList;
+    //   for (var i = 0; i < SaltPondFrameList.length; i++) {
+    //     var SaltPondFrame = SaltPondFrameList[i];
+    //     var X = SaltPondFrame.X;
+    //     var Y = SaltPondFrame.Y;
+    //     var Name = SaltPondFrame.Name;
+
+    //     var ImgData = GetImgObj(SaltPondFrame.ImgID).ImgData;
+
+    //     var rect = new Kinetic.Rect({
+    //       x: X,
+    //       y: Y,
+    //       width: ImgData.Width,
+    //       height: ImgData.Height,
+    //       fill: ImgData.Color,
+    //       stroke: 'black',
+    //       strokeWidth: 1
+    //     });
+
+    //     // add the shape to the layer
+    //     layer.add(rect);
+    //   }
+      // add the layer to the stage
+    //   stage.add(layer);
+
+
+
+
+      var layer = new Kinetic.Layer();
+      var SaltPondLineList = Map.MAP.SaltPondLineList;
+
+      for (var i = 0; i < SaltPondLineList.length; i++) {
+        var SaltPondLine = SaltPondLineList[i];
+        var Name = SaltPondLine.Name;
+        var ImgData = GetImgObj(SaltPondLine.ImgID).ImgData;
+
+        var Line = new Kinetic.Line({
+          points: SaltPondLine.Points,
+          stroke: ImgData.Color,
+          strokeWidth: ImgData.StrokeWidth,
+          lineCap: 'rect',
+          lineJoin: 'round'
+        });
+
+        var simpleText = new Kinetic.Text({
+          x: (SaltPondLine.Points[0] + SaltPondLine.Points[2]) / 2,
+          y: (SaltPondLine.Points[1] + SaltPondLine.Points[3]) / 1.98,
+          text: Name,
+          fontSize: 15,
+          fontFamily: 'Calibri',
+          fill: 'black'
+        });
+
+        simpleText.offsetX(simpleText.width());
+        simpleText.offsetY(simpleText.height());
+
+        // add the shape to the layer
+        layer.add(Line);
+        layer.add(simpleText);
+      }
+      // add the layer to the stage
+      stage.add(layer);
+
+      var layer = new Kinetic.Layer();
+      var ReservoirList = Map.MAP.ReservoirList;
+      var ReservoirData = Map.RELATION.ReservoirData;
+      for (var i = 0; i < ReservoirList.length; i++) {
+        var Reservoir = ReservoirList[i];
+        var X = Reservoir.X;
+        var Y = Reservoir.Y;
+        var Name = Reservoir.Name;
+
+        var FindObj = _.findWhere(ReservoirData, {
+          "ID": Reservoir.ID
+        });
+        // Name = Name.toString() + "\n(ID: " + Reservoir.ID + ", Depth: " + FindObj.Depth + ")";
+
+        var ImgData = GetImgObj(Reservoir.ImgID).ImgData;
+
+        var rect = new Kinetic.Rect({
+          x: X,
+          y: Y,
+          width: ImgData.Width,
+          height: ImgData.Height,
+          fill: ImgData.Color,
+          stroke: 'black',
+          strokeWidth: 1
+        });
+
+        var simpleText = new Kinetic.Text({
+          x: X + ImgData.Width / 2,
+          y: Y + ImgData.Height / 4,
+          text: Name,
+          fontSize: 15,
+          fontFamily: 'Calibri',
+          fill: 'green'
+        });
+
+        // to align text in the middle of the screen, we can set the
+        // shape offset to the center of the text shape after instantiating it
+        simpleText.offsetX(simpleText.width() / 2);
+
+        // add the shape to the layer
+        layer.add(rect);
+
+        layer.add(simpleText);
+      }
+      // add the layer to the stage
+      stage.add(layer);
+
+
+      var layer = new Kinetic.Layer();
+      var PipeList = Map.MAP.PipeList;
+
+      for (var i = 0; i < PipeList.length; i++) {
+
+        var Pipe = PipeList[i];
+        //var X = WaterWay.X;
+        //var Y = WaterWay.Y;
+        var Name = Pipe.Name;
+        var ImgData = GetImgObj(Pipe.ImgID).ImgData;
+
+        var Line = new Kinetic.Line({
+          points: Pipe.Points,
+          stroke: ImgData.Color,
+          strokeWidth: 0,
+          lineCap: 'rect',
+          lineJoin: 'round'
+        });
+
+        //Line.move(X, Y);
+
+        var simpleText = new Kinetic.Text({
+          x: (Pipe.Points[0] + Pipe.Points[2]) / 2,
+          y: (Pipe.Points[1] + Pipe.Points[3]) / 2,
+          text: Name,
+          fontSize: 15,
+          fontFamily: 'Calibri',
+          fill: 'black'
+        });
+
+        // to align text in the middle of the screen, we can set the
+        // shape offset to the center of the text shape after instantiating it
+        simpleText.offsetX(simpleText.width() / 2);
+        simpleText.offsetY(simpleText.height() / 2);
+
+        // add the shape to the layer
+        layer.add(Line);
+
+        layer.add(simpleText);
+
+      }
+      // add the layer to the stage
+      stage.add(layer);
+
+
+
+      // var layer = new Kinetic.Layer();
+      // var WaterWayList = Map.MAP.WaterWayList;
+
+      // for (var i = 0; i < WaterWayList.length; i++) {
+
+      //   var WaterWay = WaterWayList[i];
+      //   //var X = WaterWay.X;
+      //   //var Y = WaterWay.Y;
+      //   var Name = WaterWay.Name;
+      //   var ImgData = GetImgObj(WaterWay.ImgID).ImgData;
+
+      //   var Line = new Kinetic.Line({
+      //     points: WaterWay.Points,
+      //     stroke: ImgData.Color,
+      //     strokeWidth: 0,
+      //     lineCap: 'rect',
+      //     lineJoin: 'round'
+      //   });
+
+      //   //Line.move(X, Y);
+
+      //   var simpleText = new Kinetic.Text({
+      //     x: (WaterWay.Points[0] + WaterWay.Points[2]) / 2,
+      //     y: (WaterWay.Points[1] + WaterWay.Points[3]) / 2,
+      //     text: Name,
+      //     fontSize: 15,
+      //     fontFamily: 'Calibri',
+      //     fill: 'black'
+      //   });
+
+      //   // to align text in the middle of the screen, we can set the
+      //   // shape offset to the center of the text shape after instantiating it
+      //   simpleText.offsetX(simpleText.width() / 2);
+      //   simpleText.offsetY(simpleText.height() / 2);
+
+      //   // add the shape to the layer
+      //   layer.add(Line);
+
+      //   layer.add(simpleText);
+
+      // }
+      // // add the layer to the stage
+      // stage.add(layer);
+
+
+
+
+
+
+      var layer = new Kinetic.Layer();
+      var SaltPlateList = Map.MAP.SaltPlateList;
+      var SaltPlateData = Map.RELATION.SaltPlateData;
+      for (var i = 0; i < SaltPlateList.length; i++) {
+        var SaltPlate = SaltPlateList[i];
+        var X = SaltPlate.X;
+        var Y = SaltPlate.Y;
+        var Name = SaltPlate.Name;
+
+        var FindObj = _.findWhere(SaltPlateData, {
+          "ID": SaltPlate.ID
+        });
+        // Name = Name.toString() + "\n(ID: " + SaltPlate.ID + ", Depth: " + FindObj.Depth + ")";
+
+        var ImgData = GetImgObj(SaltPlate.ImgID).ImgData;
+
+        // if(FindObj.PlateType.indexOf())
+
+
+        var rect = new Kinetic.Rect({
+          x: X,
+          y: Y,
+          width: ImgData.Width,
+          height: ImgData.Height,
+          fill: ImgData.Color,
+          stroke: 'black',
+          strokeWidth: 1
+        });
+
+        var simpleText = new Kinetic.Text({
+          x: X + ImgData.Width / 2,
+          y: Y + ImgData.Height / 2,
+          text: Name,
+          fontSize: 15,
+          fontFamily: 'Calibri',
+          fill: 'black'
+        });
+
+
+
+        // to align text in the middle of the screen, we can set the
+        // shape offset to the center of the text shape after instantiating it
+        simpleText.offsetX(simpleText.width() / 2);
+
+        // add the shape to the layer
+        layer.add(rect);
+
+        layer.add(simpleText);
+
+      }
+      // add the layer to the stage
+      stage.add(layer);
+
+      var layer = new Kinetic.Layer();
+      var WaterTankList = Map.MAP.WaterTankList;
+      var WaterTankData = Map.RELATION.WaterTankData;
+
+      for (var i = 0; i < WaterTankList.length; i++) {
+
+        var WaterTank = WaterTankList[i];
+        var X = WaterTank.X;
+        var Y = WaterTank.Y;
+        var Name = WaterTank.Name;
+
+        var FindObj = _.findWhere(WaterTankData, {
+          "ID": WaterTank.ID
+        });
+        // Name = Name.toString() + "\n(ID: " + WaterTank.ID + ", Depth: " + FindObj.Depth + ")";
+
+        var ImgData = GetImgObj(WaterTank.ImgID).ImgData;
+
+
+        var rect = new Kinetic.Rect({
+          x: X,
+          y: Y,
+          width: ImgData.Width,
+          height: ImgData.Height,
+          fill: ImgData.Color,
+          stroke: 'black',
+          strokeWidth: 1
+        });
+
+        var simpleText = new Kinetic.Text({
+          x: X + ImgData.Width / 2,
+          y: Y + ImgData.Height / 4,
+          text: Name,
+          fontSize: 15,
+          fontFamily: 'Calibri',
+          fill: 'green'
+        });
+
+        // to align text in the middle of the screen, we can set the
+        // shape offset to the center of the text shape after instantiating it
+        simpleText.offsetX(simpleText.width() / 2);
+
+        // add the shape to the layer
+        layer.add(rect);
+
+        layer.add(simpleText);
+      }
+      // add the layer to the stage
+      stage.add(layer);
+
+
+      var layer = new Kinetic.Layer();
+      var WaterOutList = Map.MAP.WaterOutList;
+      var WaterOutData = Map.RELATION.WaterOutData;
+
+      for (var i = 0; i < WaterOutList.length; i++) {
+
+        var WaterOut = WaterOutList[i];
+        var X = WaterOut.X;
+        var Y = WaterOut.Y;
+        var Name = WaterOut.Name;
+
+        var FindObj = _.findWhere(WaterOutData, {
+          "ID": WaterOut.ID
+        });
+        // Name = Name.toString() + "\n(ID: " + WaterOut.ID + ", Depth: " + FindObj.Depth + ")";
+
+        var ImgData = GetImgObj(WaterOut.ImgID).ImgData;
+
+        var rect = new Kinetic.Rect({
+          x: X,
+          y: Y,
+          width: ImgData.Width,
+          height: ImgData.Height,
+          fill: ImgData.Color,
+          stroke: 'black',
+          strokeWidth: 1
+        });
+
+        var simpleText = new Kinetic.Text({
+          x: X + ImgData.Width / 2,
+          y: Y + ImgData.Height / 2,
+          text: Name,
+          fontSize: 15,
+          fontFamily: 'Calibri',
+          fill: 'green'
+        });
+
+        // to align text in the middle of the screen, we can set the
+        // shape offset to the center of the text shape after instantiating it
+        simpleText.offsetX(simpleText.width() / 2);
+        simpleText.offsetY(simpleText.height() / 2);
+
+        // add the shape to the layer
+        layer.add(rect);
+
+        layer.add(simpleText);
+
+      }
+      // add the layer to the stage
+      stage.add(layer);
+
+
+
+      var layer = new Kinetic.Layer();
+      var WaterDoorList = Map.MAP.WaterDoorList;
+      for (var i = 0; i < WaterDoorList.length; i++) {
+
+        var WaterDoor = WaterDoorList[i];
+        var X = WaterDoor.X;
+        var Y = WaterDoor.Y;
+        var Name = WaterDoor.Name;
+        var ImgData = GetImgObj(WaterDoor.ImgID).ImgData;
+
+        var rect = new Kinetic.Rect({
+          x: X,
+          y: Y,
+          width: ImgData.Width,
+          height: ImgData.Height,
+          fill: ImgData.Color,
+          stroke: 'black',
+          strokeWidth: 1
+        });
+
+        var simpleText = new Kinetic.Text({
+          x: X + ImgData.Width / 2,
+          y: Y + ImgData.Height / 2,
+          text: Name,
+          fontSize: 15,
+          fontFamily: 'Calibri',
+          fill: 'purple'
+        });
+
+        // to align text in the middle of the screen, we can set the
+        // shape offset to the center of the text shape after instantiating it
+        simpleText.offsetX(simpleText.width() / 2);
+        simpleText.offsetY(simpleText.height() / 2);
+
+        // add the shape to the layer
+        layer.add(rect);
+
+        layer.add(simpleText);
+
+      }
+      // add the layer to the stage
+      stage.add(layer);
+
+
+
+
+
+
+
+      var layer = new Kinetic.Layer();
+      var PumpList = Map.MAP.PumpList;
+
+
+      for (var i = 0; i < PumpList.length; i++) {
+
+        var Pump = PumpList[i];
+        var X = Pump.X;
+        var Y = Pump.Y;
+        var Name = Pump.Name;
+        var ImgData = GetImgObj(Pump.ImgID).ImgData;
+
+        var circle = new Kinetic.Circle({
+          x: X,
+          y: Y,
+          radius: ImgData.Radius,
+          fill: ImgData.Color,
+          stroke: 'black',
+          strokeWidth: 1
+        });
+
+        var simpleText = new Kinetic.Text({
+          x: X,
+          y: Y,
+          text: Name,
+          fontSize: 15,
+          fontFamily: 'Calibri',
+          fill: 'black'
+        });
+
+        // to align text in the middle of the screen, we can set the
+        // shape offset to the center of the text shape after instantiating it
+        simpleText.offsetX(simpleText.width() / 2);
+        simpleText.offsetY(simpleText.height() / 2);
+
+        // add the shape to the layer
+        layer.add(circle);
+
+        layer.add(simpleText);
+
+
+      }
+      // add the layer to the stage
+      stage.add(layer);
+
+
+
+
+
+      var layer = new Kinetic.Layer();
+      var ValveList = Map.MAP.ValveList;
+
+
+      for (var i = 0; i < ValveList.length; i++) {
+
+        var Valve = ValveList[i];
+        var X = Valve.X;
+        var Y = Valve.Y;
+        var Name = Valve.Name;
+        var ImgData = GetImgObj(Valve.ImgID).ImgData;
+
+        //console.log(Name);
+        var Squares = new Kinetic.RegularPolygon({
+          x: X,
+          y: Y,
+          sides: 4,
+          radius: ImgData.Radius,
+          fill: ImgData.Color,
+          stroke: 'black',
+          strokeWidth: 1
+        });
+
+        var simpleText = new Kinetic.Text({
+          x: X,
+          y: Y,
+          text: Name,
+          fontSize: 12,
+          fontFamily: 'Calibri',
+          fill: 'black'
+        });
+
+        // to align text in the middle of the screen, we can set the
+        // shape offset to the center of the text shape after instantiating it
+        simpleText.offsetX(simpleText.width() / 2);
+        simpleText.offsetY(simpleText.height() / 2);
+
+        // add the shape to the layer
+        layer.add(Squares);
+
+        layer.add(simpleText);
+
+      }
+      // add the layer to the stage
+      stage.add(layer);
+
+
+
+
+        var layer = new Kinetic.Layer();
+        var SaltRateSensorList = Map.MAP.SaltRateSensorList;
+        for (var i = 0 ; i < SaltRateSensorList.length ; i++) {
+
+            var SRSensor = SaltRateSensorList[i];
+            var X = SRSensor.X;
+            var Y = SRSensor.Y;
+            var Name = SRSensor.Name;
+            var ImgData = GetImgObj(SRSensor.ImgID).ImgData;
+
+
+
+            var rect = new Kinetic.Rect({
+                x: X,
+                y: Y,
+                width: ImgData.Width,
+                height: ImgData.Height,
+                fill: ImgData.Color,
+                stroke: 'black',
+                strokeWidth: 1
+            });
+            rect.Type = "염도";
+            rect.ID = SRSensor.ID;
+            
+
+            var simpleText = new Kinetic.Text({
+                x: X + ImgData.Width / 2,
+                y: Y + ImgData.Height / 2,
+                text: Name,
+                fontSize: 12,
+                fontFamily: 'Calibri',
+                fill: 'blue'
+            });
+            simpleText.Type = "염도";
+            simpleText.ID = SRSensor.ID;
+           
+
+            // to align text in the middle of the screen, we can set the
+            // shape offset to the center of the text shape after instantiating it
+            simpleText.offsetX(simpleText.width() / 2);
+            simpleText.offsetY(simpleText.height() / 2);
+
+            // add the shape to the layer
+            layer.add(rect);
+
+            layer.add(simpleText);
+
+        }
+        // add the layer to the stage
+        stage.add(layer);
+
+
+
+
+        var layer = new Kinetic.Layer();
+        var WaterLevelSensorList = Map.MAP.WaterLevelSensorList;
+        for (var i = 0 ; i < WaterLevelSensorList.length ; i++) {
+
+            var WLSensor = WaterLevelSensorList[i];
+            var X = WLSensor.X;
+            var Y = WLSensor.Y;
+            var Name = WLSensor.Name;
+            var ImgData = GetImgObj(WLSensor.ImgID).ImgData;
+
+
+
+            var rect = new Kinetic.Rect({
+                x: X,
+                y: Y,
+                width: ImgData.Width,
+                height: ImgData.Height,
+                fill: ImgData.Color,
+                stroke: 'black',
+                strokeWidth: 1
+            });
+            rect.Type = "수위";
+            rect.ID = WLSensor.ID;
+
+            var simpleText = new Kinetic.Text({
+                x: X + ImgData.Width / 2,
+                y: Y + ImgData.Height / 2,
+                text: Name,
+                fontSize: 12,
+                fontFamily: 'Calibri',
+                fill: 'blue'
+            });
+            simpleText.Type = "수위";
+            simpleText.ID = WLSensor.ID;
+
+
+            // to align text in the middle of the screen, we can set the
+            // shape offset to the center of the text shape after instantiating it
+            simpleText.offsetX(simpleText.width() / 2);
+            simpleText.offsetY(simpleText.height() / 2);
+
+            // add the shape to the layer
+            layer.add(rect);
+
+            layer.add(simpleText);
+
+        }
+        // add the layer to the stage
+        stage.add(layer);
+
+
+        //수중온도
+
+        var layer = new Kinetic.Layer();
+        var UnderWaterTemperatureList = Map.MAP.UnderWaterTemperatureList;
+        for (var i = 0 ; i < UnderWaterTemperatureList.length ; i++) {
+
+            var UWTemperature = UnderWaterTemperatureList[i];
+            var X = UWTemperature.X;
+            var Y = UWTemperature.Y;
+            var Name = UWTemperature.Name;
+            var ImgData = GetImgObj(UWTemperature.ImgID).ImgData;
+
+
+
+            var rect = new Kinetic.Rect({
+                x: X,
+                y: Y,
+                width: ImgData.Width,
+                height: ImgData.Height,
+                fill: ImgData.Color,
+                stroke: 'black',
+                strokeWidth: 1
+            });
+            rect.Type = "수중온도";
+            rect.ID = UWTemperature.ID;
+
+            var simpleText = new Kinetic.Text({
+                x: X + ImgData.Width / 2,
+                y: Y + ImgData.Height / 2,
+                text: Name,
+                fontSize: 12,
+                fontFamily: 'Calibri',
+                fill: 'blue'
+            });
+            simpleText.Type = "수중온도";
+            simpleText.ID = UWTemperature.ID;
+
+
+            // to align text in the middle of the screen, we can set the
+            // shape offset to the center of the text shape after instantiating it
+            simpleText.offsetX(simpleText.width() / 2);
+            simpleText.offsetY(simpleText.height() / 2);
+
+            // add the shape to the layer
+            layer.add(rect);
+
+            layer.add(simpleText);
+
+        }
+        // add the layer to the stage
+        stage.add(layer);
+
+
+
+
+        //모듈온도
+        var layer = new Kinetic.Layer();
+        var ModuleTemperatureList = Map.MAP.ModuleTemperatureList;
+        for (var i = 0 ; i < ModuleTemperatureList.length ; i++) {
+
+            var MTemperature = ModuleTemperatureList[i];
+            var X = MTemperature.X;
+            var Y = MTemperature.Y;
+            var Name = MTemperature.Name;
+            var ImgData = GetImgObj(MTemperature.ImgID).ImgData;
+
+
+
+            var rect = new Kinetic.Rect({
+                x: X,
+                y: Y,
+                width: ImgData.Width,
+                height: ImgData.Height,
+                fill: ImgData.Color,
+                stroke: 'black',
+                strokeWidth: 1
+            });
+            rect.Type = "모듈온도";
+            rect.ID =MTemperature.ID;
+
+            var simpleText = new Kinetic.Text({
+                x: X + ImgData.Width / 2,
+                y: Y + ImgData.Height / 2,
+                text: Name,
+                fontSize: 12,
+                fontFamily: 'Calibri',
+                fill: 'blue'
+            });
+            simpleText.Type = "모듈온도";
+            simpleText.ID = MTemperature.ID;
+
+
+            // to align text in the middle of the screen, we can set the
+            // shape offset to the center of the text shape after instantiating it
+            simpleText.offsetX(simpleText.width() / 2);
+            simpleText.offsetY(simpleText.height() / 2);
+
+            // add the shape to the layer
+            layer.add(rect);
+
+            layer.add(simpleText);
+
+        }
+        // add the layer to the stage
+        stage.add(layer);
+    }
+  </script>
+
+</body>
+
+</html>

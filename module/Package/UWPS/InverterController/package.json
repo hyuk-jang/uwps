@@ -1,0 +1,17 @@
+{
+  "name": "base",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "event-to-promise": "^0.8.0",
+    "serialport": "^5.0.0",
+    "underscore": "^1.8.3"
+  }
+}

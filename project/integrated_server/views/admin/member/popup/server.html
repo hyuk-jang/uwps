@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <script src="/js/jquery-1.11.3.min.js"></script>
+    <script src="/js/underscore-min.js"></script>
+    <link href="/css/AddStyle.css" rel="stylesheet" />
+
+</head>
+<body>
+    <div class="add_header">
+        염전서버 검색
+    </div>
+    <div class="content">
+        <div class="content_hign">
+            <table class="table_list">
+                <tr>
+                    <td width="30%">염전서버 수: <span style="color:red"><%= totalCount %></span></td>
+                    <td width="35%"></td>
+                    <td class="tx_right" width="35%">
+                        <input type="text" maxlength="10" class="input_h" id="search" onkeypress="searchPress(event, '<%- pathName %>')" value="<%- search %>" placeholder="서버명을 입력하세요." />
+                        <input type="button" class="button" onclick="search('<%- pathName %>')" value="검색" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="content_middle">
+            <table class="table_list">
+                <tr>
+                    <td>번호</td>
+                    <td>서버</td>
+                    <td>주소</td>
+                    <td>IP</td>
+                    <td>관리자</td>
+                    <td>생성일</td>
+
+                </tr>
+
+                <%
+                for(var i = 0 ; i < list.length ; i++)
+                {
+                var Data = list[i];
+                var createdate = BU.convertDateToText(Data.writedate);
+                createdate = createdate.substring(0, 10);
+                var No = (totalCount - (page - 1) * pageCount ) - i;
+
+
+                %>
+                <tr>
+                    <td><%= No %></td>
+                    <td><a href='javascript:checkServer("<%= Data.saltern_info_seq %>","<%- Data.name %>")'><%= Data.name %></a></td>
+                    <td><%= Data.address %></td>
+                    <td><%= Data.ip %></td>
+
+                    <td><%= Data.memberName %></td>
+
+                    <td><%= createdate %></td>
+                </tr>
+
+                <%
+                }
+                %>
+
+                <div class="content_low">
+                    <table class="table_list">
+                        <tr>
+                            <td width="30%"></td>
+                            <td class="tx_center" width="40%">
+                                <div class="pageNa">
+                                    <%- pagination %>
+                                </div>
+
+                            </td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+
+            </table>
+        </div>
+    </div>
+    </div>
+
+<script src="/js/common-html/dom-control.js"> </script>
+        <script>
+            function checkServer(saltern_info_seq, name) {
+                opener.checkServer(saltern_info_seq, name);
+                window.close();
+            }
+
+            $(document).ready(function () {
+                jQuery('.content_middle tr').each(function (i) {
+                    this.style.backgroundColor = (i % 2) ? '#f7f7f7' : '#ffffff';
+
+                });
+            });
+        </script>
+</body>
+</html>

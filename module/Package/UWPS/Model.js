@@ -15,7 +15,8 @@ class Model {
     BU.CLI('findMeasureInverter', ivtId)
     let findObj = _.find(this.measureInverterList, ivtController => {
       let ivtInfo = ivtController.getInverterInfo();
-      return ivtController.inverterTargetId === ivtId;
+      BU.CLIS(ivtInfo,ivtId)
+      return ivtInfo.target_id === ivtId;
     })
     // BU.CLI(findObj)
     

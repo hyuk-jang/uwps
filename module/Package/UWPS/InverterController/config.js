@@ -1,6 +1,6 @@
 module.exports = {
   current: {
-    hasDev: false, // 테스트모드 여부 -> 테스트 소켓 서버 및 테스트 데이터 생성 여부
+    hasDev: true, // 테스트모드 여부 -> 테스트 소켓 서버 및 테스트 데이터 생성 여부
     ivtSavedInfo: {
       target_id: 'IVT1',
       target_name: '인버터 1',

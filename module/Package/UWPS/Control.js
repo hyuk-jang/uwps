@@ -41,12 +41,8 @@ class Control extends EventEmitter {
     }).then(result => {
       
       this.model.measureInverterList = result;
-      let findObj = this.model.findMeasureInverter('IVT4')
-
-      
-      
-
-      BU.CLI(findObj)
+      // let findObj =  this.model.findMeasureInverter('IVT2')
+      // BU.CLI(findObj)
     }).catch(error => {
       console.error(error)
     })

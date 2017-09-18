@@ -8,6 +8,7 @@ class Model {
     this.hasOperation = false;
     this.retryConnectInverterCount = 0;
 
+    this.reserveCmdList = [];
     this.requestCmdList = [];
     this.requestMsgList = [];
 

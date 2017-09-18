@@ -1,8 +1,9 @@
-const eventToPromise = require('event-to-promise');
+const cron = require('cron');
 class P_Setter {
   constructor(controller) {
     this.controller = controller;
     this.config = controller.config;
+    this.cronJob = null;
   }
 
   async settingConverter(dialing) {
@@ -44,7 +45,7 @@ class P_Setter {
   // 인버터로 메시지 발송
   async writeMsg(msg) {
     BU.CLI(msg)
-    if (this.config.deviceInfo.hasSocket && this.controller.socketClient.client === {}){
+    if (this.config.deviceInfo.hasSocket && this.controller.socketClient.client === {}) {
       BU.CLI('Socket Client 연결이되지 않았습니다.');
       this.controller.connectedInverter = {};
       throw Error('Socket Client 연결이 되지 않았습니다.');
@@ -61,6 +62,45 @@ class P_Setter {
 
   receiveMsg(msg) {
 
+  }
+
+
+  runCronGetter() {
+    try {
+      if (this.cronJob !== null) {
+        BU.CLI('Stop')
+        this.cronJob.stop();
+      }
+      BU.CLI('Setting Cron')
+      this.cronJob = new cron.CronJob({
+        cronTime: '* * * * * *',
+        onTick: () => {
+          // console.log('job 1 ticked');
+          BU.CLI(BU.convertDateToText(new Date()))
+          this.requestInverterData();
+        },
+        start: true,
+        // timeZone: 'America/Los_Angeles'
+      });
+    } catch (error) {
+      throw error;
+    }
+
+    this.cronJob.start();
+  }
+
+  requestInverterData() {
+    // BU.CLI(this.controller.cmdList)
+    let cmdValues = Object.values(this.controller.cmdList);
+
+    cmdValues.forEach(element => {
+      if (!this.controller.model.reserveCmdList.includes(element)) {
+        this.controller.model.reserveCmdList.push(element);
+      }
+    });
+    // BU.CLI(this.controller.model.reserveCmdList)
+
+    return this.controller.emit('startGetter', this.controller.model.reserveCmdList);
   }
 
 

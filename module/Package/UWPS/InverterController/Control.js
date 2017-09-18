@@ -53,6 +53,7 @@ class Control extends EventEmitter {
 
     this.reconnectInverterInterval = 1000 * 6; // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
     this.sendMsgTimeOutSec = 10; // 10초안에 응답메시지 못 받을 경우 해당 에러처리
+    this.setTimer = null;
   }
 
   get inverterTargetId() {
@@ -114,19 +115,35 @@ class Control extends EventEmitter {
       BU.CLI('Sucess Connected to Inverter', this.config.deviceInfo.deviceName);
       
       // 운영 중 상태로 변경
+      clearTimeout(this.setTimer);
       this.model.hasOperation = true;
       this.retryConnectInverterCount = 0;
 
+      // 데이터 가져오는 Cron 시작
+      this.p_Setter.runCronGetter();
+
       return this.connectedInverter;
     } catch (error) {
-      BU.CLI(error)
+      // BU.CLI(error)
       this.emit('disconnectedInverter', error);
     }
   }
 
+
+  async commander(reserveList){
+    reserveList.forEach(element => {
+      try {
+        // BU.CLI(this)
+        this.send2Cmd(element);
+      } catch (error) {
+        throw error;
+      }
+    });
+  }
+
   /**
    * 인버터에 데이터 요청명령 발송
-   * @param {String} cmd 메시지 요청
+   * @param  cmd 메시지 요청
    */
   async send2Cmd(cmd) {
     return Promise.race(
@@ -210,20 +227,31 @@ class Control extends EventEmitter {
     }
   }
 
-  // 예외처리 핸들러
+  // 이벤트 핸들러
   eventHandler() {
-
+    // 인버터 접속 에러
     this.on('disconnectedInverter', error => {
-      BU.CLI('disconnectedInverter', error)
+      // BU.CLI('disconnectedInverter', error)
       this.connectedInverter = {};
-      // 재시도 횟수 추가시 인버터 구동 중지처리
+      // 인버터 문제 발생
+      this.model.hasOperation = false;
       if (this.model.retryConnectInverterCount++ > 2) {
-        this.model.hasOperation = false;
+        // 장치 접속에 문제가 있다면 Interval을 10배로 함. (10분에 한번 시도)
+        this.setTimer = setTimeout(() => {
+          this.connectInverter();
+        }, this.reconnectInverterInterval * 10);
       } else {
-        setTimeout(() => {
+        // 1분에 한번 접속 시도
+        this.setTimer = setTimeout(() => {
           this.connectInverter();
         }, this.reconnectInverterInterval);
       }
+    })
+
+    // 스케줄러 실행
+    this.on('startGetter', reserveList => {
+      this.commander(reserveList);
+      
     })
   }
 

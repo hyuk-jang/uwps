@@ -44,7 +44,7 @@ class P_Setter {
 
   // 인버터로 메시지 발송
   async writeMsg(msg) {
-    BU.CLI(msg)
+    // BU.CLI(msg)
     if (this.config.deviceInfo.hasSocket && this.controller.socketClient.client === {}) {
       BU.CLI('Socket Client 연결이되지 않았습니다.');
       this.controller.connectedInverter = {};
@@ -55,32 +55,30 @@ class P_Setter {
       throw Error('Serial Client 연결이 되지 않았습니다.');
     }
 
-    BU.CLI('Msg 발송', msg);
+    // BU.CLI('Msg 발송', msg);
     await this.controller.connectedInverter.write(msg);
     return true;
   }
 
-  receiveMsg(msg) {
-
-  }
-
-
+  // 스케줄러 설정
   runCronGetter() {
-    this.requestInverterData();
-    return;
+    if(this.controller.config.hasDev){
+      this._occurRequestInverterData();
+    }
 
     try {
       if (this.cronJob !== null) {
-        BU.CLI('Stop')
+        // BU.CLI('Stop')
         this.cronJob.stop();
       }
-      BU.CLI('Setting Cron')
+      // BU.CLI('Setting Cron')
+      // 1분마다 요청
       this.cronJob = new cron.CronJob({
-        cronTime: '* * * * * *',
+        cronTime: '0 * * * * *',
         onTick: () => {
           // console.log('job 1 ticked');
-          BU.CLI(BU.convertDateToText(new Date()))
-          this.requestInverterData();
+          // BU.CLI(BU.convertDateToText(new Date()))
+          this._occurRequestInverterData();
         },
         start: true,
         // timeZone: 'America/Los_Angeles'
@@ -88,11 +86,10 @@ class P_Setter {
     } catch (error) {
       throw error;
     }
-
-    this.cronJob.start();
   }
 
-  requestInverterData() {
+  // 정기적인 인버터 데이터 요청 메시지 이벤트 발생 메소드
+  _occurRequestInverterData() {
     // BU.CLI(this.controller.cmdList)
     let cmdValues = Object.values(this.controller.cmdList);
     let returnValue = [];
@@ -104,8 +101,6 @@ class P_Setter {
 
     return this.controller.emit('startGetter',returnValue);
   }
-
-
 
 }
 module.exports = P_Setter;

@@ -47,7 +47,7 @@ class DecodingMsgSocket extends Converter {
       contents: this.applyObjCalculateScale(resObj.contents, 1, 4)
     }
 
-    BU.CLI(returnValue)
+    // BU.CLI(returnValue)
     return returnValue;
   }
 

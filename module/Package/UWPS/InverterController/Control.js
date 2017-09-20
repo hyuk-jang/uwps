@@ -68,6 +68,7 @@ class Control extends EventEmitter {
   getScaleInverterData(cmd) {
     return _.contains(this.cmdList, cmd) ? this.model.getScaleInverterData(cmd) : {};
   }
+
   /**
    * 현재 인버터 컨트롤러가 작동하는지 여부
    */
@@ -132,8 +133,8 @@ class Control extends EventEmitter {
     } else {
       let cmd = this.model.reserveCmdList[0];
       if (cmd === undefined) {
-        BU.CLI()
-        return new Error('진행할 명령이 존재하지 않습니다.');
+        BU.CLI('명령 수행이 모두 완료되었습니다.');
+        return;
       } else {
         this.model.controlStatus.reserveCmdList.shift();
         this.send2Cmd(cmd).then(r => {
@@ -181,7 +182,7 @@ class Control extends EventEmitter {
     if (this.model.processCmd === '') {
       // 메시지 인코딩
       let msg = this.encoder.makeMsg(cmd);
-      BU.CLI(msg)
+      // BU.CLI(msg)
       if(msg === '' || msg === null || msg === undefined){
         return new TypeError(cmd + '에 해당하는 명령은 존재하지 않습니다.');
       }
@@ -243,14 +244,19 @@ class Control extends EventEmitter {
       // BU.CLI('disconnectedInverter', error)
       this.connectedInverter = {};
       // 인버터 문제 발생
-      this.model.hasOperation = false;
+      if(this.model.hasOperation){
+        this.model.hasOperation = false;
+        // TODO 현재 객체에 이벤트 발생 이벤트 핸들링 필요
+        this.emit('errorDisconnectedInverter');
+      }
+      
       if (this.model.retryConnectInverterCount++ > 2) {
-        // 장치 접속에 문제가 있다면 Interval을 10배로 함. (10분에 한번 시도)
+        // 장치 접속에 문제가 있다면 Interval을 10배로 함. (현재 10분에 한번 시도)
         this.setTimer = setTimeout(() => {
           this.connectInverter();
         }, this.config.controlOption.reconnectInverterInterval * 10);
       } else {
-        // 1분에 한번 접속 시도
+        // 인터벌에 따라 한번 접속 시도
         this.setTimer = setTimeout(() => {
           this.connectInverter();
         }, this.config.controlOption.reconnectInverterInterval);
@@ -259,6 +265,7 @@ class Control extends EventEmitter {
 
     // 스케줄러 실행
     this.on('startGetter', reserveList => {
+      BU.log('startGetter')
       this.model.controlStatus.reserveCmdList = reserveList;
       this.commander();
 

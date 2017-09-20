@@ -80,7 +80,7 @@ class P_SocketServer {
     })
 
     socketServer.listen(this.port, () => {
-      BU.CLI('Socket Server Is Running', this.port);
+      BU.log('Socket Server Is Running', this.port);
     })
 
     let result = await eventToPromise.multi(socketServer, ['listening'], ['failed'])

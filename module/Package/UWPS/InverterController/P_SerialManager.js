@@ -26,18 +26,6 @@ class P_SerialManager extends SerialConnector {
   // 데이터 처리 핸들러
   processData(resData) {
     return this.controller._onReceiveInverterMsg(resData);
-
-
-
-    // console.log('### Receive: ', resData.toString())
-
-    // let strData = resData.toString();
-
-    // // 무조건 Buffer Add
-    // this.totalBuffer += Buffer.from(resData)
-
-    // // 입력된 Buffer를 String 변환
-    // let strBuffer = this.totalBuffer.toString();
   }
 }
 

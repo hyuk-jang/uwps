@@ -81,8 +81,6 @@ class Model {
     this.weather = {};
   }
 
-
-
   /**
    * 인버터 컨트롤 관련 Getter
    */
@@ -189,18 +187,9 @@ class Model {
 
   // Inverter Data 수신
   onInverterData(receiveObj) {
-    let cmd = receiveObj.cmd;
-    this[cmd] = receiveObj.contents;
-
-    // 요청중인 명령리스트에 해당 명령 삭제
-    this.controlStatus.processCmd = _.reject(this.processCmd, value => value === cmd);
-
+    // BU.CLI('onInverterData', receiveObj)
+    return this[receiveObj.cmd] = receiveObj.contents;
   }
-
-
-
-
-
 }
 
 module.exports = Model;

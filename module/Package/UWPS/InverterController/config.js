@@ -1,6 +1,10 @@
 module.exports = {
   current: {
-    hasDev: true, // 테스트모드 여부 -> 테스트 소켓 서버 및 테스트 데이터 생성 여부
+    hasDev: false, // 테스트모드 여부 -> 테스트 소켓 서버 및 테스트 데이터 생성 여부
+    controlOption: {
+      reconnectInverterInterval: 1000 * 6, // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
+      sendMsgTimeOutSec: 10, // 10초안에 응답메시지 못 받을 경우 해당 에러처리
+    },
     ivtSavedInfo: {
       target_id: 'IVT1',
       target_name: '인버터 1',
@@ -15,7 +19,7 @@ module.exports = {
       hasSocket: false,
       deviceName: 'singleHexInverter', // Device Name
       ip: 0,
-      port: 'COM11', // Port를 직접 지정하고자 할때 사용
+      port: 'COM1', // Port를 직접 지정하고자 할때 사용
       baudRate: 9600, // 장치 BaudRate
       transportCode: '', // Serial이 연결되고 특정 Code를 전송해야 할 경우
       identificationCode: '41494e20253d', // Transport 과정이 끝나고 난뒤 Receive Packet의 특정 Code 포함여부},

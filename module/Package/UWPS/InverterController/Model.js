@@ -8,10 +8,22 @@ class Model {
     this.hasOperation = false;
     this.retryConnectInverterCount = 0;
 
-    this.reserveCmdList = [];
-    this.requestCmdList = [];
-    this.requestMsgList = [];
+    this.cmdList = {
+      getFault: 'fault',
+      getPv: 'pv',
+      getGrid: 'grid',
+      getPower: 'power',
+      getSysInfo: 'sysInfo',
+      getWeather: 'weather'
+    }
 
+    this.controlStatus = {
+      reserveCmdList: [],
+      processCmd: '',
+      processMsgList: []
+    }
+
+    
     this.socketServerPort = 0;
 
     // Socket에 접속 중인 사용자 리스트
@@ -68,6 +80,25 @@ class Model {
 
     this.weather = {};
   }
+
+
+
+  /**
+   * 인버터 컨트롤 관련 Getter
+   */
+
+   get reserveCmdList() {
+     return this.controlStatus.reserveCmdList;
+   }
+
+   get processCmd(){
+     return this.controlStatus.processCmd;
+   }
+
+   get processMsgList () {
+     return this.controlStatus.processMsgList;
+   }
+
 
   // 현재 매칭된 값의 소수점 절삭하여 반환
   get currPv() {
@@ -162,9 +193,8 @@ class Model {
     this[cmd] = receiveObj.contents;
 
     // 요청중인 명령리스트에 해당 명령 삭제
-    this.requestCmdList = _.reject(this.requestCmdList, value => value === cmd);
+    this.controlStatus.processCmd = _.reject(this.processCmd, value => value === cmd);
 
-    // BU.CLI(this.requestCmdList)
   }
 
 

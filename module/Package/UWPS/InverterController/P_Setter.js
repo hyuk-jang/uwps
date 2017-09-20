@@ -66,6 +66,9 @@ class P_Setter {
 
 
   runCronGetter() {
+    this.requestInverterData();
+    return;
+
     try {
       if (this.cronJob !== null) {
         BU.CLI('Stop')
@@ -92,15 +95,14 @@ class P_Setter {
   requestInverterData() {
     // BU.CLI(this.controller.cmdList)
     let cmdValues = Object.values(this.controller.cmdList);
-
+    let returnValue = [];
     cmdValues.forEach(element => {
       if (!this.controller.model.reserveCmdList.includes(element)) {
-        this.controller.model.reserveCmdList.push(element);
+        returnValue.push(element);
       }
     });
-    // BU.CLI(this.controller.model.reserveCmdList)
 
-    return this.controller.emit('startGetter', this.controller.model.reserveCmdList);
+    return this.controller.emit('startGetter',returnValue);
   }
 
 

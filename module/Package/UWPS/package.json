@@ -12,6 +12,7 @@
     "bluebird": "^3.5.0",
     "event-to-promise": "^0.8.0",
     "lodash": "^4.17.4",
-    "serialport": "^5.0.0"
+    "serialport": "^5.0.0",
+    "underscore": "^1.8.3"
   }
 }

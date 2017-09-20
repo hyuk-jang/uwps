@@ -4,7 +4,6 @@ const singleHexProtocolTable = require('./singleHexProtocolTable.js');
 class DecodingMsgSingleHex extends Converter {
   constructor(dialing) {
     super();
-    this.cmdList = {};
     this.protocolTable = singleHexProtocolTable.encodingProtocolTable(dialing);
   }
 

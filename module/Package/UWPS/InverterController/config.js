@@ -1,9 +1,9 @@
 module.exports = {
   current: {
-    hasDev: true, // 테스트모드 여부 -> 테스트 소켓 서버 및 테스트 데이터 생성 여부
+    hasDev: false, // 테스트모드 여부 -> 테스트 소켓 서버 및 테스트 데이터 생성 여부
     controlOption: {
       reconnectInverterInterval: 1000 * 6, // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
-      sendMsgTimeOutSec: 10, // 10초안에 응답메시지 못 받을 경우 해당 에러처리
+      sendMsgTimeOutSec: 1, // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
     },
     ivtSavedInfo: {
       target_id: 'IVT1',

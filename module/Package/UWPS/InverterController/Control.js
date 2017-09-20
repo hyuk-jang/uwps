@@ -46,6 +46,10 @@ class Control extends EventEmitter {
     this.setTimer = null;
   }
 
+  get inverterId() {
+    return this.model.ivtSavedInfo.target_id;
+  }
+
   get cmdList() {
     return this.model.cmdList;
   }
@@ -133,16 +137,19 @@ class Control extends EventEmitter {
     } else {
       let cmd = this.model.reserveCmdList[0];
       if (cmd === undefined) {
-        BU.CLI('명령 수행이 모두 완료되었습니다.');
+        BU.CLI(`${this.inverterId}의 명령 수행이 모두 완료되었습니다.`);
         return;
       } else {
         this.model.controlStatus.reserveCmdList.shift();
         this.send2Cmd(cmd).then(r => {
           return this.commander();
         }).catch(error => {
-          BU.CLI(this.model.controlStatus)
+          // TODO 에러 처리 어떻게 할지 생각 필요
+          let msg = `${this.inverterId}의 ${cmd}명령 수행 도중 ${error.message}오류가 발생하였습니다.`;
+          BU.errorLog('send2InverterErr', msg, error);
+          // BU.CLI(msg)
+          // BU.CLI(this.model.controlStatus, error)
           return this.commander();
-          return BU.CLI(error);
         })
       }
     }
@@ -169,6 +176,8 @@ class Control extends EventEmitter {
       .catch(err => {
         this.model.controlStatus.processCmd = '';
         this.model.controlStatus.processMsgList = [];
+        // 저장되어 있는 값 초기화
+        this.model.onInitInverterData(cmd);
         throw err;
       })
   }

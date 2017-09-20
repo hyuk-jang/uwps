@@ -23,7 +23,7 @@ class Model {
       processMsgList: []
     }
 
-    
+
     this.socketServerPort = 0;
 
     // Socket에 접속 중인 사용자 리스트
@@ -31,71 +31,78 @@ class Model {
 
     this.ivtSavedInfo = this.config.ivtSavedInfo;
 
-    this.sysInfo = {
-      hasSingle: 0, // 단상 or 삼상
-      capa: 0, // 인버터 용량 kW
-      productYear: '00000000', // 제작년도 월 일 yyyymmdd,
-      sn: '' // Serial Number
-    }
-
-    this.pv = {
-      amp: 0, // Ampere
-      vol: 0 // voltage
-    }
-
+    this.sysInfo = {}
+    this.pv = {}
     // Single Grid, Third Grid 둘다 커버하는 Grid
-    this.grid = {
-      rsVol: 0, // rs 선간 전압
-      stVol: 0, // st 선간 전압
-      trVol: 0, // tr 선간 전압
-      rAmp: 0, // r상 전류
-      sAmp: 0, // s상 전류
-      tAmp: 0, // t상 전류
-      lf: 0 // 라인 주파수 Line Frequency, 단위: Hz
-    };
-
-    this.singleGridData = {
-      amp: 0, // Ampere
-      vol: 0, // voltage
-      lf: 0 // 라인 주파수 Line Frequency, 단위: Hz
-    }
-
-    this.thirdGridData = {
-      rsVol: 0, // rs 선간 전압
-      stVol: 0, // st 선간 전압
-      trVol: 0, // tr 선간 전압
-      rAmp: 0, // r상 전류
-      sAmp: 0, // s상 전류
-      tAmp: 0, // t상 전류
-      lf: 0 // 라인 주파수 Line Frequency, 단위: Hz
-    }
-
-    this.power = {
-      // pvWh: 0, //  현재 태양 전지 출력 전력량, 단위: 
-      gridKw: 0,  // 출력 전력
-      dailyKwh: 0,  // 하루 발전량 kWh
-      cpKwh: 0, // 인버터 누적 발전량 mWh  Cumulative Power Generation
-      pf: 0,  // 역률 Power Factor %
-    }
-
+    this.grid = {};
+    this.power = {}
     this.weather = {};
+
+    Object.values(this.cmdList).forEach(element => this.onInitInverterData(element));
+  }
+
+  // 인버터 데이터 초기화
+  onInitInverterData(cmd) {
+    switch (cmd) {
+      case 'pv':
+        this.pv = {
+          amp: 0, // Ampere
+          vol: 0 // voltage
+        }
+        break;
+      case 'power':
+        this.power = {
+          // pvWh: 0, //  현재 태양 전지 출력 전력량, 단위: 
+          gridKw: 0, // 출력 전력
+          dailyKwh: 0, // 하루 발전량 kWh
+          cpKwh: 0, // 인버터 누적 발전량 mWh  Cumulative Power Generation
+          pf: 0, // 역률 Power Factor %
+        }
+        break;
+      case 'grid':
+        // Single Grid, Third Grid 둘다 커버하는 Grid
+        this.grid = {
+          rsVol: 0, // rs 선간 전압
+          stVol: 0, // st 선간 전압
+          trVol: 0, // tr 선간 전압
+          rAmp: 0, // r상 전류
+          sAmp: 0, // s상 전류
+          tAmp: 0, // t상 전류
+          lf: 0 // 라인 주파수 Line Frequency, 단위: Hz
+        };
+        break;
+      case 'sysInfo':
+        this.sysInfo = {
+          hasSingle: 0, // 단상 or 삼상
+          capa: 0, // 인버터 용량 kW
+          productYear: '00000000', // 제작년도 월 일 yyyymmdd,
+          sn: '' // Serial Number
+        }
+        break;
+      case 'weather':
+        // Single Grid, Third Grid 둘다 커버하는 Grid
+        this.weather = {};
+        break;
+      default:
+        break;
+    }
   }
 
   /**
    * 인버터 컨트롤 관련 Getter
    */
 
-   get reserveCmdList() {
-     return this.controlStatus.reserveCmdList;
-   }
+  get reserveCmdList() {
+    return this.controlStatus.reserveCmdList;
+  }
 
-   get processCmd(){
-     return this.controlStatus.processCmd;
-   }
+  get processCmd() {
+    return this.controlStatus.processCmd;
+  }
 
-   get processMsgList () {
-     return this.controlStatus.processMsgList;
-   }
+  get processMsgList() {
+    return this.controlStatus.processMsgList;
+  }
 
 
   // 현재 매칭된 값의 소수점 절삭하여 반환
@@ -131,7 +138,7 @@ class Model {
   get refineInverterData() {
     let in_wh = this.pv.amp * this.pv.vol;
     let out_wh = 0;
-    if(this.config.ivtSavedInfo.target_type){
+    if (this.config.ivtSavedInfo.target_type) {
       out_wh = this.grid.rAmp * this.grid.rsVol;
     } else {
       out_wh = this.grid.rAmp * this.grid.rsVol * 1.732;
@@ -158,6 +165,7 @@ class Model {
   get scalePv() {
     return NU.multiplyScale2Obj(this.pv, 10, 0);
   }
+
   get scaleGrid() {
     return NU.multiplyScale2Obj(this.grid, 10, 0);
   }
@@ -184,6 +192,7 @@ class Model {
     return this[covertChar] === undefined ? {} : this[covertChar];
 
   }
+
 
   // Inverter Data 수신
   onInverterData(receiveObj) {

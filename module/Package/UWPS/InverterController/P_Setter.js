@@ -62,9 +62,9 @@ class P_Setter {
 
   // 스케줄러 설정
   runCronGetter() {
-    if(this.controller.config.hasDev){
+    // if(this.controller.config.hasDev){
       this._occurRequestInverterData();
-    }
+    // }
 
     try {
       if (this.cronJob !== null) {

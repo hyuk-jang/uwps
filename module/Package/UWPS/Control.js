@@ -13,6 +13,7 @@ class Control extends EventEmitter {
     // 현재 Control 설정 변수
     this.config = {
       inverterList:[],
+      dbInfo: {},
     };
     Object.assign(this.config, config.current);
 
@@ -41,6 +42,12 @@ class Control extends EventEmitter {
     }).then(result => {
       
       this.model.measureInverterList = result;
+
+      // TEST 데이터 계측
+      setTimeout(() => this.model.measureInverterScheduler(), 1000);
+
+
+
       // let findObj =  this.model.findMeasureInverter('IVT2')
       // BU.CLI(findObj)
     }).catch(error => {

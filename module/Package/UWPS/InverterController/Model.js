@@ -146,7 +146,7 @@ class Model {
 
     // BU.CLIS(this.pvData, in_wh)
     let returnvalue = {
-      // inverter_seq: this.ivt_seq,
+      // inverter_seq: this.ivtSavedInfo.inverter_seq,
       in_a: this.pv.amp,
       in_v: this.pv.vol,
       in_wh: in_wh,
@@ -158,8 +158,11 @@ class Model {
       c_wh: this.power.cpKwh * 1000
     };
 
+    returnvalue = NU.multiplyScale2Obj(returnvalue, 10, 0);
+    returnvalue.inverter_seq = this.ivtSavedInfo.inverter_seq;
+
     // Scale 10 배수 처리
-    return NU.multiplyScale2Obj(returnvalue, 10, 0);
+    return returnvalue;
   }
 
   get scalePv() {

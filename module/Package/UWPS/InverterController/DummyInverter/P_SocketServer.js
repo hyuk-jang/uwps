@@ -39,7 +39,7 @@ class P_SocketServer {
   async CreateServer() {
     // BU.CLI('CreateServer')
     let socketServer = net.createServer((socket) => {
-      BU.CLI('New Inverter Client Connected');
+      // BU.CLI('New Inverter Client Connected');
       this.initSocket(socket);
 
       // Socket
@@ -68,7 +68,7 @@ class P_SocketServer {
     });
 
     socketServer.on('error', err => {
-      BU.CLI('Socket Server Port Used', this.port)
+      BU.log('Socket Server Port Used ', this.port)
       this.port++;
       this.tryCount++;
 
@@ -80,7 +80,7 @@ class P_SocketServer {
     })
 
     socketServer.listen(this.port, () => {
-      BU.log('Socket Server Is Running', this.port);
+      BU.log('Socket Server Is Running ', this.port);
     })
 
     let result = await eventToPromise.multi(socketServer, ['listening'], ['failed'])

@@ -1,3 +1,4 @@
+const _ =  require('underscore');
 const Promise = require('bluebird');
 const EventEmitter = require('events');
 const eventToPromise = require('event-to-promise');
@@ -58,6 +59,10 @@ class Control extends EventEmitter {
     return this.model.ivtSavedInfo.target_id;
   }
 
+  get refineInverterData() {
+    return this.model.refineInverterData;
+  }
+
   // DB 정보를 넣어둔 데이터 호출
   getInverterInfo() {
     return this.model.ivtSavedInfo;
@@ -111,7 +116,7 @@ class Control extends EventEmitter {
       } else {
         this.connectedInverter = await this.p_SerialManager.connect();
       }
-      BU.CLI('Sucess Connected to Inverter', this.config.deviceInfo.deviceName);
+      BU.log('Sucess Connected to Inverter ', this.config.ivtSavedInfo.target_id);
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
@@ -147,7 +152,7 @@ class Control extends EventEmitter {
           // TODO 에러 처리 어떻게 할지 생각 필요
           let msg = `${this.inverterId}의 ${cmd}명령 수행 도중 ${error.message}오류가 발생하였습니다.`;
           BU.errorLog('send2InverterErr', msg, error);
-          // BU.CLI(msg)
+          BU.CLI(msg)
           // BU.CLI(this.model.controlStatus, error)
           return this.commander();
         })

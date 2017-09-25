@@ -10,10 +10,10 @@ Promise.promisifyAll(require('mysql/lib/Pool').prototype);
 
 let config = {
   connectionLimit:10,
-  host: '121.178.26.59',
-  user: 'root',
-  password: 'akdntm007!',
-  database: 'salt'
+  host: process.env.SALTERN_HOST ? process.env.SALTERN_HOST : 'localhost',
+  user: process.env.SALTERN_USER ? process.env.SALTERN_USER : 'root',
+  password: process.env.SALTERN_PW ? process.env.SALTERN_PW : 'root',
+  database: process.env.SALTERN_DB ? process.env.SALTERN_DB : 'saltpond_controller'
 }
 
 pool = mysql.createPool(config);
@@ -40,7 +40,6 @@ function getTransaction() {
 module.exports = {
   // 간편 쿼리
   single(sql, values){
-    console.log(sql, values)
     return using(getConnection(), connection => {
       return connection.queryAsync({
         sql: sql,

@@ -18,7 +18,7 @@ let test = control.init()
   .then(result => {
     // result = control.cmdProcessor('pv');
 
-    BU.CLIS(control.model.scaleGrid, control.model.scalePower)
+    BU.CLIS(control.model.scaleGrid, control.model.scalePower, control.model.refineInverterData)
     return control.cmdProcessor('pv');
   });
 

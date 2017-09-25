@@ -91,9 +91,9 @@ class Model {
 
   // 데이터 정제한 데이터 테이블
   get refineInverterData() {
-    let in_wh = this.pv.amp * this.pv.vol;
-    let out_w = 0;
-    if(this.config.ivtSavedInfo.target_type){
+    let in_w = this.pv.amp * this.pv.vol;
+    let out_w= 0;
+    if(this.config.hasSingle){
       out_w = this.grid.rAmp * this.grid.rsVol;
     } else {
       out_w = this.grid.rAmp * this.grid.rsVol * 1.732;
@@ -102,14 +102,15 @@ class Model {
     let returnvalue = {
       in_a: this.pv.amp,
       in_v: this.pv.vol,
-      in_wh: in_wh,
+      in_w,
       out_a: this.grid.rAmp,
       out_v: this.grid.rsVol,
-      out_w: out_w,
-      p_f: this.power.pf,
+      out_w,
+      p_f: _.isNaN(out_w / in_w) ? 0 : out_w / in_w * 100,
       d_wh: this.power.dailyKwh * 1000,
       c_wh: this.power.cpKwh * 1000
     };
+
 
     // Scale 10 배수 처리
     return NU.multiplyScale2Obj(returnvalue, 10, 0);
@@ -142,7 +143,7 @@ class Model {
   }
 
   onIvtData(amp, vol) {
-    let in_wh = this.pv.amp * this.pv.vol;
+    let in_w = this.pv.amp * this.pv.vol;
     let out_w = 0;
 
     // 단상일 경우
@@ -165,7 +166,7 @@ class Model {
       this.power.gridKw = out_w / 1000;
       
     }
-    this.power.pf = out_w / in_wh * 100;
+    this.power.pf = out_w / in_w * 100;
   }
 }
 

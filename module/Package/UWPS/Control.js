@@ -53,22 +53,6 @@ class Control extends EventEmitter {
     }).catch(error => {
       console.error(error)
     })
-
-
-
-    // configList.forEach((ivtConfig, index) => {
-    //   const inverterObj =  new InverterController(ivtConfig);
-    //   this.model.measureInverterList.push(inverterObj);
-    //   initList.push(inverterObj.init);
-    // });
-
-    // Promise.all(initList).then(result => {
-    //   return result;
-    // }).catch(error => {
-    //   BU.CLI(error)
-    // })
-
-    
   }
 
 

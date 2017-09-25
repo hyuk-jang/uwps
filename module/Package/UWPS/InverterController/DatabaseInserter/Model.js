@@ -78,19 +78,17 @@ class Model {
   }
 
   get currIvtDataForDbms() {
-    let in_wh = this.pvData.amp * this.pvData.vol;
-    let out_wh = this.currIvtAmp * this.currIvtVol;
+    let in_w = this.pvData.amp * this.pvData.vol;
+    let out_w = this.currIvtAmp * this.currIvtVol;
 
-    // BU.CLIS(this.pvData, in_wh)
     let returnvalue = {
-      // inverter_seq: this.ivt_seq,
       in_a: this.pvData.amp,
       in_v: this.pvData.vol,
-      in_wh: in_wh,
+      in_w,
       out_a: this.currIvtAmp,
       out_v: this.currIvtVol,
-      out_wh: out_wh,
-      p_f: _.isNaN(out_wh / in_wh) ? 0 : out_wh / in_wh * 100,
+      out_w,
+      p_f: _.isNaN(out_w / in_w) ? 0 : out_w / in_w * 100,
       d_wh: this.ivt_data.ivtDailyKwh,
       c_wh: this.ivt_data.ivtCpKwh
     };

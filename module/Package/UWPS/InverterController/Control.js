@@ -17,7 +17,7 @@ class Control extends EventEmitter {
     super();
     // 현재 Control 설정 변수
     this.config = {
-      hasDev: true,
+      hasDev: true, 
       controlOption: {},
       ivtSavedInfo: {},
       deviceInfo: {},
@@ -142,6 +142,7 @@ class Control extends EventEmitter {
     } else {
       let cmd = this.model.reserveCmdList[0];
       if (cmd === undefined) {
+        // BU.CLI(this.model.refineInverterData)
         BU.CLI(`${this.inverterId}의 명령 수행이 모두 완료되었습니다.`);
         return;
       } else {

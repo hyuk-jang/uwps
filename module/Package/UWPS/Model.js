@@ -1,6 +1,6 @@
 const _ = require('underscore');
 const cron = require('cron');
-const Bi = require('./class/Bi.js');
+const BM = require(process.cwd() + '/module/baseModel');
 
 class Model {
   constructor(controller) {
@@ -9,7 +9,7 @@ class Model {
     this.measureInverterList = [];
     this.measureConnectorList = [];
 
-    this.bi = new Bi(this.controller.config.dbInfo);
+    this.cronJob = null;
   }
 
   // 인버터 id로 인버터 컨트롤러 객체 찾아줌
@@ -32,26 +32,54 @@ class Model {
 
   // 인버터 데이터 가져와 DB에 넣는 스케줄러
   measureInverterScheduler(){
-    let inverterList = [];
+    // TEST 서버 재시작시 데이터 측정을 위한 초기 호출
+    this.measureInverter(new Date());
+
+    try {
+      if (this.cronJob !== null) {
+        // BU.CLI('Stop')
+        this.cronJob.stop();
+      }
+      // BU.CLI('Setting Cron')
+      // 1분마다 요청
+      this.cronJob = new cron.CronJob({
+        cronTime: '0 * * * * *',
+        onTick: () => {
+          this.measureInverter(new Date());
+        },
+        start: true,
+        // timeZone: 'America/Los_Angeles'
+      });
+    } catch (error) {
+      throw error;
+    }
+
+
+    
+  }
+
+  measureInverter(date) {
+    let measureInverterDataList = [];
+    let writeDate = date ? date : new Date();
     this.measureInverterList.forEach(inverterController => {
-      inverterList.push(inverterController.refineInverterData);
+      let refineData = inverterController.refineInverterData;
+      refineData.writedate = BU.convertDateToText(writeDate);
+      measureInverterDataList.push(refineData);
     })
 
-    BU.CLI(inverterList)
+    BU.CLI(measureInverterDataList)
 
-    let query = this.bi.multiInsertTable('inverter_data', inverterList);
+    // TEST 실제 입력은 하지 않음. 
+    return;
 
-    BU.CLI(query)
-
-    // this.cronJob = new cron.CronJob({
-    //   cronTime: '0 * * * * *',
-    //   onTick: () => {
-    //     // console.log('job 1 ticked');
-    //     // BU.CLI(BU.convertDateToText(new Date()))
-    //   },
-    //   start: true,
-    //   // timeZone: 'America/Los_Angeles'
-    // });
+    BM.setTables('inverter_data',measureInverterDataList)
+    .then(result => {
+      // 데이터 정상적으로 입력 수행
+      return true;
+    }).catch(err => {
+      BU.errorLog('measureInverterScheduler', err);
+      return false;
+    })
   }
 
 }

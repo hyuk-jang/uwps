@@ -136,24 +136,22 @@ class Model {
 
   // 데이터 정제한 데이터 테이블
   get refineInverterData() {
-    let in_wh = this.pv.amp * this.pv.vol;
-    let out_wh = 0;
-    if (this.config.ivtSavedInfo.target_type) {
-      out_wh = this.grid.rAmp * this.grid.rsVol;
+    let in_w = this.pv.amp * this.pv.vol;
+    let out_w = 0;
+    if (this.config.ivtSavedInfo.target_type === 0) {
+      out_w = this.grid.rAmp * this.grid.rsVol;
     } else {
-      out_wh = this.grid.rAmp * this.grid.rsVol * 1.732;
+      out_w = this.grid.rAmp * this.grid.rsVol * 1.732;
     }
 
-    // BU.CLIS(this.pvData, in_wh)
     let returnvalue = {
-      // inverter_seq: this.ivtSavedInfo.inverter_seq,
       in_a: this.pv.amp,
       in_v: this.pv.vol,
-      in_wh: in_wh,
+      in_w,
       out_a: this.grid.rAmp,
       out_v: this.grid.rsVol,
-      out_wh: out_wh,
-      p_f: _.isNaN(out_wh / in_wh) ? 0 : out_wh / in_wh * 100,
+      out_w,
+      p_f: _.isNaN(out_w / in_w) ? 0 : out_w / in_w * 100,
       d_wh: this.power.dailyKwh * 1000,
       c_wh: this.power.cpKwh * 1000
     };

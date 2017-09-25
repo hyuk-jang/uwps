@@ -1,0 +1,16 @@
+{
+  "name": "dao",
+  "version": "1.0.0",
+  "description": "",
+  "main": "controllers.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "mysql": "^2.14.1",
+    "underscore": "^1.8.3"
+  }
+}

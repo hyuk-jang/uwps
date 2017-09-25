@@ -1,5 +1,7 @@
 var db = require('./db');
+var testModel = require('./model');
 const BU = require('./baseUtil.js');
+
 const baseModel = require('./baseModel.js');
 
 baseModel.getTable('whetherdevice')
@@ -11,13 +13,9 @@ baseModel.getTable('whetherdevice')
   delete(setObj.WhetherDeviceIdx);
   setObj.WriteDate = BU.convertDateToText (new Date());
 
-  let test = baseModel.makeInsertValues(Object.values(setObj) );
-
-  console.log('test',test)
-
   console.log(setObj);
 
-  return baseModel.setTest('whetherdevice', setObj);
+  return baseModel.setTable('whetherdevice', setObj);
 
 })
 .done(result => {

@@ -1,29 +1,18 @@
 'use strict';
 const _ = require('underscore');
 
+const BU = require('./baseUtil.js');
 const db = require('./db');
 
-function MRF(value) {
-  var str_value = value.toString();
-  return str_value.split("'").join("''");
-}
+// insert values 만들어줌
+function makeInsertValues(arrValue) {
+  // BU.CLI(arrValue)
+  let returnValue = '(';
 
-/**
- * insert values 만들어줌
- * @param {Object} values Object or Array 입력할 값
- */
-function makeInsertValues(values) {
-  let returnValue = '';
-  let arrValue = [];
-  if(typeof values !== 'object'){
-    throw TypeError('object가 아님');
-  }
+  let count = 0;
 
-  arrValue = Array.isArray(values) ? values : Object.values(values);
-  returnValue = '(';
-
-  arrValue.forEach((value, index) => {
-    if (index !== 0) {
+  _.each(arrValue, (value) => {
+    if (count !== 0) {
       returnValue += ', ';
     }
     if (value === null) {
@@ -33,10 +22,10 @@ function makeInsertValues(values) {
     } else if (typeof value === 'number') {
       returnValue += value;
     } else {
-      returnValue += `'${MRF(value)}'`;
+      returnValue += `'${BU.MRF(value)}'`;
     }
-  });
-
+    count++;
+  })
   returnValue += ')';
 
   return returnValue;
@@ -44,16 +33,13 @@ function makeInsertValues(values) {
 
 function makeMultiInsertValues(arrObj) {
   let returnValue = '';
-  if(!Array.isArray(arrObj)){
-    throw TypeError('Array가 아님');
-  }
-  arrObj.forEach((obj, index) => {
-    returnValue += makeInsertValues(obj);
+
+  _.each(arrObj, (obj, index) => {
+    returnValue += this.makeInsertValues(obj);
     if (index + 1 < arrObj.length) {
       returnValue += ', ';
     }
-  })
-
+  });
   return returnValue;
 }
 
@@ -62,25 +48,23 @@ function makeMultiInsertValues(arrObj) {
  * @param {Object} objValue json
  */
 function makeUpdateValues(objValue) {
-  let returnValue = '';
-  if(typeof objValue !== 'object' && Array.isArray(objValue)){
-    throw TypeError('object가 아님');
-  }
+  let returnvalue = '';
 
-  for(key in objValue){
-    if (returnValue !== '') {
-      returnValue += ', ';
+  _.each(objValue, (value, key) => {
+    if (returnvalue !== '') {
+      returnvalue += ', ';
     }
-    if (objValue[key] == null) {
-      returnValue += `${key} = null`;
-    } else if (objValue[key] === undefined) {
-      returnValue += `${key} = ''`;
-    } else if (typeof objValue[key] === 'number') {
-      returnValue += `${key} = ${objValue[key]}`;
+    if (value == null) {
+      returnvalue += `${key} = null`;
+    } else if (value === undefined) {
+      returnvalue += `${key} = ''`;
+    } else if (typeof value === 'number') {
+      returnvalue += `${key} = ${value}`;
     } else {
-      returnValue += `${key} = '${MRF(objValue[key])}'`;
+      returnvalue += `${key} = '${BU.MRF(value)}'`;
     }
-  }
+  })
+
   return returnvalue;
 }
 
@@ -126,20 +110,20 @@ module.exports = {
    * @param {Object} updateObj Update 할려고하는 Data Object
    */
   updateTable(tbName, whereObj = {key, value}, updateObj) {
+    // BU.CLI('updateTable')
     let sql = `UPDATE ${tbName} SET ${makeUpdateValues(updateObj)} WHERE ${key} = ${value}`;
     return db.single(sql);
   },
 
-  MRF: MRF,
-  makeInsertValues,
-  makeMultiInsertValues,
-  makeUpdateValues,
+
 
 
   getTest: function (table) {
     return db.single(`SELECT * FROM ${table}`);
   },
-  setTest: (tbName, insertArrayObj) => {
-    return db.single(`INSERT INTO ${tbName} SET ?`, insertArrayObj);
+  setTest: function (conn, value) {
+    return conn.queryAsync('INSERT INTO table SET ?', {
+      test: value
+    });
   }
 };

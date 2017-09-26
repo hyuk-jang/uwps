@@ -49,7 +49,7 @@ class P_Setter {
       BU.CLI('Socket Client 연결이되지 않았습니다.');
       this.controller.connectedInverter = {};
       throw Error('Socket Client 연결이 되지 않았습니다.');
-    } else if (!this.config.deviceInfo.hasSocket && this.controller.p_SerialManager.serialClient === {}) {
+    } else if (!this.config.deviceInfo.hasSocket && this.controller.p_SerialClient.serialClient === {}) {
       // BU.CLI('Serial Client 연결이되지 않았습니다.');
       this.controller.connectedInverter = {};
       throw Error('Serial Client 연결이 되지 않았습니다.');

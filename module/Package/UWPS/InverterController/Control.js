@@ -1,4 +1,4 @@
-const _ =  require('underscore');
+const _ = require('underscore');
 const Promise = require('bluebird');
 const EventEmitter = require('events');
 const eventToPromise = require('event-to-promise');
@@ -9,15 +9,15 @@ const DummyInverter = require('./DummyInverter/Control.js');
 const P_Setter = require('./P_Setter.js');
 const Converter = require('./Converter.js');
 
-const SocketClient = require('./SocketClient.js');
-const P_SerialManager = require('./P_SerialManager.js');
+const SocketClient = require(process.cwd() + '/class/SocketClient');
+const P_SerialClient = require('./P_SerialClient');
 
 class Control extends EventEmitter {
   constructor(config) {
     super();
     // 현재 Control 설정 변수
     this.config = {
-      hasDev: true, 
+      hasDev: true,
       controlOption: {},
       ivtSavedInfo: {},
       deviceInfo: {},
@@ -39,7 +39,7 @@ class Control extends EventEmitter {
 
     // Process
     this.p_Setter = new P_Setter(this);
-    this.p_SerialManager = new P_SerialManager(this);
+    this.p_SerialClient = new P_SerialClient(this);
 
     // Child
     this.dummyInverter = new DummyInverter(config.DummyInverter);
@@ -114,7 +114,7 @@ class Control extends EventEmitter {
       } else if (this.config.deviceInfo.hasSocket) { // TODO Serial Port에 접속하는 기능
         this.connectedInverter = await this.socketClient.connect(this.config.deviceInfo.port, this.config.deviceInfo.ip);
       } else {
-        this.connectedInverter = await this.p_SerialManager.connect();
+        this.connectedInverter = await this.p_SerialClient.connect();
       }
       BU.log('Sucess Connected to Inverter ', this.config.ivtSavedInfo.target_id);
 
@@ -197,8 +197,7 @@ class Control extends EventEmitter {
     if (this.model.processCmd === '') {
       // 메시지 인코딩
       let msg = this.encoder.makeMsg(cmd);
-      // BU.CLI(msg)
-      if(msg === '' || msg === null || msg === undefined){
+      if (msg === '' || msg === null || msg === undefined) {
         return new TypeError(cmd + '에 해당하는 명령은 존재하지 않습니다.');
       }
       // 현재 요청 중인 명령리스트에 추가
@@ -208,7 +207,6 @@ class Control extends EventEmitter {
       } else {
         this.model.controlStatus.processMsgList.push(msg);
       }
-
       await this.p_Setter.writeMsg(this.model.processMsgList[0]);
       await this._receiveMsgHandler();
       return this.model[cmd];
@@ -259,12 +257,12 @@ class Control extends EventEmitter {
       // BU.CLI('disconnectedInverter', error)
       this.connectedInverter = {};
       // 인버터 문제 발생
-      if(this.model.hasOperation){
+      if (this.model.hasOperation) {
         this.model.hasOperation = false;
         // TODO 현재 객체에 이벤트 발생 이벤트 핸들링 필요
         this.emit('errorDisconnectedInverter');
       }
-      
+
       if (this.model.retryConnectInverterCount++ > 2) {
         // 장치 접속에 문제가 있다면 Interval을 10배로 함. (현재 10분에 한번 시도)
         this.setTimer = setTimeout(() => {
@@ -284,7 +282,26 @@ class Control extends EventEmitter {
       this.model.controlStatus.reserveCmdList = reserveList;
       this.commander();
 
+    });
+
+    // 인버터 소켓 장치 데이터 수신 핸들러
+    this.on('receiveSocketData', (err, result) => {
+      // BU.CLI(err, result)
+      if (err) {
+        return BU.errorLog('receiveDataError', err)
+      }
+      return this._onReceiveInverterMsg(result);
     })
+
+    // 인버터 시리얼 장치 데이터 수신 핸들러
+    this.on('receiveInverterData', (err, result) => {
+      // BU.CLI(err, result)
+      if (err) {
+        return BU.errorLog('receiveDataError', err)
+      }
+      return this._onReceiveInverterMsg(result);
+    })
+
   }
 
 }

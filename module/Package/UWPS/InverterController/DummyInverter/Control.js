@@ -3,7 +3,8 @@ const EventEmitter = require('events');
 const Model = require('./Model.js');
 const P_GenerateData = require('./P_GenerateData.js');
 
-const P_SocketServer = require('./P_SocketServer.js');
+const P_SocketServer = require('./P_SocketServer');
+const BU = require(process.cwd() + '/module/baseUtil');
 
 class Control extends EventEmitter {
   constructor(config) {
@@ -38,7 +39,7 @@ class Control extends EventEmitter {
   async init() {
     BU.CLI('init DummyInverter')
     try {
-      let port = await this.p_SocketServer.CreateServer();
+      let port = await this.p_SocketServer.createServer();
       // BU.CLI('port',port)
       this.model.socketServerPort = port;
       this.generatePvData();  
@@ -73,41 +74,50 @@ class Control extends EventEmitter {
    * Socket 처리 구간 Start
    */
 
-  cmdProcessor(cmd) {
-    // BU.CLI('cmdProcessor', cmd)
-    let returnValue = '';
-    switch (cmd) {
-      case 'fault':
-        // BU.CLI('cmdProcessor :' + cmd, this.currIvtDataForDbms)
-        returnValue = {
-          msg: '태양전지 저전압 (변압기 type Only)',
-          code: 'Solar Cell UV fault',
-          number: 2,
-          errorValue: 1
-        }
-        break;
-      case 'pv':
-        returnValue = this.model.pv;
-        break;
-      case 'grid':
-        returnValue = this.model.grid;
-        break;
-      case 'power':
-        returnValue = this.model.power;
-        break;
-      case 'sysInfo':
-        // BU.CLI('cmdProcessor :' + cmd, this.currIvtDataForDbms)
-        returnValue = this.model.sysInfo;
-        break;
-      case 'weather':
-        // BU.CLI('cmdProcessor :' + cmd, this.currIvtDataForDbms)
-        returnValue = {};
-        break;
-      default:
-        break;
-    }
+  // cmdProcessor(cmd) {
+  //   // BU.CLI('cmdProcessor', cmd)
+  //   let returnValue = '';
+  //   switch (cmd) {
+  //     case 'fault':
+  //       // BU.CLI('cmdProcessor :' + cmd, this.currIvtDataForDbms)
+  //       returnValue = {
+  //         msg: '태양전지 저전압 (변압기 type Only)',
+  //         code: 'Solar Cell UV fault',
+  //         number: 2,
+  //         errorValue: 1
+  //       }
+  //       break;
+  //     case 'pv':
+  //       returnValue = this.model.pv;
+  //       break;
+  //     case 'grid':
+  //       returnValue = this.model.grid;
+  //       break;
+  //     case 'power':
+  //       returnValue = this.model.power;
+  //       break;
+  //     case 'sysInfo':
+  //       // BU.CLI('cmdProcessor :' + cmd, this.currIvtDataForDbms)
+  //       returnValue = this.model.sysInfo;
+  //       break;
+  //     case 'weather':
+  //       // BU.CLI('cmdProcessor :' + cmd, this.currIvtDataForDbms)
+  //       returnValue = {};
+  //       break;
+  //     default:
+  //       break;
+  //   }
 
-    return returnValue;
+  //   return returnValue;
+  // }
+
+  _eventHandler() {
+    this.p_SocketServer.on('dataBySocketServer', (err, result) => {
+      if(err){
+
+      }
+      this.cmdProcessor(result)
+    })
   }
 
   _addSocket(socket) {

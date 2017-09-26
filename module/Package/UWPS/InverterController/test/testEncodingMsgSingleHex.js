@@ -1,4 +1,4 @@
-global.BU = require('../util/baseUtil.js');
+global.BU = require('../module/baseUtil');
 const _ = require('underscore');
 
 

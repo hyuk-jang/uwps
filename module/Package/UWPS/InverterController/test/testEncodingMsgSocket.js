@@ -1,4 +1,4 @@
-global.BU = require('../util/baseUtil.js');
+global.BU = require('../module/baseUtil');
 
 const EncodingMsgSocket = require('../EncodingMsgSocket.js');
 let encodingMsgSocket = new EncodingMsgSocket();

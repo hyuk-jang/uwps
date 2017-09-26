@@ -1,6 +1,6 @@
 const Control = require('./Control.js');
 const config = require("./config.js");
-const BU = require(process.cwd() + '/util/baseUtil.js');
+const BU = require(process.cwd() + '/module/baseUtil');
 
 const _ =  require('underscore');
 

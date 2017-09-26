@@ -1,17 +1,12 @@
 const _ = require('underscore');
-const NU = require('./util/newUtil.js');
+const BU = require(process.cwd() + '/module/baseUtil');
+const NU = require(process.cwd() + '/module/newUtil');
 class Model {
   constructor(controller) {
     this.controller = controller;
 
     this.config = controller.config;
-
     this.socketServerPort = 0;
-
-    // Socket에 접속 중인 사용자 리스트
-    this.clientList = [];
-
-    this.ivtSavedInfo = this.config.ivtSavedInfo;
 
     this.sysInfo = {
       hasSingle: '', // 단상 or 삼상
@@ -36,22 +31,6 @@ class Model {
       lf: 0 // 라인 주파수 Line Frequency, 단위: Hz
     };
 
-    this.singleGridData = {
-      amp: 0, // Ampere
-      vol: 0, // voltage
-      lf: 0 // 라인 주파수 Line Frequency, 단위: Hz
-    }
-
-    this.thirdGridData = {
-      rsVol: 0, // rs 선간 전압
-      stVol: 0, // st 선간 전압
-      trVol: 0, // tr 선간 전압
-      rAmp: 0, // r상 전류
-      sAmp: 0, // s상 전류
-      tAmp: 0, // t상 전류
-      lf: 0 // 라인 주파수 Line Frequency, 단위: Hz
-    }
-
     this.power = {
       // pvWh: 0, //  현재 태양 전지 출력 전력량, 단위: 
       gridKw: 0,  // 출력 전력
@@ -59,20 +38,6 @@ class Model {
       cpKwh: 0, // 인버터 누적 발전량 mWh  Cumulative Power Generation
       pf: 0,  // 역률 Power Factor %
     }
-
-
-    this.dummy = {
-      pointHour: 0,
-      pointDate: 1,
-      storageHourKwh: [],
-      storageDailyKwh: []
-    }
-
-
-
-    this.ivt_seq = 0; // mysql inverter_data_seq
-
-
   }
 
   // 현재 매칭된 값의 소수점 절삭하여 반환

@@ -1,4 +1,4 @@
-const NU = require('./util/newUtil.js');
+const NU = require('./module/newUtil');
 
 class Model {
   constructor(controller) {

@@ -1,14 +1,16 @@
 const serialport = require('serialport');
 const eventToPromise = require('event-to-promise');
 
-class SerialConnector {
+const EventEmitter = require('events');
+
+class SerialClient extends EventEmitter {
   constructor(deviceInfo = {
     port,
     baudRate,
     transportCode,
     identificationCode
   }) {
-
+    super();
     this.serialClient = {};
     this.serialInfo = deviceInfo;
   }
@@ -39,8 +41,8 @@ class SerialConnector {
     });
 
     await eventToPromise.multi(this.serialClient, ['open'], ['error', 'close']);
-    BU.CLI('Serial Connect Success ',this.serialInfo.deviceName)
+    BU.CLI('Serial Connect Success ', this.serialInfo.deviceName)
     return this.serialClient;
   }
 }
-module.exports = SerialConnector;
+module.exports = SerialClient;

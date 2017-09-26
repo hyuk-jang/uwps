@@ -40,3 +40,23 @@ function toFixedAll(obj, toFixed) {
   return returnValue;
 }
 exports.toFixedAll = toFixedAll;
+
+
+function concatArrayBuffer() {
+  let arr = [];
+  console.log(arguments)
+  // for (let count = 0; count < arguments.length; count += 1) {
+  //   let element = arguments[count];
+  //   if (typeof element === 'number') {
+  //     arr.push(Buffer.from(element, 'number') );
+  //   } else {
+  //     element.forEach(buf => {
+  //       console.log(buf)
+  //       arr.push(Buffer.from(buf, 'number'));
+  //     })
+  //   }
+  // }
+  // console.log(arr)
+  // return Buffer.concat(arr);
+}
+exports.concatArrayBuffer = concatArrayBuffer;

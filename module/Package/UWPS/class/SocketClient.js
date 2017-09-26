@@ -1,12 +1,10 @@
 const net = require('net');
-const EventEmitter = require('events');
 const eventToPromise = require('event-to-promise');
 
-const SmBuffer = require(process.cwd().concat('/class/SmBuffer.js'));
+const SmBuffer = require(process.cwd().concat('/class/SmBuffer'));
 
-class SocketClient extends EventEmitter {
+class SocketClient {
   constructor(controller) {
-    super();
     this.controller = controller;
 
     this.socketClient = {};
@@ -28,8 +26,9 @@ class SocketClient extends EventEmitter {
     this.socketClient.on('endBuffer', (err, data) => {
       if (err) {
         BU.logFile(err);
+        return this.controller.emit('receiveSocketData', err)
       } else {
-        this.controller._onReceiveInverterMsg(JSON.parse(data));
+        return this.controller.emit('receiveSocketData', null, JSON.parse(data))
       }
     })
 

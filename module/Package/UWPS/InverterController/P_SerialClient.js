@@ -1,6 +1,6 @@
-const SerialConnector = require(process.cwd().concat('/class/SerialConnector.js'));
+const SerialClient = require(process.cwd().concat('/class/SerialClient'));
 
-class P_SerialManager extends SerialConnector {
+class P_SerialClient extends SerialClient {
   constructor(controller) {
     super(controller.config.deviceInfo);
 
@@ -25,8 +25,8 @@ class P_SerialManager extends SerialConnector {
 
   // 데이터 처리 핸들러
   processData(resData) {
-    return this.controller._onReceiveInverterMsg(resData);
+    return this.controller.emit('receiveInverterData', null, resData);
   }
 }
 
-module.exports = P_SerialManager;
+module.exports = P_SerialClient;

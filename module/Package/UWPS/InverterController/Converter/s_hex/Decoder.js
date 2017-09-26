@@ -1,4 +1,4 @@
-const Converter = require('./Converter.js');
+const Converter = require('../Converter.js');
 const singleHexProtocolTable = require('./singleHexProtocolTable.js');
 
 class DecodingMsgSingleHex extends Converter {

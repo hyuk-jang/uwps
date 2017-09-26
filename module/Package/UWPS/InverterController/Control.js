@@ -7,7 +7,7 @@ const Model = require('./Model.js');
 const DummyInverter = require('./DummyInverter/Control.js');
 
 const P_Setter = require('./P_Setter.js');
-const Converter = require('./Converter.js');
+const Converter = require('./Converter/Converter.js');
 
 const SocketClient = require(process.cwd() + '/class/SocketClient');
 const P_SerialClient = require('./P_SerialClient');
@@ -20,7 +20,6 @@ class Control extends EventEmitter {
       hasDev: true,
       controlOption: {},
       ivtSavedInfo: {},
-      deviceInfo: {},
       calculateOption: {}
     };
     Object.assign(this.config, config.current);
@@ -91,13 +90,8 @@ class Control extends EventEmitter {
     // try {
     // 인버터 타입에 맞는 프로토콜을 바인딩
     let dialing = this.config.ivtSavedInfo.dialing;
-    const settingObj = await this.p_Setter.settingConverter(dialing);
+    let socketPort = await this.p_Setter.settingConverter(dialing);
     // NOTE 인텔리전스를 위해 P_Setter에서 재정의함
-    // this.encoder = settingObj.encoder;
-    // this.decoder = settingObj.decoder;
-    // 개발 버젼이라면 Socket 서버를 구동시키고 구동된 Port를 정의
-    this.model.socketServerPort = settingObj.socketPort;
-    // 개발 버젼이라면 Socket Client를 생성하고 Socket Server에 접속
     await this.connectInverter();
     return this;
     // } catch (error) {
@@ -109,10 +103,13 @@ class Control extends EventEmitter {
   // 인버터 접속 클라이언트 설정
   async connectInverter() {
     try {
-      if (this.config.hasDev) {
-        this.connectedInverter = await this.socketClient.connect(this.model.socketServerPort);
-      } else if (this.config.deviceInfo.hasSocket) { // TODO Serial Port에 접속하는 기능
-        this.connectedInverter = await this.socketClient.connect(this.config.deviceInfo.port, this.config.deviceInfo.ip);
+      // 개발 버전일경우 자체 더미 인버터 소켓에 접속
+      // if (this.config.hasDev) {
+      //   this.connectedInverter = await this.socketClient.connect(this.model.socketServerPort);
+      // } else 
+      
+      if (this.config.ivtSavedInfo.connect_type === 'socket') { // TODO Serial Port에 접속하는 기능
+        this.connectedInverter = await this.socketClient.connect(this.config.ivtSavedInfo.port, this.config.ivtSavedInfo.ip);
       } else {
         this.connectedInverter = await this.p_SerialClient.connect();
       }
@@ -277,7 +274,7 @@ class Control extends EventEmitter {
     })
 
     // 스케줄러 실행
-    this.on('startGetter', reserveList => {
+    this.p_Setter.on('startGetter', reserveList => {
       BU.log('startGetter')
       this.model.controlStatus.reserveCmdList = reserveList;
       this.commander();

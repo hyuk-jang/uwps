@@ -1,6 +1,10 @@
+const Promise = require('bluebird');
+const EventEmitter = require('events');
 const cron = require('cron');
-class P_Setter {
+
+class P_Setter extends EventEmitter {
   constructor(controller) {
+    super();
     this.controller = controller;
     this.config = controller.config;
     this.cronJob = null;
@@ -8,36 +12,31 @@ class P_Setter {
 
   async settingConverter(dialing) {
     try {
-      let returnValue = {
-        encoder: {},
-        decoder: {},
-        socketPort: 0
-      };
       let Encoder = null;
       let Decoder = null;
 
-      // 개발용 버전일 경우 인버터 소켓 서버 구동 및 소켓 프로토콜 컨버터 바인딩
+      // 개발용 버전일 경우 더미 인버터프로그램 구동
       if (this.config.hasDev) {
-        Encoder = require('./EncodingMsgSocket.js')
-        Decoder = require('./DecodingMsgSocket.js');
-
         let port = await this.controller.dummyInverter.init();
-        returnValue.socketPort = port;
-        // returnValue.socketPort = 6000;
-
-      } else if (this.config.deviceInfo.deviceName === 'singleHexInverter') {
-        Encoder = require('./EncodingMsgSingleHex.js')
-        Decoder = require('./DecodingMsgSingleHex.js');
-      } else {
-        // BU.logFile('인버터 프로토콜 컨버터가 없습니다.');
-        throw '인버터 프로토콜 컨버터가 없습니다.';
+        // 개발용 버전이면서 접속 타입이 socket일 경우에는 서로 연결시킬 port 지정
+        if(this.config.ivtSavedInfo.connect_type === 'socket'){
+          this.controller.model.ivtSavedInfo.port = port;
+        }
       }
+
+      // 컨버터를 붙임
+      let encoderPath = `./Converter/${this.config.ivtSavedInfo.target_category}/Encoder`;
+      let decoderPath = `./Converter/${this.config.ivtSavedInfo.target_category}/Decoder`;
+
+      Encoder = require(encoderPath);
+      Decoder = require(decoderPath);
+
       this.controller.encoder = new Encoder(dialing);
       this.controller.decoder = new Decoder(dialing);
 
-      return returnValue;
+      return true;
     } catch (error) {
-      console.trace(error);
+      BU.CLI(error);
       throw Error(error);
     }
   }
@@ -45,11 +44,11 @@ class P_Setter {
   // 인버터로 메시지 발송
   async writeMsg(msg) {
     // BU.CLI(msg)
-    if (this.config.deviceInfo.hasSocket && this.controller.socketClient.client === {}) {
+    if (this.config.ivtSavedInfo.connect_type === 'socket' && this.controller.socketClient.client === {}) {
       BU.CLI('Socket Client 연결이되지 않았습니다.');
       this.controller.connectedInverter = {};
       throw Error('Socket Client 연결이 되지 않았습니다.');
-    } else if (!this.config.deviceInfo.hasSocket && this.controller.p_SerialClient.serialClient === {}) {
+    } else if (this.controller.p_SerialClient.serialClient === {}) {
       // BU.CLI('Serial Client 연결이되지 않았습니다.');
       this.controller.connectedInverter = {};
       throw Error('Serial Client 연결이 되지 않았습니다.');
@@ -63,7 +62,7 @@ class P_Setter {
   // 스케줄러 설정
   runCronGetter() {
     // if(this.controller.config.hasDev){
-      this._occurRequestInverterData();
+    this._occurRequestInverterData();
     // }
 
     try {
@@ -99,7 +98,7 @@ class P_Setter {
       }
     });
 
-    return this.controller.emit('startGetter',returnValue);
+    return this.emit('startGetter', returnValue);
   }
 
 }

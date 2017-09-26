@@ -14,16 +14,17 @@ let baseIvt = config.InverterController[0];
 
 let comPort = 9;
 let ivtSeq = 5;
-for(cnt = 1; cnt <= 2; cnt++){
+for(cnt = 1; cnt <= 1; cnt++){
   
   let cloneIvt = JSON.parse(JSON.stringify(baseIvt))  ;
   cloneIvt.current.ivtSavedInfo.inverter_seq = ivtSeq++;
   cloneIvt.current.ivtSavedInfo.target_id = 'IVT' + cnt;
   cloneIvt.current.ivtSavedInfo.target_name = '인버터 ' + cnt;
-  cloneIvt.current.deviceInfo.hasSocket = true;
-  cloneIvt.current.deviceInfo.port = 'COM' + comPort++ ;
+  cloneIvt.current.ivtSavedInfo.connect_type = 'serial';
+  cloneIvt.current.ivtSavedInfo.ip = 'localhost';
+  cloneIvt.current.ivtSavedInfo.port = 'COM' + comPort++ ;
   cloneIvt.current.hasDev = true;
-  BU.log(cloneIvt.current.deviceInfo.target_id)
+  BU.log(cloneIvt.current.ivtSavedInfo.target_id)
   ivtList.push(cloneIvt);
 }
 

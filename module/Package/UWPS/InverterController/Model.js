@@ -1,4 +1,4 @@
-const NU = require('./module/newUtil');
+const NU = require(process.cwd() + '/module/newUtil');
 
 class Model {
   constructor(controller) {
@@ -24,7 +24,7 @@ class Model {
     }
 
 
-    this.socketServerPort = 0;
+    // this.socketServerPort = 0;
 
     // Socket에 접속 중인 사용자 리스트
     this.clientList = [];

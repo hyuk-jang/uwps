@@ -7,23 +7,19 @@ module.exports = {
     },
     ivtSavedInfo: {
       inverter_seq: 5,
+      target_category: 's_hex',
       target_id: 'IVT1',
       target_name: '인버터 1',
       target_type: 0, // 0: 단상, 1: 삼상
-      dialing: '04', // id, 
+      dialing: '04', // id,
+      connect_type: 'serial', // `socket` or `serial`
+      ip: 'localhost', // Socket 연결 시 사용
+      port: 'COM1', // Port를 직접 지정하고자 할때 사용
+      baud_rate: 9600, // 장치 BaudRate
       code: '장치 고유 id', 
       amount: 3, // 3Kw, 
       director_name: '홍길동', 
       director_tel: '01012345589'
-    },
-    deviceInfo: {
-      hasSocket: false,
-      deviceName: 'singleHexInverter', // Device Name
-      ip: 0,
-      port: 'COM1', // Port를 직접 지정하고자 할때 사용
-      baudRate: 9600, // 장치 BaudRate
-      transportCode: '', // Serial이 연결되고 특정 Code를 전송해야 할 경우
-      identificationCode: '41494e20253d', // Transport 과정이 끝나고 난뒤 Receive Packet의 특정 Code 포함여부},
     },
     calculateOption: {
       averageCount: 3, // 평균 합산 변수

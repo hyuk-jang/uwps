@@ -48,10 +48,10 @@ control.init()
     
   //   return control.send2Cmd(control.cmdList[keys[index++]]);
   // })
-  // .catch(error => {
+  .catch(error => {
 
-  //   return BU.CLI(error)
-  // })
+    return BU.CLI(error)
+  })
 
 // .catch(error => {
 

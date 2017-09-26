@@ -2,7 +2,7 @@ const SerialClient = require(process.cwd().concat('/class/SerialClient'));
 
 class P_SerialClient extends SerialClient {
   constructor(controller) {
-    super(controller.config.deviceInfo);
+    super(controller.config.ivtSavedInfo);
 
     // control 객체
     this.controller = controller;
@@ -10,7 +10,7 @@ class P_SerialClient extends SerialClient {
   }
 
   async connect() {
-    await super.connect();
+    this.serialClient = await super.connect();
     this.serialClient.on('close', error => {
       this.serialClient = {};
       this.controller.emit('disconnectedInverter')

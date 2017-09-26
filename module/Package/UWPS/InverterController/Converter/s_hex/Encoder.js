@@ -1,10 +1,9 @@
-const Converter = require('./Converter.js');
+const Converter = require('../Converter.js');
 const singleHexProtocolTable = require('./singleHexProtocolTable.js');
 
 class EncodingMsgSingleHex extends Converter {
   constructor(dialing) {
     super();
-    this.cmdList = {};
     this.protocolTable = singleHexProtocolTable.encodingProtocolTable(dialing);
   }
 

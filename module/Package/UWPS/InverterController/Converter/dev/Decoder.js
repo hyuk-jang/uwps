@@ -1,4 +1,4 @@
-const Converter = require('./Converter.js');
+const Converter = require('../Converter.js');
 
 class DecodingMsgSocket extends Converter {
   constructor(controller) {

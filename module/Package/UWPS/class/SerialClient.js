@@ -6,9 +6,8 @@ const EventEmitter = require('events');
 class SerialClient extends EventEmitter {
   constructor(deviceInfo = {
     port,
-    baudRate,
-    transportCode,
-    identificationCode
+    baud_rate,
+    target_name
   }) {
     super();
     this.serialClient = {};
@@ -25,7 +24,7 @@ class SerialClient extends EventEmitter {
 
   async connect() {
     this.serialClient = new serialport(this.serialInfo.port, {
-      baudrate: this.serialInfo.baudRate,
+      baudrate: this.serialInfo.baud_rate,
     });
 
     this.serialClient.on('data', (data) => {
@@ -37,11 +36,11 @@ class SerialClient extends EventEmitter {
     });
 
     this.serialClient.on('error', err => {
-      BU.CLI('Error Occur : ' + this.serialInfo.deviceName, err);
+      BU.CLI('Error Occur : ' + this.serialInfo.target_name, err);
     });
 
     await eventToPromise.multi(this.serialClient, ['open'], ['error', 'close']);
-    BU.CLI('Serial Connect Success ', this.serialInfo.deviceName)
+    BU.CLI('Serial Connect Success ', this.serialInfo.target_name)
     return this.serialClient;
   }
 }

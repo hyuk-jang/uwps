@@ -47,7 +47,6 @@ class DecodingMsgSocket extends Converter {
       contents: this.applyObjCalculateScale(resObj.contents, 1, 4)
     }
 
-    // BU.CLI(returnValue)
     return returnValue;
   }
 
@@ -69,6 +68,7 @@ class DecodingMsgSocket extends Converter {
   }
 
   _receiveData(socketData) {
+    socketData = typeof socketData === 'string' ? JSON.parse(socketData) : socketData;
     return this[socketData.cmd](socketData);
   }
 }

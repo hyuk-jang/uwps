@@ -1,7 +1,5 @@
 const Converter = require('../Converter.js');
 
-const BU = require('../../module/baseUtil');
-
 class EncodingMsgSocket extends Converter {
   constructor() {
     super();

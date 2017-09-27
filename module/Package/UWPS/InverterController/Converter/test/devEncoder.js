@@ -1,5 +1,5 @@
-const BU = require('../../module/baseUtil');
-const NU = require('../../module/newUtil');
+// const BU = require('../../module/baseUtil');
+// const NU = require('../../module/newUtil');
 
 const EncodingMsgSocket = require('../dev/Encoder');
 let encodingMsgSocket = new EncodingMsgSocket();

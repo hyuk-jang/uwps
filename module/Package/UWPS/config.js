@@ -4,19 +4,19 @@ module.exports = {
   },
   InverterController: [{
     current: {
-      hasDev: false, // 테스트모드 여부 -> 테스트 소켓 서버 및 테스트 데이터 생성 여부
+      hasDev: true, // 테스트모드 여부 -> 테스트 소켓 서버 및 테스트 데이터 생성 여부
       controlOption: {
         reconnectInverterInterval: 1000 * 6, // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
         sendMsgTimeOutSec: 1, // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
       },
       ivtSavedInfo: {
         inverter_seq: 5,
-        target_category: 's_hex',
+        target_category: 'dev',
         target_id: 'IVT1',
         target_name: '인버터 1',
         target_type: 0, // 0: 단상, 1: 삼상
         dialing: '04', // id,
-        connect_type: 'serial', // `socket` or `serial`
+        connect_type: 'socket', // `socket` or `serial`
         ip: 'localhost', // Socket 연결 시 사용
         port: 'COM1', // Port를 직접 지정하고자 할때 사용
         baud_rate: 9600, // 장치 BaudRate

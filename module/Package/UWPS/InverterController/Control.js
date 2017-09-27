@@ -9,7 +9,10 @@ const DummyInverter = require('./DummyInverter/Control.js');
 const P_Setter = require('./P_Setter.js');
 const Converter = require('./Converter/Converter.js');
 
-const SocketClient = require(process.cwd() + '/class/SocketClient');
+// const P_SocketClient = require('./class/SmSocketClient');
+
+// const SmSocketClient = require(process.cwd() + '/class/SmSocketClient');
+const P_SocketClient = require('./P_SocketClient');
 const P_SerialClient = require('./P_SerialClient');
 
 class Control extends EventEmitter {
@@ -31,7 +34,7 @@ class Control extends EventEmitter {
     this.decoder = new Converter();
     this.connectedInverter = null;
 
-    this.socketClient = new SocketClient(this);
+    this.p_SocketClient = new P_SocketClient(this);
 
     // Model
     this.model = new Model(this);
@@ -102,6 +105,7 @@ class Control extends EventEmitter {
 
   // 인버터 접속 클라이언트 설정
   async connectInverter() {
+    BU.CLI('connectInverter')
     try {
       // 개발 버전일경우 자체 더미 인버터 소켓에 접속
       // if (this.config.hasDev) {
@@ -109,7 +113,13 @@ class Control extends EventEmitter {
       // } else 
       
       if (this.config.ivtSavedInfo.connect_type === 'socket') { // TODO Serial Port에 접속하는 기능
-        this.connectedInverter = await this.socketClient.connect(this.config.ivtSavedInfo.port, this.config.ivtSavedInfo.ip);
+        // BU.CLI('?????????')
+        BU.CLI(this.config.ivtSavedInfo.port, this.config.ivtSavedInfo.ip)
+
+        // NOTE Dev모드에서는 Socket Port를 재설정하므로 지정 경로로 접속기능 필요
+        this.connectedInverter = await this.p_SocketClient.connect(this.config.ivtSavedInfo.port, this.config.ivtSavedInfo.ip);
+        BU.CLI('Socket에 접속하였습니다.')
+        // BU.CLI('TTTTT')
       } else {
         this.connectedInverter = await this.p_SerialClient.connect();
       }
@@ -125,7 +135,7 @@ class Control extends EventEmitter {
 
       return this.connectedInverter;
     } catch (error) {
-      // BU.CLI(error)
+      BU.CLI(error)
       this.emit('disconnectedInverter', error);
     }
   }
@@ -149,7 +159,7 @@ class Control extends EventEmitter {
         }).catch(error => {
           // TODO 에러 처리 어떻게 할지 생각 필요
           let msg = `${this.inverterId}의 ${cmd}명령 수행 도중 ${error.message}오류가 발생하였습니다.`;
-          BU.errorLog('send2InverterErr', msg, error);
+          BU.errorLog('send2InverterErr', msg);
           BU.CLI(msg)
           // BU.CLI(this.model.controlStatus, error)
           return this.commander();
@@ -292,12 +302,17 @@ class Control extends EventEmitter {
 
     // 인버터 시리얼 장치 데이터 수신 핸들러
     this.on('receiveInverterData', (err, result) => {
-      // BU.CLI(err, result)
+      // BU.CLI('receiveInverterData',err, result)
       if (err) {
         return BU.errorLog('receiveDataError', err)
       }
       return this._onReceiveInverterMsg(result);
     })
+
+
+    // this.connectedInverter.on('disconnectedSocketClient', () => {
+    //   return this.emit('disconnectedInverter');
+    // })
 
   }
 

@@ -1,8 +1,6 @@
 const SocketServer = require('./SocketServer');
 const SmBuffer = require('./SmBuffer');
 
-const BU = require('../module/baseUtil');
-
 class SmSocketServer extends SocketServer {
   constructor(port) {
     super(port);
@@ -10,7 +8,6 @@ class SmSocketServer extends SocketServer {
 
 
   _initSocket(socket) {
-    // BU.CLI('initSocket')
     socket.smBuffer = new SmBuffer(socket);
 
     // Socket
@@ -20,7 +17,6 @@ class SmSocketServer extends SocketServer {
         return;
       }
       this._onUsefulData(null, resBufferData, socket);
-      // BU.CLI(resBufferData)
     });
 
 

@@ -1,57 +1,71 @@
 const net = require('net');
+const EventEmitter = require('events');
 const eventToPromise = require('event-to-promise');
 
-const SmBuffer = require(process.cwd().concat('/class/SmBuffer'));
+class SocketClient extends EventEmitter {
+  constructor(port, host) {
+    super();
+    this.port = port;
+    this.host = host;
 
-class SocketClient {
-  constructor(controller) {
-    this.controller = controller;
+    this.client = {};
+  }
 
-    this.socketClient = {};
+  _initSocket(client) {
+  }
 
-    this.port = 0;
-    this.host = 0;
+  _onData(data) {
+    return this.emit('dataBySocketClient', null, data);
+  }
+
+  _onUsefulData(err, data) {
+  }
+
+  _onClose(err) {
+    return this.emit('disconnectedSocketClient', err);
   }
 
 
   async connect(port, host) {
+    // BU.CLI(port, host)
+    // BU.CLI('@@@@@@@@@@@@@@@@@@@@@@@@@@@')
     if (port === 0 || port == null) {
       throw Error('port가 안열림');
     }
     this.port = port;
     this.host = host ? host : 'localhost';
 
-    this.socketClient = net.createConnection(port, host);
-    this.socketClient.smBuffer = new SmBuffer(this.socketClient);
-    this.socketClient.on('endBuffer', (err, data) => {
-      if (err) {
-        BU.logFile(err);
-        return this.controller.emit('receiveSocketData', err)
-      } else {
-        return this.controller.emit('receiveSocketData', null, JSON.parse(data))
-      }
-    })
+    this.client = net.createConnection(port, host);
+    this._initSocket(this.client);
 
-    this.socketClient.on('close', error => {
-      this.socketClient = {};
-      this.controller.emit('disconnectedInverter', this.port);
-    })
-
-    this.socketClient.on('data', data => {
+    this.client.on('data', data => {
       // BU.CLI('@@@@@@@@@@@@@@', data.toString());
-      this.socketClient.smBuffer.addBuffer(data);
-    });
-    this.socketClient.on('end', () => {
-      console.log('Client disconnected');
+      this.client = {};
+      this._onData(data);
+      // this.client.smBuffer.addBuffer(data);
     });
 
-    this.socketClient.on('error', error => {
+    this.client.on('close', error => {
+      this.client = {};
+      this._onClose(error);
+      // this.controller.emit('disconnectedInverter', this.port);
+    })
+
+    this.client.on('end', () => {
+      console.log('Client disconnected');
+      this.client = {};
+      this._onClose('err');
+    });
+
+    this.client.on('error', error => {
+      this.client = {};
+      this._onClose(error);
       // BU.CLI('error')
       // this.socketClient = {};
       // this.controller.emit('disconnectedInverter');
     })
-    await eventToPromise.multi(this.socketClient, ['connect', 'connection', 'open'], ['close, error'])
-    return this.socketClient;
+    await eventToPromise.multi(this.client, ['connect', 'connection', 'open'], ['close, error'])
+    return this.client;
   }
 }
 

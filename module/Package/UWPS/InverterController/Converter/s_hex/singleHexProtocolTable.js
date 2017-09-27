@@ -122,6 +122,9 @@ exports.encodingProtocolTable = (dialing) => {
       code: 'R',
       address: '01e0',
       length: '03'
-    }
+    },
+    // weather: {
+
+    // }
   }
 }

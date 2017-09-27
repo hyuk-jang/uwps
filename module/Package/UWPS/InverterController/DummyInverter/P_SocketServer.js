@@ -2,9 +2,10 @@ const net = require('net');
 const eventToPromise = require('event-to-promise');
 const _ = require('underscore');
 
-const SmSocketServer = require(process.cwd() + '/class/SmSocketServer');
+const BUJ = require('base-util-jh');
+const BU = BUJ.baseUtil;
 
-const BU = require(process.cwd() + '/module/baseUtil');
+const SmSocketServer = require('./class/SmSocketServer');
 
 class P_SocketServer extends SmSocketServer {
   constructor(controller) {

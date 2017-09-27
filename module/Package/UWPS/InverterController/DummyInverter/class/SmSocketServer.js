@@ -1,7 +1,9 @@
 const SocketServer = require('./SocketServer');
 const SmBuffer = require('./SmBuffer');
 
-const BU = require('../module/baseUtil');
+const BUJ = require('base-util-jh');
+const BU = BUJ.baseUtil;
+
 
 class SmSocketServer extends SocketServer {
   constructor(port) {

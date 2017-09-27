@@ -1,4 +1,4 @@
-const SerialClient = require(process.cwd().concat('/class/SerialClient'));
+const SerialClient = require('./class/SerialClient');
 
 class P_SerialClient extends SerialClient {
   constructor(controller) {

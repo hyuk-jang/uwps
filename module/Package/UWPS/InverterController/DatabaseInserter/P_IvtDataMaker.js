@@ -1,7 +1,8 @@
 const _ = require('underscore');
 const Bi = require('./Bi.js');
 
-const BU = require('./baseUtil.js');
+const BUJ = require('base-util-jh');
+const BU = BUJ.baseUtil;
 
 class P_IvtDataMaker {
   constructor(controller) {

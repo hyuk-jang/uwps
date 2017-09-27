@@ -1,7 +1,12 @@
 const _ = require('underscore');
+
+const BUJ = require('base-util-jh');
+const BU = BUJ.baseUtil;
+
 const Control = require('./Control.js');
 const config = require('./config.js');
-const BU = require(process.cwd() + '/module/baseUtil');
+
+
 global.BU = BU;
 
 

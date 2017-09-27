@@ -5,7 +5,8 @@ module.exports = baseModel;
 
 
 // var db = require('./db');
-// const BU = require('./baseUtil.js');
+// const BUJ = require('base-util-jh');
+// const BU = BUJ.baseUtil;
 // const baseModel = require('./baseModel.js');
 
 // baseModel.getTable('whetherdevice')

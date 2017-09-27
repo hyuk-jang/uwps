@@ -1,6 +1,6 @@
 const _ = require('underscore');
 const cron = require('cron');
-const BM = require(process.cwd() + '/module/baseModel');
+const BM = require('./module/baseModel');
 
 class Model {
   constructor(controller) {

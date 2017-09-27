@@ -1,4 +1,6 @@
-const NU = require(process.cwd() + '/module/newUtil');
+const BUJ = require('base-util-jh');
+
+const NU = BUJ.newUtil;
 
 class Model {
   constructor(controller) {

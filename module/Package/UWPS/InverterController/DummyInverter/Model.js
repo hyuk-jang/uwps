@@ -1,6 +1,7 @@
 const _ = require('underscore');
-const BU = require(process.cwd() + '/module/baseUtil');
-const NU = require(process.cwd() + '/module/newUtil');
+const BUJ = require('base-util-jh');
+const BU = BUJ.baseUtil;
+const NU = BUJ.newUtil;
 class Model {
   constructor(controller) {
     this.controller = controller;

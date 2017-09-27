@@ -1,6 +1,8 @@
 const Control = require('./Control.js');
 const config = require("./config.js");
-const BU = require(process.cwd() + '/module/baseUtil');
+const BUJ = require('base-util-jh');
+const BU = BUJ.baseUtil;
+
 
 const _ =  require('underscore');
 
@@ -14,13 +16,13 @@ let baseIvt = config.InverterController[0];
 
 let comPort = 9;
 let ivtSeq = 5;
-for(cnt = 1; cnt <= 1; cnt++){
+for(cnt = 1; cnt <= 2; cnt++){
   
   let cloneIvt = JSON.parse(JSON.stringify(baseIvt))  ;
   cloneIvt.current.ivtSavedInfo.inverter_seq = ivtSeq++;
   cloneIvt.current.ivtSavedInfo.target_id = 'IVT' + cnt;
   cloneIvt.current.ivtSavedInfo.target_name = '인버터 ' + cnt;
-  cloneIvt.current.ivtSavedInfo.connect_type = 'serial';
+  cloneIvt.current.ivtSavedInfo.connect_type = 'socket';
   cloneIvt.current.ivtSavedInfo.ip = 'localhost';
   cloneIvt.current.ivtSavedInfo.port = 'COM' + comPort++ ;
   cloneIvt.current.hasDev = true;

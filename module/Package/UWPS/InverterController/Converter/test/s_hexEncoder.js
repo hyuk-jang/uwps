@@ -1,5 +1,6 @@
-// const BU = require('../../module/baseUtil');
-// const NU = require('../../module/newUtil');
+const BUJ = require('base-util-jh');
+const BU = BUJ.baseUtil;
+const NU = BUJ.newUtil;
 
 const _ = require('underscore');
 

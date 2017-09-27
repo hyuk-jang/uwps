@@ -1,5 +1,7 @@
 const _ = require('underscore');
-const BU = require(process.cwd() + '/module/baseUtil');
+const BUJ = require('base-util-jh');
+const BU = BUJ.baseUtil;
+
 
 class P_GenerateData {
   constructor(controller) {

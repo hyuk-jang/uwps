@@ -7,8 +7,6 @@ class P_GenerateData {
   constructor(controller) {
     this.controller = controller;
 
-    this.hasPlus = false;
-
     this.pvInfo = this.controller.config.dummyValue.pv;
   }
 

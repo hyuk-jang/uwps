@@ -1,6 +1,7 @@
 const _ = require('underscore');
 const cron = require('cron');
-const BM = require('./module/baseModel');
+const BMJ = require('base-model-jh');
+//  require('./module/baseModel');
 
 class Model {
   constructor(controller) {
@@ -10,6 +11,8 @@ class Model {
     this.measureConnectorList = [];
 
     this.cronJob = null;
+
+    this.BM = new BMJ(this.controller.config.dbInfo);
   }
 
   // 인버터 id로 인버터 컨트롤러 객체 찾아줌
@@ -72,7 +75,7 @@ class Model {
     // TEST 실제 입력은 하지 않음. 
     return;
 
-    BM.setTables('inverter_data',measureInverterDataList)
+    this.BM.setTables('inverter_data',measureInverterDataList)
     .then(result => {
       // 데이터 정상적으로 입력 수행
       return true;

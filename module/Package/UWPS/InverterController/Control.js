@@ -9,9 +9,6 @@ const DummyInverter = require('./DummyInverter/Control.js');
 const P_Setter = require('./P_Setter.js');
 const Converter = require('./Converter/Converter.js');
 
-// const P_SocketClient = require('./class/SmSocketClient');
-
-// const SmSocketClient = require(process.cwd() + '/class/SmSocketClient');
 const P_SocketClient = require('./P_SocketClient');
 const P_SerialClient = require('./P_SerialClient');
 

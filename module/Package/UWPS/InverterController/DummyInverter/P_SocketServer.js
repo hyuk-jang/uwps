@@ -12,10 +12,7 @@ class P_SocketServer extends SmSocketServer {
     super(controller.config.port)
     this.controller = controller;
 
-    this.port = this.controller.config.port;
-
     this._eventHandler();
-    
   }
 
   _eventHandler() {
@@ -88,9 +85,9 @@ class P_SocketServer extends SmSocketServer {
     return returnValue;
   }
 
-  createServer(){
-    return super.createServer();
-  }
+  // createServer(){
+  //   return super.createServer();
+  // }
 
 }
 module.exports = P_SocketServer;

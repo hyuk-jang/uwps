@@ -10,7 +10,7 @@ class SerialClient extends EventEmitter {
     target_name
   }) {
     super();
-    this.serialClient = {};
+    this.client = {};
     this.serialInfo = deviceInfo;
   }
 
@@ -18,30 +18,30 @@ class SerialClient extends EventEmitter {
 
   }
 
-  processData() {
+  processData(data) {
 
   }
 
   async connect() {
-    this.serialClient = new serialport(this.serialInfo.port, {
+    this.client = new serialport(this.serialInfo.port, {
       baudrate: this.serialInfo.baud_rate,
     });
 
-    this.serialClient.on('data', (data) => {
+    this.client.on('data', (data) => {
       this.processData(data);
     })
 
-    this.serialClient.on('close', err => {
+    this.client.on('close', err => {
       BU.CLI('시리얼 Close');
     });
 
-    this.serialClient.on('error', err => {
+    this.client.on('error', err => {
       BU.CLI('Error Occur : ' + this.serialInfo.target_name, err);
     });
 
-    await eventToPromise.multi(this.serialClient, ['open'], ['error', 'close']);
+    await eventToPromise.multi(this.client, ['open'], ['error', 'close']);
     BU.CLI('Serial Connect Success ', this.serialInfo.target_name)
-    return this.serialClient;
+    return this.client;
   }
 }
 module.exports = SerialClient;

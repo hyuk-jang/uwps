@@ -75,49 +75,12 @@ class Control extends EventEmitter {
    * Socket 처리 구간 Start
    */
 
-  // cmdProcessor(cmd) {
-  //   // BU.CLI('cmdProcessor', cmd)
-  //   let returnValue = '';
-  //   switch (cmd) {
-  //     case 'fault':
-  //       // BU.CLI('cmdProcessor :' + cmd, this.currIvtDataForDbms)
-  //       returnValue = {
-  //         msg: '태양전지 저전압 (변압기 type Only)',
-  //         code: 'Solar Cell UV fault',
-  //         number: 2,
-  //         errorValue: 1
-  //       }
-  //       break;
-  //     case 'pv':
-  //       returnValue = this.model.pv;
-  //       break;
-  //     case 'grid':
-  //       returnValue = this.model.grid;
-  //       break;
-  //     case 'power':
-  //       returnValue = this.model.power;
-  //       break;
-  //     case 'sysInfo':
-  //       // BU.CLI('cmdProcessor :' + cmd, this.currIvtDataForDbms)
-  //       returnValue = this.model.sysInfo;
-  //       break;
-  //     case 'weather':
-  //       // BU.CLI('cmdProcessor :' + cmd, this.currIvtDataForDbms)
-  //       returnValue = {};
-  //       break;
-  //     default:
-  //       break;
-  //   }
-
-  //   return returnValue;
-  // }
-
   _eventHandler() {
     this.p_SocketServer.on('dataBySocketServer', (err, result) => {
       if(err){
 
       }
-      this.cmdProcessor(result)
+      this.p_SocketServer.cmdProcessor(result)
     })
   }
 

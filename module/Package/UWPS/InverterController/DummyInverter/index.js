@@ -21,6 +21,8 @@ let test = control.init()
 
     BU.CLIS(control.model.scaleGrid, control.model.scalePower, control.model.refineInverterData)
     return control.p_SocketServer.cmdProcessor('pv');
+  }).catch(err => {
+    BU.CLI(err)
   });
 
 

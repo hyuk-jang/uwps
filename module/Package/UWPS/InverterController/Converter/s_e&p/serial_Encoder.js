@@ -2,19 +2,21 @@ const BUJ = require('base-util-jh');
 const BU = BUJ.baseUtil;
 const NU = BUJ.newUtil;
 
+global.BU = BU;
+
 const _ = require('underscore');
 
 
-// let test = Buffer.from('0330', 'ascii');
-// let test2 = Buffer.from(0x30);
-// BU.CLIS(test, test2, typeof 0x30, 0x30);
+const Encoder = require('./Encoder');
+let encoder = new Encoder(Buffer.from('01', 'hex'));
+
+// let r = encoder.converter().hex2dec('110E8400E29B11D4A716446655440000');
+
+// let buf = Buffer.from('110E8400E29B11D4A716446655440000');
+
+// BU.CLI(buf)
 
 // return;
-
-
-const EncodingMsgSingleHex = require('../s_hex/Encoder');
-let encodingMsgSingleHex = new EncodingMsgSingleHex(Buffer.from([0x30, 0x31]));
-
 
 const cmdList = {
   getFault: 'fault',
@@ -30,7 +32,7 @@ try {
   for (let ele in cmdList) {
     BU.CLI(cmdList[ele])
     // let result = encodingMsgSingleHex[cmdList[ele]](_.random(0,9) + '' + _.random(0,9), cmdList[ele]);
-    let result = encodingMsgSingleHex.makeMsg(cmdList[ele]);
+    let result = encoder.makeMsg(cmdList[ele]);
     BU.CLI(result)
   }
 } catch (error) {

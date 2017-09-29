@@ -2,18 +2,16 @@ const BUJ = require('base-util-jh');
 const BU = BUJ.baseUtil;
 
 const Converter = require('../Converter.js');
-const singleHexProtocolTable = require('./singleHexProtocolTable.js');
+const s5500kProtocol = require('./s5500kProtocol.js');
 
 class EncodingMsgSingleHex extends Converter {
   constructor(dialing) {
     super();
-    this.protocolTable = singleHexProtocolTable.encodingProtocolTable(dialing);
+    this.protocolTable = s5500kProtocol.encodingProtocolTable(dialing);
   }
 
-  getCheckSum(buf) {
-    let returnValue = this.getSumBuffer(buf);
-    return Buffer.from(this.pad(returnValue.toString(16), 4));
 
+  getCheckSum(buf) {
     return Buffer.from(this.getSumBuffer(buf), 'hex');
   }
 
@@ -25,10 +23,10 @@ class EncodingMsgSingleHex extends Converter {
       }
       let body = this.makeAsciiChr2Buffer(Object.values(msg));
       let returnValue = [
-        this.ENQ,
+        Buffer.from([0x0a, 0x96]),
         body,
-        this.getCheckSum(body), 
-        this.EOT
+        Buffer.from([0x05]),
+        this.getCheckSum(body)
       ];
 
       return Buffer.concat(returnValue)

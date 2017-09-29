@@ -1,3 +1,6 @@
+const BUJ = require('base-util-jh');
+const BU = BUJ.baseUtil;
+
 const Converter = require('../Converter.js');
 
 class DecodingMsgSocket extends Converter {

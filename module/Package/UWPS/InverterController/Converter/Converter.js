@@ -1,8 +1,13 @@
 const EventEmitter = require('events');
 
+const BUJ = require('base-util-jh');
+const BU = BUJ.baseUtil;
+
 class Converter extends EventEmitter {
   constructor() {
     super();
+
+    this.resultMakeAsciiChr2Buffer = [];
   }
   get ENQ() {
     return Buffer.from('05', 'hex');
@@ -35,30 +40,72 @@ class Converter extends EventEmitter {
     return Buffer.from(this.pad(hx.toString(16), byteCount));
   }
 
+  getSumBuffer(buf) {
+    let decCheckSum = 0;
+    buf.forEach(element => decCheckSum += element);
+    let hexCheckSum = this.converter().dec2hex(decCheckSum);
+    return hexCheckSum;
+  }
+
   /**
    * Ascii Char To Ascii Hex
-   * @param {String} dialing 국번: 2 Byte 
-   * @param {String} cmd 명령: 1 Byte
-   * @param {String} addr  시작 번지: 4 Byte
-   * @param {String} count 갯수: 2 Byte
    */
-  makeAscii2Buffer() {
-    let msg = ''
+  makeAsciiChr2Buffer() {
+    // BU.CLI(arguments)
+    this.resultMakeAsciiChr2Buffer = [];
     for (let index in arguments) {
-      if(Array.isArray(arguments[index])){
-        arguments[index].forEach(ele => msg = msg.concat(ele));
-      } else if(typeof arguments[index] === 'string') {
-        msg = msg.concat(arguments[index]);
+      if (Array.isArray(arguments[index])) {
+        this.convertArray2Buffer(arguments[index])
+      } else if (typeof arguments[index] === 'string') {
+        this.resultMakeAsciiChr2Buffer.push(Buffer.from(arguments[index]));
       } else {
-        
+        this.resultMakeAsciiChr2Buffer.push(arguments[index]);
       }
     }
-    
-    const bufMsg = Buffer.from(msg, 'ascii');
+    return Buffer.concat(this.resultMakeAsciiChr2Buffer);
+  }
 
-    return bufMsg;
+  convertArray2Buffer(arr) {
+    // BU.CLI(arr)
+    if (Array.isArray(arr)) {
+      if (typeof arr[0] === 'number') {
+        BU.CLI(arr[0])
+        this.resultMakeAsciiChr2Buffer.push(Buffer.from(arr));
+        return;
+      } else {
+        arr.forEach(element => {
+          if (Array.isArray(element)) {
+            return this.convertArray2Buffer(element);
+          } else if (typeof element === 'object') {
+            return this.resultMakeAsciiChr2Buffer.push(element);
+          } else {
+            return this.resultMakeAsciiChr2Buffer.push(Buffer.from(element));
+          }
+        });
+      }
+    }
+  }
 
+  makeMsg2Buffer() {
+    let msg = ''
+    BU.CLI(arguments)
+    for (let index in arguments) {
+      if (Array.isArray(arguments[index])) {
+        arguments[index].forEach(ele => {
+          if (typeof ele === 'number') {
 
+          }
+          msg = msg.concat(ele)
+        });
+      } else if (typeof arguments[index] === 'string') {
+        msg = msg.concat(arguments[index]);
+      } else {
+
+      }
+      const bufMsg = Buffer.from(msg, 'ascii');
+
+      return bufMsg;
+    }
   }
 
   /**

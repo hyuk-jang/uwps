@@ -2,12 +2,12 @@ const BUJ = require('base-util-jh');
 const BU = BUJ.baseUtil;
 
 const Converter = require('../Converter.js');
-const singleHexProtocolTable = require('./singleHexProtocolTable.js');
+const s_hexProtocol = require('./s_hexProtocol');
 
-class EncodingMsgSingleHex extends Converter {
+class Encoder extends Converter {
   constructor(dialing) {
     super();
-    this.protocolTable = singleHexProtocolTable.encodingProtocolTable(dialing);
+    this.protocolTable = s_hexProtocol.encodingProtocolTable(dialing);
   }
 
   getCheckSum(buf) {
@@ -20,6 +20,7 @@ class EncodingMsgSingleHex extends Converter {
   makeMsg(cmd) {
     try {
       let msg = this.protocolTable[cmd];
+      // BU.CLI(msg)
       if(msg === undefined || BU.isEmpty(msg)){
         return '';
       }
@@ -38,4 +39,4 @@ class EncodingMsgSingleHex extends Converter {
   }
 }
 
-module.exports = EncodingMsgSingleHex;
+module.exports = Encoder;

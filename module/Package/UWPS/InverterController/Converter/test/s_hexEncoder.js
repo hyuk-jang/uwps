@@ -12,8 +12,8 @@ const _ = require('underscore');
 // return;
 
 
-const EncodingMsgSingleHex = require('../s_hex/Encoder');
-let encodingMsgSingleHex = new EncodingMsgSingleHex(Buffer.from([0x30, 0x31]));
+const Encoder = require('../s_hex/Encoder');
+let encoder = new Encoder(Buffer.from([0x30, 0x31]));
 
 
 const cmdList = {
@@ -30,7 +30,7 @@ try {
   for (let ele in cmdList) {
     BU.CLI(cmdList[ele])
     // let result = encodingMsgSingleHex[cmdList[ele]](_.random(0,9) + '' + _.random(0,9), cmdList[ele]);
-    let result = encodingMsgSingleHex.makeMsg(cmdList[ele]);
+    let result = encoder.makeMsg(cmdList[ele]);
     BU.CLI(result)
   }
 } catch (error) {

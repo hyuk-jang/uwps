@@ -26,6 +26,12 @@ class Converter extends EventEmitter {
     return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
   }
 
+  convertNum2Hx2Buffer(dec, width) {
+    let hex = dec.toString(16);
+    hex = this.pad(hex, width || 4);
+    return Buffer.from(hex, 'ascii');
+  }
+
   /**
    * Buffer Hex 합산 값을 Byte 크기만큼 Hex로 재 변환
    * @param {Buffer} buffer Buffer 
@@ -50,7 +56,7 @@ class Converter extends EventEmitter {
   /**
    * Ascii Char To Ascii Hex
    */
-  makeAsciiChr2Buffer() {
+  makeMsg2Buffer() {
     // BU.CLI(arguments)
     this.resultMakeAsciiChr2Buffer = [];
     for (let index in arguments) {
@@ -58,6 +64,8 @@ class Converter extends EventEmitter {
         this.convertArray2Buffer(arguments[index])
       } else if (typeof arguments[index] === 'string') {
         this.resultMakeAsciiChr2Buffer.push(Buffer.from(arguments[index]));
+      } else if (typeof arguments[index] === 'number') {
+        return this.resultMakeAsciiChr2Buffer.push(Buffer.from(this.converter().dec2hex(arguments[index]), 'hex'));
       } else {
         this.resultMakeAsciiChr2Buffer.push(arguments[index]);
       }
@@ -68,45 +76,41 @@ class Converter extends EventEmitter {
   convertArray2Buffer(arr) {
     // BU.CLI(arr)
     if (Array.isArray(arr)) {
-      if (typeof arr[0] === 'number') {
-        BU.CLI(arr[0])
-        this.resultMakeAsciiChr2Buffer.push(Buffer.from(arr));
-        return;
-      } else {
-        arr.forEach(element => {
-          if (Array.isArray(element)) {
-            return this.convertArray2Buffer(element);
-          } else if (typeof element === 'object') {
-            return this.resultMakeAsciiChr2Buffer.push(element);
-          } else {
-            return this.resultMakeAsciiChr2Buffer.push(Buffer.from(element));
-          }
-        });
-      }
+      arr.forEach(element => {
+        if (Array.isArray(element)) {
+          return this.convertArray2Buffer(element);
+        } else if (typeof element === 'object') { // Buffer
+          return this.resultMakeAsciiChr2Buffer.push(element);
+        } else if (typeof element === 'number') { // Dec
+          return this.resultMakeAsciiChr2Buffer.push(Buffer.from(this.converter().dec2hex(element), 'hex'));
+        } else if (typeof element === 'string') { // Ascii Chr
+          return this.resultMakeAsciiChr2Buffer.push(Buffer.from(element));
+        }
+      });
     }
   }
 
-  makeMsg2Buffer() {
-    let msg = ''
-    BU.CLI(arguments)
-    for (let index in arguments) {
-      if (Array.isArray(arguments[index])) {
-        arguments[index].forEach(ele => {
-          if (typeof ele === 'number') {
+  // makeMsg2Buffer() {
+  //   let msg = ''
+  //   BU.CLI(arguments)
+  //   for (let index in arguments) {
+  //     if (Array.isArray(arguments[index])) {
+  //       arguments[index].forEach(ele => {
+  //         if (typeof ele === 'number') {
 
-          }
-          msg = msg.concat(ele)
-        });
-      } else if (typeof arguments[index] === 'string') {
-        msg = msg.concat(arguments[index]);
-      } else {
+  //         }
+  //         msg = msg.concat(ele)
+  //       });
+  //     } else if (typeof arguments[index] === 'string') {
+  //       msg = msg.concat(arguments[index]);
+  //     } else {
 
-      }
-      const bufMsg = Buffer.from(msg, 'ascii');
+  //     }
+  //     const bufMsg = Buffer.from(msg, 'ascii');
 
-      return bufMsg;
-    }
-  }
+  //     return bufMsg;
+  //   }
+  // }
 
   /**
    * 단일 값 Sacle 적용. 소수점 절삭

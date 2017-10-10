@@ -1,7 +1,7 @@
 const Converter = require('../Converter.js');
 const singleHexProtocolTable = require('./singleHexProtocolTable.js');
 
-class DecodingMsgSingleHex extends Converter {
+class Decoder extends Converter {
   constructor(dialing) {
     super();
     this.protocolTable = singleHexProtocolTable.encodingProtocolTable(dialing);
@@ -49,7 +49,7 @@ class DecodingMsgSingleHex extends Converter {
 
     singleHexProtocolTable.faultInfo(0);
 
-    let arrSpliceBuffer = this.spliceArrBuffer(msg);
+    let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
 
     arrSpliceBuffer.forEach((buffer, index) => {
       let binaryValue = this.convertHex2Binary(buffer.toString());
@@ -66,7 +66,7 @@ class DecodingMsgSingleHex extends Converter {
   }
 
   pv(msg) {
-    let arrSpliceBuffer = this.spliceArrBuffer(msg);
+    let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
     let returnValue = {
       vol: this.convertBuffer2Hex2Dec( arrSpliceBuffer[0]),
       amp:this.convertBuffer2Hex2Dec(arrSpliceBuffer[1]) / 10
@@ -76,7 +76,7 @@ class DecodingMsgSingleHex extends Converter {
   }
 
   grid(msg) {
-    let arrSpliceBuffer = this.spliceArrBuffer(msg);
+    let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
 
     let returnValue = {
       rsVol: this.convertBuffer2Hex2Dec( arrSpliceBuffer[0]), // rs 선간 전압
@@ -91,7 +91,7 @@ class DecodingMsgSingleHex extends Converter {
   }
 
   power(msg) {
-    let arrSpliceBuffer = this.spliceArrBuffer(msg);
+    let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
     let high = this.convertBuffer2Hex2Dec(arrSpliceBuffer[1]);
     let low = this.convertBuffer2Hex2Dec(arrSpliceBuffer[2]);
     let returnValue = {
@@ -104,7 +104,7 @@ class DecodingMsgSingleHex extends Converter {
   }
 
   sysInfo(msg) {
-    let arrSpliceBuffer = this.spliceArrBuffer(msg);
+    let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
     
     let returnValue = {
       hasSingle: arrSpliceBuffer[0][0].toString() === 1 ? 1 : 0, // 단상 or 삼상
@@ -162,4 +162,4 @@ class DecodingMsgSingleHex extends Converter {
 
 }
 
-module.exports = DecodingMsgSingleHex;
+module.exports = Decoder;

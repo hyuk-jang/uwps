@@ -95,9 +95,9 @@ exports.encodingProtocolTable = (dialing) => {
   return {
     fault: {
       dialing,
-      code: 'R',
-      address: '0004',
-      length: '04'
+      code: 0x52,
+      address: [0x30, 0x30, 0x30, 0x34],
+      length: [0x30, 0x34]
     },
     pv: {
       dialing,

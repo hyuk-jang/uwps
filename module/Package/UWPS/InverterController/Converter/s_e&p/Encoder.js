@@ -4,7 +4,7 @@ const BU = BUJ.baseUtil;
 const Converter = require('../Converter.js');
 const s5500kProtocol = require('./s5500kProtocol.js');
 
-class EncodingMsgSingleHex extends Converter {
+class Encoder extends Converter {
   constructor(dialing) {
     super();
     this.protocolTable = s5500kProtocol.encodingProtocolTable(dialing);
@@ -36,4 +36,4 @@ class EncodingMsgSingleHex extends Converter {
   }
 }
 
-module.exports = EncodingMsgSingleHex;
+module.exports = Encoder;

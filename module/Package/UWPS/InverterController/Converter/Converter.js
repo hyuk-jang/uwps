@@ -7,7 +7,7 @@ class Converter extends EventEmitter {
   constructor() {
     super();
 
-    this.resultMakeAsciiChr2Buffer = [];
+    this.resultMakeMsg2Buffer = [];
   }
   get ENQ() {
     return Buffer.from('05', 'hex');
@@ -26,24 +26,29 @@ class Converter extends EventEmitter {
     return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
   }
 
-  convertNum2Hx2Buffer(dec, width) {
+  /**
+   * 
+   * @param {Number} dec 10진수 number, Buffer로 바꿀 값
+   * @param {Number} byteLength Hex to Ascii Buffer 후 Byte Length. Buffer의 길이가 적을 경우 앞에서부터 0 채움
+   */
+  convertNum2Hx2Buffer(dec, byteLength) {
     let hex = dec.toString(16);
-    hex = this.pad(hex, width || 4);
+    hex = this.pad(hex, byteLength || 4);
     return Buffer.from(hex, 'ascii');
   }
 
   /**
    * Buffer Hex 합산 값을 Byte 크기만큼 Hex로 재 변환
    * @param {Buffer} buffer Buffer 
-   * @param {Number} byteCount Buffer Size를 Byte로 환산할 값, Default: 4
+   * @param {Number} byteLength Buffer Size를 Byte로 환산할 값, Default: 4
    */
-  getBufferCheckSum(buffer, byteCount) {
-    byteCount = byteCount ? byteCount : 4;
+  getBufferCheckSum(buffer, byteLength) {
+    byteLength = byteLength ? byteLength : 4;
     let hx = 0;
     buffer.forEach(element => {
       hx += element;
     });
-    return Buffer.from(this.pad(hx.toString(16), byteCount));
+    return Buffer.from(this.pad(hx.toString(16), byteLength || 4));
   }
 
   getSumBuffer(buf) {
@@ -58,33 +63,42 @@ class Converter extends EventEmitter {
    */
   makeMsg2Buffer() {
     // BU.CLI(arguments)
-    this.resultMakeAsciiChr2Buffer = [];
+    this.resultMakeMsg2Buffer = [];
     for (let index in arguments) {
       if (Array.isArray(arguments[index])) {
-        this.convertArray2Buffer(arguments[index])
+        this._convertArray2Buffer(arguments[index])
       } else if (typeof arguments[index] === 'string') {
-        this.resultMakeAsciiChr2Buffer.push(Buffer.from(arguments[index]));
+        this.resultMakeMsg2Buffer.push(Buffer.from(arguments[index]));
       } else if (typeof arguments[index] === 'number') {
-        return this.resultMakeAsciiChr2Buffer.push(Buffer.from(this.converter().dec2hex(arguments[index]), 'hex'));
+        return this.resultMakeMsg2Buffer.push(Buffer.from(this.converter().dec2hex(arguments[index]), 'hex'));
       } else {
-        this.resultMakeAsciiChr2Buffer.push(arguments[index]);
+        this.resultMakeMsg2Buffer.push(arguments[index]);
       }
     }
-    return Buffer.concat(this.resultMakeAsciiChr2Buffer);
+    return Buffer.concat(this.resultMakeMsg2Buffer);
   }
 
-  convertArray2Buffer(arr) {
+  /**
+   * 배열을 Buffer로 변환하여 msgBuffer에 저장
+   * @param {Array} arr Array<Buffer, String, Number, Array> 가능
+   */
+  _convertArray2Buffer(arr) {
     // BU.CLI(arr)
     if (Array.isArray(arr)) {
       arr.forEach(element => {
         if (Array.isArray(element)) {
-          return this.convertArray2Buffer(element);
+          return this._convertArray2Buffer(element);
         } else if (typeof element === 'object') { // Buffer
-          return this.resultMakeAsciiChr2Buffer.push(element);
+          if (Buffer.isBuffer(element)) {
+            return this.resultMakeMsg2Buffer.push(element);
+          } else {
+            value = Buffer.from(element);
+          }
+          // return this.resultMakeMsg2Buffer.push(element);
         } else if (typeof element === 'number') { // Dec
-          return this.resultMakeAsciiChr2Buffer.push(Buffer.from(this.converter().dec2hex(element), 'hex'));
+          return this.resultMakeMsg2Buffer.push(Buffer.from(this.converter().dec2hex(element), 'hex'));
         } else if (typeof element === 'string') { // Ascii Chr
-          return this.resultMakeAsciiChr2Buffer.push(Buffer.from(element));
+          return this.resultMakeMsg2Buffer.push(Buffer.from(element));
         }
       });
     }

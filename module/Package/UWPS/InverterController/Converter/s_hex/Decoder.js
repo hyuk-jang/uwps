@@ -7,22 +7,39 @@ class Decoder extends Converter {
     this.protocolTable = s_hexProtocol.encodingProtocolTable(dialing);
   }
 
-
-
-  convertBuffer2Hex2Dec(buffer) {
+  /**
+   * Buffer를 Ascii Char로 변환 후 해당 값을 Hex Number로 인식하고 Dec Number로 변환
+   * @param {Buffer} buffer 변환할 Buffer ex <Buffer 30 31 52>
+   * @returns {Number} Dec
+   */
+  convertBuffer2Char2Dec(buffer) {
     let str = buffer.toString();
+    // BU.CLI(Number(this.converter().hex2dec(str)))
     return Number(this.converter().hex2dec(str));
   }
 
-  convertHex2Binary(hex) {
+  convertBuffer2Binary(buffer){
     let returnValue = '';
-    for (let index = 0; index < hex.length; index++) {
-      let bin = this.converter().hex2bin(hex.charAt(index));
-      let fillBin = this.pad(bin, 4);
+    for (let index = 0; index < asciiChar.length; index++) {
+      let bin = this.converter().hex2bin(asciiChar.charAt(index));
 
-      returnValue = returnValue.concat(fillBin);
+      returnValue = returnValue.concat(this.pad(bin, 4));
     }
-    // BU.CLI(returnValue);
+    return returnValue;
+  }
+
+
+  /**
+   * Ascii Char String 을 4 * n Length Binary String 으로 치환하여 반환
+   * @param {String} asciiChar ascii char를 2진 바이너리로 변환하여 반환
+   */
+  convertChar2Binary(asciiChar) {
+    let returnValue = '';
+    for (let index = 0; index < asciiChar.length; index++) {
+      let bin = this.converter().hex2bin(asciiChar.charAt(index));
+
+      returnValue = returnValue.concat(this.pad(bin, 4));
+    }
     return returnValue;
   }
 
@@ -46,7 +63,7 @@ class Decoder extends Converter {
     let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
     BU.CLI(arrSpliceBuffer)
     arrSpliceBuffer.forEach((buffer, index) => {
-      let binaryValue = this.convertHex2Binary(buffer.toString());
+      let binaryValue = this.convertChar2Binary(buffer.toString());
       let faultTable = s_hexProtocol.faultInfo(index);
 
       _.each(faultTable, faultObj => {
@@ -62,8 +79,8 @@ class Decoder extends Converter {
   pv(msg) {
     let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
     let returnValue = {
-      vol: this.convertBuffer2Hex2Dec(arrSpliceBuffer[0]),
-      amp: this.convertBuffer2Hex2Dec(arrSpliceBuffer[1]) / 10
+      vol: this.convertBuffer2Char2Dec(arrSpliceBuffer[0]),
+      amp: this.convertBuffer2Char2Dec(arrSpliceBuffer[1]) / 10
     };
 
     return returnValue;
@@ -73,26 +90,26 @@ class Decoder extends Converter {
     let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
 
     let returnValue = {
-      rsVol: this.convertBuffer2Hex2Dec(arrSpliceBuffer[0]), // rs 선간 전압
-      stVol: this.convertBuffer2Hex2Dec(arrSpliceBuffer[1]), // st 선간 전압
-      trVol: this.convertBuffer2Hex2Dec(arrSpliceBuffer[2]), // tr 선간 전압
-      rAmp: this.convertBuffer2Hex2Dec(arrSpliceBuffer[3]) / 10, // r상 전류
-      sAmp: this.convertBuffer2Hex2Dec(arrSpliceBuffer[4]) / 10, // s상 전류
-      tAmp: this.convertBuffer2Hex2Dec(arrSpliceBuffer[5]) / 10, // t상 전류
-      lf: this.convertBuffer2Hex2Dec(arrSpliceBuffer[6]) / 10 // 라인 주파수 Line Frequency, 단위: Hz
+      rsVol: this.convertBuffer2Char2Dec(arrSpliceBuffer[0]), // rs 선간 전압
+      stVol: this.convertBuffer2Char2Dec(arrSpliceBuffer[1]), // st 선간 전압
+      trVol: this.convertBuffer2Char2Dec(arrSpliceBuffer[2]), // tr 선간 전압
+      rAmp: this.convertBuffer2Char2Dec(arrSpliceBuffer[3]) / 10, // r상 전류
+      sAmp: this.convertBuffer2Char2Dec(arrSpliceBuffer[4]) / 10, // s상 전류
+      tAmp: this.convertBuffer2Char2Dec(arrSpliceBuffer[5]) / 10, // t상 전류
+      lf: this.convertBuffer2Char2Dec(arrSpliceBuffer[6]) / 10 // 라인 주파수 Line Frequency, 단위: Hz
     };
     return returnValue;
   }
 
   power(msg) {
     let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
-    let high = this.convertBuffer2Hex2Dec(arrSpliceBuffer[1]);
-    let low = this.convertBuffer2Hex2Dec(arrSpliceBuffer[2]);
+    let high = this.convertBuffer2Char2Dec(arrSpliceBuffer[1]);
+    let low = this.convertBuffer2Char2Dec(arrSpliceBuffer[2]);
     let returnValue = {
-      gridKw: this.convertBuffer2Hex2Dec(arrSpliceBuffer[3]) / 1000, // 출력 전력
-      dailyKwh: this.convertBuffer2Hex2Dec(arrSpliceBuffer[6]) / 10, // 하루 발전량 kWh
+      gridKw: this.convertBuffer2Char2Dec(arrSpliceBuffer[3]) / 1000, // 출력 전력
+      dailyKwh: this.convertBuffer2Char2Dec(arrSpliceBuffer[6]) / 10, // 하루 발전량 kWh
       cpKwh: (high * 10000 + low) / 1000, // 인버터 누적 발전량 mWh  Cumulative Power Generation
-      pf: this.convertBuffer2Hex2Dec(arrSpliceBuffer[5]) / 10 // 역률 Power Factor %
+      pf: this.convertBuffer2Char2Dec(arrSpliceBuffer[5]) / 10 // 역률 Power Factor %
     }
     return returnValue;
   }

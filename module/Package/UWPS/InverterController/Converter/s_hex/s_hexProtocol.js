@@ -31,7 +31,7 @@ exports.faultInfo = (byteConut) => {
     }, {
       msg: '인버터 과 전류 시간 초과',
       code: 'Inverter O.C. overtime fault',
-      number: 0,
+      number: 1,
       errorValue: 1
     }, {
       msg: '계통-인버터 위상 이상',

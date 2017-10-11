@@ -9,16 +9,39 @@ class Converter extends EventEmitter {
 
     this.resultMakeMsg2Buffer = [];
   }
+
+  get baseInverterValue() {
+    return {
+      amp: 0, // Ampere
+      vol: 0, // voltage
+      gridKw: 0, // 출력 전력
+      dailyKwh: 0, // 하루 발전량 kWh
+      cpKwh: 0, // 인버터 누적 발전량 mWh  Cumulative Power Generation
+      pf: 0, // 역률 Power Factor %
+      rsVol: 0, // rs 선간 전압
+      stVol: 0, // st 선간 전압
+      trVol: 0, // tr 선간 전압
+      rAmp: 0, // r상 전류
+      sAmp: 0, // s상 전류
+      tAmp: 0, // t상 전류
+      lf: 0, // 라인 주파수 Line Frequency, 단위: Hz
+      hasSingle: 0, // 단상 or 삼상
+      capa: 0, // 인버터 용량 kW
+      productYear: '00000000', // 제작년도 월 일 yyyymmdd,
+      sn: '' // Serial Number
+    }
+  }
+
   get ENQ() {
-    return Buffer.from('05', 'hex');
+    return Buffer.from([0x05]);
   }
 
   get ACK() {
-    return Buffer.from('06', 'hex');
+    return Buffer.from([0x06]);
   }
 
   get EOT() {
-    return Buffer.from('04', 'hex');
+    return Buffer.from([0x04]);
   }
 
   pad(n, width) {
@@ -38,12 +61,54 @@ class Converter extends EventEmitter {
   }
 
   /**
+   * Buffer를 Ascii Char로 변환 후 해당 값을 Hex Number로 인식하고 Dec Number로 변환
+   * <Buffer 30 30 34 31> -> (Hex)'0041' -> (Dec) 65
+   * @param {Buffer} buffer 변환할 Buffer ex <Buffer 30 30 34 34> 
+   * @returns {Number} Dec
+   */
+  convertBuffer2Char2Dec(buffer) {
+    // BU.CLI(buffer)
+    let str = buffer.toString();
+    // BU.CLI(Number(this.converter().hex2dec(str)))
+    return Number(this.converter().hex2dec(str));
+  }
+
+  /**
+   * Buffer Hx를 binaryLength * Count(Buffer Length) = Binary String 으로 치환하여 반환
+   * @param {Buffer} buffer Buffer
+   */
+  convertBuffer2Binary(buffer, binaryLength) {
+    let returnValue = '';
+    buffer.forEach(element => {
+      let bin = this.converter().hex2bin(element);
+      returnValue = returnValue.concat(this.pad(bin, binaryLength || 4));
+    })
+
+    return returnValue;
+  }
+
+
+  /**
+   * Ascii Char String 을 binaryLength * Count(String) = Binary String 으로 치환하여 반환
+   * @param {String} asciiChar ascii char를 2진 바이너리로 변환하여 반환
+   */
+  convertChar2Binary(asciiChar, binaryLength) {
+    let returnValue = '';
+
+    for (let index = 0; index < asciiChar.length; index++) {
+      let bin = this.converter().hex2bin(asciiChar.charAt(index));
+      returnValue = returnValue.concat(this.pad(bin, binaryLength || 4));
+    }
+    return returnValue;
+  }
+
+
+  /**
    * Buffer Hex 합산 값을 Byte 크기만큼 Hex로 재 변환
    * @param {Buffer} buffer Buffer 
    * @param {Number} byteLength Buffer Size를 Byte로 환산할 값, Default: 4
    */
   getBufferCheckSum(buffer, byteLength) {
-    byteLength = byteLength ? byteLength : 4;
     let hx = 0;
     buffer.forEach(element => {
       hx += element;
@@ -51,11 +116,21 @@ class Converter extends EventEmitter {
     return Buffer.from(this.pad(hx.toString(16), byteLength || 4));
   }
 
-  getSumBuffer(buf) {
+  /**
+   * Buffer Element Hex 값 Sum
+   * @param {Buffer} buffer 계산하고자 하는 Buffer
+   * @param {Boolean} isReturnDec CheckSum을 Dec 로 받을지 여부. 기본값은 Hex
+   */
+  getSumBuffer(buffer, isReturnDec) {
     let decCheckSum = 0;
-    buf.forEach(element => decCheckSum += element);
-    let hexCheckSum = this.converter().dec2hex(decCheckSum);
-    return hexCheckSum;
+    buffer.forEach(element => decCheckSum += element);
+    BU.CLI(decCheckSum)
+    if (isReturnDec) {
+      return decCheckSum;
+    } else {
+      let hexCheckSum = this.converter().dec2hex(decCheckSum);
+      return hexCheckSum;
+    }
   }
 
   /**
@@ -103,28 +178,6 @@ class Converter extends EventEmitter {
       });
     }
   }
-
-  // makeMsg2Buffer() {
-  //   let msg = ''
-  //   BU.CLI(arguments)
-  //   for (let index in arguments) {
-  //     if (Array.isArray(arguments[index])) {
-  //       arguments[index].forEach(ele => {
-  //         if (typeof ele === 'number') {
-
-  //         }
-  //         msg = msg.concat(ele)
-  //       });
-  //     } else if (typeof arguments[index] === 'string') {
-  //       msg = msg.concat(arguments[index]);
-  //     } else {
-
-  //     }
-  //     const bufMsg = Buffer.from(msg, 'ascii');
-
-  //     return bufMsg;
-  //   }
-  // }
 
   /**
    * 단일 값 Sacle 적용. 소수점 절삭

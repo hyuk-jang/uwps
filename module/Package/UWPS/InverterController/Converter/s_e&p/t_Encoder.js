@@ -8,7 +8,7 @@ const _ = require('underscore');
 
 
 const Encoder = require('./Encoder');
-let encoder = new Encoder(Buffer.from([0x05]));
+let encoder = new Encoder(Buffer.from([0x01]));
 
 // let r = encoder.converter().hex2dec('110E8400E29B11D4A716446655440000');
 

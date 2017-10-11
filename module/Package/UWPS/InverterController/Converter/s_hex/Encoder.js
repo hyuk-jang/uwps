@@ -14,7 +14,7 @@ class Encoder extends Converter {
     let returnValue = this.getSumBuffer(buf);
     return Buffer.from(this.pad(returnValue.toString(16), 4));
 
-    return Buffer.from(this.getSumBuffer(buf), 'hex');
+    // return Buffer.from(this.getSumBuffer(buf), 'hex');
   }
 
   makeMsg(cmd) {

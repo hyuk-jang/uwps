@@ -21,7 +21,7 @@ class Encoder extends Converter {
       if(msg === undefined || BU.isEmpty(msg)){
         return '';
       }
-      let body = this.makeAsciiChr2Buffer(Object.values(msg));
+      let body = this.makeMsg2Buffer(Object.values(msg));
       let returnValue = [
         Buffer.from([0x0a, 0x96]),
         body,

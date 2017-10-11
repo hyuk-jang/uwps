@@ -8,47 +8,16 @@ class Decoder extends Converter {
   }
 
   /**
-   * Buffer를 Ascii Char로 변환 후 해당 값을 Hex Number로 인식하고 Dec Number로 변환
-   * @param {Buffer} buffer 변환할 Buffer ex <Buffer 30 31 52>
-   * @returns {Number} Dec
+   * Buffer를 spiceByteLength 길이만큼 잘라 Array 넣어 반환
+   * @param {Buffer} buffer Buffer
+   * @param {Number} spliceByteLength Buffer 자를 단위 길이
    */
-  convertBuffer2Char2Dec(buffer) {
-    let str = buffer.toString();
-    // BU.CLI(Number(this.converter().hex2dec(str)))
-    return Number(this.converter().hex2dec(str));
-  }
-
-  convertBuffer2Binary(buffer){
-    let returnValue = '';
-    for (let index = 0; index < asciiChar.length; index++) {
-      let bin = this.converter().hex2bin(asciiChar.charAt(index));
-
-      returnValue = returnValue.concat(this.pad(bin, 4));
-    }
-    return returnValue;
-  }
-
-
-  /**
-   * Ascii Char String 을 4 * n Length Binary String 으로 치환하여 반환
-   * @param {String} asciiChar ascii char를 2진 바이너리로 변환하여 반환
-   */
-  convertChar2Binary(asciiChar) {
-    let returnValue = '';
-    for (let index = 0; index < asciiChar.length; index++) {
-      let bin = this.converter().hex2bin(asciiChar.charAt(index));
-
-      returnValue = returnValue.concat(this.pad(bin, 4));
-    }
-    return returnValue;
-  }
-
-  spliceArrBuffer(buf, spliceByte) {
-    buf = typeof buf !== 'object' ? Buffer.from(buf, 'ascii') : buf;
+  spliceBuffer2ArrayBuffer(buffer, spliceByteLength) {
     let returnValue = [];
+    let buf = this.makeMsg2Buffer(buffer);
     let point = 0;
     for (let cnt = 0; cnt <= buf.length; cnt++) {
-      if (cnt % spliceByte === 0 && cnt > 0) {
+      if (cnt % spliceByteLength === 0 && cnt > 0) {
         returnValue.push(buf.slice(point, cnt));
         point = cnt;
       }
@@ -58,12 +27,12 @@ class Decoder extends Converter {
 
 
   fault(msg) {
-    BU.CLI('fault', msg)
+    // BU.CLI('fault', msg)
     let returnValue = [];
-    let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
-    BU.CLI(arrSpliceBuffer)
+    let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
+    // BU.CLI(arrSpliceBuffer)
     arrSpliceBuffer.forEach((buffer, index) => {
-      let binaryValue = this.convertChar2Binary(buffer.toString());
+      let binaryValue = this.convertChar2Binary(buffer.toString(), 4);
       let faultTable = s_hexProtocol.faultInfo(index);
 
       _.each(faultTable, faultObj => {
@@ -77,7 +46,7 @@ class Decoder extends Converter {
   }
 
   pv(msg) {
-    let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
+    let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
     let returnValue = {
       vol: this.convertBuffer2Char2Dec(arrSpliceBuffer[0]),
       amp: this.convertBuffer2Char2Dec(arrSpliceBuffer[1]) / 10
@@ -87,7 +56,7 @@ class Decoder extends Converter {
   }
 
   grid(msg) {
-    let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
+    let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
 
     let returnValue = {
       rsVol: this.convertBuffer2Char2Dec(arrSpliceBuffer[0]), // rs 선간 전압
@@ -102,7 +71,7 @@ class Decoder extends Converter {
   }
 
   power(msg) {
-    let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
+    let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
     let high = this.convertBuffer2Char2Dec(arrSpliceBuffer[1]);
     let low = this.convertBuffer2Char2Dec(arrSpliceBuffer[2]);
     let returnValue = {
@@ -115,7 +84,7 @@ class Decoder extends Converter {
   }
 
   sysInfo(msg) {
-    let arrSpliceBuffer = this.spliceArrBuffer(msg, 4);
+    let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
 
     let returnValue = {
       hasSingle: arrSpliceBuffer[0][0].toString() === 1 ? 1 : 0, // 단상 or 삼상
@@ -130,25 +99,43 @@ class Decoder extends Converter {
 
   }
 
-  // FIXME Buffer 처리 필요
+  getCheckSum(buf) {
+    let returnValue = this.getSumBuffer(buf);
+    return Buffer.from(this.pad(returnValue.toString(16), 4));
+
+    // return Buffer.from(this.getSumBuffer(buf), 'hex');
+  }
+
   _receiveData(buffer) {
     try {
-      // BU.CLIS(buffer.toString(), buffer.length)
-      let headerBuffer = buffer.slice(0, 8);
-      let bodyBuffer = buffer.slice(8, buffer.length - 5);
-      let footerBuffer = buffer.slice(buffer.length - 5);
+      // Start, dialing, Cmd, Addr
+      let bufArray = [
+        0, 1, 2, 1, 4
+      ]
+      // Start, dialing, Cmd, Addr, Data, Ck_Sum, End
+      let resBufArray = [];
 
-      let sliceHeader = this.spliceArrBuffer(headerBuffer, 4);
+      let lastIndex = bufArray.reduce((accmulator, currentValue, index) => {
+        resBufArray.push(buffer.slice(accmulator, accmulator + currentValue));
+        return accmulator + currentValue;
+      })
+      resBufArray.push(buffer.slice(lastIndex, buffer.length - 5))
+      resBufArray.push(buffer.slice(buffer.length - 5, buffer.length - 1))
+      resBufArray.push(buffer.slice(buffer.length - 1))
 
+      if (Buffer.compare(resBufArray[0], this.ACK)) {
+        throw Error('ACK Error');
+      } else if (Buffer.compare(resBufArray[resBufArray.length - 1], this.EOT)) {
+        throw Error('EOT Error');
+      } else if (Buffer.compare(this.getBufferCheckSum(Buffer.concat(resBufArray.slice(1, 5))), resBufArray[5])) {
+        throw Error('CkSum Error');
+      }
 
-
-      let addr = sliceHeader[1].toString();
-      BU.CLI(addr)
+      let addr = resBufArray[3].toString();
 
       let cmd = '';
       let value = '';
       _.find(this.protocolTable, (obj, key) => {
-        
         if (typeof obj.address === 'number') {
           value = Buffer.from(this.converter().dec2hex(obj.address), 'hex').toString();
         } else if (typeof obj.address === 'object') {
@@ -157,10 +144,10 @@ class Decoder extends Converter {
           } else {
             value = Buffer.from(obj.address).toString();
           }
-        } else if (typeof obj.address === 'string'){
+        } else if (typeof obj.address === 'string') {
           value = obj.address;
         }
-        // value = typeof obj.address === 'number' ? obj.address.toString(16) : obj.address;
+
         if (value === addr) {
           cmd = key
           return true;
@@ -175,8 +162,9 @@ class Decoder extends Converter {
       // BU.CLI(cmd)
       let returnValue = {
         cmd,
-        contents: this[cmd](bodyBuffer)
+        contents: this[cmd](resBufArray[4])
       }
+      // BU.CLI('returnValue', returnValue)
       return returnValue;
     } catch (error) {
       // BU.CLI(error)

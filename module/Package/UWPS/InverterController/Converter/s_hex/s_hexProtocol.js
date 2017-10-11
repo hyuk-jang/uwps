@@ -101,7 +101,7 @@ exports.encodingProtocolTable = (dialing) => {
     },
     pv: {
       dialing,
-      code: 'R',
+      code: 0x52,
       address: '0020',
       length: '02'
     },

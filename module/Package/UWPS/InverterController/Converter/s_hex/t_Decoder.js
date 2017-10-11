@@ -111,7 +111,7 @@ function makeReceiveData(cmd, hasBinary, bufferWidth) {
     default:
       break;
   }
-  BU.CLI(body)
+  // BU.CLI(body)
 
   if (hasBinary) {
     convertBufferBody = body;
@@ -121,11 +121,11 @@ function makeReceiveData(cmd, hasBinary, bufferWidth) {
     });
   }
 
-  BU.CLI(convertBufferBody)
+  // BU.CLI(convertBufferBody)
   buffer = makeBufferMsg(cmd, convertBufferBody);
 
   returnValue = decoder._receiveData(buffer)
-  BU.CLI(cmd, buffer, returnValue);
+  // BU.CLI(cmd, buffer, returnValue);
 
   return returnValue;
 }
@@ -135,151 +135,6 @@ makeReceiveData('power')
 makeReceiveData('grid')
 makeReceiveData('pv')
 makeReceiveData('fault', true)
-
-
-// res = makeFault();
-// BU.CLI(res);
-
-return;
-
-function makeSysInfo() {
-  let res = null;
-  // 시스템 정보 명령
-  init();
-  // 1: isSingle, 030: Kw(10:1 Scale)
-  arr.push(decoder.convertNum2Hx2Buffer(0x1030));
-  // 제조년: 20yymm
-  arr.push(decoder.convertNum2Hx2Buffer(0x0510));
-  // Serial Number: 
-  arr.push(decoder.convertNum2Hx2Buffer(0x0001));
-
-  res = makeBufferMsg('sysInfo', arr);
-
-  res = decoder._receiveData(res);
-
-  return res;
-}
-exports.makeSysInfo = makeSysInfo;
-res = makeSysInfo();
-BU.CLI(res);
-
-// Decoding Socket Test
-res = decodingMsgSocket._receiveData(res);
-BU.CLI(res)
-
-
-
-
-// 전력량 계측 정보 명령 --> power
-function makePower() {
-  let res = null;
-  init();
-  // currPvKw
-  arr.push(decoder.convertNum2Hx2Buffer(2724));
-  // ivtHighAddr // currIvtKva
-  arr.push(decoder.convertNum2Hx2Buffer(57));
-  // ivtLowAddr 
-  arr.push(decoder.convertNum2Hx2Buffer(230));
-  // currIvtKw
-  arr.push(decoder.convertNum2Hx2Buffer(2518));
-  // ivtMaxKw
-  arr.push(decoder.convertNum2Hx2Buffer(298));
-  // ivtPf
-  arr.push(decoder.convertNum2Hx2Buffer(998));
-  // ivtDailyKwh
-  arr.push(decoder.convertNum2Hx2Buffer(1134));
-  // x
-  arr.push(decoder.convertNum2Hx2Buffer(0));
-
-  res = makeBufferMsg('power', arr);
-  res = decoder._receiveData(res);
-  return res;
-}
-exports.makePower = makePower;
-res = makePower();
-BU.CLI(res);
-
-
-// Decoding Socket Test
-res = decodingMsgSocket.power(makeSingleMsg('power', res));
-BU.CLI(res)
-
-
-
-
-
-// 계통 계측 정보 명령
-function makeGrid() {
-  let res = null;
-  init();
-  // R 상 I
-  arr.push(decoder.convertNum2Hx2Buffer(217));
-  // S 상 I
-  arr.push(decoder.convertNum2Hx2Buffer(0));
-  // T 상 I
-  arr.push(decoder.convertNum2Hx2Buffer(0));
-  // RS 상 V
-  arr.push(decoder.convertNum2Hx2Buffer(65));
-  // ST 상 V
-  arr.push(decoder.convertNum2Hx2Buffer(0));
-  // TR 상 V
-  arr.push(decoder.convertNum2Hx2Buffer(0));
-  // HZ
-  arr.push(decoder.convertNum2Hx2Buffer(601));
-
-  res = makeBufferMsg('grid', arr);
-  res = decoder._receiveData(res);
-  return res;
-}
-exports.makeGrid = makeGrid;
-
-res = makeGrid();
-BU.CLI(res);
-
-// Decoding Socket Test
-res = decodingMsgSocket.power(makeSingleMsg('grid', res));
-BU.CLI(res)
-
-
-
-// 태양전지 
-function makePv() {
-  init();
-  let res = null;
-  let vol = decoder.convertNum2Hx2Buffer(266, 4);
-  let amp = decoder.convertNum2Hx2Buffer(57, 4);
-
-  arr = [vol, amp];
-
-  res = makeBufferMsg('pv', arr);
-  res = decoder._receiveData(res);
-  return res;
-}
-exports.makePv = makePv;
-
-res = makePv();
-BU.CLI(res);
-
-// Decoding Socket Test
-res = decodingMsgSocket.pv(makeSingleMsg('pv', res));
-BU.CLI(res)
-
-
-
-
-
-// Fault 발생
-function makeFault() {
-  let res = null;
-  let faultBuffer = makeFaultMsg();
-  // res = decodingMsgSingleHex.fault(faultBuffer)
-  // BU.CLI(res)
-
-  res = makeBufferMsg('fault', [faultBuffer]);
-  res = decoder._receiveData(res);
-  return res;
-}
-exports.makeFault = makeFault;
 
 function makeFaultMsg() {
   let returnValue = [];
@@ -292,11 +147,3 @@ function makeFaultMsg() {
   // BU.CLI(returnValue)
   return Buffer.concat(returnValue);
 }
-
-res = makeFault();
-BU.CLI(res);
-
-
-// Decoding Socket Test
-res = decodingMsgSocket.power(makeSingleMsg('fault', res));
-BU.CLI(res)

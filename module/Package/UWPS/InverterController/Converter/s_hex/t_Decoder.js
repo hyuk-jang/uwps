@@ -125,7 +125,7 @@ function makeReceiveData(cmd, hasBinary, bufferWidth) {
   buffer = makeBufferMsg(cmd, convertBufferBody);
 
   returnValue = decoder._receiveData(buffer)
-  // BU.CLI(cmd, buffer, returnValue);
+  BU.CLI(cmd, buffer, returnValue);
 
   return returnValue;
 }

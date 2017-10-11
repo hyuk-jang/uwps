@@ -5,6 +5,8 @@ class Decoder extends Converter {
   constructor(dialing) {
     super();
     this.protocolTable = s_hexProtocol.encodingProtocolTable(dialing);
+
+    this.returnValue = [];
   }
 
   /**
@@ -28,6 +30,7 @@ class Decoder extends Converter {
 
   fault(msg) {
     // BU.CLI('fault', msg)
+    this.returnValue.errorList = [];
     let returnValue = [];
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
     // BU.CLI(arrSpliceBuffer)
@@ -38,61 +41,52 @@ class Decoder extends Converter {
       _.each(faultTable, faultObj => {
         let binaryCode = binaryValue.charAt(faultObj.number);
         if (binaryCode === faultObj.errorValue.toString()) {
-          returnValue.push(faultObj);
+          if(faultObj.code === 'inverter run'){
+            BU.CLI('BBB')
+          }
+          this.returnValue.errorList.push(faultObj);
         }
       })
     })
-    return returnValue;
   }
 
   pv(msg) {
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
-    let returnValue = {
-      vol: this.convertBuffer2Char2Dec(arrSpliceBuffer[0]),
-      amp: this.convertBuffer2Char2Dec(arrSpliceBuffer[1]) / 10
-    };
-
-    return returnValue;
+    this.returnValue.vol = this.convertBuffer2Char2Dec(arrSpliceBuffer[0]);
+    this.returnValue.amp = this.convertBuffer2Char2Dec(arrSpliceBuffer[1]) / 10;
   }
 
   grid(msg) {
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
 
-    let returnValue = {
-      rsVol: this.convertBuffer2Char2Dec(arrSpliceBuffer[0]), // rs 선간 전압
-      stVol: this.convertBuffer2Char2Dec(arrSpliceBuffer[1]), // st 선간 전압
-      trVol: this.convertBuffer2Char2Dec(arrSpliceBuffer[2]), // tr 선간 전압
-      rAmp: this.convertBuffer2Char2Dec(arrSpliceBuffer[3]) / 10, // r상 전류
-      sAmp: this.convertBuffer2Char2Dec(arrSpliceBuffer[4]) / 10, // s상 전류
-      tAmp: this.convertBuffer2Char2Dec(arrSpliceBuffer[5]) / 10, // t상 전류
-      lf: this.convertBuffer2Char2Dec(arrSpliceBuffer[6]) / 10 // 라인 주파수 Line Frequency, 단위: Hz
-    };
-    return returnValue;
+    let hi = this.getBaseInverterValue();
+    this.returnValue.rsVol = this.convertBuffer2Char2Dec(arrSpliceBuffer[0]); // rs 선간 전압
+    this.returnValue.stVol = this.convertBuffer2Char2Dec(arrSpliceBuffer[1]); // st 선간 전압
+    this.returnValue.trVol = this.convertBuffer2Char2Dec(arrSpliceBuffer[2]); // tr 선간 전압
+    this.returnValue.rAmp = this.convertBuffer2Char2Dec(arrSpliceBuffer[3]) / 10; // r상 전류
+    this.returnValue.sAmp = this.convertBuffer2Char2Dec(arrSpliceBuffer[4]) / 10; // s상 전류
+    this.returnValue.tAmp = this.convertBuffer2Char2Dec(arrSpliceBuffer[5]) / 10; // t상 전류
+    this.returnValue.lf = this.convertBuffer2Char2Dec(arrSpliceBuffer[6]) / 10 // 라인 주파수 Line Frequency; 단위 = Hz
   }
 
   power(msg) {
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
     let high = this.convertBuffer2Char2Dec(arrSpliceBuffer[1]);
     let low = this.convertBuffer2Char2Dec(arrSpliceBuffer[2]);
-    let returnValue = {
-      gridKw: this.convertBuffer2Char2Dec(arrSpliceBuffer[3]) / 1000, // 출력 전력
-      dailyKwh: this.convertBuffer2Char2Dec(arrSpliceBuffer[6]) / 10, // 하루 발전량 kWh
-      cpKwh: (high * 10000 + low) / 1000, // 인버터 누적 발전량 mWh  Cumulative Power Generation
-      pf: this.convertBuffer2Char2Dec(arrSpliceBuffer[5]) / 10 // 역률 Power Factor %
-    }
-    return returnValue;
+
+    this.returnValue.gridKw = this.convertBuffer2Char2Dec(arrSpliceBuffer[3]) / 1000; // 출력 전력
+    this.returnValue.dailyKwh = this.convertBuffer2Char2Dec(arrSpliceBuffer[6]) / 10; // 하루 발전량 kWh
+    this.returnValue.cpKwh = (high * 10000 + low) / 1000; // 인버터 누적 발전량 mWh  Cumulative Power Generation
+    this.returnValue.pf = this.convertBuffer2Char2Dec(arrSpliceBuffer[5]) / 10; // 역률 Power Factor %
   }
 
   sysInfo(msg) {
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
 
-    let returnValue = {
-      hasSingle: arrSpliceBuffer[0][0].toString() === 1 ? 1 : 0, // 단상 or 삼상
-      capa: Number(arrSpliceBuffer[0].slice(1, 4).toString()) / 10, // 인버터 용량 kW
-      productYear: '20' + arrSpliceBuffer[1].slice(0, 2).toString() + arrSpliceBuffer[1].slice(2, 4).toString(), // 제작년도 월 일 yyyymmdd,
-      sn: Number(arrSpliceBuffer[2].toString()) // Serial Number
-    }
-    return returnValue;
+    this.returnValue.hasSingle = arrSpliceBuffer[0][0].toString() === 1 ? 1 : 0; // 단상 or 삼상
+    this.returnValue.capa = Number(arrSpliceBuffer[0].slice(1, 4).toString()) / 10; // 인버터 용량 kW
+    this.returnValue.productYear = '20' + arrSpliceBuffer[1].slice(0, 2).toString() + arrSpliceBuffer[1].slice(2, 4).toString(); // 제작년도 월 일 yyyymmdd,
+    this.returnValue.sn = Number(arrSpliceBuffer[2].toString()); // Serial Number
   }
 
   weather(msg) {
@@ -103,10 +97,13 @@ class Decoder extends Converter {
     let returnValue = this.getSumBuffer(buf);
     return Buffer.from(this.pad(returnValue.toString(16), 4));
 
+
     // return Buffer.from(this.getSumBuffer(buf), 'hex');
   }
 
   _receiveData(buffer) {
+    this.returnValue = this.getBaseInverterValue();
+
     try {
       // Start, dialing, Cmd, Addr
       let bufArray = [
@@ -131,6 +128,7 @@ class Decoder extends Converter {
         throw Error('CkSum Error');
       }
 
+      // set Address
       let addr = resBufArray[3].toString();
 
       let cmd = '';
@@ -159,13 +157,18 @@ class Decoder extends Converter {
         return false;
       }
 
-      // BU.CLI(cmd)
-      let returnValue = {
-        cmd,
-        contents: this[cmd](resBufArray[4])
-      }
-      // BU.CLI('returnValue', returnValue)
-      return returnValue;
+      // returnValue Set
+      this[cmd](resBufArray[4]);
+
+      return this.returnValue;
+
+      // // BU.CLI(cmd)
+      // let returnValue = {
+      //   cmd,
+      //   contents: this[cmd](resBufArray[4])
+      // }
+      // // BU.CLI('returnValue', returnValue)
+      // return returnValue;
     } catch (error) {
       // BU.CLI(error)
       throw Error(error);

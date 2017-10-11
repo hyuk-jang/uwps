@@ -36,18 +36,26 @@ class Decoder extends Converter {
     // BU.CLI(arrSpliceBuffer)
     arrSpliceBuffer.forEach((buffer, index) => {
       let binaryValue = this.convertChar2Binary(buffer.toString(), 4);
-      let faultTable = s_hexProtocol.faultInfo(index);
+      let operationTable = s_hexProtocol.operationInfo(index);
+      _.each(operationTable, operationObj => {
+        let binaryCode = binaryValue.charAt(operationObj.number);
 
-      _.each(faultTable, faultObj => {
-        let binaryCode = binaryValue.charAt(faultObj.number);
-        if (binaryCode === faultObj.errorValue.toString()) {
-          if(faultObj.code === 'inverter run'){
-            BU.CLI('BBB')
-          }
-          this.returnValue.errorList.push(faultObj);
+        // 인버터 동작 유무
+        if(operationObj.code === 'inverter run'){
+          this.returnValue.isRun = Number(binaryCode);
+        } else if (binaryCode === operationObj.errorValue.toString()) {
+          this.returnValue.errorList.push(operationObj);
         }
       })
     })
+
+    // 배열에 에러 데이터가 있다면 현재 에러 검출여부 반영
+    if(this.returnValue.errorList.length){
+      this.returnValue.isError = 1;
+    } else {
+      this.returnValue.isError = 0;
+    }
+
   }
 
   pv(msg) {

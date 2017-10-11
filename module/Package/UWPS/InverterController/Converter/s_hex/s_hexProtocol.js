@@ -1,4 +1,4 @@
-exports.faultInfo = (byteConut) => {
+exports.operationInfo = (byteConut) => {
   let returnValue = [];
   if (byteConut === 0) {
     returnValue = [{

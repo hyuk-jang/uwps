@@ -85,6 +85,7 @@ class Control extends EventEmitter {
   }
 
   async init() {
+    
     BU.CLI('init InverterController')
     this.eventHandler();
     // try {

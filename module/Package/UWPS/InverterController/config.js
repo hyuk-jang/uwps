@@ -11,7 +11,7 @@ module.exports = {
       target_id: 'IVT1',
       target_name: '인버터 1',
       target_type: 0, // 0: 단상, 1: 삼상
-      dialing: '04', // id,
+      dialing: Buffer.from('04', 'hex'), // id,
       connect_type: 'socket', // `socket` or `serial`
       ip: 'localhost', // Socket 연결 시 사용
       port: 'COM1', // Port를 직접 지정하고자 할때 사용

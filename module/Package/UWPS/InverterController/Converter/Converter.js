@@ -34,10 +34,11 @@ class Converter extends EventEmitter {
       productYear: null, // 제작년도 월 일 yyyymmdd,
       sn: null, // Serial Number,
       // Operation Info
-      hasRun: null, // 인버터 동작 유무
-      hasError: null,  // 인버터 에러 발생 유무
+      isRun: null, // 인버터 동작 유무
+      isError: null,  // 인버터 에러 발생 유무
       temperature: null,  // 인버터 온도
-      errorList: null // 에러 리스트 Array
+      errorList: null, // 에러 리스트 Array
+      warningList: null // 경고 리스트 Array
     }
   }
 

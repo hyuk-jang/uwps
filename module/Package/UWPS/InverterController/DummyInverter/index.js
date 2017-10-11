@@ -12,15 +12,15 @@ let test = control.init()
   .then(hasRun => {
     if (hasRun) {
       BU.CLI('hasRun', hasRun)
-      result = control.p_SocketServer.cmdProcessor('pv');
-      return control.p_SocketServer.cmdProcessor('pv');
+      // result = control.p_SocketServer.cmdProcessor('fault');
+      return control.p_SocketServer.cmdProcessor('weather');
     }
   })
   .then(result => {
     // result = control.cmdProcessor('pv');
 
-    BU.CLIS(control.model.scaleGrid, control.model.scalePower, control.model.refineInverterData)
-    return control.p_SocketServer.cmdProcessor('pv');
+    BU.CLIS(result)
+    return control.p_SocketServer.cmdProcessor('grid');
   }).catch(err => {
     BU.CLI(err)
   });

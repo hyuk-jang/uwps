@@ -23,7 +23,7 @@ class P_SocketServer extends SmSocketServer {
         isError: 0,
         contents: ''
       };
-  
+
       try {
         receiveObj = JSON.parse(socketData);
         responseObj.cmd = receiveObj.cmd;
@@ -50,33 +50,43 @@ class P_SocketServer extends SmSocketServer {
 
   cmdProcessor(cmd) {
     // BU.CLI('cmdProcessor', cmd)
-    let returnValue = '';
+    let returnValue = this.controller.getBaseInverterValue();
+    let isTrue = _.random(0, 1);
     switch (cmd) {
-      case 'fault':
-        // BU.CLI('cmdProcessor :' + cmd, this.currIvtDataForDbms)
-        returnValue = {
+      case 'operation':
+        returnValue.isError = _.random(0, 1);
+        returnValue.isRun = _.random(0, 1);
+        returnValue.isError ? returnValue.errorList = [{
           msg: '태양전지 저전압 (변압기 type Only)',
           code: 'Solar Cell UV fault',
           number: 2,
           errorValue: 1
-        }
+        }] : returnValue.errorList = [];
         break;
       case 'pv':
-        returnValue = this.controller.model.pv;
+        _.each(this.controller.model.pv, (value, key) => {
+          returnValue[key] = value;
+        });
         break;
       case 'grid':
-        returnValue = this.controller.model.grid;
+        _.each(this.controller.model.grid, (value, key) => {
+          returnValue[key] = value;
+        });
         break;
       case 'power':
-        returnValue = this.controller.model.power;
+        _.each(this.controller.model.power, (value, key) => {
+          returnValue[key] = value;
+        });
         break;
       case 'sysInfo':
-        // BU.CLI('cmdProcessor :' + cmd, this.currIvtDataForDbms)
-        returnValue = this.controller.model.sysInfo;
+        _.each(this.controller.model.sysInfo, (value, key) => {
+          returnValue[key] = value;
+        });
         break;
       case 'weather':
-        // BU.CLI('cmdProcessor :' + cmd, this.currIvtDataForDbms)
-        returnValue = {};
+        _.each(this.controller.model.weather, (value, key) => {
+          returnValue[key] = value;
+        });
         break;
       default:
         break;

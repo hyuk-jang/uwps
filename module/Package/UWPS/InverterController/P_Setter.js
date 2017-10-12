@@ -19,20 +19,30 @@ class P_Setter extends EventEmitter {
       if (this.config.hasDev) {
         let port = await this.controller.dummyInverter.init();
         // 개발용 버전이면서 접속 타입이 socket일 경우에는 서로 연결시킬 port 지정
-        if(this.config.ivtSavedInfo.connect_type === 'socket'){
+        if (this.config.ivtSavedInfo.connect_type === 'socket') {
           this.controller.model.ivtSavedInfo.port = port;
         }
-      }
+
+        // 개발용 버전이고 실제 인버터 프로토콜을 따른다면 Test Stub 장착
+        if(this.config.ivtSavedInfo.target_category !== 'dev') {
+          let testStubDataPath = `./Converter/${this.config.ivtSavedInfo.target_category}/t_Decoder`;
+          this.controller.testStubData = require(testStubDataPath);
+        }
+      } 
+      
+      
 
       // 컨버터를 붙임
       let encoderPath = `./Converter/${this.config.ivtSavedInfo.target_category}/Encoder`;
       let decoderPath = `./Converter/${this.config.ivtSavedInfo.target_category}/Decoder`;
+
 
       Encoder = require(encoderPath);
       Decoder = require(decoderPath);
 
       this.controller.encoder = new Encoder(dialing);
       this.controller.decoder = new Decoder(dialing);
+
 
       return true;
     } catch (error) {
@@ -54,7 +64,7 @@ class P_Setter extends EventEmitter {
       throw Error('Serial Client 연결이 되지 않았습니다.');
     }
 
-    // BU.CLI('Msg 발송', msg);
+    BU.CLI('Msg 발송', msg);
     await this.controller.connectedInverter.write(msg);
     return true;
   }
@@ -89,16 +99,8 @@ class P_Setter extends EventEmitter {
 
   // 정기적인 인버터 데이터 요청 메시지 이벤트 발생 메소드
   _occurRequestInverterData() {
-    // BU.CLI(this.controller.cmdList)
-    let cmdValues = Object.values(this.controller.cmdList);
-    let returnValue = [];
-    cmdValues.forEach(element => {
-      if (!this.controller.model.reserveCmdList.includes(element)) {
-        returnValue.push(element);
-      }
-    });
-
-    return this.emit('startGetter', returnValue);
+    // BU.CLI(this.controller.encoder.makeMsg())
+    return this.emit('startGetter', this.controller.encoder.makeMsg());
   }
 
 }

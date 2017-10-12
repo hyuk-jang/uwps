@@ -1,7 +1,7 @@
 module.exports = {
   current: {
     port: 6000,
-    hasSingle:true,
+    isSingle:1,
     pvData: {
       amp: 20,  // Ampere
       vol: 220  // voltage

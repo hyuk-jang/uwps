@@ -13,16 +13,14 @@ class Encoder extends Converter {
   getCheckSum(buf) {
     let returnValue = this.getSumBuffer(buf);
     return Buffer.from(this.pad(returnValue.toString(16), 4));
-
-    // return Buffer.from(this.getSumBuffer(buf), 'hex');
   }
 
-  makeMsg(cmd) {
+  makeSingleMsg(cmd) {
     try {
       let msg = this.protocolTable[cmd];
       // BU.CLI(msg)
       if(msg === undefined || BU.isEmpty(msg)){
-        return '';
+        return {};
       }
       let body = this.makeMsg2Buffer(Object.values(msg));
       let returnValue = [
@@ -33,6 +31,27 @@ class Encoder extends Converter {
       ];
 
       return Buffer.concat(returnValue)
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  makeMsg() {
+    try {
+      let returnValue = [];
+      // BU.CLI(this.protocolTable)
+      for(let key in this.protocolTable){
+        let body = this.makeMsg2Buffer(Object.values(this.protocolTable[key])) ;
+        let msg = [
+          this.ENQ,
+          body,
+          this.getCheckSum(body), 
+          this.EOT
+        ];
+        returnValue.push(Buffer.concat(msg));
+      }
+      // BU.CLI(returnValue)
+      return returnValue;
     } catch (error) {
       throw error;
     }

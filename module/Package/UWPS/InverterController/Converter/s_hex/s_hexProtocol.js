@@ -1,6 +1,6 @@
-exports.operationInfo = (byteConut) => {
+exports.operationInfo = (groupIndex) => {
   let returnValue = [];
-  if (byteConut === 0) {
+  if (groupIndex === 0) {
     returnValue = [{
       msg: '태양전지 과전압',
       code: 'Soloar Cell OV Fault',
@@ -22,7 +22,7 @@ exports.operationInfo = (byteConut) => {
       number: 3,
       errorValue: 1
     }]
-  } else if (byteConut === 1) {
+  } else if (groupIndex === 1) {
     returnValue = [{
       msg: '인버터 과 전류',
       code: 'Inverter over current fault',
@@ -59,7 +59,7 @@ exports.operationInfo = (byteConut) => {
       number: 14,
       errorValue: 0
     }]
-  } else if (byteConut === 2) {
+  } else if (groupIndex === 2) {
     returnValue = [{
       msg: '계통 과 전압',
       code: 'Line over voltage fault',
@@ -93,7 +93,7 @@ exports.operationInfo = (byteConut) => {
 
 exports.encodingProtocolTable = (dialing) => {
   return {
-    fault: {
+    operation: {
       dialing,
       code: 0x52,
       address: [0x30, 0x30, 0x30, 0x34],
@@ -117,7 +117,7 @@ exports.encodingProtocolTable = (dialing) => {
       address: '0060',
       length: '08'
     },
-    sysInfo: {
+    system: {
       dialing,
       code: 'R',
       address: '01e0',

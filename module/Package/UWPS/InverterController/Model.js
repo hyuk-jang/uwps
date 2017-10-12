@@ -7,40 +7,43 @@ class Model {
     this.controller = controller;
     this.config = controller.config;
 
-    this.hasOperation = false;
+    this.hasConnectedInverter = false;
     this.retryConnectInverterCount = 0;
 
     this.cmdList = {
-      getFault: 'fault',
+      getOperation: 'operation',
       getPv: 'pv',
       getGrid: 'grid',
       getPower: 'power',
-      getSysInfo: 'sysInfo',
-      getWeather: 'weather'
+      getSystem: 'system',
+      // getWeather: 'weather'
     }
 
     this.controlStatus = {
       reserveCmdList: [],
-      processCmd: '',
-      processMsgList: []
+      processCmd: {},
+      sendIndex: 0
     }
 
-
-    // this.socketServerPort = 0;
-
+    this.inverterData = this.controller.encoder.getBaseInverterValue();
     // Socket에 접속 중인 사용자 리스트
-    this.clientList = [];
-
     this.ivtSavedInfo = this.config.ivtSavedInfo;
 
     this.sysInfo = {}
     this.pv = {}
     // Single Grid, Third Grid 둘다 커버하는 Grid
     this.grid = {};
-    this.power = {}
+    this.power = {};
+    this.operationInfo = {};
     this.weather = {};
 
     Object.values(this.cmdList).forEach(element => this.onInitInverterData(element));
+
+    this.ivtDataGroup = [
+      this.sysInfo, this.pv, this.grid, this.power, this.operationInfo, this.weather
+    ];
+
+
   }
 
   // 인버터 데이터 초기화
@@ -73,12 +76,21 @@ class Model {
           lf: 0 // 라인 주파수 Line Frequency, 단위: Hz
         };
         break;
-      case 'sysInfo':
+      case 'system':
         this.sysInfo = {
-          hasSingle: 0, // 단상 or 삼상
+          isSingle: 1, // 단상 or 삼상
           capa: 0, // 인버터 용량 kW
           productYear: '00000000', // 제작년도 월 일 yyyymmdd,
           sn: '' // Serial Number
+        }
+        break;
+      case 'operation':
+        this.operationInfo = {
+          isRun: 0, // 인버터 동작 유무
+          isError: 0, // 인버터 에러 발생 유무
+          temperature: 0, // 인버터 온도
+          errorList: [], // 에러 리스트 Array
+          warningList: [] // 경고 리스트 Array
         }
         break;
       case 'weather':
@@ -102,11 +114,6 @@ class Model {
     return this.controlStatus.processCmd;
   }
 
-  get processMsgList() {
-    return this.controlStatus.processMsgList;
-  }
-
-
   // 현재 매칭된 값의 소수점 절삭하여 반환
   get currPv() {
     return NU.toFixedAll(this.pv, 1);
@@ -118,22 +125,6 @@ class Model {
 
   get currPower() {
     return NU.toFixedAll(this.power, 3);
-  }
-
-  get currIvtAmp() {
-    if (this.config.ivtSavedInfo.target_type) {
-      return this.singleGridData.amp;
-    } else {
-      return this.thirdGridData.rsAmp;
-    }
-  }
-
-  get currIvtVol() {
-    if (this.config.ivtSavedInfo.target_type) {
-      return this.singleGridData.vol;
-    } else {
-      return this.thirdGridData.rsVol;
-    }
   }
 
   // 데이터 정제한 데이터 테이블
@@ -198,9 +189,22 @@ class Model {
 
 
   // Inverter Data 수신
-  onInverterData(receiveObj) {
-    // BU.CLI('onInverterData', receiveObj)
-    return this[receiveObj.cmd] = receiveObj.contents;
+  onInverterData(inverterData) {
+    _.each(inverterData, (value, key) => {
+      // 정의한 Key 안에서 들어온 데이터일 경우
+      if (value !== null && _.has(this.inverterData, key)) {
+        // 실제 사용하는 영역일 경우 실제 대입
+        _.each(this.ivtDataGroup, (ivtObj) => {
+          if (_.has(ivtObj, key)) {
+            ivtObj[key] = value;
+          }
+        })
+        // 정의한 key value 업데이트 (차후에 쓰일지도 몰라서)
+        this.inverterData[key] = value;
+      }
+    })
+    // BU.CLIS(this.inverterData)
+    return true;
   }
 }
 

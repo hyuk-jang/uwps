@@ -6,7 +6,7 @@ class Model {
     this.config = controller.config;
 
     this.ivtInfo = {
-      hasSingle: this.config.ivtInfo.hasSingle, // 단상 or 삼상
+      isSingle: this.config.ivtInfo.isSingle, // 단상 or 삼상
       capa: this.config.ivtInfo.capa,  // 인버터 용량 kW
       productYear: this.config.ivtInfo.productYear, // 제작년도 월 일 yyyymmdd,
       sn: this.config.ivtInfo.sn  // Serial Number
@@ -108,7 +108,7 @@ class Model {
 
 
   get currIvtAmp() {
-    if(this.ivtInfo.hasSingle){
+    if(this.ivtInfo.isSingle){
       return this.singleGridData.amp;
     } else {
       return this.ThirdGridData.rsAmp;
@@ -116,7 +116,7 @@ class Model {
   }
 
   get currIvtVol() {
-    if(this.ivtInfo.hasSingle){
+    if(this.ivtInfo.isSingle){
       return this.singleGridData.vol;
     } else {
       return this.ThirdGridData.rsVol;
@@ -127,7 +127,7 @@ class Model {
   onIvtData(ivt = {amp, vol}) {
     let amp = ivt.amp;
     let vol = ivt.vol;
-    if(this.ivtInfo.hasSingle){
+    if(this.ivtInfo.isSingle){
       this.singleGridData.amp = amp;
       this.singleGridData.vol = vol;
     } else {

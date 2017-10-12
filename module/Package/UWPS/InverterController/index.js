@@ -10,8 +10,6 @@ const BU = BUJ.baseUtil;
 global._ = _;
 global.BU = BU;
 
-
-
 // process.on('unhandledRejection', (reason) => {
 //   BU.debugConsole();
 //   console.log('Reason: ' + reason);

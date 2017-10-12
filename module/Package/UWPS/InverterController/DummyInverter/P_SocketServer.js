@@ -18,6 +18,7 @@ class P_SocketServer extends SmSocketServer {
   _eventHandler() {
     super.on('dataBySocketServer', (err, socketData, socket) => {
       let receiveObj = {};
+      let returnValue = {};
       let responseObj = {
         cmd: 'none',
         isError: 0,
@@ -28,23 +29,22 @@ class P_SocketServer extends SmSocketServer {
         receiveObj = JSON.parse(socketData);
         responseObj.cmd = receiveObj.cmd;
       } catch (ex) {
-        BU.CLI(ex);
-        return socket.write(responseObj)
+        // BU.CLI(ex);
+        return socket.write(BU.makeMessage(responseObj))
       }
       // CMD에 따라
       if (receiveObj.cmd !== '') {
         // BU.CLI(responseObj)
-        responseObj.contents = this.cmdProcessor(receiveObj.cmd);
+        returnValue = this.cmdProcessor(receiveObj.cmd);
       } else {
         // BU.CLI('알수없는 App 메시지', socketData);
-        responseObj = {
+        returnValue = {
           'cmd': 'UndefinedCMD',
           'isError': '1',
           'contents': '알수없는 명령입니다.'
         };
       }
-      // BU.CLI(responseObj)
-      return socket.write(BU.makeMessage(responseObj));
+      return socket.write(BU.makeMessage(returnValue))
     })
   }
 
@@ -78,11 +78,14 @@ class P_SocketServer extends SmSocketServer {
           returnValue[key] = value;
         });
         break;
-      case 'sysInfo':
+      case 'system':
         _.each(this.controller.model.sysInfo, (value, key) => {
           returnValue[key] = value;
         });
         break;
+      // case 'operation':
+      //   returnValue = this.controller.model.operationInfo;
+      //   break;
       case 'weather':
         _.each(this.controller.model.weather, (value, key) => {
           returnValue[key] = value;
@@ -92,6 +95,7 @@ class P_SocketServer extends SmSocketServer {
         break;
     }
 
+    // BU.CLI(returnValue)
     return returnValue;
   }
 

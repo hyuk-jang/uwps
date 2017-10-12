@@ -1,6 +1,6 @@
-exports.faultInfo = (spliceIndex) => {
+exports.operationInfo = (groupIndex) => {
   let returnValue = [];
-  if (spliceIndex === 0) {
+  if (groupIndex === 0) {
     returnValue = [{
       msg: '태양전지 과전압',
       code: 'Soloar Cell OV Fault',
@@ -22,7 +22,7 @@ exports.faultInfo = (spliceIndex) => {
       number: 3,
       errorValue: 1
     }]
-  } else if (spliceIndex === 1) {
+  } else if (groupIndex === 1) {
     returnValue = [{
       msg: '인버터 과 전류',
       code: 'Inverter over current fault',
@@ -59,7 +59,7 @@ exports.faultInfo = (spliceIndex) => {
       number: 14,
       errorValue: 0
     }]
-  } else if (spliceIndex === 2) {
+  } else if (groupIndex === 2) {
     returnValue = [{
       msg: '계통 과 전압',
       code: 'Line over voltage fault',

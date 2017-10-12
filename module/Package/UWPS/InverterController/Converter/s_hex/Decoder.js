@@ -28,7 +28,7 @@ class Decoder extends Converter {
   }
 
 
-  fault(msg) {
+  operation(msg) {
     // BU.CLI('fault', msg)
     this.returnValue.errorList = [];
     let returnValue = [];
@@ -88,10 +88,10 @@ class Decoder extends Converter {
     this.returnValue.pf = this.convertBuffer2Char2Dec(arrSpliceBuffer[5]) / 10; // 역률 Power Factor %
   }
 
-  sysInfo(msg) {
+  system(msg) {
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
 
-    this.returnValue.hasSingle = arrSpliceBuffer[0][0].toString() === 1 ? 1 : 0; // 단상 or 삼상
+    this.returnValue.isSingle = arrSpliceBuffer[0].slice(0, 1).toString() === '1' ? 1 : 0; // 단상 or 삼상
     this.returnValue.capa = Number(arrSpliceBuffer[0].slice(1, 4).toString()) / 10; // 인버터 용량 kW
     this.returnValue.productYear = '20' + arrSpliceBuffer[1].slice(0, 2).toString() + arrSpliceBuffer[1].slice(2, 4).toString(); // 제작년도 월 일 yyyymmdd,
     this.returnValue.sn = Number(arrSpliceBuffer[2].toString()); // Serial Number
@@ -104,12 +104,10 @@ class Decoder extends Converter {
   getCheckSum(buf) {
     let returnValue = this.getSumBuffer(buf);
     return Buffer.from(this.pad(returnValue.toString(16), 4));
-
-
-    // return Buffer.from(this.getSumBuffer(buf), 'hex');
   }
 
   _receiveData(buffer) {
+    // BU.CLI('_receiveData', buffer)
     this.returnValue = this.getBaseInverterValue();
 
     try {
@@ -164,19 +162,10 @@ class Decoder extends Converter {
         BU.CLI(value)
         return false;
       }
-
       // returnValue Set
       this[cmd](resBufArray[4]);
 
       return this.returnValue;
-
-      // // BU.CLI(cmd)
-      // let returnValue = {
-      //   cmd,
-      //   contents: this[cmd](resBufArray[4])
-      // }
-      // // BU.CLI('returnValue', returnValue)
-      // return returnValue;
     } catch (error) {
       // BU.CLI(error)
       throw Error(error);

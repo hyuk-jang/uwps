@@ -13,12 +13,14 @@ global._ = _;
 let ivtList = [];
 let baseIvt = config.InverterController[0];
 
-
 let comPort = 9;
 let ivtSeq = 5;
 for(cnt = 1; cnt <= 2; cnt++){
   
   let cloneIvt = JSON.parse(JSON.stringify(baseIvt))  ;
+
+  let test = cloneIvt.current.ivtSavedInfo.dialing;
+  let buf = Buffer.from(test);
   cloneIvt.current.ivtSavedInfo.inverter_seq = ivtSeq++;
   cloneIvt.current.ivtSavedInfo.target_id = 'IVT' + cnt;
   cloneIvt.current.ivtSavedInfo.target_name = '인버터 ' + cnt;

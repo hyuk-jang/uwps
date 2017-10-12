@@ -42,11 +42,11 @@ function makeSingleMsg(cmd, obj) {
 
 
 const cmdList = {
-  getFault: 'fault',
+  getOperation: 'operation',
   getPv: 'pv',
   getGrid: 'grid',
   getPower: 'power',
-  getSysInfo: 'sysInfo',
+  getSystem: 'system',
   getWeather: 'weather'
 }
 
@@ -82,7 +82,7 @@ function makeSysInfo() {
   // Serial Number: 
   arr.push(decodingMsgSingleHex.convertNum2Hx2Buffer(0x0001));
 
-  res = makeBufferMsg('sysInfo', arr);
+  res = makeBufferMsg('system', arr);
   res = decodingMsgSingleHex._receiveData(res);
 
   return res;
@@ -92,7 +92,7 @@ res = makeSysInfo();
 BU.CLI(res);
 
 // Decoding Socket Test
-res = decodingMsgSocket.sysInfo(makeSingleMsg('sysInfo', res));
+res = decodingMsgSocket.sysInfo(makeSingleMsg('system', res));
 BU.CLI(res)
 
 

@@ -17,12 +17,19 @@ let encoder = new Encoder(Buffer.from([0x30, 0x31]));
 
 
 const cmdList = {
-  getFault: 'fault',
+  getOperation: 'operation',
   getPv: 'pv',
   getGrid: 'grid',
   getPower: 'power',
-  getSysInfo: 'sysInfo',
+  getSystem: 'system',
   getWeather: 'weather'
+}
+
+try {
+  let result = encoder.makeMsg();
+  BU.CLI(result);  
+} catch (error) {
+  BU.CLI(error)
 }
 
 try {
@@ -30,7 +37,7 @@ try {
   for (let ele in cmdList) {
     BU.CLI(cmdList[ele])
     // let result = encodingMsgSingleHex[cmdList[ele]](_.random(0,9) + '' + _.random(0,9), cmdList[ele]);
-    let result = encoder.makeMsg(cmdList[ele]);
+    let result = encoder.makeSingleMsg(cmdList[ele]);
     BU.CLI(result)
   }
 } catch (error) {

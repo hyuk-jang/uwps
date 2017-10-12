@@ -29,16 +29,16 @@ class Converter extends EventEmitter {
       tAmp: null, // t상 전류
       lf: null, // 라인 주파수 Line Frequency, 단위: Hz
       // System Info
-      hasSingle: null, // 단상 or 삼상
+      isSingle: null, // 단상 or 삼상
       capa: null, // 인버터 용량 kW
       productYear: null, // 제작년도 월 일 yyyymmdd,
       sn: null, // Serial Number,
       // Operation Info
       isRun: null, // 인버터 동작 유무
-      isError: null,  // 인버터 에러 발생 유무
-      temperature: null,  // 인버터 온도
-      errorList: null, // 에러 리스트 Array
-      warningList: null // 경고 리스트 Array
+      isError: null, // 인버터 에러 발생 유무
+      temperature: null, // 인버터 온도
+      errorList: [], // 에러 리스트 Array
+      warningList: [] // 경고 리스트 Array
     }
   }
 
@@ -134,7 +134,7 @@ class Converter extends EventEmitter {
   getSumBuffer(buffer, isReturnDec) {
     let decCheckSum = 0;
     buffer.forEach(element => decCheckSum += element);
-    BU.CLI(decCheckSum)
+    // BU.CLI(decCheckSum)
     if (isReturnDec) {
       return decCheckSum;
     } else {
@@ -160,6 +160,7 @@ class Converter extends EventEmitter {
         this.resultMakeMsg2Buffer.push(arguments[index]);
       }
     }
+    // BU.CLI(this.resultMakeMsg2Buffer)
     return Buffer.concat(this.resultMakeMsg2Buffer);
   }
 
@@ -176,10 +177,11 @@ class Converter extends EventEmitter {
         } else if (typeof element === 'object') { // Buffer
           if (Buffer.isBuffer(element)) {
             return this.resultMakeMsg2Buffer.push(element);
+          } else if (element.type === 'Buffer') {
+            return this.resultMakeMsg2Buffer.push(Buffer.from(element))
           } else {
-            value = Buffer.from(element);
+            throw TypeError('Buffer에 문제 발생')
           }
-          // return this.resultMakeMsg2Buffer.push(element);
         } else if (typeof element === 'number') { // Dec
           return this.resultMakeMsg2Buffer.push(Buffer.from(this.converter().dec2hex(element), 'hex'));
         } else if (typeof element === 'string') { // Ascii Chr
@@ -210,7 +212,7 @@ class Converter extends EventEmitter {
     return obj;
   }
 
-  fault() {
+  operation() {
 
   }
 
@@ -226,7 +228,7 @@ class Converter extends EventEmitter {
 
   }
 
-  sysInfo() {
+  system() {
 
   }
 

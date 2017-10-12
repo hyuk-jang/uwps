@@ -27,7 +27,7 @@ class Model {
       tAmp: null, // t상 전류
       lf: null, // 라인 주파수 Line Frequency, 단위: Hz
       // System Info
-      hasSingle: null, // 단상 or 삼상
+      isSingle: null, // 단상 or 삼상
       capa: null, // 인버터 용량 kW
       productYear: null, // 제작년도 월 일 yyyymmdd,
       sn: null, // Serial Number,
@@ -35,12 +35,13 @@ class Model {
       isRun: null, // 인버터 동작 유무
       isError: null,  // 인버터 에러 발생 유무
       temperature: null,  // 인버터 온도
-      errorList: null // 에러 리스트 Array
+      errorList: null, // 에러 리스트 Array
+      warningList: null // 경고 리스트 Array
     }
 
 
     this.sysInfo = {
-      hasSingle: '', // 단상 or 삼상
+      isSingle: 1, // 단상 or 삼상
       capa: 0, // 인버터 용량 kW
       productYear: '00000000', // 제작년도 월 일 yyyymmdd,
       sn: '' // Serial Number
@@ -69,7 +70,16 @@ class Model {
       cpKwh: 0, // 인버터 누적 발전량 mWh  Cumulative Power Generation
       pf: 0,  // 역률 Power Factor %
     }
+
+    this.operationInfo = {
+      isRun: 0, // 인버터 동작 유무
+      isError: 0, // 인버터 에러 발생 유무
+      temperature: 0, // 인버터 온도
+      errorList: [], // 에러 리스트 Array
+      warningList: [] // 경고 리스트 Array
+    }
   }
+  
 
   // 현재 매칭된 값의 소수점 절삭하여 반환
   get currPv() {
@@ -89,7 +99,7 @@ class Model {
   get refineInverterData() {
     let in_w = this.pv.amp * this.pv.vol;
     let out_w= 0;
-    if(this.config.hasSingle){
+    if(this.config.isSingle){
       out_w = this.grid.rAmp * this.grid.rsVol;
     } else {
       out_w = this.grid.rAmp * this.grid.rsVol * 1.732;
@@ -143,7 +153,7 @@ class Model {
     let out_w = 0;
 
     // 단상일 경우
-    if(!this.config.hasSingle){
+    if(!this.config.isSingle){
       this.grid.rAmp = amp;
       this.grid.rsVol = vol;
 

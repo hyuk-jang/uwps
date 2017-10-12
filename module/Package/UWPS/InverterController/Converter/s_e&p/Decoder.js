@@ -33,7 +33,7 @@ class Decoder extends Converter {
     // BU.CLI(arrSpliceBuffer)
     arrSpliceBuffer.forEach((buffer, index) => {
       let binaryValue = this.convertChar2Binary(buffer.toString(), 4);
-      let faultTable = protocol.faultInfo(index);
+      let faultTable = protocol.operationInfo(index);
 
       _.each(faultTable, faultObj => {
         let binaryCode = binaryValue.charAt(faultObj.number);
@@ -87,7 +87,7 @@ class Decoder extends Converter {
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
 
     let returnValue = {
-      hasSingle: arrSpliceBuffer[0][0].toString() === 1 ? 1 : 0, // 단상 or 삼상
+      isSingle: arrSpliceBuffer[0][0].toString() === 1 ? 1 : 0, // 단상 or 삼상
       capa: Number(arrSpliceBuffer[0].slice(1, 4).toString()) / 10, // 인버터 용량 kW
       productYear: '20' + arrSpliceBuffer[1].slice(0, 2).toString() + arrSpliceBuffer[1].slice(2, 4).toString(), // 제작년도 월 일 yyyymmdd,
       sn: Number(arrSpliceBuffer[2].toString()) // Serial Number

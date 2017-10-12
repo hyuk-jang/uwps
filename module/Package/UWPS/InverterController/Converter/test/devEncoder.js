@@ -6,11 +6,11 @@ const EncodingMsgSocket = require('../dev/Encoder');
 let encodingMsgSocket = new EncodingMsgSocket();
 
 const cmdList = {
-  getFault: 'fault',
+  getOperation: 'operation',
   getPv: 'pv',
   getGrid: 'grid',
   getPower: 'power',
-  getSysInfo: 'sysInfo',
+  getSystem: 'system',
   getWeather: 'weather'
 }
 

@@ -21,7 +21,7 @@ module.exports = {
         target_id: 'IVT1',
         target_name: '인버터 1',
         target_type: 0, // 0: 단상, 1: 삼상
-        dialing: '04', // id,
+        dialing: Buffer.from('01', 'ascii'), // id,
         connect_type: 'socket', // `socket` or `serial`
         ip: 'localhost', // Socket 연결 시 사용
         port: 'COM1', // Port를 직접 지정하고자 할때 사용
@@ -35,7 +35,7 @@ module.exports = {
     DummyInverter: {
       current: {
         port: 6000,
-        hasSingle: true,
+        isSingle: 1,
         pvData: {
           amp: 20, // Ampere
           vol: 220 // voltage

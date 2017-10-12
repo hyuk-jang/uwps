@@ -13,7 +13,7 @@ class Control extends EventEmitter {
     // 현재 Control 설정 변수
     this.config = {
       port: 0,
-      hasSingle: true,
+      isSingle: 1,
       pvData: {},
       renewalCycle: 0,
       dummyValue: {
@@ -74,7 +74,7 @@ class Control extends EventEmitter {
       tAmp: null, // t상 전류
       lf: null, // 라인 주파수 Line Frequency, 단위: Hz
       // System Info
-      hasSingle: null, // 단상 or 삼상
+      isSingle: null, // 단상 or 삼상
       capa: null, // 인버터 용량 kW
       productYear: null, // 제작년도 월 일 yyyymmdd,
       sn: null, // Serial Number,

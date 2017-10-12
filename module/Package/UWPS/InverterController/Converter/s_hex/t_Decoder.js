@@ -36,11 +36,11 @@ function makeSingleMsg(cmd, obj) {
 
 
 const cmdList = {
-  getFault: 'fault',
+  getOperation: 'operation',
   getPv: 'pv',
   getGrid: 'grid',
   getPower: 'power',
-  getSysInfo: 'sysInfo',
+  getSystem: 'system',
   getWeather: 'weather'
 }
 
@@ -50,6 +50,7 @@ function makeBufferMsg(cmd, arr) {
   let ACK = decoder.ACK;
   let EOT = decoder.EOT;
 
+  // BU.CLI(protocolTable)
   let dialing = protocolTable[cmd].dialing;
   let code = protocolTable[cmd].code;
   let address = protocolTable[cmd].address;
@@ -69,7 +70,7 @@ function makeReceiveData(cmd, hasBinary, bufferWidth) {
   let body = [];
   let convertBufferBody = [];
   switch (cmd) {
-    case 'sysInfo':
+    case 'system':
       body = [
         0x1030, // 1: isSingle, 030: Kw(10:1 Scale)
         0x0510, // 제조년: 20yymm
@@ -105,7 +106,7 @@ function makeReceiveData(cmd, hasBinary, bufferWidth) {
         57
       ];
       break;
-    case 'fault':
+    case 'operation':
       body = makeFaultMsg();
       break;
     default:
@@ -123,6 +124,8 @@ function makeReceiveData(cmd, hasBinary, bufferWidth) {
 
   // BU.CLI(convertBufferBody)
   buffer = makeBufferMsg(cmd, convertBufferBody);
+  // BU.CLI(buffer)
+  return buffer;
 
   returnValue = decoder._receiveData(buffer)
   BU.CLI(cmd, buffer, returnValue);
@@ -130,11 +133,11 @@ function makeReceiveData(cmd, hasBinary, bufferWidth) {
   return returnValue;
 }
 
-makeReceiveData('sysInfo')
-makeReceiveData('power')
-makeReceiveData('grid')
-makeReceiveData('pv')
-makeReceiveData('fault', true)
+// makeReceiveData('system')
+// makeReceiveData('power')
+// makeReceiveData('grid')
+// makeReceiveData('pv')
+// makeReceiveData('operation', true)
 
 function makeFaultMsg() {
   let returnValue = [];
@@ -147,3 +150,11 @@ function makeFaultMsg() {
   // BU.CLI(returnValue)
   return Buffer.concat(returnValue);
 }
+
+module.exports = [
+  makeReceiveData('operation', true),
+  makeReceiveData('pv'),
+  makeReceiveData('grid'),
+  makeReceiveData('power'),
+  makeReceiveData('system'),
+];

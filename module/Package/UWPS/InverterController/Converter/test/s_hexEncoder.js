@@ -17,11 +17,11 @@ let encoder = new Encoder(Buffer.from([0x30, 0x31]));
 
 
 const cmdList = {
-  getFault: 'fault',
+  getOperation: 'operation',
   getPv: 'pv',
   getGrid: 'grid',
   getPower: 'power',
-  getSysInfo: 'sysInfo',
+  getSystem: 'system',
   getWeather: 'weather'
 }
 

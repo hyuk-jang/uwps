@@ -7,7 +7,7 @@ module.exports = {
       database: process.env.SALTERN_DB ? process.env.SALTERN_DB : 'saltpond_controller'
     },
     ivtInfo: {
-      hasSingle: 1, // 단상 or 삼상
+      isSingle: 1, // 단상 or 삼상
       capa: 3,  // 인버터 용량 kW
       productYear: 20170808, // 제작년도 월 일 yyyymmdd,
       sn: 'afajkh'  // Serial Number

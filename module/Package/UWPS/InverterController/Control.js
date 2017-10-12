@@ -139,6 +139,29 @@ class Control extends EventEmitter {
     }
   }
 
+  measureInverter() {
+    if (!BU.isEmpty(this.model.processCmd)) {
+      return new Error('현재 진행중인 명령이 존재합니다.');
+    } else {
+      this.model.controlStatus.reserveCmdList = this.encoder.makeMsg();
+      Promise.each(this.model.controlStatus.reserveCmdList, cmd => {
+          this.model.controlStatus.reserveCmdList.shift();
+          this.model.controlStatus.processCmd = cmd;
+          return this.send2Cmd(cmd);
+        })
+        // .bind({})
+        .then((result) => {
+          BU.CLIS(result, this.model.refineInverterData)
+          return this.model.refineInverterData;
+        })
+        .catch(err => {
+          let msg = `${this.inverterId}의 ${this.model.processCmd}명령 수행 도중 ${error.message}오류가 발생하였습니다.`;
+          // BU.errorLog('send2InverterErr', msg);
+          BU.CLI(msg)
+          throw err;
+        })
+    }
+  }
 
   // 현재 진행중인 명령이 있는지 확인. 없다면 명령 지시 
   commander() {
@@ -154,7 +177,7 @@ class Control extends EventEmitter {
       } else {
         this.model.controlStatus.reserveCmdList.shift();
         this.model.controlStatus.processCmd = cmd;
-        
+
         // BU.CLI(this.model.controlStatus)
         this.send2Cmd(cmd).then(r => {
           this.model.controlStatus.sendIndex++;
@@ -177,25 +200,28 @@ class Control extends EventEmitter {
    * @param  cmd 요청할 명령
    */
   async send2Cmd(cmd) {
-    // BU.CLI(cmd)
+    BU.CLI(cmd)
     return Promise.race(
         [
           this.msgSendController(cmd),
           new Promise((_, reject) => setTimeout(() => {
+            // BU.CLI(this.config.controlOption.sendMsgTimeOutSec)
             reject(new Error('timeout'))
           }, 1000 * this.config.controlOption.sendMsgTimeOutSec))
         ]
       )
       .then(result => {
+        BU.CLI(result)
         return result;
       })
       .catch(err => {
+        BU.CLI(err)
         throw err;
       })
   }
 
   async msgSendController(cmd) {
-    // BU.CLI(this.model.controlStatus)
+    BU.CLI(this.model.controlStatus)
     if (BU.isEmpty(cmd)) {
       return new Error('수행할 명령이 없습니다.');
     }
@@ -209,14 +235,14 @@ class Control extends EventEmitter {
   // 메시지 이벤트 종료 이벤트 핸들러
   async _receiveMsgHandler() {
     // BU.CLI('_receiveMsgHandler')
-    await eventToPromise.multi(this, ['completeSend2Msg'], ['errorSend2Msg']);
+    let result =  await eventToPromise.multi(this, ['completeSend2Msg'], ['errorSend2Msg']);
     // 요청 메시지 리스트가 비어있다면 명령 리스트를 초기화하고 Resolve
     this.model.controlStatus.processCmd = {};
-    return true;
+    return result;
   }
 
   _onReceiveInverterMsg(msg) {
-    // BU.CLI('_onReceiveInverterMsg', msg)
+    BU.CLI('_onReceiveInverterMsg', msg)
     // 명령 내리고 있는 경우에만 수신 메시지 유효
     if (!BU.isEmpty(this.model.processCmd)) {
       try {
@@ -269,7 +295,6 @@ class Control extends EventEmitter {
       this.model.controlStatus.reserveCmdList = reserveList;
       this.model.controlStatus.sendIndex = 0;
       this.commander();
-
     });
 
     // 인버터 소켓 장치 데이터 수신 핸들러

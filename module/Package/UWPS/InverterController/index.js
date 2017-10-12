@@ -30,6 +30,10 @@ let index = 0;
 
 
 control.init()
+.then(result => {
+  return control.measureInverter();
+})
+
   // .then((result) => {
   //   BU.CLI('One')
   //   return control.send2Cmd(control.cmdList[keys[index++]]);
@@ -47,10 +51,10 @@ control.init()
     
   //   return control.send2Cmd(control.cmdList[keys[index++]]);
   // })
-  .catch(error => {
+  // .catch(error => {
 
-    return BU.CLI(error)
-  })
+  //   return BU.CLI(error)
+  // })
 
 // .catch(error => {
 
@@ -73,9 +77,9 @@ control.init()
 // .then((result) => {
 //   BU.CLI('Six', result)
 // })
-// .catch(error => {
-//   BU.CLI(error)
-// })
+.catch(error => {
+  BU.CLI(error)
+})
 
 
 // for (let ele in control.cmdList) {

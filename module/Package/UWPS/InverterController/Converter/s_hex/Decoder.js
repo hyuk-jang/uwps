@@ -107,7 +107,7 @@ class Decoder extends Converter {
   }
 
   _receiveData(buffer) {
-    // BU.CLI('_receiveData', buffer)
+    BU.CLI('_receiveData', buffer)
     this.returnValue = this.getBaseInverterValue();
 
     try {

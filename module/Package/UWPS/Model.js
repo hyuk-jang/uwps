@@ -61,6 +61,8 @@ class Model {
     
   }
 
+  // FIXME 데이터 가져오는 시점 수정필요
+  // 현재 스케줄러 시점에서 각 인버터 게측 데이터 가져옴. --> 인버터 계측 완료 이벤트 모두 수신 후 데이터 가져옴
   measureInverter(date) {
     let measureInverterDataList = [];
     let writeDate = date ? date : new Date();
@@ -73,7 +75,7 @@ class Model {
     BU.CLI(measureInverterDataList)
 
     // TEST 실제 입력은 하지 않음. 
-    return;
+    // return;
 
     this.BM.setTables('inverter_data',measureInverterDataList)
     .then(result => {

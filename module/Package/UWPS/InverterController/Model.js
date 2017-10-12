@@ -203,7 +203,7 @@ class Model {
         this.inverterData[key] = value;
       }
     })
-    // BU.CLIS(this.inverterData)
+    BU.CLIS(this.inverterData)
     return true;
   }
 }

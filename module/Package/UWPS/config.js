@@ -17,7 +17,7 @@ module.exports = {
       },
       ivtSavedInfo: {
         inverter_seq: 5,
-        target_category: 'dev',
+        target_category: 's_hex',
         target_id: 'IVT1',
         target_name: '인버터 1',
         target_type: 0, // 0: 단상, 1: 삼상

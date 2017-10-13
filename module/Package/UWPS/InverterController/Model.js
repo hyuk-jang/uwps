@@ -22,7 +22,8 @@ class Model {
     this.controlStatus = {
       reserveCmdList: [],
       processCmd: {},
-      sendIndex: 0
+      sendIndex: -1,
+      retryChance: 3
     }
 
     this.inverterData = this.controller.encoder.getBaseInverterValue();
@@ -44,6 +45,15 @@ class Model {
     ];
 
 
+  }
+
+  initControlStatus() {
+    this.controlStatus = {
+      reserveCmdList: [],
+      processCmd: {},
+      sendIndex: -1,
+      retryChance: 3
+    }
   }
 
   // 인버터 데이터 초기화
@@ -190,6 +200,7 @@ class Model {
 
   // Inverter Data 수신
   onInverterData(inverterData) {
+    // BU.CLI(inverterData)
     _.each(inverterData, (value, key) => {
       // 정의한 Key 안에서 들어온 데이터일 경우
       if (value !== null && _.has(this.inverterData, key)) {
@@ -203,7 +214,7 @@ class Model {
         this.inverterData[key] = value;
       }
     })
-    BU.CLIS(this.inverterData)
+    // BU.CLIS(this.inverterData)
     return true;
   }
 }

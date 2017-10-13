@@ -139,59 +139,34 @@ class Control extends EventEmitter {
     }
   }
 
-  measureInverter() {
+  /**
+   * 인버터 계측 데이터 요청 리스트 전송 및 응답 시 결과 데이터 반환
+   * @returns {Promise} 정제된 Inverter 계측 데이터 전송(DB 입력 용)
+   */
+  async measureInverter() {
     if (!BU.isEmpty(this.model.processCmd)) {
       return new Error('현재 진행중인 명령이 존재합니다.');
     } else {
+      this.model.initControlStatus();
       this.model.controlStatus.reserveCmdList = this.encoder.makeMsg();
-      Promise.each(this.model.controlStatus.reserveCmdList, cmd => {
+      return await Promise.each(this.model.controlStatus.reserveCmdList, cmd => {
           this.model.controlStatus.reserveCmdList.shift();
           this.model.controlStatus.processCmd = cmd;
+          this.model.controlStatus.sendIndex++;
           return this.send2Cmd(cmd);
         })
         // .bind({})
         .then((result) => {
           BU.CLIS(result, this.model.refineInverterData)
+          BU.CLI(`${this.inverterId}의 명령 수행이 모두 완료되었습니다.`);
           return this.model.refineInverterData;
         })
         .catch(err => {
-          let msg = `${this.inverterId}의 ${this.model.processCmd}명령 수행 도중 ${error.message}오류가 발생하였습니다.`;
-          // BU.errorLog('send2InverterErr', msg);
-          BU.CLI(msg)
+          let msg = `${this.inverterId}의 ${this.model.processCmd}명령 수행 도중 ${err.message}오류가 발생하였습니다.`;
+          BU.errorLog('measureInverter', msg);
+          // BU.CLI(msg)
           throw err;
         })
-    }
-  }
-
-  // 현재 진행중인 명령이 있는지 확인. 없다면 명령 지시 
-  commander() {
-    // BU.CLI(this.model.controlStatus)
-    if (!BU.isEmpty(this.model.processCmd)) {
-      return new Error('현재 진행중인 명령이 존재합니다.');
-    } else {
-      let cmd = this.model.reserveCmdList[0];
-      if (cmd === undefined) {
-        // BU.CLI(this.model.refineInverterData)
-        BU.CLI(`${this.inverterId}의 명령 수행이 모두 완료되었습니다.`);
-        return this.model.refineInverterData;
-      } else {
-        this.model.controlStatus.reserveCmdList.shift();
-        this.model.controlStatus.processCmd = cmd;
-
-        // BU.CLI(this.model.controlStatus)
-        this.send2Cmd(cmd).then(r => {
-          this.model.controlStatus.sendIndex++;
-          // BU.CLI(this.model.controlStatus)
-          return this.commander();
-        }).catch(error => {
-          // TODO 에러 처리 어떻게 할지 생각 필요
-          let msg = `${this.inverterId}의 ${cmd}명령 수행 도중 ${error.message}오류가 발생하였습니다.`;
-          BU.errorLog('send2InverterErr', msg);
-          BU.CLI(msg)
-          // BU.CLI(this.model.controlStatus, error)
-          return this.commander();
-        })
-      }
     }
   }
 
@@ -200,7 +175,7 @@ class Control extends EventEmitter {
    * @param  cmd 요청할 명령
    */
   async send2Cmd(cmd) {
-    BU.CLI(cmd)
+    // BU.CLI(cmd)
     return Promise.race(
         [
           this.msgSendController(cmd),
@@ -211,17 +186,17 @@ class Control extends EventEmitter {
         ]
       )
       .then(result => {
-        BU.CLI(result)
-        return result;
+        // BU.CLI(result)
+        return this.model.refineInverterData;
       })
       .catch(err => {
-        BU.CLI(err)
+        // BU.CLI(err)
         throw err;
       })
   }
 
   async msgSendController(cmd) {
-    BU.CLI(this.model.controlStatus)
+    // BU.CLI(this.model.controlStatus)
     if (BU.isEmpty(cmd)) {
       return new Error('수행할 명령이 없습니다.');
     }
@@ -235,26 +210,37 @@ class Control extends EventEmitter {
   // 메시지 이벤트 종료 이벤트 핸들러
   async _receiveMsgHandler() {
     // BU.CLI('_receiveMsgHandler')
-    let result =  await eventToPromise.multi(this, ['completeSend2Msg'], ['errorSend2Msg']);
+    let result = await eventToPromise.multi(this, ['completeSend2Msg'], ['errorSend2Msg']);
     // 요청 메시지 리스트가 비어있다면 명령 리스트를 초기화하고 Resolve
     this.model.controlStatus.processCmd = {};
     return result;
   }
 
   _onReceiveInverterMsg(msg) {
-    BU.CLI('_onReceiveInverterMsg', msg)
+    // BU.CLI('_onReceiveInverterMsg', msg)
     // 명령 내리고 있는 경우에만 수신 메시지 유효
     if (!BU.isEmpty(this.model.processCmd)) {
       try {
         // BU.CLI('_onReceiveInverterMsg', msg);
         let result = this.decoder._receiveData(msg);
+        // BU.CLI('_onReceiveInverterMsg result', result);
         this.model.onInverterData(result);
         // 인버터 데이터 송수신 종료 이벤트 발생
         return this.emit('completeSend2Msg', result);
       } catch (error) {
+        // 개발 버전이고, 일반 인버터 프로토콜을 사용, 테스트용 데이터가 있다면 
         if (this.config.hasDev && this.config.ivtSavedInfo.target_category !== 'dev' && !BU.isEmpty(this.testStubData[this.model.controlStatus.sendIndex])) {
           // BU.CLI(this.testStubData[this.model.controlStatus.sendIndex])
           return this._onReceiveInverterMsg(this.testStubData[this.model.controlStatus.sendIndex])
+        }
+        // 데이터가 깨질 경우를 대비해 기회를 더 줌
+        if (this.model.controlStatus.retryChance--) {
+          BU.CLI('기회 줌', this.model.controlStatus.retryChance)
+          return Promise.delay(30).then(() => {
+            return this.p_Setter.writeMsg(this.model.processCmd).catch(err => {
+              BU.CLI(err)
+            });
+          });
         } else {
           // BU.CLI(error)
           return this.emit('errorSend2Msg', error);

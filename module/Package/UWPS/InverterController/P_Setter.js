@@ -54,9 +54,6 @@ class P_Setter extends EventEmitter {
   // 인버터로 메시지 발송
   async writeMsg(msg) {
     // BU.CLI(msg)
-    console.time(msg)
-    Promise.delay(500);
-    console.timeEnd(msg)
     if (this.config.ivtSavedInfo.connect_type === 'socket' && this.controller.p_SocketClient.client === {}) {
       BU.CLI('Socket Client 연결이되지 않았습니다.');
       this.controller.connectedInverter = {};

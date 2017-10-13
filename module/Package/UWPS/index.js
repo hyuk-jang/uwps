@@ -32,23 +32,22 @@ for(cnt = 1; cnt <= 2; cnt++){
   ivtList.push(cloneIvt);
 }
 
-config.InverterController = ivtList;
-// BU.CLI(ivtList)
+config.current.inverterList = ivtList;
+// BU.CLI(config)
 // return;
-
 let control = new Control(config);
 
-control.createInverterController(ivtList)
-// .then(result => {
-//   // TODO
-//   BU.CLI(result)
-//   return result;
-// })
-// .catch(error => {
-//   // TODO
-//   BU.CLI(error)
-//   return error; 
-// });
+control.init()
+.then(result => {
+  // TODO
+  BU.CLI(result)
+  return result;
+})
+.catch(error => {
+  // TODO
+  BU.CLI(error)
+  return error; 
+});
 
 
 control.on('', (err, res) => {

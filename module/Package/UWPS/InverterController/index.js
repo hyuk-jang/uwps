@@ -33,50 +33,9 @@ control.init()
 .then(result => {
   return control.measureInverter();
 })
-
-  // .then((result) => {
-  //   BU.CLI('One')
-  //   return control.send2Cmd(control.cmdList[keys[index++]]);
-  // })
-  // .then((result) => {
-  //   // setTimeout(() => {
-  //   BU.CLI('Two', result);
-  //   return control.send2Cmd(control.cmdList[keys[index++]]);
-  //   // }, 1000);
-  // })
-  // .then((result) => {
-  //   BU.CLI('Three', result)
-
-  //   BU.CLI(control.model.scaleGrid)
-    
-  //   return control.send2Cmd(control.cmdList[keys[index++]]);
-  // })
-  // .catch(error => {
-
-  //   return BU.CLI(error)
-  // })
-
-// .catch(error => {
-
-//   return BU.CLI(error)
-// })
-// .then((result) => {
-//   BU.CLI('Four', result)
-//   return control.send2Cmd(control.cmdList[keys[index++]]);
-// })
-// .catch(error => {
-//   BU.CLI(error)
-// })
-// .then((result) => {
-//   BU.CLI('Five', result)
-//   return control.send2Cmd(control.cmdList[keys[index++]]);
-// })
-// .catch(error => {
-//   BU.CLI(error)
-// })
-// .then((result) => {
-//   BU.CLI('Six', result)
-// })
+.then(result => {
+  BU.CLI(result)
+})
 .catch(error => {
   BU.CLI(error)
 })

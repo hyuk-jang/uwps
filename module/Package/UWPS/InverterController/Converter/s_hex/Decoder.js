@@ -107,7 +107,7 @@ class Decoder extends Converter {
   }
 
   _receiveData(buffer) {
-    BU.CLI('_receiveData', buffer)
+    // BU.CLI('_receiveData', buffer)
     this.returnValue = this.getBaseInverterValue();
 
     try {
@@ -136,7 +136,7 @@ class Decoder extends Converter {
 
       // set Address
       let addr = resBufArray[3].toString();
-
+      
       let cmd = '';
       let value = '';
       _.find(this.protocolTable, (obj, key) => {

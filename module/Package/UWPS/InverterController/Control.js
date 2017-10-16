@@ -130,7 +130,7 @@ class Control extends EventEmitter {
       this.retryConnectInverterCount = 0;
 
       // 데이터 가져오는 Cron 시작
-      this.p_Setter.runCronGetter();
+      // this.p_Setter.runCronGetter();
 
       return this.connectedInverter;
     } catch (error) {

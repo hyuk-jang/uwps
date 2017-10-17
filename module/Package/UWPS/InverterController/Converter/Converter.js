@@ -37,8 +37,8 @@ class Converter extends EventEmitter {
       isRun: null, // 인버터 동작 유무
       isError: null, // 인버터 에러 발생 유무
       temperature: null, // 인버터 온도
-      errorList: [], // 에러 리스트 Array
-      warningList: [] // 경고 리스트 Array
+      errorList: null, // 에러 리스트 Array
+      warningList: null // 경고 리스트 Array
     }
   }
 

@@ -157,7 +157,7 @@ class Control extends EventEmitter {
         })
         // .bind({})
         .then((result) => {
-          BU.CLIS(result, this.model.refineInverterData)
+          // BU.CLIS(result, this.model.refineInverterData)
           BU.CLI(`${this.inverterId}의 명령 수행이 모두 완료되었습니다.`);
           return this.model.refineInverterData;
         })

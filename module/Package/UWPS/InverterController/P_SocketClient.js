@@ -2,7 +2,7 @@ const net = require('net');
 const eventToPromise = require('event-to-promise');
 const _ = require('underscore');
 
-const SmSocketClient = require('./class/SmSocketClient');
+const SmSocketClient = require('base-class-jh').SmSocketClient;
 
 const BUJ = require('base-util-jh');
 const BU = BUJ.baseUtil;

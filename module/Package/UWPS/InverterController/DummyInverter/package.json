@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "base-class-jh": "^1.0.0",
     "base-util-jh": "^1.0.1",
     "mysql": "^2.14.1",
     "underscore": "^1.8.3"

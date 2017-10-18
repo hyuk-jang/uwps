@@ -1,4 +1,4 @@
-const SerialClient = require('./class/SerialClient');
+const SerialClient = require('base-class-jh').SerialClient;
 
 class P_SerialClient extends SerialClient {
   constructor(controller) {

@@ -12,8 +12,8 @@ let test = control.init()
   .then(hasRun => {
     if (hasRun) {
       BU.CLI('hasRun', hasRun)
-      // result = control.p_SocketServer.cmdProcessor('fault');
-      return control.p_SocketServer.cmdProcessor('weather');
+      result = control.p_SocketServer.cmdProcessor('operation');
+      // return control.p_SocketServer.cmdProcessor('weather');
     }
   })
   .then(result => {

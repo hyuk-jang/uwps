@@ -5,7 +5,7 @@ const _ = require('underscore');
 const BUJ = require('base-util-jh');
 const BU = BUJ.baseUtil;
 
-const SmSocketServer = require('./class/SmSocketServer');
+const SmSocketServer = require('base-class-jh').SmSocketServer;
 
 class P_SocketServer extends SmSocketServer {
   constructor(controller) {
@@ -54,14 +54,15 @@ class P_SocketServer extends SmSocketServer {
     let isTrue = _.random(0, 1);
     switch (cmd) {
       case 'operation':
+      BU.CLI('?')
         returnValue.isError = _.random(0, 1);
         returnValue.isRun = _.random(0, 1);
-        returnValue.isError ? returnValue.errorList = [{
+        returnValue.errorList = returnValue.isError ? [{
           msg: '태양전지 저전압 (변압기 type Only)',
           code: 'Solar Cell UV fault',
           number: 2,
           errorValue: 1
-        }] : returnValue.errorList = [];
+        }] : [];
         break;
       case 'pv':
         _.each(this.controller.model.pv, (value, key) => {
@@ -95,7 +96,7 @@ class P_SocketServer extends SmSocketServer {
         break;
     }
 
-    // BU.CLI(returnValue)
+    BU.CLI(returnValue)
     return returnValue;
   }
 

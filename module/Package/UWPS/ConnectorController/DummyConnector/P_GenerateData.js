@@ -10,10 +10,6 @@ class P_GenerateData {
     this.pvInfo = this.controller.config.dummyValue.pv;
   }
 
-  generateFault() {
-
-  }
-
   // 태양광 모듈 더미 데이터 생성
   generatePvData(pv = {
     amp,

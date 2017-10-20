@@ -1,12 +1,12 @@
 module.exports = {
   current: {
     port: 6000,
-    isSingle:1,
     pvData: {
-      amp: 20,  // Ampere
+      amp: 6.4,  // Ampere
       vol: 220  // voltage
     },
     renewalCycle: 10, // sec  데이터 갱신 주기,
+    count:6,  // Module 개수
     dummyValue: {
       // 0시 ~ 23시까지(index와 매칭: 변환 효율표)
       powerRangeByYear: [68,75,76,79,84,87,96,100,92,85,76,71],
@@ -19,11 +19,6 @@ module.exports = {
         baseVol: 230, 
         ampCritical: 2,
         volCritical: 20
-      },
-      ivt: {
-        pf: 96.7,
-        basePf: 97,
-        pfCritical: 4
       }
     }
   }

@@ -38,12 +38,12 @@ class Control extends EventEmitter {
 
   // callback => Socket Server Port 를 돌려받음.
   async init() {
-    BU.CLI('init DummyInverter')
+    BU.CLI('init DummyConnector')
     try {
       let port = await this.p_SocketServer.createServer();
       // BU.CLI('port',port)
       this.model.socketServerPort = port;
-      this.generatePvData();  
+      // this.generatePvData();  
       return port;
     } catch (error) {
       console.log('error',error)

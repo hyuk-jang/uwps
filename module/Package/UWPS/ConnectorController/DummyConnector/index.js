@@ -12,7 +12,7 @@ let test = control.init()
   .then(hasRun => {
     if (hasRun) {
       BU.CLI('hasRun', hasRun)
-      result = control.p_SocketServer.cmdProcessor('operation');
+      return control.p_SocketServer.cmdProcessor('operation');
       // return control.p_SocketServer.cmdProcessor('weather');
     }
   })
@@ -20,9 +20,12 @@ let test = control.init()
     // result = control.cmdProcessor('pv');
 
     BU.CLIS(result)
-    return control.p_SocketServer.cmdProcessor('grid');
+    return control.p_SocketServer.cmdProcessor('ampList');
   }).catch(err => {
     BU.CLI(err)
+  })
+  .then(result => {
+    BU.CLI(result)
   });
 
 

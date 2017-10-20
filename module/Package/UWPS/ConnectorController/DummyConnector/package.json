@@ -7,5 +7,8 @@
     "test": "node index.js"
   },
   "author": "j.hyuk",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "base-class-jh": "^1.0.0"
+  }
 }

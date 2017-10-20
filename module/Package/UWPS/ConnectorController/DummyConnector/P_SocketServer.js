@@ -50,11 +50,13 @@ class P_SocketServer extends SmSocketServer {
 
   cmdProcessor(cmd) {
     // BU.CLI('cmdProcessor', cmd)
-    let returnValue = this.controller.getBaseInverterValue();
+    // let returnValue = this.controller.getBaseInverterValue();
+    let returnValue = null;
     let isTrue = _.random(0, 1);
     switch (cmd) {
       case 'operation':
-      BU.CLI('?')
+        // BU.CLI('?')
+        returnValue = {};
         returnValue.isError = _.random(0, 1);
         returnValue.isRun = _.random(0, 1);
         returnValue.errorList = returnValue.isError ? [{
@@ -64,33 +66,11 @@ class P_SocketServer extends SmSocketServer {
           errorValue: 1
         }] : [];
         break;
-      case 'pv':
-        _.each(this.controller.model.pv, (value, key) => {
-          returnValue[key] = value;
-        });
+      case 'vol':
+        returnValue = this.controller.model.vol;
         break;
-      case 'grid':
-        _.each(this.controller.model.grid, (value, key) => {
-          returnValue[key] = value;
-        });
-        break;
-      case 'power':
-        _.each(this.controller.model.power, (value, key) => {
-          returnValue[key] = value;
-        });
-        break;
-      case 'system':
-        _.each(this.controller.model.sysInfo, (value, key) => {
-          returnValue[key] = value;
-        });
-        break;
-      // case 'operation':
-      //   returnValue = this.controller.model.operationInfo;
-      //   break;
-      case 'weather':
-        _.each(this.controller.model.weather, (value, key) => {
-          returnValue[key] = value;
-        });
+      case 'ampList':
+        returnValue = this.controller.model.ampList;
         break;
       default:
         break;

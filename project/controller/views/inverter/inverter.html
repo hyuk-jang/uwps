@@ -67,8 +67,8 @@
                 Total_DCA+= Data.in_a;
                 Total_ACA+= Data.out_a;
                 
-                Total_DCK+=Data.in_wh;
-                Total_ACK+=Data.out_wh;
+                Total_DCK+=Data.in_w;
+                Total_ACK+=Data.out_w;
 
                 Today_kWh+=Data.d_wh;
                 Total_MWh+=Data.c_wh;
@@ -85,7 +85,7 @@
                       <%=Data.in_a.toFixed(1)%>
                     </td>
                     <td>
-                      <%=Data.in_wh.toFixed(1)%>
+                      <%=Data.in_w.toFixed(1)%>
                     </td>
                     <td>
                       <%=Data.out_v.toFixed(1)%>
@@ -94,7 +94,7 @@
                       <%=Data.out_a.toFixed(1)%>
                     </td>
                     <td>
-                      <%=Data.out_wh.toFixed(1)%>
+                      <%=Data.out_w.toFixed(1)%>
                     </td>
                     <td>
                       <%=Data.p_f.toFixed(1)%> %

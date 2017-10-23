@@ -1,7 +1,7 @@
 var dao = require('./dao.js');
 
 function getDailyPower(req, callback) {
-  var sql = `select DATE_FORMAT(writedate,'%H:%i:%S'),round(sum(out_wh)/count(writedate)/10,1) as out_wh
+  var sql = `select DATE_FORMAT(writedate,'%H:%i:%S'),round(sum(out_w)/count(writedate)/10,1) as out_w
              from inverter_data 
              where writedate>=Date('20170901') and writedate<Date('20170902')
              group by DATE_FORMAT(writedate,'%Y-%m-%d %H')`;
@@ -13,15 +13,15 @@ function getDailyPower(req, callback) {
     }
     var returnvalue = {}
     var chartList = [];
-    var out_wh = [];
+    var out_w = [];
     var date = [];
 
     for (var i = 0; i < result.length; i++) {
       date.push(result[i].writedate);
-      out_wh.push(result[i].out_wh);
+      out_w.push(result[i].out_w);
     }
     chartList.push(date);
-    chartList.push(out_wh);
+    chartList.push(out_w);
 
     returnvalue.chartList = chartList;
 

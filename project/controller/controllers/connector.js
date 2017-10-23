@@ -23,6 +23,7 @@ module.exports = function (app) {
       if (err) {
         return res.status(500).send(err);
       }
+      BU.CLI(DU.makeTestHtml(req.locals, list))
       res.render('./connector/connect.html', DU.makeTestHtml(req.locals, list));
     })
     

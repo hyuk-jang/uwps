@@ -52,8 +52,9 @@ function getConnector(connector_seq,callback) {
                   round(ch_4/10,1) as ch_4,
                   round(ch_5/10,1) as ch_5,
                   round(ch_6/10,1) as ch_6
-                from connector_data where writedate>=CURDATE() -INTERVAL 7 DAY and writedate<=CURDATE() -INTERVAL 6 DAY and connector_seq=${connector_seq}`;
-
+                from connector_data where writedate>=Date('20170901') -INTERVAL 7 DAY and writedate<=Date('20170901') -INTERVAL 6 DAY and connector_seq=${connector_seq}`;
+                // from connector_data where writedate>=CURDATE() -INTERVAL 7 DAY and writedate<=CURDATE() -INTERVAL 6 DAY and connector_seq=${connector_seq}`;
+      // console.log(sql)
       //Test doQuery inverter_data 테이블에서 데이터 가져오기
       dao.doQuery(sql, function (err, result) {
         if (err) {

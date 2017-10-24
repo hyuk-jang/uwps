@@ -25,20 +25,24 @@ let control = new Control(config);
 
 
 // let hasReady = control.init();
-let keys = _.keys(control.cmdList);
-let index = 0;
 
-
-control.init()
-.then(result => {
-  return control.measureInverter();
-})
+control.measureConnector()
 .then(result => {
   BU.CLI(result)
 })
-.catch(error => {
-  BU.CLI(error)
-})
+.catch(err => {
+  BU.CLI(err)
+});
+
+// .then(result => {
+//   return control.me measureInverter();
+// })
+// .then(result => {
+//   BU.CLI(result)
+// })
+// .catch(error => {
+//   BU.CLI(error)
+// })
 
 
 // for (let ele in control.cmdList) {

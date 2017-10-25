@@ -16,7 +16,8 @@ module.exports = function (app) {
   // Get
   router.get('/', function (req, res) {
     BU.CLI('main', req.locals)
-    biMain.getDailyPower(req, function (err, result) {
+    biMain.getDailyPower(req, function (err, result, query) {
+      BU.CLI(query)
       if (err) {
         return res.status(500).send(err);
       }

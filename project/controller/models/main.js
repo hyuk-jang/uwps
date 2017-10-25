@@ -29,11 +29,13 @@ function getDailyPower(req, callback) {
                from photovoltaic pt ,connector_structure cs 
                where pt.photovoltaic_seq=cs.photovoltaic_seq and connector_seq = 1 order by connector_seq,cs.photovoltaic_seq limit 0,4`
 
-    dao.doQuery(sql, function (err, result) {
+    dao.doQuery(sql, function (err, result, query) {
+      BU.CLI(query)
       if (err) {
         callback(err);
         return;
       }
+      BU.CLI(result)
       returnvalue.moduleStatus = result;
       return callback(err, returnvalue);
     });

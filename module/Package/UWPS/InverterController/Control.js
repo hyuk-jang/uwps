@@ -42,7 +42,7 @@ class Control extends EventEmitter {
     this.p_SerialClient = new P_SerialClient(this);
 
     // Child
-    this.dummyInverter = new DummyInverter(config.DummyInverter);
+    this.dummyInverter = new DummyInverter();
 
     this.setTimer = null;
   }

@@ -54,7 +54,6 @@ class P_SocketServer extends SmSocketServer {
     let isTrue = _.random(0, 1);
     switch (cmd) {
       case 'operation':
-      BU.CLI('?')
         returnValue.isError = _.random(0, 1);
         returnValue.isRun = _.random(0, 1);
         returnValue.errorList = returnValue.isError ? [{
@@ -96,7 +95,7 @@ class P_SocketServer extends SmSocketServer {
         break;
     }
 
-    BU.CLI(returnValue)
+    // BU.CLI(returnValue)
     return returnValue;
   }
 

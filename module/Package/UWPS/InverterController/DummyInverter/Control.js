@@ -1,5 +1,5 @@
 const EventEmitter = require('events');
-
+const _ = require('underscore');
 const Model = require('./Model.js');
 const P_GenerateData = require('./P_GenerateData.js');
 
@@ -7,26 +7,64 @@ const P_SocketServer = require('./P_SocketServer');
 const BUJ = require('base-util-jh');
 const BU = BUJ.baseUtil;
 
+
 class Control extends EventEmitter {
-  constructor(config) {
+  constructor() {
     super();
     // 현재 Control 설정 변수
     this.config = {
-      port: 0,
+      port: 6000,
       isSingle: 1,
-      pvData: {},
-      renewalCycle: 0,
+      // pvData: {
+      //   amp: 20,  // Ampere
+      //   vol: 220  // voltage
+      // },
+      renewalCycle: 10, // sec  데이터 갱신 주기,
       dummyValue: {
-        powerRangeByYear: [],
-        powerRangeByMonth: [],
-        pv: {},
-        ivt: {}
+        // 0시 ~ 23시까지(index와 매칭: 변환 효율표)
+        powerRangeByYear: [68, 75, 76, 79, 84, 87, 96, 100, 92, 85, 76, 71],
+        // 0시 ~ 23시까지(index와 매칭: 변환 효율표)
+        powerRangeByDay: [0, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50, 70, 90, 100, 95, 85, 65, 40, 25, 10, 0, 0, 0, 0],
+        dailyScale: [],
+        dummyScale:[],
+        startDate: '2017-07-15 08:00:00',
+        generateIntervalMin: 10,
+        pv: {
+          amp: 6.4,  // Ampere
+          vol: 225,  // voltage
+          baseAmp: 6.5,  // 기준
+          baseVol: 230,
+          ampCritical: 2,
+          volCritical: 20
+        },
+        ivt: {
+          pf: 96.7,
+          basePf: 97,
+          pfCritical: 4
+        }
       }
-    };
-    Object.assign(this.config, config.current);
+    }
 
-    // this.config.dbmsManager.startDate = BU.convertTextToDate(this.config.dbmsManager.startDate);
+    
+    let arrMonthData = [];
+    this.config.dummyValue.powerRangeByYear.forEach((monthData, yIndex) => {
+      arrMonthData[yIndex] = new Array();
+      for (let cnt = 0; cnt < 31; cnt++) {
+        arrMonthData[yIndex][cnt] = new Array();
+        let hasRain = cnt % 13 === 0 ? true : false;
+        let dayScale = hasRain ? _.random(0, 50) : _.random(80, 100);
+        this.config.dummyValue.powerRangeByDay.forEach((dayData, dIndex) => {
+          arrMonthData[yIndex][cnt][dIndex] = new Array();
+          arrMonthData[yIndex][cnt][dIndex].push( (monthData / 100) * dayData * dayScale / 100) 
+        })
 
+      }
+    })
+
+    // BU.CLI(arrMonthData)
+    this.config.dummyValue.dummyScale = arrMonthData;
+
+    // BU.CLI(this.config.dummyValue.dailyScale)
     // Model
     this.model = new Model(this);
 
@@ -40,13 +78,18 @@ class Control extends EventEmitter {
   async init() {
     BU.CLI('init DummyInverter')
     try {
+      // this.model.dummy.pointHour = this.config.dummyValue.startDate.getHours();
+      // this.model.dummy.pointDate = this.config.dummyValue.startDate.getDate();
+
       let port = await this.p_SocketServer.createServer();
       // BU.CLI('port',port)
       this.model.socketServerPort = port;
-      this.generatePvData();  
+      this.p_GenerateData.runCronForMeasureInverter();
+      // this.generateDummyData();
+      // this.generatePvData();
       return port;
     } catch (error) {
-      console.log('error',error)
+      console.log('error', error)
       throw error;
     }
   }
@@ -87,6 +130,12 @@ class Control extends EventEmitter {
     }
   }
 
+  generateDummyData() {
+    let res = this.p_GenerateData.dataMaker(new Date());
+    BU.CLI(res)
+    this.model.onData(res.pv, res.ivt);
+  }
+
   generatePvData(scale) {
     let resPv = this.p_GenerateData.generatePvData(this.model.pv, scale);
     this.model.onPvData(resPv.amp, resPv.vol);
@@ -109,7 +158,7 @@ class Control extends EventEmitter {
 
   _eventHandler() {
     this.p_SocketServer.on('dataBySocketServer', (err, result) => {
-      if(err){
+      if (err) {
 
       }
       this.p_SocketServer.cmdProcessor(result)

@@ -1,18 +1,17 @@
 const node_modbus = require('node-modbus')
-
 const eventToPromise = require('event-to-promise');
+
 class P_ModbusClient {
   constructor(controller) {
     this.controller = controller;
     this.config = controller.config.cntSavedInfo;
 
     this.connectionInfo = {};
-
     this.connectionType = '';
 
     this.client = {};
 
-    this.searchRange = [this.config.addr_a, , this.config.addr_a + this.config.ch_number];
+    this.searchRange = [this.config.addr_a, this.config.addr_a + this.config.ch_number];
 
     this.init(this.config);
   }
@@ -39,7 +38,7 @@ class P_ModbusClient {
         'dataBits': 8, /* 5, 6, 7 */
         'stopBits': 1, /* 1.5, 2 */
         'parity': 'none', /* even, odd, mark, space */
-        'connectionType': 'RTU', /* RTU or ASCII */
+        'connectionType': '', /* RTU or ASCII */
         'connectionDelay': 250, /* 250 msec - sometimes you need more on windows */
         'timeout': 2000, /* 2 sec */
         'autoReconnect': true, /* reconnect on connection is lost */
@@ -59,10 +58,12 @@ class P_ModbusClient {
     } else {
       this.client = node_modbus.client.serial.complete(this.connectionInfo);
     }
+
     this.client.connect();
     this.client.on('connect', () => {
+      BU.CLI('connecoted')
       this.controller.emit('connected')
-      // BU.CLI('connect')
+      BU.CLI('connect', this.searchRange)
       this.client.readInputRegisters(this.searchRange[0], this.searchRange[1])
         .then(resp => {
           BU.CLI(resp.register);
@@ -84,10 +85,6 @@ class P_ModbusClient {
 
     return await eventToPromise.multi(this.client, ['receiveConnectorData', ['receiveErr']]);
   }
-
-
-
-
 }
 
 module.exports = P_ModbusClient;

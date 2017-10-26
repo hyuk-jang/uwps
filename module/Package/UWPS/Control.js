@@ -52,6 +52,8 @@ class Control extends EventEmitter {
     }).catch(err => {
       BU.errorLog('createInverterController', err)
       console.error(err)
+    }).done(hasRun => {
+      return hasRun;
     })
   }
 

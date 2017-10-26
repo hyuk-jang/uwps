@@ -1,13 +1,11 @@
 const Promise = require('bluebird');
 const EventEmitter = require('events');
-const cron = require('cron');
 
 class P_Setter extends EventEmitter {
   constructor(controller) {
     super();
     this.controller = controller;
     this.config = controller.config;
-    this.cronJob = null;
   }
 
   async settingConverter(dialing) {
@@ -64,44 +62,9 @@ class P_Setter extends EventEmitter {
       throw Error('Serial Client 연결이 되지 않았습니다.');
     }
 
-    BU.CLI('Msg 발송', msg);
+    // BU.CLI('Msg 발송', msg);
     await this.controller.connectedInverter.write(msg);
     return true;
   }
-
-  // 스케줄러 설정
-  runCronGetter() {
-    // if(this.controller.config.hasDev){
-    this._occurRequestInverterData();
-    // }
-
-    try {
-      if (this.cronJob !== null) {
-        // BU.CLI('Stop')
-        this.cronJob.stop();
-      }
-      // BU.CLI('Setting Cron')
-      // 1분마다 요청
-      this.cronJob = new cron.CronJob({
-        cronTime: '0 * * * * *',
-        onTick: () => {
-          // console.log('job 1 ticked');
-          // BU.CLI(BU.convertDateToText(new Date()))
-          this._occurRequestInverterData();
-        },
-        start: true,
-        // timeZone: 'America/Los_Angeles'
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // 정기적인 인버터 데이터 요청 메시지 이벤트 발생 메소드
-  _occurRequestInverterData() {
-    // BU.CLI(this.controller.encoder.makeMsg())
-    // return this.emit('startGetter', this.controller.encoder.makeMsg());
-  }
-
 }
 module.exports = P_Setter;

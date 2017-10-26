@@ -24,7 +24,7 @@ class EncodingMsgSocket extends Converter {
       returnValue.push(BU.makeMessage({cmd}));
     }
 
-    BU.CLI(returnValue);
+    // BU.CLI(returnValue);
     return returnValue;
   }
 }

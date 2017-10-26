@@ -26,9 +26,13 @@ let control = new Control(config);
 
 // let hasReady = control.init();
 
-control.measureConnector()
+control.init()
 .then(result => {
   BU.CLI(result)
+  return control.measureConnector();
+})
+.then(connectorData => {
+  BU.CLI(connectorData)
 })
 .catch(err => {
   BU.CLI(err)

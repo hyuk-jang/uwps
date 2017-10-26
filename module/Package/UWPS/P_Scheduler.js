@@ -34,6 +34,7 @@ class P_Scheduler extends EventEmitter {
         start: true,
         // timeZone: 'America/Los_Angeles'
       });
+      return true;
     } catch (error) {
       throw error;
     }
@@ -41,7 +42,7 @@ class P_Scheduler extends EventEmitter {
 
   // 정기적인 인버터 데이터 요청 메시지 이벤트 발생 메소드
   _measureInverter(measureTime, inverterControllerList) {
-    BU.CLI('_measureInverter', measureTime)
+    // BU.CLI('_measureInverter', measureTime)
     Promise.map(inverterControllerList, inverterController => {
       return inverterController.measureInverter();
     })

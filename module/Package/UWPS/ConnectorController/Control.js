@@ -11,6 +11,8 @@ class Control extends EventEmitter {
     super();
     // 현재 Control 설정 변수
     this.config = {
+      hasDev: false,
+      devPort: 0,
       cntSavedInfo: {}
     };
     Object.assign(this.config, config.current);
@@ -52,7 +54,18 @@ class Control extends EventEmitter {
 
   async init() {
     BU.CLI('init ConnectorController')
-    this.eventHandler();
+    try {
+      if (this.config.hasDev) {
+        this.config.cntSavedInfo.port = this.config.devPort;
+      }
+      this.eventHandler();
+      
+      return this.config.cntSavedInfo.port;
+    } catch (err) {
+      BU.CLI(err)
+      return err;
+      
+    }
   }
 
   // 접속반 modbus 프로토콜로 접속하여 데이터 추출
@@ -68,11 +81,11 @@ class Control extends EventEmitter {
       // BU.CLI('disconnectedInverter', error)
       this.connectedInverter = {};
       this.model.hasConnectedConnector = false;
-   })
+    })
 
-   this.on('connected', () => {
-     this.model.hasConnectedConnector = true;
-   })
+    this.on('connected', () => {
+      this.model.hasConnectedConnector = true;
+    })
 
   }
 

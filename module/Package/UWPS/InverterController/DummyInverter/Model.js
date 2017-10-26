@@ -39,6 +39,13 @@ class Model {
       warningList: null // 경고 리스트 Array
     }
 
+    this.dummy = {
+      pointHour: 0,
+      pointDate: 1,
+      storageHourKwh: [],
+      storageDailyKwh: []
+    }
+
 
     this.sysInfo = {
       isSingle: 1, // 단상 or 삼상
@@ -79,7 +86,7 @@ class Model {
       warningList: [] // 경고 리스트 Array
     }
   }
-  
+
 
   // 현재 매칭된 값의 소수점 절삭하여 반환
   get currPv() {
@@ -98,8 +105,8 @@ class Model {
   // 데이터 정제한 데이터 테이블
   get refineInverterData() {
     let in_w = this.pv.amp * this.pv.vol;
-    let out_w= 0;
-    if(this.config.isSingle){
+    let out_w = 0;
+    if (this.config.isSingle) {
       out_w = this.grid.rAmp * this.grid.rsVol;
     } else {
       out_w = this.grid.rAmp * this.grid.rsVol * 1.732;
@@ -148,12 +155,13 @@ class Model {
     this.pv.vol = vol;
   }
 
-  onIvtData(amp, vol) {
+  onIvtData(amp, vol, currDate) {
+    // BU.CLI(amp, vol)
     let in_w = this.pv.amp * this.pv.vol;
     let out_w = 0;
 
     // 단상일 경우
-    if(!this.config.isSingle){
+    if (!this.config.isSingle) {
       this.grid.rAmp = amp;
       this.grid.rsVol = vol;
 
@@ -170,9 +178,48 @@ class Model {
 
       out_w = this.grid.rAmp * this.grid.rsVol * 1.732;
       this.power.gridKw = out_w / 1000;
-      
+
     }
     this.power.pf = out_w / in_w * 100;
+
+    // BU.CLIS(pv, ivt)
+    let date = currDate.getDate();
+    let hour = currDate.getHours();
+    // BU.CLIS(date, hour, this.dummy)
+
+    // 시간이 바뀜
+    if (hour !== this.dummy.pointHour) {
+      this.dummy.pointHour = hour;
+
+      if (!this.dummy.storageHourKwh.length) {
+        this.dummy.pointHour = hour;
+        this.dummy.pointDate = date;
+      } else {
+        let hourKwh = this.dummy.storageHourKwh.reduce((x, y) => x + y) / this.dummy.storageHourKwh.length;
+        // 1시간 발전량 측정 저장소 초기화
+        this.dummy.storageHourKwh = [];
+        // 하루 누적 발전량에 추가
+        this.inverterData.dailyKwh += hourKwh;
+        // 누적 발전량 기입
+        this.inverterData.cpKwh += hourKwh;
+
+        // 요일이 바뀌었다면 하루 발전량
+        if (date !== this.dummy.pointDate) {
+          // 요일 다시 지정
+          this.dummy.pointDate = date;
+          this.inverterData.dailyKwh = 0;
+        }
+      }
+    }
+    this.dummy.storageHourKwh.push(amp * vol);
+
+    // BU.CLI(this.dummy.storageHourKwh)
+    // BU.CLI(this.inverterData.dailyKwh, this.inverterData.cpKwh)
+  }
+
+  onData(pv, ivt, currDate) {
+    this.onPvData(pv.amp, pv.vol);
+    this.onIvtData(ivt.amp, ivt.vol, currDate);
   }
 }
 

@@ -12,17 +12,20 @@ let test = control.init()
   .then(hasRun => {
     if (hasRun) {
       BU.CLI('hasRun', hasRun)
-      result = control.p_SocketServer.cmdProcessor('operation');
-      // return control.p_SocketServer.cmdProcessor('weather');
+      // result = control.p_GenerateData.dummyRangeDataMaker();
+      return control.p_SocketServer.cmdProcessor('weather');
     }
   })
   .then(result => {
     // result = control.cmdProcessor('pv');
 
-    BU.CLIS(result)
+    // BU.CLIS(result)
     return control.p_SocketServer.cmdProcessor('grid');
   }).catch(err => {
     BU.CLI(err)
+  })
+  .then(r => {
+    // BU.CLI(r)
   });
 
 

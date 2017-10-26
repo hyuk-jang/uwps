@@ -43,7 +43,7 @@ class Model {
     let measureInverterDataList = [];
     this.inverterControllerList.forEach(inverterController => {
       let refineData = inverterController.refineInverterData;
-      BU.CLI(measureTime)
+      // BU.CLI(measureTime)
       refineData.writedate = BU.convertDateToText(measureTime);
       measureInverterDataList.push(refineData);
     })

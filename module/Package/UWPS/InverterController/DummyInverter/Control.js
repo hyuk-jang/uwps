@@ -13,12 +13,8 @@ class Control extends EventEmitter {
     super();
     // 현재 Control 설정 변수
     this.config = {
-      port: 6000,
+      port: 38000,
       isSingle: 1,
-      // pvData: {
-      //   amp: 20,  // Ampere
-      //   vol: 220  // voltage
-      // },
       renewalCycle: 10, // sec  데이터 갱신 주기,
       dummyValue: {
         // 0시 ~ 23시까지(index와 매칭: 변환 효율표)
@@ -39,7 +35,7 @@ class Control extends EventEmitter {
         },
         ivt: {
           pf: 96.7,
-          basePf: 97,
+          basePf: _.random(960, 988) / 10,
           pfCritical: 4
         }
       }
@@ -52,7 +48,8 @@ class Control extends EventEmitter {
       for (let cnt = 0; cnt < 31; cnt++) {
         arrMonthData[yIndex][cnt] = new Array();
         let hasRain = cnt % 13 === 0 ? true : false;
-        let dayScale = hasRain ? _.random(0, 50) : _.random(80, 100);
+        // let hasRain = false;
+        let dayScale = hasRain ? _.random(40, 50) : _.random(90, 100);
         this.config.dummyValue.powerRangeByDay.forEach((dayData, dIndex) => {
           arrMonthData[yIndex][cnt][dIndex] = new Array();
           arrMonthData[yIndex][cnt][dIndex].push( (monthData / 100) * dayData * dayScale / 100) 
@@ -76,22 +73,23 @@ class Control extends EventEmitter {
 
   // callback => Socket Server Port 를 돌려받음.
   async init() {
-    BU.CLI('init DummyInverter')
+    // BU.CLI('init DummyInverter')
     try {
-      // this.model.dummy.pointHour = this.config.dummyValue.startDate.getHours();
-      // this.model.dummy.pointDate = this.config.dummyValue.startDate.getDate();
-
       let port = await this.p_SocketServer.createServer();
-      // BU.CLI('port',port)
       this.model.socketServerPort = port;
-      this.p_GenerateData.runCronForMeasureInverter();
-      // this.generateDummyData();
-      // this.generatePvData();
       return port;
     } catch (error) {
       console.log('error', error)
       throw error;
     }
+  }
+
+  runCronForMeasureInverter() {
+    this.p_GenerateData.runCronForMeasureInverter();
+  }
+
+  dummyRangeDataMaker() {
+    this.p_GenerateData.dummyRangeDataMaker();
   }
 
   get socketServerPort() {

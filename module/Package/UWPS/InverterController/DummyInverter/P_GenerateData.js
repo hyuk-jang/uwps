@@ -2,7 +2,7 @@ const cron = require('cron');
 const _ = require('underscore');
 const BUJ = require('base-util-jh');
 const BU = BUJ.baseUtil;
-
+const Promise = require('bluebird');
 
 class P_GenerateData {
   constructor(controller) {
@@ -40,7 +40,7 @@ class P_GenerateData {
         cronTime: '0 * * * * *',
         onTick: () => {
           let res = this.dataMaker(new Date());
-          
+
         },
         start: true,
         // timeZone: 'America/Los_Angeles'
@@ -52,41 +52,37 @@ class P_GenerateData {
 
   dummyRangeDataMaker() {
     // BU.CLI('dummyRangeDataMaker')
-    this.datePoint.setMinutes(this.datePoint.getMinutes() + this.generateIntervalMin)
-
-    if (this.dateCount++ < 30) {
-      // if (this.datePoint < this.cutLineDate) {
-      setTimeout(() => {
-        let res = this.dataMaker(this.datePoint);
-        // BU.CLI(res)
-        this.dummyRangeData.push(res);
-        this.dummyRangeDataMaker();
-      }, 1);
-    } else {
-      // BU.CLI(this.dummyRangeData)
-    }
+    let arr = new Array(15)
+    return Promise.each(arr, ele => {
+      this.datePoint.setMinutes(this.datePoint.getMinutes() + this.generateIntervalMin);
+      let res = this.dataMaker(this.datePoint);
+      return this.dummyRangeData.push(res);
+    })
+      .then(() => {
+        return this.dummyRangeData;
+      })
   }
 
   dataMaker(currDate) {
     // BU.CLI(currDate)
     let currMonth = currDate.getMonth();
-    let currDaily = currDate.getDate() - 1 >= 0 ? currDate.getDate() - 1: 0;
-    let currHour = currDate.getHours() - 1 >= 0 ? currDate.getHours() - 1: 0;
+    let currDaily = currDate.getDate() - 1 >= 0 ? currDate.getDate() - 1 : 0;
+    let currHour = currDate.getHours() - 1 >= 0 ? currDate.getHours() - 1 : 0;
     let currMin = currDate.getMinutes();
 
     // BU.CLI(currMonth, currDaily, currHour, currMin)
     let currScale = this.dummyScale[currMonth][currDaily][currHour][0]
     let nextScale = this.dummyScale[currMonth][currDaily][currHour + 1][0];
+    // BU.CLIS(currScale, nextScale)
 
-    let nextValue = (nextScale - currScale) * (currMin / 60)
-    let scale = (currScale + (nextScale - currScale) * (currMin / 60)) * _.random(80, 100) / 100;
+    let scale = currScale + (nextScale - currScale) * (currMin / 60);
 
     let pv = this.generatePvData(this.controller.config.dummyValue.pv, scale);
     let ivt = this.generateInverterData(pv);
 
-    this.controller.model.onData(pv,ivt, currDate);
+    this.controller.model.onData(pv, ivt, currDate);
 
-    return ivt;
+    return this.controller.model.currPower;
   }
 
   // 태양광 모듈 더미 데이터 생성
@@ -111,9 +107,11 @@ class P_GenerateData {
 
   // 인버터 변환 더미 데이터 생성
   generateInverterData(pv = { amp, vol }) {
+    // BU.CLI(pv.amp, pv.amp * this.controller.config.dummyValue.ivt.basePf * _.random(98, 100) / 100 / 100)
     return {
-      amp: pv.amp * this.controller.config.dummyValue.ivt.basePf * _.random(95, 100) / 100 / 100,
-      vol: pv.vol * this.controller.config.dummyValue.ivt.basePf / 100
+      amp: pv.amp * this.controller.config.dummyValue.ivt.basePf / 100,
+      vol: pv.vol * _.random(98, 100) / 100
+      // vol: pv.vol * this.controller.config.dummyValue.ivt.basePf / 100
     }
   }
 

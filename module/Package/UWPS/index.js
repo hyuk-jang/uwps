@@ -1,53 +1,52 @@
 const Control = require('./Control.js');
-const config = require("./config.js");
+const config = require('./config.js');
 const BUJ = require('base-util-jh');
 const BU = BUJ.baseUtil;
 
 
-const _ =  require('underscore');
+const _ = require('underscore');
 
 global.BU = BU;
 global._ = _;
 
 // TEST : Inverter 객체 6개 생성
-let ivtList = [];
-let baseIvt = config.InverterController[0];
+// let ivtList = [];
+// let baseIvt = config.InverterController[0];
 
-let comPort = 9;
-let ivtSeq = 5;
-for(cnt = 1; cnt <= 2; cnt++){
-  
-  let cloneIvt = JSON.parse(JSON.stringify(baseIvt))  ;
+// let comPort = 9;
+// let ivtSeq = 5;
+// for (let cnt = 1; cnt <= 3; cnt++) {
+//   let cloneIvt = JSON.parse(JSON.stringify(baseIvt));
 
-  let test = cloneIvt.current.ivtSavedInfo.dialing;
-  let buf = Buffer.from(test);
-  cloneIvt.current.ivtSavedInfo.inverter_seq = ivtSeq++;
-  cloneIvt.current.ivtSavedInfo.target_id = 'IVT' + cnt;
-  cloneIvt.current.ivtSavedInfo.target_name = '인버터 ' + cnt;
-  cloneIvt.current.ivtSavedInfo.connect_type = 'socket';
-  cloneIvt.current.ivtSavedInfo.ip = 'localhost';
-  cloneIvt.current.ivtSavedInfo.port = 'COM' + comPort++ ;
-  cloneIvt.current.hasDev = true;
-  BU.log(cloneIvt.current.ivtSavedInfo.target_id)
-  ivtList.push(cloneIvt);
-}
+//   let test = cloneIvt.current.ivtSavedInfo.dialing;
+//   let buf = Buffer.from(test);
+//   cloneIvt.current.ivtSavedInfo.inverter_seq = ivtSeq++;
+//   cloneIvt.current.ivtSavedInfo.target_id = 'IVT' + cnt;
+//   cloneIvt.current.ivtSavedInfo.target_name = '인버터 ' + cnt;
+//   cloneIvt.current.ivtSavedInfo.connect_type = 'socket';
+//   cloneIvt.current.ivtSavedInfo.ip = 'localhost';
+//   cloneIvt.current.ivtSavedInfo.port = 'COM' + comPort++;
+//   cloneIvt.current.hasDev = true;
+//   BU.log(cloneIvt.current.ivtSavedInfo.target_id)
+//   ivtList.push(cloneIvt);
+// }
 
-config.current.inverterList = ivtList;
+// config.current.inverterList = ivtList;
 // BU.CLI(config)
 // return;
 let control = new Control(config);
 
 control.init()
-.then(result => {
-  // TODO
-  BU.CLI(result)
-  return result;
-})
-.catch(error => {
-  // TODO
-  BU.CLI(error)
-  return error; 
-});
+  .then(result => {
+    // TODO
+    BU.CLI(result)
+    return result;
+  })
+  .catch(error => {
+    // TODO
+    BU.CLI(error)
+    return error;
+  });
 
 
 control.on('', (err, res) => {

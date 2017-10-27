@@ -18,12 +18,9 @@ class Control extends EventEmitter {
     // 현재 Control 설정 변수
     this.config = {
       hasDev: true,
-      controlOption: {},
       ivtSavedInfo: {},
-      calculateOption: {}
     };
     Object.assign(this.config, config.current);
-
 
 
     // 추상 클래스 정의 --> Intellicense Support
@@ -86,8 +83,7 @@ class Control extends EventEmitter {
   }
 
   async init() {
-
-    BU.CLI('init InverterController')
+    // BU.CLI('init InverterController')
     this.eventHandler();
     // try {
     // 인버터 타입에 맞는 프로토콜을 바인딩
@@ -104,20 +100,18 @@ class Control extends EventEmitter {
 
   // 인버터 접속 클라이언트 설정
   async connectInverter() {
-    BU.CLI('connectInverter')
+    // BU.CLI('connectInverter')
     try {
       // 개발 버전일경우 자체 더미 인버터 소켓에 접속
       // if (this.config.hasDev) {
       //   this.connectedInverter = await this.socketClient.connect(this.model.socketServerPort);
       // } else 
-
       if (this.config.ivtSavedInfo.connect_type === 'socket') { // TODO Serial Port에 접속하는 기능
-        // BU.CLI('?????????')
-        BU.CLI(this.config.ivtSavedInfo.port, this.config.ivtSavedInfo.ip)
+        // BU.CLI(this.config.ivtSavedInfo.port, this.config.ivtSavedInfo.ip)
 
         // NOTE Dev모드에서는 Socket Port를 재설정하므로 지정 경로로 접속기능 필요
         this.connectedInverter = await this.p_SocketClient.connect(this.config.ivtSavedInfo.port, this.config.ivtSavedInfo.ip);
-        BU.CLI('Socket에 접속하였습니다.')
+        // BU.CLI('Socket에 접속하였습니다.  ' + this.config.ivtSavedInfo.port)
         // BU.CLI('TTTTT')
       } else {
         this.connectedInverter = await this.p_SerialClient.connect();
@@ -144,28 +138,39 @@ class Control extends EventEmitter {
    * @returns {Promise} 정제된 Inverter 계측 데이터 전송(DB 입력 용)
    */
   async measureInverter() {
+
     if (!BU.isEmpty(this.model.processCmd)) {
-      return new Error('현재 진행중인 명령이 존재합니다.');
+      return new Error('현재 진행중인 명령이 존재합니다.\n' + this.model.processCmd);
     } else {
       this.model.initControlStatus();
       this.model.controlStatus.reserveCmdList = this.encoder.makeMsg();
       return await Promise.each(this.model.controlStatus.reserveCmdList, cmd => {
-          this.model.controlStatus.reserveCmdList.shift();
-          this.model.controlStatus.processCmd = cmd;
-          this.model.controlStatus.sendIndex++;
-          return this.send2Cmd(cmd);
-        })
+        this.model.controlStatus.reserveCmdList.shift();
+        this.model.controlStatus.processCmd = cmd;
+        this.model.controlStatus.sendIndex++;
+        return this.send2Cmd(cmd);
+      })
         // .bind({})
         .then((result) => {
           // BU.CLIS(result, this.model.refineInverterData)
-          BU.CLI(`${this.inverterId}의 명령 수행이 모두 완료되었습니다.`);
+          // BU.CLI(`${this.inverterId}의 명령 수행이 모두 완료되었습니다.`);
+          // BU.CLI(this.inverterId, this.model.controlStatus)
           return this.model.refineInverterData;
         })
         .catch(err => {
           let msg = `${this.inverterId}의 ${this.model.processCmd}명령 수행 도중 ${err.message}오류가 발생하였습니다.`;
           BU.errorLog('measureInverter', msg);
-          // BU.CLI(msg)
-          throw err;
+
+          // 컨트롤 상태 초기화
+          this.model.initControlStatus();
+
+          // TODO 에러시 어떻게 처리할 지 고민 필요
+          //에러가 발생할 경우 빈 객체 반환
+          return {};
+
+          return this.model.refineInverterData;
+          
+          // throw err;
         })
     }
   }
@@ -176,23 +181,32 @@ class Control extends EventEmitter {
    */
   async send2Cmd(cmd) {
     // BU.CLI(cmd)
+    // console.time(this.config.ivtSavedInfo.target_id + cmd)
+    let timeout = {};
     return Promise.race(
-        [
-          this.msgSendController(cmd),
-          new Promise((_, reject) => setTimeout(() => {
-            // BU.CLI(this.config.controlOption.sendMsgTimeOutSec)
+      [
+        this.msgSendController(cmd),
+        new Promise((_, reject) => {
+          timeout = setTimeout(() => {
+            // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
             reject(new Error('timeout'))
-          }, 1000 * this.config.controlOption.sendMsgTimeOutSec))
-        ]
-      )
+          }, this.model.controlStatus.sendMsgTimeOutSec)
+        })
+      ]
+    )
       .then(result => {
-        // BU.CLI(result)
+        clearTimeout(timeout);
+        // console.timeEnd(this.config.ivtSavedInfo.target_id + cmd)
         return this.model.refineInverterData;
       })
       .catch(err => {
-        // BU.CLI(err)
+        // BU.CLI(this.config.ivtSavedInfo.target_id + cmd)
+        // console.timeEnd(this.config.ivtSavedInfo.target_id + cmd)
         throw err;
       })
+    // .done((result) => {
+    //   console.timeEnd(this.config.ivtSavedInfo.target_id + cmd)
+    // })
   }
 
   async msgSendController(cmd) {
@@ -266,12 +280,12 @@ class Control extends EventEmitter {
         // 장치 접속에 문제가 있다면 Interval을 10배로 함. (현재 10분에 한번 시도)
         this.setTimer = setTimeout(() => {
           this.connectInverter();
-        }, this.config.controlOption.reconnectInverterInterval * 10);
+        }, this.model.controlStatus.reconnectInverterInterval * 10);
       } else {
         // 인터벌에 따라 한번 접속 시도
         this.setTimer = setTimeout(() => {
           this.connectInverter();
-        }, this.config.controlOption.reconnectInverterInterval);
+        }, this.model.controlStatus.reconnectInverterInterval * 10);
       }
     })
 

@@ -161,7 +161,7 @@ class Model {
     let out_w = 0;
 
     // 단상일 경우
-    if (!this.config.isSingle) {
+    if (this.config.isSingle) {
       this.grid.rAmp = amp;
       this.grid.rsVol = vol;
 
@@ -180,7 +180,8 @@ class Model {
       this.power.gridKw = out_w / 1000;
 
     }
-    this.power.pf = out_w / in_w * 100;
+
+    this.power.pf = isNaN(out_w / in_w) ? 0 :  out_w / in_w * 100;
 
     // BU.CLIS(pv, ivt)
     let date = currDate.getDate();
@@ -199,25 +200,24 @@ class Model {
         // 1시간 발전량 측정 저장소 초기화
         this.dummy.storageHourKwh = [];
         // 하루 누적 발전량에 추가
-        this.inverterData.dailyKwh += hourKwh;
+        // BU.CLI(hourKwh)
+        this.power.dailyKwh += hourKwh;
         // 누적 발전량 기입
-        this.inverterData.cpKwh += hourKwh;
+        this.power.cpKwh += hourKwh;
 
         // 요일이 바뀌었다면 하루 발전량
         if (date !== this.dummy.pointDate) {
           // 요일 다시 지정
           this.dummy.pointDate = date;
-          this.inverterData.dailyKwh = 0;
+          this.power.dailyKwh = 0;
         }
       }
     }
-    this.dummy.storageHourKwh.push(amp * vol);
-
-    // BU.CLI(this.dummy.storageHourKwh)
-    // BU.CLI(this.inverterData.dailyKwh, this.inverterData.cpKwh)
+    this.dummy.storageHourKwh.push(amp * vol / 1000);
   }
 
   onData(pv, ivt, currDate) {
+    // BU.CLIS(pv, ivt)
     this.onPvData(pv.amp, pv.vol);
     this.onIvtData(ivt.amp, ivt.vol, currDate);
   }

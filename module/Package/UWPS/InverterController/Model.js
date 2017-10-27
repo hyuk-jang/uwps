@@ -23,7 +23,9 @@ class Model {
       reserveCmdList: [],
       processCmd: {},
       sendIndex: -1,
-      retryChance: 3
+      retryChance: 3,
+      reconnectInverterInterval: 1000 * 60,  // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
+      sendMsgTimeOutSec: 1000 * 1   // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
     }
 
     this.inverterData = this.controller.encoder.getBaseInverterValue();
@@ -52,7 +54,9 @@ class Model {
       reserveCmdList: [],
       processCmd: {},
       sendIndex: -1,
-      retryChance: 3
+      retryChance: 3,
+      reconnectInverterInterval: 1000 * 60,  // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
+      sendMsgTimeOutSec: 1000 * 1   // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
     }
   }
 
@@ -88,10 +92,10 @@ class Model {
         break;
       case 'system':
         this.sysInfo = {
-          isSingle: 1, // 단상 or 삼상
-          capa: 0, // 인버터 용량 kW
+          isSingle: this.config.ivtSavedInfo.target_type === 'single_ivt' ? 1 : 0, // 단상 or 삼상
+          capa: typeof this.config.ivtSavedInfo.amount === 'number' ? this.config.ivtSavedInfo.amount / 10 : 0, // 인버터 용량 kW
           productYear: '00000000', // 제작년도 월 일 yyyymmdd,
-          sn: '' // Serial Number
+          sn: this.config.ivtSavedInfo.code // Serial Number
         }
         break;
       case 'operation':

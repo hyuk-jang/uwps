@@ -16,6 +16,7 @@ class P_Setter extends EventEmitter {
       // 개발용 버전일 경우 더미 인버터프로그램 구동
       if (this.config.hasDev) {
         let port = await this.controller.dummyInverter.init();
+        this.controller.dummyInverter.runCronForMeasureInverter();
         // 개발용 버전이면서 접속 타입이 socket일 경우에는 서로 연결시킬 port 지정
         if (this.config.ivtSavedInfo.connect_type === 'socket') {
           this.controller.model.ivtSavedInfo.port = port;

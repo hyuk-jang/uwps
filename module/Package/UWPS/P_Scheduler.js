@@ -48,6 +48,23 @@ class P_Scheduler extends EventEmitter {
     })
     // 데이터 수집 완료시 해당 데이터 반환
     .then(inverterListData => {
+      // BU.CLI(inverterListData);
+      return this.emit('completeMeasureInverter', measureTime, inverterListData);
+    })
+    // TODO 오류가 있을 경우 처리 필요
+    .catch(err => {
+      BU.CLI(err);
+    })
+  }
+
+  _measureConnector(measureTime, connectorControllerList) {
+    BU.CLI('_measureConnector', measureTime);
+
+    Promise.map(connectorControllerList, connectorController => {
+      return connectorController.measureInverter();
+    })
+    // 데이터 수집 완료시 해당 데이터 반환
+    .then(inverterListData => {
       BU.CLI(inverterListData);
       return this.emit('completeMeasureInverter', measureTime, inverterListData);
     })
@@ -55,6 +72,7 @@ class P_Scheduler extends EventEmitter {
     .catch(err => {
       BU.CLI(err);
     })
+
   }
 
 

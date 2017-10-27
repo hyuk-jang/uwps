@@ -41,12 +41,26 @@ class Model {
    */
   completeMeasureInverter(measureTime, inverterListData) {
     let measureInverterDataList = [];
-    this.inverterControllerList.forEach(inverterController => {
-      let refineData = inverterController.refineInverterData;
+
+    inverterListData.forEach(refineData => {
+      // TODO 메시지 발송? 에러 처리? 인버터 정지? 고민 필요
+      if(_.isEmpty(refineData)){
+        return;
+      }
       // BU.CLI(measureTime)
       refineData.writedate = BU.convertDateToText(measureTime);
       measureInverterDataList.push(refineData);
     })
+
+    // FIXME 데이터 직접 끌어오고자 할 경우.
+    // this.inverterControllerList.forEach(inverterController => {
+    //   let refineData = inverterController.refineInverterData;
+    //   // BU.CLI(measureTime)
+    //   refineData.writedate = BU.convertDateToText(measureTime);
+    //   measureInverterDataList.push(refineData);
+    // })
+
+    BU.CLI('Success:', measureInverterDataList.length, 'Fail', inverterListData.length - measureInverterDataList.length)
 
     // TEST 실제 입력은 하지 않음. 
     return;

@@ -40,12 +40,12 @@ class Model {
    * @returns {Void} 
    */
   onData(data) {
-    BU.CLI('ondata', data, this.config)
+    // BU.CLI('ondata', data, this.config)
     // TEST Test data
     data = [10, 0, 0, 0, 25, 22, 65, 43, 68, 96]
 
     this.vol = data[this.config.addr_v];
-    this.ampList = data.slice(this.config.addr_a, this.config.addr_a + this.config.ch_number + 1)
+    this.ampList = data.slice(this.config.addr_a, this.config.addr_a + this.config.ch_number)
 
     // BU.CLIS(this.vol, this.ampList, this.refineConnectorData)
     // return true;

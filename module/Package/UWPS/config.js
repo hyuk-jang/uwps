@@ -1,5 +1,6 @@
 module.exports = {
   current: {
+    hasDbWriter: true,
     dbInfo: {
       host: process.env.SALTERN_HOST ? process.env.SALTERN_HOST : 'localhost',
       user: process.env.SALTERN_USER ? process.env.SALTERN_USER : 'root',
@@ -13,7 +14,7 @@ module.exports = {
           inverter_seq: 1,
           connector_seq: 1,
           target_id: 'IVT1',
-          target_category: 's_hex',
+          target_category: 'dev',
           target_name: '인버터 1',
           target_type: 'single_ivt',
           dialing: '0x3031',
@@ -35,7 +36,7 @@ module.exports = {
           inverter_seq: 2,
           connector_seq: 1,
           target_id: 'IVT2',
-          target_category: 's_hex',
+          target_category: 'dev',
           target_name: '인버터 2',
           target_type: 'single_ivt',
           dialing: '0x3032',
@@ -56,7 +57,7 @@ module.exports = {
           inverter_seq: 5,
           connector_seq: 1,
           target_id: 'IVT3',
-          target_category: 's_hex',
+          target_category: 'dev',
           target_name: '인버터 3',
           target_type: 'single_ivt',
           dialing: '0x3035',
@@ -77,7 +78,7 @@ module.exports = {
           inverter_seq: 3,
           connector_seq: 1,
           target_id: 'IVT4',
-          target_category: 's_hex',
+          target_category: 'dev',
           target_name: '인버터 4',
           target_type: 'single_ivt',
           dialing: '0x3033',
@@ -98,7 +99,7 @@ module.exports = {
           inverter_seq: 4,
           connector_seq: 2,
           target_id: 'IVT5',
-          target_category: 's_hex',
+          target_category: 'dev',
           target_name: '인버터 5',
           target_type: 'single_ivt',
           dialing: '0x3034',
@@ -119,7 +120,7 @@ module.exports = {
           inverter_seq: 6,
           connector_seq: 2,
           target_id: 'IVT6',
-          target_category: 's_hex',
+          target_category: 'dev',
           target_name: '인버터 6',
           target_type: 'single_ivt',
           dialing: '0x3036',
@@ -136,6 +137,8 @@ module.exports = {
     }],
     connectorList: [{
       current: {
+        hasDev: true,
+        devPort: 5555,
         cntSavedInfo: {
           connector_seq: 1,
           target_id: 'CNT1',
@@ -143,8 +146,8 @@ module.exports = {
           target_name: '접속반 1',
           dialing: '0x01',
           code: '0b414af3-5733-400d-87c7-b9ba68ad3895',
-          ip: null,
-          port: null,
+          ip: 'localhost',
+          port: 8889,
           baud_rate: 9600,
           ch_number: 4,
           addr_v: 0,
@@ -155,6 +158,8 @@ module.exports = {
       }
     }, {
       current: {
+        hasDev: true,
+        devPort: 5556,
         cntSavedInfo: {
           connector_seq: 2,
           target_id: 'CNT2',
@@ -162,8 +167,8 @@ module.exports = {
           target_name: '접속반2',
           dialing: '0x02',
           code: '0b414af3-5733-400d-87c7-b9ba68ad3895',
-          ip: null,
-          port: null,
+          ip: 'localhost',
+          port: 8889,
           baud_rate: 9600,
           ch_number: 2,
           addr_v: 0,

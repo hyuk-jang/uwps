@@ -13,7 +13,7 @@ class P_ModbusClient {
 
     this.searchRange = [this.config.addr_a, this.config.addr_a + this.config.ch_number];
 
-    this.init(this.config);
+    // this.init(this.config);
   }
 
   init(config) {
@@ -21,7 +21,7 @@ class P_ModbusClient {
       this.connectionType = 'tcp';
       this.connectionInfo = {
         'host': config.host ? config.host : 'localhost', /* IP or name of server host */
-        'port': config.port ? config.port : 8888, /* well known Modbus port */
+        'port': config.port ? config.port : 0, /* well known Modbus port */
         'unitId': config.dialing ? config.dialing : 1,
         'timeout': 2000, /* 2 sec */
         'autoReconnect': true, /* reconnect on connection is lost */
@@ -61,12 +61,12 @@ class P_ModbusClient {
 
     this.client.connect();
     this.client.on('connect', () => {
-      BU.CLI('connecoted')
+      // BU.CLI('connecoted')
       this.controller.emit('connected')
-      BU.CLI('connect', this.searchRange)
+      // BU.CLI('connect', this.searchRange)
       this.client.readInputRegisters(this.searchRange[0], this.searchRange[1])
         .then(resp => {
-          BU.CLI(resp.register);
+          // BU.CLI(resp.register);
           this.client.emit('receiveConnectorData', resp.register)
           return;
         }).catch(err => {

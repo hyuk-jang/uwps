@@ -1,7 +1,6 @@
 const _ = require('underscore');
 const Promise = require('bluebird');
 const EventEmitter = require('events');
-const eventToPromise = require('event-to-promise');
 
 const Model = require('./Model.js');
 const P_ModbusClient = require('./P_ModbusClient');
@@ -26,15 +25,7 @@ class Control extends EventEmitter {
     this.p_ModbusClient = new P_ModbusClient(this);
   }
 
-  get inverterId() {
-    return this.model.cntSavedInfo.target_id;
-  }
-
-  get cmdList() {
-    return this.model.cmdList;
-  }
-
-  get connectorTargetId() {
+  get connectorId() {
     return this.model.cntSavedInfo.target_id;
   }
 
@@ -42,20 +33,31 @@ class Control extends EventEmitter {
     return this.model.refineConnectorData;
   }
 
+  get connectorData() {
+    return this.model.connectorData;
+  }
+
   // DB 정보를 넣어둔 데이터 호출
   getConnectorInfo() {
+    // BU.CLI(this.model.cntSavedInfo)
     return this.model.cntSavedInfo;
   }
 
   /**
    * 현재 인버터 컨트롤러가 작동하는지 여부
+   * FIXME 접속반의 이상유무를 어떻게 체크해야할지 논의 필요(모듈 이상 검출 장치?)
    */
   getHasOperation() {
     return this.model.hasConnectedConnector;
   }
 
+  /**
+   * 접속반 계측 컨트롤러 초기화.
+   * 개발 모드일 경우 modbus tcp server 구동
+   * @return {Promise} true, exception
+   */
   async init() {
-    BU.CLI('init ConnectorController', this.config.devPort)
+    // BU.CLI('init ConnectorController', this.config.devPort)
     try {
       if (this.config.hasDev) {
         t_Server(this.config.devPort);

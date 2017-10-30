@@ -1,5 +1,4 @@
 const net = require('net');
-const eventToPromise = require('event-to-promise');
 const _ = require('underscore');
 
 const BUJ = require('base-util-jh');

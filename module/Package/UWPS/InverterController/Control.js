@@ -65,9 +65,23 @@ class Control extends EventEmitter {
     return this.model.ivtSavedInfo;
   }
 
-  // cmd에 맞는 데이터 값 요청
+  /**
+   * cmd에 맞는 데이터 값 요청
+   * @param {String} cmd 얻고자 하는 key(operation, pv, grid, power). 키가 없을 경우 {}
+   * @return {Object} INverter Data Object
+   */
   getInverterData(cmd) {
+    BU.CLI('getInverterData')
     return _.contains(this.cmdList, cmd) ? this.model.getInverterData(cmd) : {};
+  }
+
+  /**
+   * inverter 원본 데이터
+   * @param {String} 원본 데이터
+   * @return {Object} INverter Data Object
+   */
+  get inverterData() {
+    return this.model.inverterData;
   }
 
   // 배율 적용된 값 요청
@@ -89,8 +103,13 @@ class Control extends EventEmitter {
     // 인버터 타입에 맞는 프로토콜을 바인딩
     let dialing = this.config.ivtSavedInfo.dialing;
     let socketPort = await this.p_Setter.settingConverter(dialing);
+    // console.time('ivt' + this.inverterId)
+    // await Promise.delay(1000);
+    // console.timeEnd('ivt' + this.inverterId)
     // NOTE 인텔리전스를 위해 P_Setter에서 재정의함
-    await this.connectInverter();
+    let connectedInverter =  await this.connectInverter();
+    // BU.CLI(connectedInverter)
+
     return this;
     // } catch (error) {
     //   // BU.CLI(error)

@@ -8,8 +8,10 @@ const BU = BUJ.baseUtil;
 class Model {
   constructor(controller) {
     this.controller = controller;
+    
 
-    this.hasDbWriter = controller.config.hasDbWriter;
+    this.hasCopyInverterData = controller.config.devOption.hasCopyInverterData;
+    this.hasInsertQuery = controller.config.devOption.hasInsertQuery;
 
     this.inverterControllerList = [];
     this.connectorControllerList = [];
@@ -18,21 +20,23 @@ class Model {
   }
 
   // 인버터 id로 인버터 컨트롤러 객체 찾아줌
-  findMeasureInverter(ivtId) {
-    BU.CLI('findMeasureInverter', ivtId)
-    let findObj = _.find(this.inverterControllerList, ivtController => {
-      let ivtInfo = ivtController.getInverterInfo();
-      BU.CLIS(ivtInfo, ivtId)
-      return ivtInfo.target_id === ivtId;
+  findMeasureInverter(targetId) {
+    // BU.CLI('findMeasureInverter', ivtId)
+    return _.find(this.inverterControllerList, controller => {
+      let targetInfo = controller.getInverterInfo();
+      return targetInfo.target_id === targetId;
     })
-    // BU.CLI(findObj)
 
     return findObj;
   }
 
   // 접속반 id로 인버터 컨트롤러 객체 찾아줌
-  findMeasureConnector(cntId) {
-
+  findMeasureConnector(targetId) {
+    return _.find(this.connectorControllerList , controller => {
+      // BU.CLI(controller)
+      let targetInfo = controller.getConnectorInfo();
+      return targetInfo.target_id === targetId;
+    })
   }
 
   // TODO 에러 시 예외처리, 인버터 n개 중 부분 성공일 경우 처리
@@ -57,8 +61,7 @@ class Model {
 
 
     // TEST 인버터 데이터에 기초해 데이터 넣음
-    if (this.hasDbWriter) {
-      let connectorData = [];
+    if (this.hasCopyInverterData) {
       let connectorSeqList = [[1, 2, 5, 3], [4, 6]];
       let connectorArr = [{}, {}];
       inverterListData.forEach(refineData => {
@@ -76,10 +79,13 @@ class Model {
     }
 
     // BU.CLI(measureInverterDataList)
-    BU.CLI('Success:', measureInverterDataList.length, 'Fail', inverterListData.length - measureInverterDataList.length)
+    this.controller.emit('completeMeasureInverter', null, inverterListData)
+    // BU.CLI('Success:', measureInverterDataList.length, 'Fail', inverterListData.length - measureInverterDataList.length)
 
     // TEST 실제 입력은 하지 않음. 
-    // return;
+    if(!this.hasInsertQuery){
+      return false;
+    }
 
     this.BM.setTables('inverter_data', measureInverterDataList)
       .then(result => {
@@ -113,16 +119,20 @@ class Model {
     })
 
     // BU.CLI(measureConnectorDataList)
-    BU.CLI('Success:', measureConnectorDataList.length, 'Fail', connectorListData.length - measureConnectorDataList.length)
+    this.controller.emit('completeMeasureConnector',  null, connectorListData)
+    // BU.CLI('Success:', measureConnectorDataList.length, 'Fail', connectorListData.length - measureConnectorDataList.length)
 
     // TEST 실제 입력은 하지 않음. 
-    // return;
+    if(!this.hasInsertQuery){
+      return false;
+    }
 
     Promise.map(measureConnectorDataList, measureData => {
       return this.BM.setTable('connector_data', measureData);
     }).then(result => {
       // 데이터 정상적으로 입력 수행
       BU.CLI(result)
+      
       return true;
     }).catch(err => {
       BU.errorLog('measureConnectorScheduler', err);

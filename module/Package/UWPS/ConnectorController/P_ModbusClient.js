@@ -67,8 +67,7 @@ class P_ModbusClient {
       this.client.readInputRegisters(this.searchRange[0], this.searchRange[1])
         .then(resp => {
           // BU.CLI(resp.register);
-          this.client.emit('receiveConnectorData', resp.register)
-          return;
+          return this.client.emit('receiveConnectorData', resp.register);
         }).catch(err => {
           this.client.emit('receiveErr', err)
         })

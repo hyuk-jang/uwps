@@ -1,6 +1,9 @@
 module.exports = {
   current: {
-    hasDbWriter: true,
+    devOption: {
+      hasCopyInverterData:true,
+      hasInsertQuery: false,
+    },
     dbInfo: {
       host: process.env.SALTERN_HOST ? process.env.SALTERN_HOST : 'localhost',
       user: process.env.SALTERN_USER ? process.env.SALTERN_USER : 'root',

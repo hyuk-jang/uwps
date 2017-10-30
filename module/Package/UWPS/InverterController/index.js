@@ -31,6 +31,7 @@ let index = 0;
 
 control.init()
 .then(result => {
+  BU.CLI('result')
   return control.measureInverter();
 })
 .then(result => {

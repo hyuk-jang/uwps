@@ -5,8 +5,6 @@ const NU = BUJ.newUtil;
 class Model {
   constructor(controller) {
     this.controller = controller;
-    this.config = controller.config;
-
     this.hasConnectedInverter = false;
     this.retryConnectInverterCount = 0;
 
@@ -28,9 +26,10 @@ class Model {
       sendMsgTimeOutSec: 1000 * 1   // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
     }
 
+    // Converter에 정의한 getBaseInverterValue를 가져옴
     this.inverterData = this.controller.encoder.getBaseInverterValue();
     // Socket에 접속 중인 사용자 리스트
-    this.ivtSavedInfo = this.config.ivtSavedInfo;
+    this.ivtSavedInfo = this.controller.config.ivtSavedInfo;
 
     this.sysInfo = {}
     this.pv = {}
@@ -92,10 +91,10 @@ class Model {
         break;
       case 'system':
         this.sysInfo = {
-          isSingle: this.config.ivtSavedInfo.target_type === 'single_ivt' ? 1 : 0, // 단상 or 삼상
-          capa: typeof this.config.ivtSavedInfo.amount === 'number' ? this.config.ivtSavedInfo.amount / 10 : 0, // 인버터 용량 kW
+          isSingle: this.ivtSavedInfo.target_type === 'single_ivt' ? 1 : 0, // 단상 or 삼상
+          capa: typeof this.ivtSavedInfo.amount === 'number' ? this.ivtSavedInfo.amount / 10 : 0, // 인버터 용량 kW
           productYear: '00000000', // 제작년도 월 일 yyyymmdd,
-          sn: this.config.ivtSavedInfo.code // Serial Number
+          sn: this.ivtSavedInfo.code // Serial Number
         }
         break;
       case 'operation':
@@ -145,7 +144,7 @@ class Model {
   get refineInverterData() {
     let in_w = this.pv.amp * this.pv.vol;
     let out_w = 0;
-    if (this.config.ivtSavedInfo.target_type === 0) {
+    if (this.ivtSavedInfo.target_type === 'single_ivt') {
       out_w = this.grid.rAmp * this.grid.rsVol;
     } else {
       out_w = this.grid.rAmp * this.grid.rsVol * 1.732;

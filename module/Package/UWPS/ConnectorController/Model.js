@@ -5,7 +5,7 @@ const NU = BUJ.newUtil;
 class Model {
   constructor(controller) {
     this.controller = controller;
-    this.config = controller.config.cntSavedInfo;
+    this.cntSavedInfo = controller.config.cntSavedInfo;
 
     this.hasConnectedConnector = false;
 
@@ -25,11 +25,25 @@ class Model {
       returnvalue['ch_' + (index + 1)] = ele;
     })
 
-    returnvalue = NU.multiplyScale2Obj(returnvalue, 10, 0);
-
-    returnvalue.connector_data_seq = this.config.connector_seq;
+    // returnvalue = NU.multiplyScale2Obj(returnvalue, 10, 0);
+    returnvalue.connector_data_seq = this.cntSavedInfo.connector_seq;
 
     // Scale 10 배수 처리
+    return returnvalue;
+  }
+
+  get connectorData() {
+    let returnvalue = {
+      v: this.vol
+    };
+
+    // BU.CLI(this.ampList)
+    this.ampList.forEach((ele, index) => {
+      returnvalue['ch_' + (index + 1)] = ele;
+    })
+
+    returnvalue = NU.multiplyScale2Obj(returnvalue, 0.1, 1);
+    returnvalue.connector_data_seq = this.cntSavedInfo.connector_seq;
     return returnvalue;
   }
 
@@ -42,10 +56,12 @@ class Model {
   onData(data) {
     // BU.CLI('ondata', data, this.config)
     // TEST Test data
-    data = [10, 0, 0, 0, 25, 22, 65, 43, 68, 96]
+    data = [2513, 0, 0, 0, 25, 22, 65, 43, 68, 96]
 
-    this.vol = data[this.config.addr_v];
-    this.ampList = data.slice(this.config.addr_a, this.config.addr_a + this.config.ch_number)
+    NU.multiplyScale2Obj(data)
+    
+    this.vol = data[this.cntSavedInfo.addr_v];
+    this.ampList = data.slice(this.cntSavedInfo.addr_a, this.cntSavedInfo.addr_a + this.cntSavedInfo.ch_number)
 
     // BU.CLIS(this.vol, this.ampList, this.refineConnectorData)
     // return true;

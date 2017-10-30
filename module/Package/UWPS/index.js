@@ -2,7 +2,8 @@ const Control = require('./Control.js');
 const config = require('./config.js');
 const BUJ = require('base-util-jh');
 const BU = BUJ.baseUtil;
-
+const eventToPromise = require('event-to-promise');
+const Promise = require('bluebird')
 
 const _ = require('underscore');
 
@@ -36,11 +37,28 @@ global._ = _;
 // return;
 let control = new Control(config);
 
+console.time('Uwps Init')
 control.init()
   .then(result => {
     // TODO
-    BU.CLI(result)
-    return result;
+    console.timeEnd('Uwps Init')
+    // BU.CLI('UWPS INIT Result', result)
+    return control.hasOperationInverter('IVT1');
+  })
+  .then(result => {
+    // TODO
+    BU.CLI('hasOperationInverter IVT1', result)
+  })
+  .delay(1000)
+  .then(() => {
+    return control.getInverterData('IVT1');
+  })
+  .then((r) => {
+    BU.CLI(r)
+    return control.getConnectorData('CNT1');
+  })
+  .then(r => {
+    BU.CLI(r)
   })
   .catch(error => {
     // TODO
@@ -49,5 +67,12 @@ control.init()
   });
 
 
-control.on('', (err, res) => {
+
+
+control.on('completeMeasureInverter', (err, res) => {
+  BU.CLI('completeMeasureInverter', res.length)
+});
+
+control.on('completeMeasureConnector', (err, res) => {
+  BU.CLI('completeMeasureConnector', res.length)
 });

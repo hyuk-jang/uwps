@@ -1,4 +1,4 @@
-var Map = {
+﻿var Map = {
   "MAP": {
     "MapSizeX": 1900,
     "MapSizeY": 1900,

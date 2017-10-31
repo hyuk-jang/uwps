@@ -1,4 +1,4 @@
-var Map = {
+module.exports = {
   "MAP": {
     "MapSizeX": 1900,
     "MapSizeY": 1900,
@@ -488,7 +488,7 @@ var Map = {
     // }
     ],
     "PipeList": [{
-      "ID": "PL1",
+      "ID": "SPL1",
       "Name": "PL1",
       "ImgID": "PipeList_A",
       "Points": [
@@ -499,7 +499,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL2",
+      "ID": "SPL2",
       "Name": "PL2",
       "ImgID": "PipeList_A",
       "Points": [
@@ -510,7 +510,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL3",
+      "ID": "SPL3",
       "Name": "PL3",
       "ImgID": "PipeList_A",
       "Points": [
@@ -521,7 +521,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL4",
+      "ID": "SPL4",
       "Name": "PL4",
       "ImgID": "PipeList_A",
       "Points": [
@@ -532,7 +532,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL5",
+      "ID": "SPL5",
       "Name": "PL5",
       "ImgID": "PipeList_A",
       "Points": [
@@ -543,7 +543,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL6",
+      "ID": "SPL6",
       "Name": "PL6",
       "ImgID": "PipeList_A",
       "Points": [
@@ -554,7 +554,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL7",
+      "ID": "SPL7",
       "Name": "PL7",
       "ImgID": "PipeList_A",
       "Points": [
@@ -565,7 +565,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL8",
+      "ID": "SPL8",
       "Name": "PL8",
       "ImgID": "PipeList_A",
       "Points": [
@@ -576,7 +576,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL9",
+      "ID": "SPL9",
       "Name": "PL9",
       "ImgID": "PipeList_A",
       "Points": [
@@ -587,7 +587,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL10",
+      "ID": "SPL10",
       "Name": "PL10",
       "ImgID": "PipeList_A",
       "Points": [
@@ -598,7 +598,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL11",
+      "ID": "SPL11",
       "Name": "PL11",
       "ImgID": "PipeList_A",
       "Points": [
@@ -609,7 +609,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL12",
+      "ID": "SPL12",
       "Name": "PL12",
       "ImgID": "PipeList_A",
       "Points": [
@@ -620,7 +620,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL13",
+      "ID": "SPL13",
       "Name": "PL13",
       "ImgID": "PipeList_A",
       "Points": [
@@ -631,7 +631,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL14",
+      "ID": "SPL14",
       "Name": "PL14",
       "ImgID": "PipeList_A",
       "Points": [
@@ -642,7 +642,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL15",
+      "ID": "SPL15",
       "Name": "PL15",
       "ImgID": "PipeList_A",
       "Points": [
@@ -653,7 +653,7 @@ var Map = {
       ]
     },
     {
-      "ID": "PL16",
+      "ID": "SPL16",
       "Name": "PL16",
       "ImgID": "PipeList_A",
       "Points": [

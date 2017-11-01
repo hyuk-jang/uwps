@@ -135,7 +135,7 @@ var Map = {
       }
     },
     {
-      "ID": "UWTemperature",
+      "ID": "UTemperature",
       "ImgData": {
         "Type": "Rect",
         "Width": 60,
@@ -849,88 +849,88 @@ var Map = {
       // }
     ],
     "UnderWaterTemperatureList": [{
-      "ID": "UWT1",
+      "ID": "UT1",
       "Name": "수중온도1",
       "X": 485,
       "Y": 170,
-      "ImgID": "UWTemperature"
+      "ImgID": "UTemperature"
     },
     {
-      "ID": "UWT2",
+      "ID": "UT2",
       "Name": "수중온도2",
       "X": 485,
       "Y": 340,
-      "ImgID": "UWTemperature"
+      "ImgID": "UTemperature"
     },
     {
-      "ID": "UWT3",
+      "ID": "UT3",
       "Name": "수중온도3",
       "X": 485,
       "Y": 510,
-      "ImgID": "UWTemperature"
+      "ImgID": "UTemperature"
     },
     {
-      "ID": "UWT4",
+      "ID": "UT4",
       "Name": "수중온도4",
       "X": 485,
       "Y": 680,
-      "ImgID": "UWTemperature"
+      "ImgID": "UTemperature"
     },
     {
-      "ID": "UWT5",
+      "ID": "UT5",
       "Name": "수중온도5",
       "X": 485,
       "Y": 850,
-      "ImgID": "UWTemperature"
+      "ImgID": "UTemperature"
     },
     {
-      "ID": "UWT6",
+      "ID": "UT6",
       "Name": "수중온도6",
       "X": 815,
       "Y": 340,
-      "ImgID": "UWTemperature"
+      "ImgID": "UTemperature"
     },
     {
-      "ID": "UWT7",
+      "ID": "UT7",
       "Name": "수중온도7",
       "X": 815,
       "Y": 510,
-      "ImgID": "UWTemperature"
+      "ImgID": "UTemperature"
     },
     {
-      "ID": "UWT8",
+      "ID": "UT8",
       "Name": "수중온도8",
       "X": 815,
       "Y": 680,
-      "ImgID": "UWTemperature"
+      "ImgID": "UTemperature"
     },
     {
-      "ID": "UWT9",
+      "ID": "UT9",
       "Name": "수중온도9",
       "X": 815,
       "Y": 850,
-      "ImgID": "UWTemperature"
+      "ImgID": "UTemperature"
     },
       // {
-      //     "ID": "UWT10",
+      //     "ID": "UT10",
       //     "Name": "수중온도10",
       //     "X": 695,
       //     "Y": 135,
-      //     "ImgID": "UWTemperature"
+      //     "ImgID": "UTemperature"
       // },
       // {
-      //     "ID": "UWT11",
+      //     "ID": "UT11",
       //     "Name": "수중온도11",
       //     "X": 1160,
       //     "Y": 200,
-      //     "ImgID": "UWTemperature"
+      //     "ImgID": "UTemperature"
       // },
       // {
-      //     "ID": "UWT12",
+      //     "ID": "UT12",
       //     "Name": "수중온도12",
       //     "X": 1500,
       //     "Y": 200,
-      //     "ImgID": "UWTemperature"
+      //     "ImgID": "UTemperature"
       // }
     ],
     "ModuleTemperatureList": [{
@@ -1385,84 +1385,84 @@ var Map = {
     }
     ],
     "UnderWaterTemperatureData": [{
-      "ID": "UWT1",
+      "ID": "UT1",
       "DeviceType": "Serial",
       "BoardID": "A0F2",
       "IP": "127.0.0.1",
       "Port": 16001
     },
     {
-      "ID": "UWT2",
+      "ID": "UT2",
       "DeviceType": "Serial",
       "BoardID": "A0F2",
       "IP": "127.0.0.1",
       "Port": 16002
     },
     {
-      "ID": "UWT3",
+      "ID": "UT3",
       "DeviceType": "Serial",
       "BoardID": "A0F2",
       "IP": "127.0.0.1",
       "Port": 16003
     },
     {
-      "ID": "UWT4",
+      "ID": "UT4",
       "DeviceType": "Serial",
       "BoardID": "A0F2",
       "IP": "127.0.0.1",
       "Port": 16004
     },
     {
-      "ID": "UWT5",
+      "ID": "UT5",
       "DeviceType": "Serial",
       "BoardID": "A0F2",
       "IP": "127.0.0.1",
       "Port": 16005
     },
     {
-      "ID": "UWT6",
+      "ID": "UT6",
       "DeviceType": "Serial",
       "BoardID": "A0F2",
       "IP": "127.0.0.1",
       "Port": 16006
     },
     {
-      "ID": "UWT7",
+      "ID": "UT7",
       "DeviceType": "Serial",
       "BoardID": "A0F2",
       "IP": "127.0.0.1",
       "Port": 16007
     },
     {
-      "ID": "UWT8",
+      "ID": "UT8",
       "DeviceType": "Serial",
       "BoardID": "A0F2",
       "IP": "127.0.0.1",
       "Port": 16008
     },
     {
-      "ID": "UWT9",
+      "ID": "UT9",
       "DeviceType": "Serial",
       "BoardID": "A0F2",
       "IP": "127.0.0.1",
       "Port": 16009
     },
     {
-      "ID": "UWT10",
+      "ID": "UT10",
       "DeviceType": "Serial",
       "BoardID": "A0F2",
       "IP": "127.0.0.1",
       "Port": 16010
     },
     {
-      "ID": "UWT11",
+      "ID": "UT11",
       "DeviceType": "Serial",
       "BoardID": "A0F2",
       "IP": "127.0.0.1",
       "Port": 16011
     },
     {
-      "ID": "UWT12",
+      "ID": "UT12",
       "DeviceType": "Serial",
       "BoardID": "A0F2",
       "IP": "127.0.0.1",
@@ -1577,7 +1577,7 @@ var Map = {
         "S1"
       ],
       "ListUnderWaterTemperature": [
-        "UWT1"
+        "UT1"
       ],
       "ListModuleTemperature": [
         "MT1"
@@ -1603,7 +1603,7 @@ var Map = {
         "S2"
       ],
       "ListUnderWaterTemperature": [
-        "UWT2"
+        "UT2"
       ],
       "ListModuleTemperature": [
         "MT2"
@@ -1629,7 +1629,7 @@ var Map = {
         "S3"
       ],
       "ListUnderWaterTemperature": [
-        "UWT3"
+        "UT3"
       ],
       "ListModuleTemperature": [
         "MT3"
@@ -1655,7 +1655,7 @@ var Map = {
         "S4"
       ],
       "ListUnderWaterTemperature": [
-        "UWT4"
+        "UT4"
       ],
       "ListModuleTemperature": [
         "MT4"
@@ -1681,7 +1681,7 @@ var Map = {
         "S5"
       ],
       "ListUnderWaterTemperature": [
-        "UWT5"
+        "UT5"
       ],
       "ListModuleTemperature": [
         "MT5"
@@ -1707,7 +1707,7 @@ var Map = {
         "S6"
       ],
       "ListUnderWaterTemperature": [
-        "UWT6"
+        "UT6"
       ],
       "ListModuleTemperature": [
         "MT6"
@@ -1731,7 +1731,7 @@ var Map = {
         "S7"
       ],
       "ListUnderWaterTemperature": [
-        "UWT7"
+        "UT7"
       ],
       "ListModuleTemperature": [
         "MT7"
@@ -1755,7 +1755,7 @@ var Map = {
         "S7"
       ],
       "ListUnderWaterTemperature": [
-        "UWT7"
+        "UT7"
       ],
       "ListModuleTemperature": [
         "MT7"
@@ -1781,7 +1781,7 @@ var Map = {
         "S9"
       ],
       "ListUnderWaterTemperature": [
-        "UWT9"
+        "UT9"
       ],
       "ListModuleTemperature": [
         "MT9"
@@ -1808,7 +1808,7 @@ var Map = {
         "S10"
       ],
       "ListUnderWaterTemperature": [
-        "UWT10"
+        "UT10"
       ],
       "ListModuleTemperature": [
         "MT10"
@@ -1837,7 +1837,7 @@ var Map = {
         "S11"
       ],
       "ListUnderWaterTemperature": [
-        "UWT11"
+        "UT11"
       ],
       "ListModuleTemperature": [
         "MT11"
@@ -1863,7 +1863,7 @@ var Map = {
         "S12"
       ],
       "ListUnderWaterTemperature": [
-        "UWT12"
+        "UT12"
       ],
       "ListModuleTemperature": [
         "MT12"

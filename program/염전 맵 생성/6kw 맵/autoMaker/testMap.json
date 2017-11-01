@@ -1,4 +1,4 @@
- {
+{
   "MAP": {
     "MapSizeX": 1900,
     "MapSizeY": 1900,
@@ -7,7 +7,7 @@
         "ID": "Reservoir",
         "ImgData": {
           "Type": "Rect",
-          "Width": 230,
+          "Width": 100,
           "Height": 150,
           "Color": "#33ffff"
         }
@@ -17,7 +17,7 @@
         "ImgData": {
           "Type": "Rect",
           "Width": 200,
-          "Height": 150,
+          "Height": 200,
           "Color": "#f8f8f8"
         }
       },
@@ -26,7 +26,7 @@
         "ImgData": {
           "Type": "Rect",
           "Width": 200,
-          "Height": 150,
+          "Height": 200,
           "Color": "#c4c8c3"
         }
       },
@@ -35,7 +35,7 @@
         "ImgData": {
           "Type": "Rect",
           "Width": 200,
-          "Height": 150,
+          "Height": 200,
           "Color": "#c4c8c3"
         }
       },
@@ -51,7 +51,7 @@
         "ID": "WaterTank_A",
         "ImgData": {
           "Type": "Rect",
-          "Width": 150,
+          "Width": 100,
           "Height": 110,
           "Color": "#dbdbdb"
         }
@@ -78,8 +78,17 @@
         "ID": "WaterOut_A",
         "ImgData": {
           "Type": "Rect",
+          "Width": 820,
+          "Height": 100,
+          "Color": "#a5d8f0"
+        }
+      },
+      {
+        "ID": "WaterOut_B",
+        "ImgData": {
+          "Type": "Rect",
           "Width": 100,
-          "Height": 680,
+          "Height": 200,
           "Color": "#a5d8f0"
         }
       },
@@ -148,9 +157,9 @@
     "ReservoirList": [
       {
         "ID": "RV1",
-        "Name": "저수지",
+        "Name": "저수조",
         "X": 50,
-        "Y": 50,
+        "Y": 930,
         "ImgID": "Reservoir"
       }
     ],
@@ -160,10 +169,10 @@
         "Name": "1",
         "ImgID": "SaltPondLine_A",
         "Points": [
-          670,
-          880,
-          670,
-          160
+          450,
+          160,
+          450,
+          1080
         ]
       },
       {
@@ -171,10 +180,10 @@
         "Name": "2",
         "ImgID": "SaltPondLine_A",
         "Points": [
-          1000,
-          880,
-          1000,
-          160
+          430,
+          180,
+          570,
+          180
         ]
       },
       {
@@ -182,10 +191,10 @@
         "Name": "3",
         "ImgID": "SaltPondLine_A",
         "Points": [
-          650,
-          180,
-          840,
-          180
+          690,
+          160,
+          690,
+          1080
         ]
       },
       {
@@ -193,9 +202,9 @@
         "Name": "4",
         "ImgID": "SaltPondLine_A",
         "Points": [
-          880,
+          610,
           180,
-          1020,
+          710,
           180
         ]
       },
@@ -204,9 +213,9 @@
         "Name": "5",
         "ImgID": "SaltPondLine_A",
         "Points": [
-          1060,
+          750,
           180,
-          1200,
+          850,
           180
         ]
       }
@@ -214,65 +223,65 @@
     "SaltPlateList": [
       {
         "ID": "SP1",
-        "Name": "증발지1-1",
-        "X": 450,
-        "Y": 50,
-        "ImgID": "SaltPlate_B"
+        "Name": "증발지 1A",
+        "X": 230,
+        "Y": 880,
+        "ImgID": "SaltPlate_A"
       },
       {
         "ID": "SP2",
-        "Name": "증발지1-2",
-        "X": 450,
-        "Y": 220,
+        "Name": "증발지 1B",
+        "X": 230,
+        "Y": 660,
         "ImgID": "SaltPlate_A"
       },
       {
         "ID": "SP3",
-        "Name": "증발지1-3",
-        "X": 450,
-        "Y": 390,
+        "Name": "증발지 1C",
+        "X": 230,
+        "Y": 440,
         "ImgID": "SaltPlate_A"
       },
       {
         "ID": "SP4",
-        "Name": "증발지1-4",
-        "X": 450,
-        "Y": 560,
+        "Name": "증발지 1D",
+        "X": 230,
+        "Y": 220,
         "ImgID": "SaltPlate_A"
       },
       {
         "ID": "SP5",
-        "Name": "증발지1-5",
-        "X": 450,
-        "Y": 730,
-        "ImgID": "SaltPlate_A"
+        "Name": "증발지 일반",
+        "X": 230,
+        "Y": 0,
+        "ImgID": "SaltPlate_B"
       },
       {
         "ID": "SP6",
-        "Name": "증발지1",
-        "X": 780,
+        "Name": "증발지 2",
+        "X": 470,
         "Y": 220,
         "ImgID": "SaltPlate_B"
       },
       {
         "ID": "SP7",
-        "Name": "증발지2",
-        "X": 780,
-        "Y": 390,
+        "Name": "증발지 3",
+        "X": 470,
+        "Y": 440,
         "ImgID": "SaltPlate_B"
       },
       {
         "ID": "SP8",
-        "Name": "증발지3",
-        "X": 780,
-        "Y": 560,
+        "Name": "증발지 4",
+        "X": 470,
+        "Y": 660,
         "ImgID": "SaltPlate_B"
       },
       {
         "ID": "SP9",
-        "Name": "결정지1",
-        "X": 780,
-        "Y": 730,
+        "Name": "결정지 1",
+        "X": 470,
+        "Y": 880,
         "ImgID": "SaltPlate_C"
       }
     ],
@@ -280,21 +289,21 @@
       {
         "ID": "WT1",
         "Name": "해주1",
-        "X": 690,
+        "X": 470,
         "Y": 50,
         "ImgID": "WaterTank_A"
       },
       {
         "ID": "WT2",
         "Name": "해주2",
-        "X": 870,
+        "X": 610,
         "Y": 50,
         "ImgID": "WaterTank_A"
       },
       {
         "ID": "WT3",
         "Name": "해주3",
-        "X": 1050,
+        "X": 750,
         "Y": 50,
         "ImgID": "WaterTank_A"
       }
@@ -303,135 +312,142 @@
       {
         "ID": "WD1",
         "Name": "수문1",
-        "X": 610,
-        "Y": 160,
-        "ImgID": "WaterDoor_B"
+        "X": 390,
+        "Y": 1040,
+        "ImgID": "WaterDoor_A"
       },
       {
         "ID": "WD2",
         "Name": "수문2",
-        "X": 610,
-        "Y": 330,
-        "ImgID": "WaterDoor_B"
+        "X": 390,
+        "Y": 820,
+        "ImgID": "WaterDoor_A"
       },
       {
         "ID": "WD3",
         "Name": "수문3",
-        "X": 610,
-        "Y": 500,
-        "ImgID": "WaterDoor_B"
+        "X": 390,
+        "Y": 600,
+        "ImgID": "WaterDoor_A"
       },
       {
         "ID": "WD4",
         "Name": "수문4",
-        "X": 610,
-        "Y": 670,
-        "ImgID": "WaterDoor_B"
+        "X": 310,
+        "Y": 380,
+        "ImgID": "WaterDoor_A"
       },
       {
         "ID": "WD5",
         "Name": "수문5",
-        "X": 610,
-        "Y": 840,
-        "ImgID": "WaterDoor_B"
+        "X": 390,
+        "Y": 160,
+        "ImgID": "WaterDoor_A"
       },
       {
         "ID": "WD6",
         "Name": "수문6",
-        "X": 800,
-        "Y": 360,
-        "ImgID": "WaterDoor_A"
+        "X": 550,
+        "Y": 412,
+        "ImgID": "WaterDoor_B"
       },
       {
         "ID": "WD7",
         "Name": "수문7",
-        "X": 800,
-        "Y": 530,
-        "ImgID": "WaterDoor_A"
+        "X": 550,
+        "Y": 632,
+        "ImgID": "WaterDoor_B"
       },
       {
         "ID": "WD8",
         "Name": "수문8",
-        "X": 940,
-        "Y": 670,
-        "ImgID": "WaterDoor_B"
+        "X": 630,
+        "Y": 820,
+        "ImgID": "WaterDoor_A"
       },
       {
         "ID": "WD9",
         "Name": "수문9",
-        "X": 940,
-        "Y": 840,
-        "ImgID": "WaterDoor_B"
+        "X": 630,
+        "Y": 1040,
+        "ImgID": "WaterDoor_A"
       },
       {
         "ID": "WD10",
         "Name": "수문10",
-        "X": 800,
+        "X": 530,
         "Y": 120,
-        "ImgID": "WaterDoor_B"
+        "ImgID": "WaterDoor_A"
       },
       {
         "ID": "WD11",
         "Name": "수문11",
-        "X": 980,
+        "X": 670,
         "Y": 120,
-        "ImgID": "WaterDoor_B"
+        "ImgID": "WaterDoor_A"
       },
       {
         "ID": "WD12",
         "Name": "수문12",
-        "X": 1160,
+        "X": 810,
         "Y": 120,
-        "ImgID": "WaterDoor_B"
+        "ImgID": "WaterDoor_A"
       },
       {
         "ID": "WD13",
         "Name": "수문13",
-        "X": 840,
+        "X": 570,
         "Y": 160,
-        "ImgID": "WaterDoor_B"
+        "ImgID": "WaterDoor_A"
       },
       {
         "ID": "WD14",
         "Name": "수문14",
-        "X": 1020,
+        "X": 710,
         "Y": 160,
-        "ImgID": "WaterDoor_B"
+        "ImgID": "WaterDoor_A"
       },
       {
         "ID": "WD15",
         "Name": "수문15",
-        "X": 1160,
+        "X": 810,
         "Y": 200,
-        "ImgID": "WaterDoor_B"
+        "ImgID": "WaterDoor_A"
       }
     ],
     "PumpList": [
       {
         "ID": "P1",
         "Name": "펌프1",
-        "X": 260,
-        "Y": 120,
+        "X": 100,
+        "Y": 1140,
         "ImgID": "Pump_A"
       },
       {
         "ID": "P2",
         "Name": "펌프2",
-        "X": 820,
-        "Y": 85,
+        "X": 130,
+        "Y": 950,
         "ImgID": "Pump_A"
       },
       {
         "ID": "P3",
         "Name": "펌프3",
-        "X": 890,
-        "Y": 140,
+        "X": 550,
+        "Y": 70,
         "ImgID": "Pump_A"
       },
       {
         "ID": "P4",
         "Name": "펌프4",
-        "X": 1070,
+        "X": 630,
+        "Y": 140,
+        "ImgID": "Pump_A"
+      },
+      {
+        "ID": "P5",
+        "Name": "펌프5",
+        "X": 770,
         "Y": 140,
         "ImgID": "Pump_A"
       }
@@ -440,264 +456,214 @@
       {
         "ID": "V1",
         "Name": "밸브1",
-        "X": 350,
-        "Y": 120,
+        "X": 250,
+        "Y": 900,
         "ImgID": "Valve_A"
       },
       {
         "ID": "V2",
         "Name": "밸브2",
-        "X": 470,
-        "Y": 120,
+        "X": 250,
+        "Y": 840,
         "ImgID": "Valve_A"
       },
       {
         "ID": "V3",
         "Name": "밸브3",
-        "X": 470,
-        "Y": 350,
+        "X": 250,
+        "Y": 460,
         "ImgID": "Valve_A"
       },
       {
         "ID": "V4",
         "Name": "밸브4",
-        "X": 470,
-        "Y": 410,
+        "X": 250,
+        "Y": 400,
         "ImgID": "Valve_A"
       },
       {
         "ID": "V5",
         "Name": "밸브5",
-        "X": 470,
-        "Y": 690,
-        "ImgID": "Valve_A"
-      },
-      {
-        "ID": "V6",
-        "Name": "밸브6",
-        "X": 470,
-        "Y": 750,
-        "ImgID": "Valve_A"
-      },
-      {
-        "ID": "V7",
-        "Name": "밸브7",
-        "X": 890,
-        "Y": 85,
-        "ImgID": "Valve_A"
-      },
-      {
-        "ID": "V8",
-        "Name": "밸브8",
-        "X": 820,
-        "Y": 240,
-        "ImgID": "Valve_A"
-      },
-      {
-        "ID": "V9",
-        "Name": "밸브9",
-        "X": 820,
-        "Y": 750,
+        "X": 250,
+        "Y": 180,
         "ImgID": "Valve_A"
       }
     ],
     "PipeList": [
       {
-        "ID": "PL1",
+        "ID": "SPL1",
         "Name": "PL1",
         "ImgID": "PipeList_A",
         "Points": [
-          280,
-          120,
-          330,
-          120
+          100,
+          1080,
+          100,
+          1120
         ]
       },
       {
-        "ID": "PL2",
+        "ID": "SPL2",
         "Name": "PL2",
         "ImgID": "PipeList_A",
         "Points": [
-          370,
-          120,
-          410,
-          120
+          150,
+          950,
+          190,
+          950
         ]
       },
       {
-        "ID": "PL3",
+        "ID": "SPL3",
         "Name": "PL3",
         "ImgID": "PipeList_A",
         "Points": [
-          410,
-          120,
-          450,
-          120
+          190,
+          870,
+          190,
+          950
         ]
       },
       {
-        "ID": "PL4",
+        "ID": "SPL4",
         "Name": "PL4",
         "ImgID": "PipeList_A",
         "Points": [
-          410,
-          120,
-          410,
-          380
+          190,
+          870,
+          250,
+          870
         ]
       },
       {
-        "ID": "PL5",
+        "ID": "SPL5",
         "Name": "PL5",
         "ImgID": "PipeList_A",
         "Points": [
-          410,
-          380,
-          410,
-          720
+          250,
+          850,
+          250,
+          870
         ]
       },
       {
-        "ID": "PL6",
+        "ID": "SPL6",
         "Name": "PL6",
         "ImgID": "PipeList_A",
         "Points": [
-          410,
-          380,
-          470,
-          380
+          250,
+          870,
+          250,
+          890
         ]
       },
       {
-        "ID": "PL7",
+        "ID": "SPL7",
         "Name": "PL7",
         "ImgID": "PipeList_A",
         "Points": [
-          410,
-          720,
-          470,
-          720
+          190,
+          430,
+          190,
+          870
         ]
       },
       {
-        "ID": "PL8",
+        "ID": "SPL8",
         "Name": "PL8",
         "ImgID": "PipeList_A",
         "Points": [
-          470,
-          370,
-          470,
-          380
+          190,
+          430,
+          250,
+          430
         ]
       },
       {
-        "ID": "PL9",
+        "ID": "SPL9",
         "Name": "PL9",
         "ImgID": "PipeList_A",
         "Points": [
-          470,
-          380,
-          470,
-          390
+          250,
+          410,
+          250,
+          430
         ]
       },
       {
-        "ID": "PL10",
+        "ID": "SPL10",
         "Name": "PL10",
         "ImgID": "PipeList_A",
         "Points": [
-          470,
-          710,
-          470,
-          720
+          250,
+          430,
+          250,
+          450
         ]
       },
       {
-        "ID": "PL11",
+        "ID": "SPL11",
         "Name": "PL11",
         "ImgID": "PipeList_A",
         "Points": [
-          470,
-          720,
-          470,
-          730
+          190,
+          180,
+          190,
+          430
         ]
       },
       {
-        "ID": "PL12",
+        "ID": "SPL12",
         "Name": "PL12",
         "ImgID": "PipeList_A",
         "Points": [
-          840,
-          85,
-          870,
-          85
+          190,
+          180,
+          230,
+          180
         ]
       },
       {
-        "ID": "PL13",
+        "ID": "SPL13",
         "Name": "PL13",
         "ImgID": "PipeList_A",
         "Points": [
-          890,
-          160,
-          890,
-          210
+          570,
+          70,
+          610,
+          70
         ]
       },
       {
-        "ID": "PL14",
+        "ID": "SPL14",
         "Name": "PL14",
         "ImgID": "PipeList_A",
         "Points": [
-          890,
-          210,
-          820,
-          210
-        ]
-      },
-      {
-        "ID": "PL15",
-        "Name": "PL15",
-        "ImgID": "PipeList_A",
-        "Points": [
-          820,
-          210,
-          820,
+          630,
+          160,
+          630,
           220
         ]
       },
       {
-        "ID": "PL16",
+        "ID": "SPL15",
+        "Name": "PL15",
+        "ImgID": "PipeList_A",
+        "Points": [
+          770,
+          160,
+          770,
+          680
+        ]
+      },
+      {
+        "ID": "SPL16",
         "Name": "PL16",
         "ImgID": "PipeList_A",
         "Points": [
-          1070,
-          160,
-          1070,
-          720
-        ]
-      },
-      {
-        "ID": "PL17",
-        "Name": "PL17",
-        "ImgID": "PipeList_A",
-        "Points": [
-          1070,
-          720,
-          820,
-          720
-        ]
-      },
-      {
-        "ID": "PL18",
-        "Name": "PL18",
-        "ImgID": "PipeList_A",
-        "Points": [
-          820,
-          720,
-          820,
-          730
+          670,
+          680,
+          770,
+          680
         ]
       }
     ],
@@ -705,9 +671,16 @@
       {
         "ID": "WO1",
         "Name": "바다",
-        "X": 1100,
-        "Y": 200,
+        "X": 50,
+        "Y": 1120,
         "ImgID": "WaterOut_A"
+      },
+      {
+        "ID": "WO2",
+        "Name": "바다",
+        "X": 750,
+        "Y": 200,
+        "ImgID": "WaterOut_B"
       }
     ],
     "WaterWayList": [
@@ -716,260 +689,218 @@
     "SaltRateSensorList": [
       {
         "ID": "S1",
-        "Name": "염도1",
-        "X": 550,
-        "Y": 145,
+        "Name": "염도 1",
+        "X": 572,
+        "Y": 740,
         "ImgID": "SRSensor"
       },
       {
         "ID": "S2",
-        "Name": "염도2",
-        "X": 550,
-        "Y": 315,
+        "Name": "염도 2",
+        "X": 522,
+        "Y": 94,
         "ImgID": "SRSensor"
       },
       {
         "ID": "S3",
-        "Name": "염도3",
-        "X": 550,
-        "Y": 485,
+        "Name": "염도 3",
+        "X": 662,
+        "Y": 94,
         "ImgID": "SRSensor"
       },
       {
         "ID": "S4",
-        "Name": "염도4",
-        "X": 550,
-        "Y": 655,
-        "ImgID": "SRSensor"
-      },
-      {
-        "ID": "S5",
-        "Name": "염도5",
-        "X": 550,
-        "Y": 825,
-        "ImgID": "SRSensor"
-      },
-      {
-        "ID": "S6",
-        "Name": "염도6",
-        "X": 880,
-        "Y": 315,
-        "ImgID": "SRSensor"
-      },
-      {
-        "ID": "S7",
-        "Name": "염도7",
-        "X": 880,
-        "Y": 485,
-        "ImgID": "SRSensor"
-      },
-      {
-        "ID": "S8",
-        "Name": "염도8",
-        "X": 880,
-        "Y": 655,
-        "ImgID": "SRSensor"
-      },
-      {
-        "ID": "S9",
-        "Name": "염도9",
-        "X": 880,
-        "Y": 825,
+        "Name": "염도 4",
+        "X": 802,
+        "Y": 94,
         "ImgID": "SRSensor"
       }
     ],
     "WaterLevelSensorList": [
       {
         "ID": "WL1",
-        "Name": "수위1",
-        "X": 500,
-        "Y": 145,
+        "Name": "수위 1",
+        "X": 283,
+        "Y": 960,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL2",
-        "Name": "수위2",
-        "X": 500,
-        "Y": 315,
+        "Name": "수위 2",
+        "X": 283,
+        "Y": 740,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL3",
-        "Name": "수위3",
-        "X": 500,
-        "Y": 485,
+        "Name": "수위 3",
+        "X": 283,
+        "Y": 520,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL4",
-        "Name": "수위4",
-        "X": 500,
-        "Y": 655,
+        "Name": "수위 4",
+        "X": 283,
+        "Y": 300,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL5",
-        "Name": "수위5",
-        "X": 500,
-        "Y": 825,
+        "Name": "수위 5",
+        "X": 283,
+        "Y": 80,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL6",
-        "Name": "수위6",
-        "X": 830,
-        "Y": 315,
+        "Name": "수위 6",
+        "X": 523,
+        "Y": 300,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL7",
-        "Name": "수위7",
-        "X": 830,
-        "Y": 485,
+        "Name": "수위 7",
+        "X": 523,
+        "Y": 520,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL8",
-        "Name": "수위8",
-        "X": 830,
-        "Y": 655,
+        "Name": "수위 8",
+        "X": 523,
+        "Y": 740,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL9",
-        "Name": "수위9",
-        "X": 830,
-        "Y": 825,
+        "Name": "수위 9",
+        "X": 523,
+        "Y": 960,
+        "ImgID": "WLSensor"
+      },
+      {
+        "ID": "WL10",
+        "Name": "수위 10",
+        "X": 473,
+        "Y": 94,
+        "ImgID": "WLSensor"
+      },
+      {
+        "ID": "WL11",
+        "Name": "수위 11",
+        "X": 613,
+        "Y": 94,
+        "ImgID": "WLSensor"
+      },
+      {
+        "ID": "WL12",
+        "Name": "수위 12",
+        "X": 753,
+        "Y": 94,
+        "ImgID": "WLSensor"
+      },
+      {
+        "ID": "WL13",
+        "Name": "수위 13",
+        "X": 53,
+        "Y": 990,
         "ImgID": "WLSensor"
       }
     ],
     "UnderWaterTemperatureList": [
       {
-        "ID": "UWT1",
-        "Name": "수중온도1",
-        "X": 485,
-        "Y": 170,
+        "ID": "UT1",
+        "Name": "수중온도 1",
+        "X": 268,
+        "Y": 1000,
         "ImgID": "UWTemperature"
       },
       {
-        "ID": "UWT2",
-        "Name": "수중온도2",
-        "X": 485,
+        "ID": "UT2",
+        "Name": "수중온도 2",
+        "X": 268,
+        "Y": 780,
+        "ImgID": "UWTemperature"
+      },
+      {
+        "ID": "UT3",
+        "Name": "수중온도 3",
+        "X": 268,
+        "Y": 560,
+        "ImgID": "UWTemperature"
+      },
+      {
+        "ID": "UT4",
+        "Name": "수중온도 4",
+        "X": 268,
         "Y": 340,
         "ImgID": "UWTemperature"
       },
       {
-        "ID": "UWT3",
-        "Name": "수중온도3",
-        "X": 485,
-        "Y": 510,
+        "ID": "UT5",
+        "Name": "수중온도 5",
+        "X": 268,
+        "Y": 120,
         "ImgID": "UWTemperature"
       },
       {
-        "ID": "UWT4",
-        "Name": "수중온도4",
-        "X": 485,
-        "Y": 680,
-        "ImgID": "UWTemperature"
-      },
-      {
-        "ID": "UWT5",
-        "Name": "수중온도5",
-        "X": 485,
-        "Y": 850,
-        "ImgID": "UWTemperature"
-      },
-      {
-        "ID": "UWT6",
-        "Name": "수중온도6",
-        "X": 815,
+        "ID": "UT6",
+        "Name": "수중온도 6",
+        "X": 508,
         "Y": 340,
         "ImgID": "UWTemperature"
       },
       {
-        "ID": "UWT7",
-        "Name": "수중온도7",
-        "X": 815,
-        "Y": 510,
+        "ID": "UT7",
+        "Name": "수중온도 7",
+        "X": 508,
+        "Y": 560,
         "ImgID": "UWTemperature"
       },
       {
-        "ID": "UWT8",
-        "Name": "수중온도8",
-        "X": 815,
-        "Y": 680,
+        "ID": "UT8",
+        "Name": "수중온도 8",
+        "X": 508,
+        "Y": 780,
         "ImgID": "UWTemperature"
       },
       {
-        "ID": "UWT9",
-        "Name": "수중온도9",
-        "X": 815,
-        "Y": 850,
+        "ID": "UT9",
+        "Name": "수중온도 9",
+        "X": 508,
+        "Y": 1000,
         "ImgID": "UWTemperature"
       }
     ],
     "ModuleTemperatureList": [
       {
         "ID": "MT1",
-        "Name": "모듈온도1",
-        "X": 550,
-        "Y": 170,
+        "Name": "모듈온도 1",
+        "X": 332,
+        "Y": 1000,
         "ImgID": "MTemperature"
       },
       {
         "ID": "MT2",
-        "Name": "모듈온도2",
-        "X": 550,
-        "Y": 340,
+        "Name": "모듈온도 2",
+        "X": 332,
+        "Y": 780,
         "ImgID": "MTemperature"
       },
       {
         "ID": "MT3",
-        "Name": "모듈온도3",
-        "X": 550,
-        "Y": 510,
+        "Name": "모듈온도 3",
+        "X": 332,
+        "Y": 560,
         "ImgID": "MTemperature"
       },
       {
         "ID": "MT4",
-        "Name": "모듈온도4",
-        "X": 550,
-        "Y": 680,
-        "ImgID": "MTemperature"
-      },
-      {
-        "ID": "MT5",
-        "Name": "모듈온도5",
-        "X": 550,
-        "Y": 850,
-        "ImgID": "MTemperature"
-      },
-      {
-        "ID": "MT6",
-        "Name": "모듈온도6",
-        "X": 880,
+        "Name": "모듈온도 4",
+        "X": 332,
         "Y": 340,
-        "ImgID": "MTemperature"
-      },
-      {
-        "ID": "MT7",
-        "Name": "모듈온도7",
-        "X": 880,
-        "Y": 510,
-        "ImgID": "MTemperature"
-      },
-      {
-        "ID": "MT8",
-        "Name": "모듈온도8",
-        "X": 880,
-        "Y": 680,
-        "ImgID": "MTemperature"
-      },
-      {
-        "ID": "MT9",
-        "Name": "모듈온도9",
-        "X": 880,
-        "Y": 850,
         "ImgID": "MTemperature"
       }
     ]

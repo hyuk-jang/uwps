@@ -1,11 +1,11 @@
 
 
 module.exports = {
-  relation: [
+  relation: 
     {
       SaltPlateData: [
         {
-          placeId: 'SP1',
+          ID: 'SP1',
           PlateType: 'Evaporating Pond',
           Depth: 5,
           MinWaterLevel: 1,
@@ -13,7 +13,7 @@ module.exports = {
           SettingSalinity: ''
         },
         {
-          placeId: 'SP2',
+          ID: 'SP2',
           PlateType: 'Evaporating Pond',
           Depth: 5,
           MinWaterLevel: 1,
@@ -21,7 +21,7 @@ module.exports = {
           SettingSalinity: ''
         },
         {
-          placeId: 'SP3',
+          ID: 'SP3',
           PlateType: 'Evaporating Pond',
           Depth: 5,
           MinWaterLevel: 1,
@@ -29,7 +29,7 @@ module.exports = {
           SettingSalinity: ''
         },
         {
-          placeId: 'SP4',
+          ID: 'SP4',
           PlateType: 'Evaporating Pond',
           Depth: 5,
           MinWaterLevel: 1,
@@ -37,7 +37,7 @@ module.exports = {
           SettingSalinity: ''
         },
         {
-          placeId: 'SP5',
+          ID: 'SP5',
           PlateType: 'Evaporating Pond',
           Depth: 5,
           MinWaterLevel: 1,
@@ -45,7 +45,7 @@ module.exports = {
           SettingSalinity: ''
         },
         {
-          placeId: 'SP6',
+          ID: 'SP6',
           PlateType: 'Evaporating Pond',
           Depth: 4,
           MinWaterLevel: 1,
@@ -53,7 +53,7 @@ module.exports = {
           SettingSalinity: ''
         },
         {
-          placeId: 'SP7',
+          ID: 'SP7',
           PlateType: 'Evaporating Pond',
           Depth: 3,
           MinWaterLevel: 1,
@@ -61,7 +61,7 @@ module.exports = {
           SettingSalinity: ''
         },
         {
-          placeId: 'SP8',
+          ID: 'SP8',
           PlateType: 'Evaporating Pond',
           Depth: 2,
           MinWaterLevel: 1,
@@ -69,7 +69,7 @@ module.exports = {
           SettingSalinity: '18'
         },
         {
-          placeId: 'SP9',
+          ID: 'SP9',
           PlateType: 'Crystallizing Pond',
           Depth: 1,
           MinWaterLevel: 1,
@@ -79,7 +79,7 @@ module.exports = {
       ],
       WaterTankData: [
         {
-          placeId: 'WT1',
+          ID: 'WT1',
           TankType: 'Evaporating Pond',
           Depth: -1,
           MinWaterLevel: 1,
@@ -87,7 +87,7 @@ module.exports = {
           SettingSalinity: '5'
         },
         {
-          placeId: 'WT2',
+          ID: 'WT2',
           TankType: 'Evaporating Pond',
           Depth: -1,
           MinWaterLevel: 1,
@@ -95,7 +95,7 @@ module.exports = {
           SettingSalinity: '15'
         },
         {
-          placeId: 'WT3',
+          ID: 'WT3',
           TankType: 'Evaporating Pond',
           Depth: -1,
           MinWaterLevel: 1,
@@ -105,37 +105,37 @@ module.exports = {
       ],
       WaterOutData: [
         {
-          placeId: 'WO1',
+          ID: 'WO1',
           Depth: -1
         },
         {
-          placeId: 'WO2',
+          ID: 'WO2',
           Depth: -1
         }
       ],
       ReservoirData: [
         {
-          placeId: 'RV1',
+          ID: 'RV1',
           Depth: 100,
         }
       ],
       WaterWayData: [
         {
-          placeId: 'WW1',
+          ID: 'WW1',
           Depth: 0.9,
           ListSaltPondLine: [
             'SPL1', 'SPL2'
           ]
         },
         {
-          placeId: 'WW2',
+          ID: 'WW2',
           Depth: 0.8,
           ListSaltPondLine: [
             'SPL3', 'SPL4'
           ]
         },
         {
-          placeId: 'WW3',
+          ID: 'WW3',
           Depth: 0.7,
           ListSaltPondLine: [
             'SPL5'
@@ -144,7 +144,7 @@ module.exports = {
       ]
 
     }
-  ],
+  ,
   objectList: [
     pump = [
       {

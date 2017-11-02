@@ -8,11 +8,14 @@ let imgObjList = map.MAP.ImgObjList;
 
 let finalArr = [];
 
+// MAP 카테고리 초기화
 init();
 // 수문, 펌프, 밸브 위치 재조정
 makeObjList(config.objectList);
 // 수위, 염도, 수중온도, 모듈온도 재조정
 makeValueList(config.valueList);
+// Relation Setting
+makeRelation(config.relation, config.objectList, config.valueList);
 
 BU.writeFile('../autoMap.js', `var Map = ${JSON.stringify(map)}`, 'w', (err, res) => {
   if (err) {
@@ -22,6 +25,11 @@ BU.writeFile('../autoMap.js', `var Map = ${JSON.stringify(map)}`, 'w', (err, res
   BU.CLI('맵 자동생성을 하였습니다.', '../autoMap.js')
 })
 
+/**
+ * Reset 'MAP' category
+ * apply : P, S, UT, V, WD, WL, MT
+ * except: SP, WT, RV, WO, SPL
+ */
 function init() {
   map.MAP.PumpList = [];
   map.MAP.SaltRateSensorList = [];
@@ -56,7 +64,7 @@ function makeObjList(objectList) {
       // Set SETINFO
       let placeSetInfo = getSetInfoParentName(obj.placeId);
       let setInfo = map.SETINFO[placeSetInfo.key];
-      if(setInfo === undefined){
+      if (setInfo === undefined) {
         setInfo = map.SETINFO[placeSetInfo.key] = [];
       }
       if (setInfo[index] === undefined) {
@@ -109,7 +117,7 @@ function makeValueList(valueList) {
       // Set SETINFO
       let placeSetInfo = getSetInfoParentName(cateInfo.id);
       let setInfo = map.SETINFO[placeSetInfo.key];
-      if(setInfo === undefined){
+      if (setInfo === undefined) {
         setInfo = map.SETINFO[placeSetInfo.key] = [];
       }
       if (setInfo[tIndex] === undefined) {
@@ -121,7 +129,7 @@ function makeValueList(valueList) {
           Port: `${placeSetInfo.startPort + tIndex}`
         }
       } else {
-        setInfo[tIndex].ID = obj.placeId;
+        setInfo[tIndex].ID = cateInfo.id + Number(tIndex + 1);
         setInfo[tIndex].Port = `${placeSetInfo.startPort + tIndex}`;
       }
     })
@@ -147,6 +155,67 @@ function getListValueList(index) {
       return { id: 'MT', key: 'MTemperature', list: 'ModuleTemperatureList' };
   }
 }
+
+
+/**
+ * Set Relation
+ * @description Set --> SaltPlateData, WaterTankData, WaterOutData, ReservoirDataj, WaterWayData
+ * @description Except --> ValveRankData, FeedRankData, MaxSalinityFeedRankData
+ * @param {Object} relationInfo 
+ * @param {Array} objectList 
+ * @param {Array} valueList 
+ */
+function makeRelation(relationInfo, objectList, valueList) {
+  // BU.CLI(_.flatten(objectList))
+  // config objectList Array 2차원 -> 1차원
+  let configObjectGroup = _.flatten(objectList);
+  // Base로 깔고 갈 Category
+  const rCategoryList = ['MT', 'UT', 'WD', 'WL', 'S', 'V', 'P'];
+  // config relation object 순회
+  _.each(relationInfo, (rGroup, rKey) => {
+    // Relation Category init
+    map.RELATION[rKey] = [];
+    // config relation category list 순회
+    rGroup.forEach((relationObj, index) => {
+      // base category setting
+      rCategoryList.forEach(ele => relationObj[getRelationParentName(ele)] = [])
+
+      // Water Way Relation 일 경우
+      let locatedIdList = [];
+      if (relationObj.ID.indexOf('WW') !== -1) {
+        locatedIdList = relationObj.ListSaltPondLine;
+      } else {
+        locatedIdList.push(relationObj.ID)
+      }
+
+      // config flatten objectList 순회 후 relation과 관계가 있다면 저장
+      configObjectGroup.forEach(configObj => {
+        if (_.intersection(locatedIdList, configObj.locatedIdList).length) {
+          relationObj[getRelationParentName(configObj.placeId)].push(configObj.placeId)
+        }
+      })
+
+      // config valueList 순회 후 relation과 관계가 있다면 저장
+      valueList.forEach((cateList, cateIndex) => {
+        let cateInfo = getListValueList(cateIndex);
+        cateList.forEach((targetId, tIndex) => {
+          if(locatedIdList.includes(targetId)){
+            relationObj[getRelationParentName(cateInfo.id)].push(cateInfo.id + Number(tIndex + 1))
+          }
+        })
+      })
+      // 최종 Map Relation Category 별로 Save
+      // relationObj.ID = relationObj.locatedId;
+      // delete relationObj.locatedId;
+      map.RELATION[rKey].push(relationObj);
+    })
+  })
+}
+
+
+
+
+
 
 /**
  * Return Object Name
@@ -239,7 +308,11 @@ function discoverObjectPoint(baseId) {
   return targetPoint;
 }
 
-
+/**
+ * Return an string for writing 'MAP' Category
+ * @param {String} id Object Id => WD1, WD2, P1
+ * @return {String} Map Category
+ */
 function getMapParentName(id) {
   if (id.indexOf('SPL') !== -1)
     return 'SaltPondLineList'
@@ -259,6 +332,11 @@ function getMapParentName(id) {
     return 'PumpList'
 }
 
+/**
+ * Return an object for writing 'SETINFO'
+ * @param {String} id Object Id => WD1, WD2, P1
+ * @return {Object} {key, startPort}
+ */
 function getSetInfoParentName(id) {
   if (id.indexOf('WD') !== -1)
     return { key: 'WaterDoorData', startPort: 11001 }
@@ -274,4 +352,30 @@ function getSetInfoParentName(id) {
     return { key: 'ValveData', startPort: 14001 }
   else if (id.indexOf('P') !== -1)
     return { key: 'PumpData', startPort: 15001 }
+}
+
+
+
+/**
+ * Return an object for writing 'RELATION'
+ * @param {String} id Object Id => WD1, WD2, P1
+ * @return {String} Category
+ */
+function getRelationParentName(id) {
+  if (id.indexOf('SPL') !== -1)
+    return 'ListSaltPondLine'
+  else if (id.indexOf('MT') !== -1)
+    return 'ListModuleTemperature'
+  else if (id.indexOf('UT') !== -1)
+    return 'ListUnderWaterTemperature'
+  else if (id.indexOf('WD') !== -1)
+    return 'ListWaterDoor'
+  else if (id.indexOf('WL') !== -1)
+    return 'ListWaterLevel'
+  else if (id.indexOf('S') !== -1)
+    return 'ListSalinity'
+  else if (id.indexOf('V') !== -1)
+    return 'ListValve'
+  else if (id.indexOf('P') !== -1)
+    return 'ListPump'
 }

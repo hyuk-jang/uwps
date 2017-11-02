@@ -1,7 +1,7 @@
 module.exports = {
   "MAP": {
-    "MapSizeX": 1900,
-    "MapSizeY": 1900,
+    "MapSizeX": 880,
+    "MapSizeY": 1230,
     "ImgObjList": [
       {
         "ID": "Reservoir",
@@ -905,18 +905,421 @@ module.exports = {
       }
     ]
   },
-  "SETINFO": {},
+  "SETINFO": {
+    "PumpData": [
+      {
+        "ID": "P1",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "15001"
+      },
+      {
+        "ID": "P2",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "15002"
+      },
+      {
+        "ID": "P3",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "15003"
+      },
+      {
+        "ID": "P4",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "15004"
+      },
+      {
+        "ID": "P5",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "15005"
+      }
+    ],
+    "ValveData": [
+      {
+        "ID": "V1",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14001"
+      },
+      {
+        "ID": "V2",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14002"
+      },
+      {
+        "ID": "V3",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14003"
+      },
+      {
+        "ID": "V4",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14004"
+      },
+      {
+        "ID": "V5",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14005"
+      }
+    ],
+    "WaterDoorData": [
+      {
+        "ID": "WD1",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11001"
+      },
+      {
+        "ID": "WD2",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11002"
+      },
+      {
+        "ID": "WD3",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11003"
+      },
+      {
+        "ID": "WD4",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11004"
+      },
+      {
+        "ID": "WD5",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11005"
+      },
+      {
+        "ID": "WD6",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11006"
+      },
+      {
+        "ID": "WD7",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11007"
+      },
+      {
+        "ID": "WD8",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11008"
+      },
+      {
+        "ID": "WD9",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11009"
+      },
+      {
+        "ID": "WD10",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11010"
+      },
+      {
+        "ID": "WD11",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11011"
+      },
+      {
+        "ID": "WD12",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11012"
+      },
+      {
+        "ID": "WD13",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11013"
+      },
+      {
+        "ID": "WD14",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11014"
+      },
+      {
+        "ID": "WD15",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11015"
+      }
+    ],
+    "WaterLevelData": [
+      {
+        "ID": "WL1",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12001"
+      },
+      {
+        "ID": "WL2",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12002"
+      },
+      {
+        "ID": "WL3",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12003"
+      },
+      {
+        "ID": "WL4",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12004"
+      },
+      {
+        "ID": "WL5",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12005"
+      },
+      {
+        "ID": "WL6",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12006"
+      },
+      {
+        "ID": "WL7",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12007"
+      },
+      {
+        "ID": "WL8",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12008"
+      },
+      {
+        "ID": "WL9",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12009"
+      },
+      {
+        "ID": "WL10",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12010"
+      },
+      {
+        "ID": "WL11",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12011"
+      },
+      {
+        "ID": "WL12",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12012"
+      },
+      {
+        "ID": "WL13",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12013"
+      }
+    ],
+    "SalinityData": [
+      {
+        "ID": "S1",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13001"
+      },
+      {
+        "ID": "S2",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13002"
+      },
+      {
+        "ID": "S3",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13003"
+      },
+      {
+        "ID": "S4",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13004"
+      }
+    ],
+    "UnderWaterTemperatureData": [
+      {
+        "ID": "UT1",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16001"
+      },
+      {
+        "ID": "UT2",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16002"
+      },
+      {
+        "ID": "UT3",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16003"
+      },
+      {
+        "ID": "UT4",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16004"
+      },
+      {
+        "ID": "UT5",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16005"
+      },
+      {
+        "ID": "UT6",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16006"
+      },
+      {
+        "ID": "UT7",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16007"
+      },
+      {
+        "ID": "UT8",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16008"
+      },
+      {
+        "ID": "UT9",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16009"
+      }
+    ],
+    "ModuleTemperatureData": [
+      {
+        "ID": "MT1",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "17001"
+      },
+      {
+        "ID": "MT2",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "17002"
+      },
+      {
+        "ID": "MT3",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "17003"
+      },
+      {
+        "ID": "MT4",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "17004"
+      }
+    ]
+  },
   "RELATION": {
     "SaltPlateData": [
       {
         "ID": "SP1",
-        "PlateType": "Evaporating Pond 2",
-        "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
-        "SettingSalinity": "",
+        "PlateType": "Evaporating Pond",
         "Depth": 5,
-        "ListValve": [
-          "V2"
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "",
+        "ListModuleTemperature": [
+          "MT1"
+        ],
+        "ListUnderWaterTemperature": [
+          "UT1"
         ],
         "ListWaterDoor": [
           "WD1"
@@ -924,25 +1327,24 @@ module.exports = {
         "ListWaterLevel": [
           "WL1"
         ],
-        "ListSalinity": [
-          "S1"
+        "ListSalinity": [],
+        "ListValve": [
+          "V1"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT1"
-        ],
-        "ListModuleTemperature": [
-          "MT1"
-        ]
+        "ListPump": []
       },
       {
         "ID": "SP2",
-        "PlateType": "Evaporating Pond 1",
-        "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
-        "SettingSalinity": "",
+        "PlateType": "Evaporating Pond",
         "Depth": 5,
-        "ListValve": [
-          "V3"
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "",
+        "ListModuleTemperature": [
+          "MT2"
+        ],
+        "ListUnderWaterTemperature": [
+          "UT2"
         ],
         "ListWaterDoor": [
           "WD2"
@@ -950,25 +1352,24 @@ module.exports = {
         "ListWaterLevel": [
           "WL2"
         ],
-        "ListSalinity": [
-          "S2"
+        "ListSalinity": [],
+        "ListValve": [
+          "V2"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT2"
-        ],
-        "ListModuleTemperature": [
-          "MT2"
-        ]
+        "ListPump": []
       },
       {
         "ID": "SP3",
-        "PlateType": "Evaporating Pond 1",
-        "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
-        "SettingSalinity": "",
+        "PlateType": "Evaporating Pond",
         "Depth": 5,
-        "ListValve": [
-          "V4"
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "",
+        "ListModuleTemperature": [
+          "MT3"
+        ],
+        "ListUnderWaterTemperature": [
+          "UT3"
         ],
         "ListWaterDoor": [
           "WD3"
@@ -976,25 +1377,24 @@ module.exports = {
         "ListWaterLevel": [
           "WL3"
         ],
-        "ListSalinity": [
-          "S3"
+        "ListSalinity": [],
+        "ListValve": [
+          "V3"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT3"
-        ],
-        "ListModuleTemperature": [
-          "MT3"
-        ]
+        "ListPump": []
       },
       {
         "ID": "SP4",
-        "PlateType": "Evaporating Pond 1",
-        "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
-        "SettingSalinity": "",
+        "PlateType": "Evaporating Pond",
         "Depth": 5,
-        "ListValve": [
-          "V5"
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "",
+        "ListModuleTemperature": [
+          "MT4"
+        ],
+        "ListUnderWaterTemperature": [
+          "UT4"
         ],
         "ListWaterDoor": [
           "WD4"
@@ -1002,25 +1402,22 @@ module.exports = {
         "ListWaterLevel": [
           "WL4"
         ],
-        "ListSalinity": [
-          "S4"
+        "ListSalinity": [],
+        "ListValve": [
+          "V4"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT4"
-        ],
-        "ListModuleTemperature": [
-          "MT4"
-        ]
+        "ListPump": []
       },
       {
         "ID": "SP5",
-        "PlateType": "Evaporating Pond 1",
-        "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
-        "SettingSalinity": "",
+        "PlateType": "Evaporating Pond",
         "Depth": 5,
-        "ListValve": [
-          "V6"
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [
+          "UT5"
         ],
         "ListWaterDoor": [
           "WD5"
@@ -1028,25 +1425,22 @@ module.exports = {
         "ListWaterLevel": [
           "WL5"
         ],
-        "ListSalinity": [
-          "S5"
+        "ListSalinity": [],
+        "ListValve": [
+          "V5"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT5"
-        ],
-        "ListModuleTemperature": [
-          "MT5"
-        ]
+        "ListPump": []
       },
       {
         "ID": "SP6",
-        "PlateType": "Evaporating Pond 2",
+        "PlateType": "Evaporating Pond",
+        "Depth": 4,
         "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
+        "MaxWaterLevel": 4,
         "SettingSalinity": "",
-        "Depth": 5,
-        "ListValve": [
-          "V8"
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [
+          "UT6"
         ],
         "ListWaterDoor": [
           "WD6"
@@ -1054,23 +1448,21 @@ module.exports = {
         "ListWaterLevel": [
           "WL6"
         ],
-        "ListSalinity": [
-          "S6"
-        ],
-        "ListUnderWaterTemperature": [
-          "UWT6"
-        ],
-        "ListModuleTemperature": [
-          "MT6"
-        ]
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": []
       },
       {
         "ID": "SP7",
-        "PlateType": "Evaporating Pond 2",
+        "PlateType": "Evaporating Pond",
+        "Depth": 3,
         "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
+        "MaxWaterLevel": 4,
         "SettingSalinity": "",
-        "Depth": 5,
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [
+          "UT7"
+        ],
         "ListWaterDoor": [
           "WD6",
           "WD7"
@@ -1078,49 +1470,44 @@ module.exports = {
         "ListWaterLevel": [
           "WL7"
         ],
-        "ListSalinity": [
-          "S7"
-        ],
-        "ListUnderWaterTemperature": [
-          "UWT7"
-        ],
-        "ListModuleTemperature": [
-          "MT7"
-        ]
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": []
       },
       {
         "ID": "SP8",
-        "PlateType": "Evaporating Pond 2",
+        "PlateType": "Evaporating Pond",
+        "Depth": 2,
         "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
-        "SettingSalinity": "",
-        "Depth": 5,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "18",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [
+          "UT8"
+        ],
         "ListWaterDoor": [
           "WD7",
           "WD8"
         ],
         "ListWaterLevel": [
-          "WL7"
+          "WL8"
         ],
         "ListSalinity": [
-          "S7"
+          "S1"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT7"
-        ],
-        "ListModuleTemperature": [
-          "MT7"
-        ]
+        "ListValve": [],
+        "ListPump": []
       },
       {
         "ID": "SP9",
         "PlateType": "Crystallizing Pond",
+        "Depth": 1,
         "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
+        "MaxWaterLevel": 4,
         "SettingSalinity": "",
-        "Depth": 5,
-        "ListValve": [
-          "V9"
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [
+          "UT9"
         ],
         "ListWaterDoor": [
           "WD9"
@@ -1128,97 +1515,79 @@ module.exports = {
         "ListWaterLevel": [
           "WL9"
         ],
-        "ListSalinity": [
-          "S9"
-        ],
-        "ListUnderWaterTemperature": [
-          "UWT9"
-        ],
-        "ListModuleTemperature": [
-          "MT9"
-        ]
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": []
       }
     ],
     "WaterTankData": [
       {
         "ID": "WT1",
         "TankType": "Evaporating Pond",
-        "SettingSalinity": "",
-        "MinWaterLevel": 20,
-        "MaxWaterLevel": 100,
         "Depth": -1,
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "5",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD10"
-        ],
-        "ListPump": [
-          "P2"
         ],
         "ListWaterLevel": [
           "WL10"
         ],
         "ListSalinity": [
-          "S10"
+          "S2"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT10"
-        ],
-        "ListModuleTemperature": [
-          "MT10"
+        "ListValve": [],
+        "ListPump": [
+          "P3"
         ]
       },
       {
         "ID": "WT2",
         "TankType": "Evaporating Pond",
-        "SettingSalinity": "",
-        "MinWaterLevel": 20,
-        "MaxWaterLevel": 100,
         "Depth": -1,
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "15",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD11"
-        ],
-        "ListValve": [
-          "V7"
-        ],
-        "ListPump": [
-          "P3"
         ],
         "ListWaterLevel": [
           "WL11"
         ],
         "ListSalinity": [
-          "S11"
+          "S3"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT11"
-        ],
-        "ListModuleTemperature": [
-          "MT11"
+        "ListValve": [],
+        "ListPump": [
+          "P4"
         ]
       },
       {
         "ID": "WT3",
         "TankType": "Evaporating Pond",
-        "SettingSalinity": "",
-        "MinWaterLevel": 20,
-        "MaxWaterLevel": 100,
         "Depth": -1,
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "20",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD12"
-        ],
-        "ListPump": [
-          "P4"
         ],
         "ListWaterLevel": [
           "WL12"
         ],
         "ListSalinity": [
-          "S12"
+          "S4"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT12"
-        ],
-        "ListModuleTemperature": [
-          "MT12"
+        "ListValve": [],
+        "ListPump": [
+          "P5"
         ]
       }
     ],
@@ -1226,26 +1595,57 @@ module.exports = {
       {
         "ID": "WO1",
         "Depth": -1,
-        "SettingSalinity": "",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
+        "ListWaterDoor": [],
+        "ListWaterLevel": [],
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": [
+          "P1"
+        ]
+      },
+      {
+        "ID": "WO2",
+        "Depth": -1,
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD15"
-        ]
+        ],
+        "ListWaterLevel": [],
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": []
       }
     ],
     "ReservoirData": [
       {
         "ID": "RV1",
         "Depth": 100,
-        "SettingSalinity": "",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
+        "ListWaterDoor": [],
+        "ListWaterLevel": [
+          "WL13"
+        ],
+        "ListSalinity": [],
+        "ListValve": [],
         "ListPump": [
-          "P1"
+          "P2"
         ]
       }
     ],
     "WaterWayData": [
       {
         "ID": "WW1",
-        "Depth": 0.7,
+        "Depth": 0.9,
+        "ListSaltPondLine": [
+          "SPL1",
+          "SPL2"
+        ],
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD1",
           "WD2",
@@ -1255,14 +1655,20 @@ module.exports = {
           "WD10",
           "WD13"
         ],
-        "ListSaltPondLine": [
-          "SPL1",
-          "SPL3"
-        ]
+        "ListWaterLevel": [],
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": []
       },
       {
         "ID": "WW2",
         "Depth": 0.8,
+        "ListSaltPondLine": [
+          "SPL3",
+          "SPL4"
+        ],
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD8",
           "WD9",
@@ -1270,22 +1676,28 @@ module.exports = {
           "WD13",
           "WD14"
         ],
-        "ListSaltPondLine": [
-          "SPL2",
-          "SPL4"
-        ]
+        "ListWaterLevel": [],
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": []
       },
       {
         "ID": "WW3",
-        "Depth": 0.9,
+        "Depth": 0.7,
+        "ListSaltPondLine": [
+          "SPL5"
+        ],
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD12",
           "WD14",
           "WD15"
         ],
-        "ListSaltPondLine": [
-          "SPL5"
-        ]
+        "ListWaterLevel": [],
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": []
       }
     ],
     "ValveRankData": [

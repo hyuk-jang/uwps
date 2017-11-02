@@ -38,6 +38,10 @@ function init() {
   map.MAP.WaterDoorList = [];
   map.MAP.WaterLevelSensorList = [];
   map.MAP.ModuleTemperatureList = [];
+
+  // SEt Info 강제 초기화 여부
+  map.SETINFO = {};
+  console.log(map.SETINFO)
 }
 
 /**
@@ -170,7 +174,8 @@ function makeRelation(relationInfo, objectList, valueList) {
   // config objectList Array 2차원 -> 1차원
   let configObjectGroup = _.flatten(objectList);
   // Base로 깔고 갈 Category
-  const rCategoryList = ['MT', 'UT', 'WD', 'WL', 'S', 'V', 'P'];
+  // const rCategoryList = ['MT', 'UT', 'WD', 'WL', 'S', 'V', 'P'];
+  const rCategoryList = ['WD', 'WL', 'S', 'V', 'P'];
   // config relation object 순회
   _.each(relationInfo, (rGroup, rKey) => {
     // Relation Category init

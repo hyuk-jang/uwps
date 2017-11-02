@@ -92,14 +92,14 @@ module.exports = function (config) {
             next();
         });
 
-        app.use(function (err, req, res, next) {
-            // console.log(res);
-            res.status(res.status || 500);
-            res.render('error', {
-                message: err.message,
-                error: err
-            });
-        });
+        // app.use(function (err, req, res, next) {
+        //     // console.log(res);
+        //     res.status(res.status || 500);
+        //     res.render('error', {
+        //         message: err.message,
+        //         error: err
+        //     });
+        // });
 
 
 

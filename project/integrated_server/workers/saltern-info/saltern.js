@@ -66,7 +66,7 @@ function Saltern() {
 
         var findSaltern = _.findWhere(salternInfoList, {
             saltern_info_seq: Number(salternSeq),
-            ip: salternIp
+            // ip: salternIp
         });
         
         if (findSaltern == null) {

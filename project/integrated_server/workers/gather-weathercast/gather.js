@@ -38,6 +38,7 @@ module.exports = function (emitter) {
                 BU.readFile("./log/weathercast.txt", "", function (err, result) {
                     // BU.CLI(result)
                     var weatherCastInfo = result;
+                    // BU.CLI(weatherCastInfo)
                     makeWeatherCastModel(JSON.parse(weatherCastInfo));
                     compareWeatherCast(JSON.parse(weatherCastInfo));
                 });

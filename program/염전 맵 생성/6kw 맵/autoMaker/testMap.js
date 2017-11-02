@@ -118,6 +118,15 @@ module.exports = {
         }
       },
       {
+        "ID": "Valve_B",
+        "ImgData": {
+          "Type": "Squares",
+          "fontsizte": 12,
+          "Radius": 20,
+          "Color": "#a5d8f0"
+        }
+      },
+      {
         "ID": "WLSensor",
         "ImgData": {
           "Type": "Rect",
@@ -333,7 +342,7 @@ module.exports = {
       {
         "ID": "WD4",
         "Name": "수문4",
-        "X": 310,
+        "X": 390,
         "Y": 380,
         "ImgID": "WaterDoor_A"
       },
@@ -487,6 +496,34 @@ module.exports = {
         "X": 250,
         "Y": 180,
         "ImgID": "Valve_A"
+      },
+      {
+        "ID": "V6",
+        "Name": "밸브6",
+        "X": 100,
+        "Y": 1060,
+        "ImgID": "Valve_B"
+      },
+      {
+        "ID": "V7",
+        "Name": "밸브7",
+        "X": 630,
+        "Y": 70,
+        "ImgID": "Valve_B"
+      },
+      {
+        "ID": "V8",
+        "Name": "밸브8",
+        "X": 628,
+        "Y": 240,
+        "ImgID": "Valve_B"
+      },
+      {
+        "ID": "V9",
+        "Name": "밸브9",
+        "X": 650,
+        "Y": 900,
+        "ImgID": "Valve_B"
       }
     ],
     "PipeList": [
@@ -652,7 +689,7 @@ module.exports = {
           770,
           160,
           770,
-          680
+          900
         ]
       },
       {
@@ -661,9 +698,9 @@ module.exports = {
         "ImgID": "PipeList_A",
         "Points": [
           670,
-          680,
+          900,
           770,
-          680
+          900
         ]
       }
     ],
@@ -978,6 +1015,34 @@ module.exports = {
         "BoardID": "",
         "IP": "localhost",
         "Port": "14005"
+      },
+      {
+        "ID": "V6",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14006"
+      },
+      {
+        "ID": "V7",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14007"
+      },
+      {
+        "ID": "V8",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14008"
+      },
+      {
+        "ID": "V9",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14009"
       }
     ],
     "WaterDoorData": [
@@ -1449,7 +1514,9 @@ module.exports = {
           "WL6"
         ],
         "ListSalinity": [],
-        "ListValve": [],
+        "ListValve": [
+          "V8"
+        ],
         "ListPump": []
       },
       {
@@ -1516,7 +1583,9 @@ module.exports = {
           "WL9"
         ],
         "ListSalinity": [],
-        "ListValve": [],
+        "ListValve": [
+          "V9"
+        ],
         "ListPump": []
       }
     ],
@@ -1562,7 +1631,9 @@ module.exports = {
         "ListSalinity": [
           "S3"
         ],
-        "ListValve": [],
+        "ListValve": [
+          "V7"
+        ],
         "ListPump": [
           "P4"
         ]
@@ -1630,7 +1701,9 @@ module.exports = {
           "WL13"
         ],
         "ListSalinity": [],
-        "ListValve": [],
+        "ListValve": [
+          "V6"
+        ],
         "ListPump": [
           "P2"
         ]
@@ -1893,5 +1966,739 @@ module.exports = {
         "Rank": []
       }
     ]
+  },
+  "CONTROL": {
+    "SimpleMode": [
+      {
+        "SrcID": "SP1",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD1",
+              "WD10"
+            ],
+            "False": [
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD1",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD1",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD1",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP2",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD2",
+              "WD10"
+            ],
+            "False": [
+              "WD1",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD2",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD1",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD2",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD1",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD2",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD1",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP3",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD3",
+              "WD10"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD4",
+              "WD5",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD3",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD3",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD3",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP4",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD4",
+              "WD10"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD5",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD4",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD4",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD4",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP5",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD5",
+              "WD10"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD5",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD5",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD5",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP6",
+        "DesList": [
+          {
+            "DesID": "SP7",
+            "Type": "Common",
+            "True": [
+              "WD6"
+            ],
+            "False": [
+              "WD7"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP7",
+        "DesList": [
+          {
+            "DesID": "SP8",
+            "Type": "Common",
+            "True": [
+              "WD7"
+            ],
+            "False": [
+              "WD6",
+              "WD8"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP8",
+        "DesList": [
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD8",
+              "WD11"
+            ],
+            "False": [
+              "WD7",
+              "WD9",
+              "WD13",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD8",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD7",
+              "WD9",
+              "WD13",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD8",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD7",
+              "WD9",
+              "WD13",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP9",
+        "DesList": [
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD9",
+              "WD11"
+            ],
+            "False": [
+              "WD8",
+              "WD13",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD9",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD8",
+              "WD13",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD9",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD8",
+              "WD13",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "WO1",
+        "DesList": [
+          {
+            "DesID": "SP2",
+            "Type": "Common",
+            "True": [
+              "P1",
+              "V1",
+              "V2"
+            ],
+            "False": [
+              "WD2"
+            ]
+          },
+          {
+            "DesID": "SP3",
+            "Type": "Common",
+            "True": [
+              "P1",
+              "V1",
+              "V3"
+            ],
+            "False": [
+              "WD3"
+            ]
+          },
+          {
+            "DesID": "SP4",
+            "Type": "Common",
+            "True": [
+              "P1",
+              "V1",
+              "V4"
+            ],
+            "False": [
+              "WD4"
+            ]
+          },
+          {
+            "DesID": "SP5",
+            "Type": "Common",
+            "True": [
+              "P1",
+              "V1",
+              "V5"
+            ],
+            "False": [
+              "WD5"
+            ]
+          },
+          {
+            "DesID": "RV1",
+            "Type": "Common",
+            "True": [
+              "P1",
+              "V1",
+              "V6"
+            ],
+            "False": []
+          }
+        ]
+      },
+      {
+        "SrcID": "RV1",
+        "DesList": [
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "P2",
+              "V7"
+            ],
+            "False": [
+              "WD11"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "WT1",
+        "DesList": [
+          {
+            "DesID": "SP6",
+            "Type": "Common",
+            "True": [
+              "P3",
+              "V8"
+            ],
+            "False": [
+              "WD6",
+              "WD10"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "WT2",
+        "DesList": [
+          {
+            "DesID": "SP9",
+            "Type": "Common",
+            "True": [
+              "P4",
+              "V9"
+            ],
+            "False": [
+              "WD9",
+              "WD11"
+            ]
+          }
+        ]
+      }
+    ],
+    "AutomationMode": [
+      {
+        "Des": "SP9",
+        "Src": [
+          "WT2"
+        ]
+      }
+    ],
+    "SettingMode": [
+      {
+        "ID": "DeviceClose",
+        "True": [],
+        "False": [
+          "WD1",
+          "WD2",
+          "WD3",
+          "WD4",
+          "WD5",
+          "WD6",
+          "WD7",
+          "WD8",
+          "WD9",
+          "WD10",
+          "WD11",
+          "WD12",
+          "WD13",
+          "WD14",
+          "WD15",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6",
+          "V7",
+          "V8",
+          "V9",
+          "P1",
+          "P2",
+          "P3",
+          "P4",
+          "P5"
+        ]
+      },
+      {
+        "ID": "GoToSea",
+        "True": [
+          "WD1",
+          "WD2",
+          "WD3",
+          "WD4",
+          "WD5",
+          "WD6",
+          "WD7",
+          "WD8",
+          "WD9",
+          "WD13",
+          "WD14",
+          "WD15"
+        ],
+        "False": [
+          "WD10",
+          "WD11",
+          "WD12",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6",
+          "V7",
+          "V8",
+          "V9",
+          "P1",
+          "P2",
+          "P3",
+          "P4",
+          "P5"
+        ]
+      }
+    ],
+    "RainMode": []
   }
 }

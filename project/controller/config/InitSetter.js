@@ -52,6 +52,7 @@ class InitSetter {
     if (this.config.hasExchangeKey) {
       // BU.CLI('exchangeKey')
       let exchangeUrl = `${this.config.webServerUrl}/api/exchange-key/${this.config.identificationNum}`;
+      // BU.CLI('exchangeUrl',exchangeUrl)
       let addresses = [];
       let interfaces = os.networkInterfaces();
       for (let k in interfaces) {
@@ -62,6 +63,7 @@ class InitSetter {
           }
         }
       }
+
       // 키 교환 수행
       request.post(exchangeUrl, {
         json: {
@@ -69,6 +71,7 @@ class InitSetter {
           pub_key: this.config.cryptoInfo.alicePub
         }
       }, (error, response, body) => {
+        BU.CLI(error)
         // 에러가 발생할 경우 기존에 저장된 Controller File 정보를 Load
         if (error) {
           BU.errorLog('init', 'exchangeKey Error', error)

@@ -4,6 +4,7 @@ module.exports = function (app, passport) {
     var api = require("./api")(app, passport);
 
     app.get(["/", "/admin"], function (req, res) {
+      BU.CLI('T_T?')
         console.log("connect")
         if (req.user) {
             return res.redirect("/admin/server");

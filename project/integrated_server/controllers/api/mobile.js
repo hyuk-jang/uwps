@@ -84,11 +84,12 @@ module.exports = function () {
                 var workers = req.app.get("workers");
 
                 workers.salternInfo.saltern.emit("getSalternInfo", member_info.saltern_info_seq, function (result) {
-                    BU.CLI(result.bobAliceSecret)
+                    // BU.CLI(result.bobAliceSecret)
                     var enSession_key = BU.encryptAes(session_key, result.bobAliceSecret);
                     var enMember_seq = BU.encryptAes(userInfo.member_seq, result.bobAliceSecret);
                     var saltern_url = "http://" + saltern_info.ip + ":" + saltern_info.web_port + "/api/spics/new-client";
-                    BU.CLIS(enSession_key, enMember_seq)
+                    // BU.CLIS(enSession_key, enMember_seq)
+                    BU.CLI('saltern_url',saltern_url)
                     request.post(
                         saltern_url, {
                             json: {

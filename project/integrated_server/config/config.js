@@ -5,7 +5,7 @@ module.exports = function () {
             NODE_ENV: joi.string()
                 .allow(['development', 'production', 'test', 'provision']),
             DBHOST: joi.string()
-                .default("121.178.26.33"),
+                .default("localhost"),
             DBPORT: joi.number()
                 .default(3306),
             DBNAME: joi.string()
@@ -58,7 +58,8 @@ module.exports = function () {
                 enabled: value.LOGGER_ENABLED
             },
             inteDbInfo: {
-                host: value.DBHOST,
+                // host: value.DBHOST,
+                host: 'localhost',
                 port: value.DBPORT,
                 user: value.DBNAME || "root",
                 password:  value.DBPASSWORD || "akdntm007!",
@@ -66,6 +67,7 @@ module.exports = function () {
             }
             // ...
         }
+        // BU.CLI(config)
         return config;
     });
 }

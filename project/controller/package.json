@@ -6,6 +6,9 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "base-class-jh": "^1.0.0",
+    "base-model-jh": "^1.0.0",
+    "base-util-jh": "^1.0.1",
     "body-parser": "^1.17.2",
     "connect-flash": "^0.1.1",
     "cron": "^1.2.1",

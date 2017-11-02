@@ -229,6 +229,38 @@ module.exports = {
         xMoveScale: 0,
         yMoveScale: 0
       },
+      {
+        placeId: 'V6',
+        locatedIdList: ['RV1'],
+        placeImgId: 'Valve_B',
+        axis: [0.5, 1],
+        xMoveScale: 0,
+        yMoveScale: 0
+      },
+      {
+        placeId: 'V7',
+        locatedIdList: ['WT2'],
+        placeImgId: 'Valve_B',
+        axis: [0, 0],
+        xMoveScale: 0,
+        yMoveScale: 0
+      },
+      {
+        placeId: 'V8',
+        locatedIdList: ['SP6'],
+        placeImgId: 'Valve_B',
+        axis: [1, 0],
+        xMoveScale: -0.55,
+        yMoveScale: 0
+      },
+      {
+        placeId: 'V9',
+        locatedIdList: ['SP9'],
+        placeImgId: 'Valve_B',
+        axis: [1, 0],
+        xMoveScale: 0,
+        yMoveScale: 0
+      },
     ],
     waterDoor = [
       {
@@ -259,7 +291,7 @@ module.exports = {
         placeId: 'WD4',
         locatedIdList: ['SP4', 'SPL1'],
         placeImgId: 'WaterDoor_A',
-        axis: [0.5, 1],
+        axis: [1, 1],
         xMoveScale: 0,
         yMoveScale: 0
       },
@@ -357,8 +389,8 @@ module.exports = {
   [
     waterLevel = ['SP1', 'SP2', 'SP3', 'SP4', 'SP5', 'SP6', 'SP7', 'SP8', 'SP9', 'WT1', 'WT2', 'WT3', 'RV1'],
     salinity = ['SP8', 'WT1', 'WT2', 'WT3'],
-    brineTemperature = ['SP1', 'SP2', 'SP3', 'SP4', 'SP5', 'SP6', 'SP7', 'SP8', 'SP9'],
-    moduleTemperature = ['SP1', 'SP2', 'SP3', 'SP4']
+    // brineTemperature = ['SP1', 'SP2', 'SP3', 'SP4', 'SP5', 'SP6', 'SP7', 'SP8', 'SP9'],
+    // moduleTemperature = ['SP1', 'SP2', 'SP3', 'SP4']
   ]
 
 }

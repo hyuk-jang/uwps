@@ -35,7 +35,7 @@ class SmBuffer {
 
           if (this.smBodyDataLength === this.smBodyData.length) {
             // BU.log(this.smBodyDataLength,this.smBodyData.length)
-            let returnvalue = Buffer.from(this.smBodyData).toString('');
+            let returnvalue = Buffer.from(this.smBodyData).toString('utf-8');
             let remainStr = strdata.substr(this.smBodyDataLength + 6);
             this._initData();
             if(remainStr){

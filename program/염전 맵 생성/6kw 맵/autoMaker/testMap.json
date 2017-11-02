@@ -1,7 +1,7 @@
 {
   "MAP": {
-    "MapSizeX": 1900,
-    "MapSizeY": 1900,
+    "MapSizeX": 880,
+    "MapSizeY": 1230,
     "ImgObjList": [
       {
         "ID": "Reservoir",
@@ -115,6 +115,15 @@
           "fontsizte": 12,
           "Radius": 20,
           "Color": "#efb4ce"
+        }
+      },
+      {
+        "ID": "Valve_B",
+        "ImgData": {
+          "Type": "Squares",
+          "fontsizte": 12,
+          "Radius": 20,
+          "Color": "#a5d8f0"
         }
       },
       {
@@ -333,7 +342,7 @@
       {
         "ID": "WD4",
         "Name": "수문4",
-        "X": 310,
+        "X": 390,
         "Y": 380,
         "ImgID": "WaterDoor_A"
       },
@@ -487,6 +496,34 @@
         "X": 250,
         "Y": 180,
         "ImgID": "Valve_A"
+      },
+      {
+        "ID": "V6",
+        "Name": "밸브6",
+        "X": 100,
+        "Y": 1060,
+        "ImgID": "Valve_B"
+      },
+      {
+        "ID": "V7",
+        "Name": "밸브7",
+        "X": 630,
+        "Y": 70,
+        "ImgID": "Valve_B"
+      },
+      {
+        "ID": "V8",
+        "Name": "밸브8",
+        "X": 628,
+        "Y": 240,
+        "ImgID": "Valve_B"
+      },
+      {
+        "ID": "V9",
+        "Name": "밸브9",
+        "X": 650,
+        "Y": 900,
+        "ImgID": "Valve_B"
       }
     ],
     "PipeList": [
@@ -652,7 +689,7 @@
           770,
           160,
           770,
-          680
+          900
         ]
       },
       {
@@ -661,9 +698,9 @@
         "ImgID": "PipeList_A",
         "Points": [
           670,
-          680,
+          900,
           770,
-          680
+          900
         ]
       }
     ],
@@ -906,543 +943,431 @@
     ]
   },
   "SETINFO": {
-    "WaterDoorData": [
+    "PumpData": [
       {
-        "ID": "WD1",
-        "DeviceType": "Serial",
-        "BoardID": "A05E",
-        "IP": "127.0.0.1",
-        "Port": 11001
-      },
-      {
-        "ID": "WD2",
-        "DeviceType": "Serial",
-        "BoardID": "C7EB",
-        "IP": "127.0.0.1",
-        "Port": 11002
-      },
-      {
-        "ID": "WD3",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 11003
-      },
-      {
-        "ID": "WD4",
-        "DeviceType": "Serial",
-        "BoardID": "7775",
-        "IP": "127.0.0.1",
-        "Port": 11004
-      },
-      {
-        "ID": "WD5",
-        "DeviceType": "Serial",
-        "BoardID": "A060",
-        "IP": "127.0.0.1",
-        "Port": 11005
-      },
-      {
-        "ID": "WD6",
-        "DeviceType": "Serial",
-        "BoardID": "7911",
-        "IP": "127.0.0.1",
-        "Port": 11006
-      },
-      {
-        "ID": "WD7",
-        "DeviceType": "Serial",
-        "BoardID": "78D6",
-        "IP": "127.0.0.1",
-        "Port": 11007
-      },
-      {
-        "ID": "WD8",
-        "DeviceType": "Serial",
-        "BoardID": "7771",
-        "IP": "127.0.0.1",
-        "Port": 11008
-      },
-      {
-        "ID": "WD9",
-        "DeviceType": "Serial",
-        "BoardID": "A05F",
-        "IP": "127.0.0.1",
-        "Port": 11009
-      },
-      {
-        "ID": "WD10",
-        "DeviceType": "Serial",
-        "BoardID": "A05D",
-        "IP": "127.0.0.1",
-        "Port": 11010
-      },
-      {
-        "ID": "WD11",
-        "DeviceType": "Serial",
-        "BoardID": "A0EF",
-        "IP": "127.0.0.1",
-        "Port": 11011
-      },
-      {
-        "ID": "WD12",
-        "DeviceType": "Serial",
-        "BoardID": "A0F1",
-        "IP": "127.0.0.1",
-        "Port": 11012
-      },
-      {
-        "ID": "WD13",
-        "DeviceType": "Serial",
-        "BoardID": "A0F1",
-        "IP": "127.0.0.1",
-        "Port": 11013
-      },
-      {
-        "ID": "WD14",
-        "DeviceType": "Serial",
-        "BoardID": "A0F1",
-        "IP": "127.0.0.1",
-        "Port": 11014
-      },
-      {
-        "ID": "WD15",
-        "DeviceType": "Serial",
-        "BoardID": "A0F1",
-        "IP": "127.0.0.1",
-        "Port": 11015
-      }
-    ],
-    "WaterLevelData": [
-      {
-        "ID": "WL1",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 12001
-      },
-      {
-        "ID": "WL2",
-        "DeviceType": "Serial",
-        "BoardID": "7775",
-        "IP": "127.0.0.1",
-        "Port": 12002
-      },
-      {
-        "ID": "WL3",
-        "DeviceType": "Serial",
-        "BoardID": "A060",
-        "IP": "127.0.0.1",
-        "Port": 12003
-      },
-      {
-        "ID": "WL4",
-        "DeviceType": "Serial",
-        "BoardID": "7911",
-        "IP": "127.0.0.1",
-        "Port": 12004
-      },
-      {
-        "ID": "WL5",
-        "DeviceType": "Serial",
-        "BoardID": "78D6",
-        "IP": "127.0.0.1",
-        "Port": 12005
-      },
-      {
-        "ID": "WL6",
-        "DeviceType": "Serial",
-        "BoardID": "7771",
-        "IP": "127.0.0.1",
-        "Port": 12006
-      },
-      {
-        "ID": "WL7",
+        "ID": "P1",
         "DeviceType": "Socket",
-        "BoardID": "A05F",
-        "IP": "127.0.0.1",
-        "Port": 12007
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "15001"
       },
       {
-        "ID": "WL8",
+        "ID": "P2",
         "DeviceType": "Socket",
-        "BoardID": "A05D",
-        "IP": "127.0.0.1",
-        "Port": 12008
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "15002"
       },
       {
-        "ID": "WL9",
+        "ID": "P3",
         "DeviceType": "Socket",
-        "BoardID": "A05D",
-        "IP": "127.0.0.1",
-        "Port": 12009
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "15003"
       },
       {
-        "ID": "WL10",
+        "ID": "P4",
         "DeviceType": "Socket",
-        "BoardID": "A05D",
-        "IP": "127.0.0.1",
-        "Port": 12010
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "15004"
       },
       {
-        "ID": "WL11",
+        "ID": "P5",
         "DeviceType": "Socket",
-        "BoardID": "A05D",
-        "IP": "127.0.0.1",
-        "Port": 12011
-      },
-      {
-        "ID": "WL12",
-        "DeviceType": "Socket",
-        "BoardID": "A05D",
-        "IP": "127.0.0.1",
-        "Port": 12012
-      }
-    ],
-    "SalinityData": [
-      {
-        "ID": "S1",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 13001
-      },
-      {
-        "ID": "S2",
-        "DeviceType": "Serial",
-        "BoardID": "7775",
-        "IP": "127.0.0.1",
-        "Port": 13002
-      },
-      {
-        "ID": "S3",
-        "DeviceType": "Serial",
-        "BoardID": "A060",
-        "IP": "127.0.0.1",
-        "Port": 13003
-      },
-      {
-        "ID": "S4",
-        "DeviceType": "Serial",
-        "BoardID": "7911",
-        "IP": "127.0.0.1",
-        "Port": 13004
-      },
-      {
-        "ID": "S5",
-        "DeviceType": "Serial",
-        "BoardID": "78D6",
-        "IP": "127.0.0.1",
-        "Port": 13005
-      },
-      {
-        "ID": "S6",
-        "DeviceType": "Serial",
-        "BoardID": "7771",
-        "IP": "127.0.0.1",
-        "Port": 13006
-      },
-      {
-        "ID": "S7",
-        "DeviceType": "Socket",
-        "BoardID": "A05F",
-        "IP": "127.0.0.1",
-        "Port": 13007
-      },
-      {
-        "ID": "S8",
-        "DeviceType": "Socket",
-        "BoardID": "A05D",
-        "IP": "127.0.0.1",
-        "Port": 13008
-      },
-      {
-        "ID": "S9",
-        "DeviceType": "Socket",
-        "BoardID": "A05D",
-        "IP": "127.0.0.1",
-        "Port": 13009
-      },
-      {
-        "ID": "S10",
-        "DeviceType": "Socket",
-        "BoardID": "A05D",
-        "IP": "127.0.0.1",
-        "Port": 13010
-      },
-      {
-        "ID": "S11",
-        "DeviceType": "Socket",
-        "BoardID": "A05D",
-        "IP": "127.0.0.1",
-        "Port": 13011
-      },
-      {
-        "ID": "S12",
-        "DeviceType": "Socket",
-        "BoardID": "A05D",
-        "IP": "127.0.0.1",
-        "Port": 13012
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "15005"
       }
     ],
     "ValveData": [
       {
         "ID": "V1",
-        "DeviceType": "Serial",
-        "BoardID": "C7F3",
-        "IP": "127.0.0.1",
-        "Port": 14001
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14001"
       },
       {
         "ID": "V2",
-        "DeviceType": "Serial",
-        "BoardID": "C7EF",
-        "IP": "127.0.0.1",
-        "Port": 14002
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14002"
       },
       {
         "ID": "V3",
-        "DeviceType": "Serial",
-        "BoardID": "C7F0",
-        "IP": "127.0.0.1",
-        "Port": 14003
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14003"
       },
       {
         "ID": "V4",
-        "DeviceType": "Serial",
-        "BoardID": "C7F4",
-        "IP": "127.0.0.1",
-        "Port": 14004
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14004"
       },
       {
         "ID": "V5",
-        "DeviceType": "Serial",
-        "BoardID": "C7EC",
-        "IP": "127.0.0.1",
-        "Port": 14005
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14005"
       },
       {
         "ID": "V6",
-        "DeviceType": "Serial",
-        "BoardID": "C7ED",
-        "IP": "127.0.0.1",
-        "Port": 14006
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14006"
       },
       {
         "ID": "V7",
-        "DeviceType": "Serial",
-        "BoardID": "C7F4",
-        "IP": "127.0.0.1",
-        "Port": 14007
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14007"
       },
       {
         "ID": "V8",
-        "DeviceType": "Serial",
-        "BoardID": "C7EC",
-        "IP": "127.0.0.1",
-        "Port": 14008
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14008"
       },
       {
         "ID": "V9",
-        "DeviceType": "Serial",
-        "BoardID": "C7ED",
-        "IP": "127.0.0.1",
-        "Port": 14009
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14009"
       }
     ],
-    "PumpData": [
+    "WaterDoorData": [
       {
-        "ID": "P1",
-        "DeviceType": "Serial",
-        "BoardID": "C7F2",
-        "IP": "127.0.0.1",
-        "Port": 15001
+        "ID": "WD1",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11001"
       },
       {
-        "ID": "P2",
-        "DeviceType": "Serial",
-        "BoardID": "C7F1",
-        "IP": "127.0.0.1",
-        "Port": 15002
+        "ID": "WD2",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11002"
       },
       {
-        "ID": "P3",
-        "DeviceType": "Serial",
-        "BoardID": "A0EE",
-        "IP": "127.0.0.1",
-        "Port": 15003
+        "ID": "WD3",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11003"
+      },
+      {
+        "ID": "WD4",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11004"
+      },
+      {
+        "ID": "WD5",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11005"
+      },
+      {
+        "ID": "WD6",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11006"
+      },
+      {
+        "ID": "WD7",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11007"
+      },
+      {
+        "ID": "WD8",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11008"
+      },
+      {
+        "ID": "WD9",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11009"
+      },
+      {
+        "ID": "WD10",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11010"
+      },
+      {
+        "ID": "WD11",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11011"
+      },
+      {
+        "ID": "WD12",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11012"
+      },
+      {
+        "ID": "WD13",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11013"
+      },
+      {
+        "ID": "WD14",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11014"
+      },
+      {
+        "ID": "WD15",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "11015"
+      }
+    ],
+    "WaterLevelData": [
+      {
+        "ID": "WL1",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12001"
+      },
+      {
+        "ID": "WL2",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12002"
+      },
+      {
+        "ID": "WL3",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12003"
+      },
+      {
+        "ID": "WL4",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12004"
+      },
+      {
+        "ID": "WL5",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12005"
+      },
+      {
+        "ID": "WL6",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12006"
+      },
+      {
+        "ID": "WL7",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12007"
+      },
+      {
+        "ID": "WL8",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12008"
+      },
+      {
+        "ID": "WL9",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12009"
+      },
+      {
+        "ID": "WL10",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12010"
+      },
+      {
+        "ID": "WL11",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12011"
+      },
+      {
+        "ID": "WL12",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12012"
+      },
+      {
+        "ID": "WL13",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "12013"
+      }
+    ],
+    "SalinityData": [
+      {
+        "ID": "S1",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13001"
+      },
+      {
+        "ID": "S2",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13002"
+      },
+      {
+        "ID": "S3",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13003"
+      },
+      {
+        "ID": "S4",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13004"
       }
     ],
     "UnderWaterTemperatureData": [
       {
-        "ID": "UWT1",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 16001
+        "ID": "UT1",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16001"
       },
       {
-        "ID": "UWT2",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 16002
+        "ID": "UT2",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16002"
       },
       {
-        "ID": "UWT3",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 16003
+        "ID": "UT3",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16003"
       },
       {
-        "ID": "UWT4",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 16004
+        "ID": "UT4",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16004"
       },
       {
-        "ID": "UWT5",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 16005
+        "ID": "UT5",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16005"
       },
       {
-        "ID": "UWT6",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 16006
+        "ID": "UT6",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16006"
       },
       {
-        "ID": "UWT7",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 16007
+        "ID": "UT7",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16007"
       },
       {
-        "ID": "UWT8",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 16008
+        "ID": "UT8",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16008"
       },
       {
-        "ID": "UWT9",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 16009
-      },
-      {
-        "ID": "UWT10",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 16010
-      },
-      {
-        "ID": "UWT11",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 16011
-      },
-      {
-        "ID": "UWT12",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 16012
+        "ID": "UT9",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "16009"
       }
     ],
     "ModuleTemperatureData": [
       {
         "ID": "MT1",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 17001
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "17001"
       },
       {
         "ID": "MT2",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 17002
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "17002"
       },
       {
         "ID": "MT3",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 17003
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "17003"
       },
       {
         "ID": "MT4",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 17004
-      },
-      {
-        "ID": "MT5",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 17005
-      },
-      {
-        "ID": "MT6",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 17006
-      },
-      {
-        "ID": "MT7",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 17007
-      },
-      {
-        "ID": "MT8",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 17008
-      },
-      {
-        "ID": "MT9",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 17009
-      },
-      {
-        "ID": "MT10",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 17010
-      },
-      {
-        "ID": "MT11",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 17011
-      },
-      {
-        "ID": "MT12",
-        "DeviceType": "Serial",
-        "BoardID": "A0F2",
-        "IP": "127.0.0.1",
-        "Port": 17012
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "17004"
       }
     ]
   },
@@ -1450,13 +1375,16 @@
     "SaltPlateData": [
       {
         "ID": "SP1",
-        "PlateType": "Evaporating Pond 2",
-        "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
-        "SettingSalinity": "",
+        "PlateType": "Evaporating Pond",
         "Depth": 5,
-        "ListValve": [
-          "V2"
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "",
+        "ListModuleTemperature": [
+          "MT1"
+        ],
+        "ListUnderWaterTemperature": [
+          "UT1"
         ],
         "ListWaterDoor": [
           "WD1"
@@ -1464,25 +1392,24 @@
         "ListWaterLevel": [
           "WL1"
         ],
-        "ListSalinity": [
-          "S1"
+        "ListSalinity": [],
+        "ListValve": [
+          "V1"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT1"
-        ],
-        "ListModuleTemperature": [
-          "MT1"
-        ]
+        "ListPump": []
       },
       {
         "ID": "SP2",
-        "PlateType": "Evaporating Pond 1",
-        "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
-        "SettingSalinity": "",
+        "PlateType": "Evaporating Pond",
         "Depth": 5,
-        "ListValve": [
-          "V3"
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "",
+        "ListModuleTemperature": [
+          "MT2"
+        ],
+        "ListUnderWaterTemperature": [
+          "UT2"
         ],
         "ListWaterDoor": [
           "WD2"
@@ -1490,25 +1417,24 @@
         "ListWaterLevel": [
           "WL2"
         ],
-        "ListSalinity": [
-          "S2"
+        "ListSalinity": [],
+        "ListValve": [
+          "V2"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT2"
-        ],
-        "ListModuleTemperature": [
-          "MT2"
-        ]
+        "ListPump": []
       },
       {
         "ID": "SP3",
-        "PlateType": "Evaporating Pond 1",
-        "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
-        "SettingSalinity": "",
+        "PlateType": "Evaporating Pond",
         "Depth": 5,
-        "ListValve": [
-          "V4"
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "",
+        "ListModuleTemperature": [
+          "MT3"
+        ],
+        "ListUnderWaterTemperature": [
+          "UT3"
         ],
         "ListWaterDoor": [
           "WD3"
@@ -1516,25 +1442,24 @@
         "ListWaterLevel": [
           "WL3"
         ],
-        "ListSalinity": [
-          "S3"
+        "ListSalinity": [],
+        "ListValve": [
+          "V3"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT3"
-        ],
-        "ListModuleTemperature": [
-          "MT3"
-        ]
+        "ListPump": []
       },
       {
         "ID": "SP4",
-        "PlateType": "Evaporating Pond 1",
-        "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
-        "SettingSalinity": "",
+        "PlateType": "Evaporating Pond",
         "Depth": 5,
-        "ListValve": [
-          "V5"
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "",
+        "ListModuleTemperature": [
+          "MT4"
+        ],
+        "ListUnderWaterTemperature": [
+          "UT4"
         ],
         "ListWaterDoor": [
           "WD4"
@@ -1542,25 +1467,22 @@
         "ListWaterLevel": [
           "WL4"
         ],
-        "ListSalinity": [
-          "S4"
+        "ListSalinity": [],
+        "ListValve": [
+          "V4"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT4"
-        ],
-        "ListModuleTemperature": [
-          "MT4"
-        ]
+        "ListPump": []
       },
       {
         "ID": "SP5",
-        "PlateType": "Evaporating Pond 1",
-        "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
-        "SettingSalinity": "",
+        "PlateType": "Evaporating Pond",
         "Depth": 5,
-        "ListValve": [
-          "V6"
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [
+          "UT5"
         ],
         "ListWaterDoor": [
           "WD5"
@@ -1568,25 +1490,22 @@
         "ListWaterLevel": [
           "WL5"
         ],
-        "ListSalinity": [
-          "S5"
+        "ListSalinity": [],
+        "ListValve": [
+          "V5"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT5"
-        ],
-        "ListModuleTemperature": [
-          "MT5"
-        ]
+        "ListPump": []
       },
       {
         "ID": "SP6",
-        "PlateType": "Evaporating Pond 2",
+        "PlateType": "Evaporating Pond",
+        "Depth": 4,
         "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
+        "MaxWaterLevel": 4,
         "SettingSalinity": "",
-        "Depth": 5,
-        "ListValve": [
-          "V8"
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [
+          "UT6"
         ],
         "ListWaterDoor": [
           "WD6"
@@ -1594,23 +1513,23 @@
         "ListWaterLevel": [
           "WL6"
         ],
-        "ListSalinity": [
-          "S6"
+        "ListSalinity": [],
+        "ListValve": [
+          "V8"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT6"
-        ],
-        "ListModuleTemperature": [
-          "MT6"
-        ]
+        "ListPump": []
       },
       {
         "ID": "SP7",
-        "PlateType": "Evaporating Pond 2",
+        "PlateType": "Evaporating Pond",
+        "Depth": 3,
         "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
+        "MaxWaterLevel": 4,
         "SettingSalinity": "",
-        "Depth": 5,
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [
+          "UT7"
+        ],
         "ListWaterDoor": [
           "WD6",
           "WD7"
@@ -1618,49 +1537,44 @@
         "ListWaterLevel": [
           "WL7"
         ],
-        "ListSalinity": [
-          "S7"
-        ],
-        "ListUnderWaterTemperature": [
-          "UWT7"
-        ],
-        "ListModuleTemperature": [
-          "MT7"
-        ]
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": []
       },
       {
         "ID": "SP8",
-        "PlateType": "Evaporating Pond 2",
+        "PlateType": "Evaporating Pond",
+        "Depth": 2,
         "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
-        "SettingSalinity": "",
-        "Depth": 5,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "18",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [
+          "UT8"
+        ],
         "ListWaterDoor": [
           "WD7",
           "WD8"
         ],
         "ListWaterLevel": [
-          "WL7"
+          "WL8"
         ],
         "ListSalinity": [
-          "S7"
+          "S1"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT7"
-        ],
-        "ListModuleTemperature": [
-          "MT7"
-        ]
+        "ListValve": [],
+        "ListPump": []
       },
       {
         "ID": "SP9",
         "PlateType": "Crystallizing Pond",
+        "Depth": 1,
         "MinWaterLevel": 1,
-        "MaxWaterLevel": 7,
+        "MaxWaterLevel": 4,
         "SettingSalinity": "",
-        "Depth": 5,
-        "ListValve": [
-          "V9"
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [
+          "UT9"
         ],
         "ListWaterDoor": [
           "WD9"
@@ -1668,97 +1582,83 @@
         "ListWaterLevel": [
           "WL9"
         ],
-        "ListSalinity": [
-          "S9"
+        "ListSalinity": [],
+        "ListValve": [
+          "V9"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT9"
-        ],
-        "ListModuleTemperature": [
-          "MT9"
-        ]
+        "ListPump": []
       }
     ],
     "WaterTankData": [
       {
         "ID": "WT1",
         "TankType": "Evaporating Pond",
-        "SettingSalinity": "",
-        "MinWaterLevel": 20,
-        "MaxWaterLevel": 100,
         "Depth": -1,
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "5",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD10"
-        ],
-        "ListPump": [
-          "P2"
         ],
         "ListWaterLevel": [
           "WL10"
         ],
         "ListSalinity": [
-          "S10"
+          "S2"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT10"
-        ],
-        "ListModuleTemperature": [
-          "MT10"
+        "ListValve": [],
+        "ListPump": [
+          "P3"
         ]
       },
       {
         "ID": "WT2",
         "TankType": "Evaporating Pond",
-        "SettingSalinity": "",
-        "MinWaterLevel": 20,
-        "MaxWaterLevel": 100,
         "Depth": -1,
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "15",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD11"
-        ],
-        "ListValve": [
-          "V7"
-        ],
-        "ListPump": [
-          "P3"
         ],
         "ListWaterLevel": [
           "WL11"
         ],
         "ListSalinity": [
-          "S11"
+          "S3"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT11"
+        "ListValve": [
+          "V7"
         ],
-        "ListModuleTemperature": [
-          "MT11"
+        "ListPump": [
+          "P4"
         ]
       },
       {
         "ID": "WT3",
         "TankType": "Evaporating Pond",
-        "SettingSalinity": "",
-        "MinWaterLevel": 20,
-        "MaxWaterLevel": 100,
         "Depth": -1,
+        "MinWaterLevel": 1,
+        "MaxWaterLevel": 4,
+        "SettingSalinity": "20",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD12"
-        ],
-        "ListPump": [
-          "P4"
         ],
         "ListWaterLevel": [
           "WL12"
         ],
         "ListSalinity": [
-          "S12"
+          "S4"
         ],
-        "ListUnderWaterTemperature": [
-          "UWT12"
-        ],
-        "ListModuleTemperature": [
-          "MT12"
+        "ListValve": [],
+        "ListPump": [
+          "P5"
         ]
       }
     ],
@@ -1766,26 +1666,59 @@
       {
         "ID": "WO1",
         "Depth": -1,
-        "SettingSalinity": "",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
+        "ListWaterDoor": [],
+        "ListWaterLevel": [],
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": [
+          "P1"
+        ]
+      },
+      {
+        "ID": "WO2",
+        "Depth": -1,
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD15"
-        ]
+        ],
+        "ListWaterLevel": [],
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": []
       }
     ],
     "ReservoirData": [
       {
         "ID": "RV1",
         "Depth": 100,
-        "SettingSalinity": "",
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
+        "ListWaterDoor": [],
+        "ListWaterLevel": [
+          "WL13"
+        ],
+        "ListSalinity": [],
+        "ListValve": [
+          "V6"
+        ],
         "ListPump": [
-          "P1"
+          "P2"
         ]
       }
     ],
     "WaterWayData": [
       {
         "ID": "WW1",
-        "Depth": 0.7,
+        "Depth": 0.9,
+        "ListSaltPondLine": [
+          "SPL1",
+          "SPL2"
+        ],
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD1",
           "WD2",
@@ -1795,14 +1728,20 @@
           "WD10",
           "WD13"
         ],
-        "ListSaltPondLine": [
-          "SPL1",
-          "SPL3"
-        ]
+        "ListWaterLevel": [],
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": []
       },
       {
         "ID": "WW2",
         "Depth": 0.8,
+        "ListSaltPondLine": [
+          "SPL3",
+          "SPL4"
+        ],
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD8",
           "WD9",
@@ -1810,22 +1749,28 @@
           "WD13",
           "WD14"
         ],
-        "ListSaltPondLine": [
-          "SPL2",
-          "SPL4"
-        ]
+        "ListWaterLevel": [],
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": []
       },
       {
         "ID": "WW3",
-        "Depth": 0.9,
+        "Depth": 0.7,
+        "ListSaltPondLine": [
+          "SPL5"
+        ],
+        "ListModuleTemperature": [],
+        "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
           "WD12",
           "WD14",
           "WD15"
         ],
-        "ListSaltPondLine": [
-          "SPL5"
-        ]
+        "ListWaterLevel": [],
+        "ListSalinity": [],
+        "ListValve": [],
+        "ListPump": []
       }
     ],
     "ValveRankData": [
@@ -2021,5 +1966,739 @@
         "Rank": []
       }
     ]
+  },
+  "CONTROL": {
+    "SimpleMode": [
+      {
+        "SrcID": "SP1",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD1",
+              "WD10"
+            ],
+            "False": [
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD1",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD1",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD1",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP2",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD2",
+              "WD10"
+            ],
+            "False": [
+              "WD1",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD2",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD1",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD2",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD1",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD2",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD1",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP3",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD3",
+              "WD10"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD4",
+              "WD5",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD3",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD3",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD3",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP4",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD4",
+              "WD10"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD5",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD4",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD4",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD4",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP5",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD5",
+              "WD10"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD5",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD5",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD5",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP6",
+        "DesList": [
+          {
+            "DesID": "SP7",
+            "Type": "Common",
+            "True": [
+              "WD6"
+            ],
+            "False": [
+              "WD7"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP7",
+        "DesList": [
+          {
+            "DesID": "SP8",
+            "Type": "Common",
+            "True": [
+              "WD7"
+            ],
+            "False": [
+              "WD6",
+              "WD8"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP8",
+        "DesList": [
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD8",
+              "WD11"
+            ],
+            "False": [
+              "WD7",
+              "WD9",
+              "WD13",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD8",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD7",
+              "WD9",
+              "WD13",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD8",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD7",
+              "WD9",
+              "WD13",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP9",
+        "DesList": [
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD9",
+              "WD11"
+            ],
+            "False": [
+              "WD8",
+              "WD13",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD9",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD8",
+              "WD13",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD9",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD8",
+              "WD13",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "WO1",
+        "DesList": [
+          {
+            "DesID": "SP2",
+            "Type": "Common",
+            "True": [
+              "P1",
+              "V1",
+              "V2"
+            ],
+            "False": [
+              "WD2"
+            ]
+          },
+          {
+            "DesID": "SP3",
+            "Type": "Common",
+            "True": [
+              "P1",
+              "V1",
+              "V3"
+            ],
+            "False": [
+              "WD3"
+            ]
+          },
+          {
+            "DesID": "SP4",
+            "Type": "Common",
+            "True": [
+              "P1",
+              "V1",
+              "V4"
+            ],
+            "False": [
+              "WD4"
+            ]
+          },
+          {
+            "DesID": "SP5",
+            "Type": "Common",
+            "True": [
+              "P1",
+              "V1",
+              "V5"
+            ],
+            "False": [
+              "WD5"
+            ]
+          },
+          {
+            "DesID": "RV1",
+            "Type": "Common",
+            "True": [
+              "P1",
+              "V1",
+              "V6"
+            ],
+            "False": []
+          }
+        ]
+      },
+      {
+        "SrcID": "RV1",
+        "DesList": [
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "P2",
+              "V7"
+            ],
+            "False": [
+              "WD11"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "WT1",
+        "DesList": [
+          {
+            "DesID": "SP6",
+            "Type": "Common",
+            "True": [
+              "P3",
+              "V8"
+            ],
+            "False": [
+              "WD6",
+              "WD10"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "WT2",
+        "DesList": [
+          {
+            "DesID": "SP9",
+            "Type": "Common",
+            "True": [
+              "P4",
+              "V9"
+            ],
+            "False": [
+              "WD9",
+              "WD11"
+            ]
+          }
+        ]
+      }
+    ],
+    "AutomationMode": [
+      {
+        "Des": "SP9",
+        "Src": [
+          "WT2"
+        ]
+      }
+    ],
+    "SettingMode": [
+      {
+        "ID": "DeviceClose",
+        "True": [],
+        "False": [
+          "WD1",
+          "WD2",
+          "WD3",
+          "WD4",
+          "WD5",
+          "WD6",
+          "WD7",
+          "WD8",
+          "WD9",
+          "WD10",
+          "WD11",
+          "WD12",
+          "WD13",
+          "WD14",
+          "WD15",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6",
+          "V7",
+          "V8",
+          "V9",
+          "P1",
+          "P2",
+          "P3",
+          "P4",
+          "P5"
+        ]
+      },
+      {
+        "ID": "GoToSea",
+        "True": [
+          "WD1",
+          "WD2",
+          "WD3",
+          "WD4",
+          "WD5",
+          "WD6",
+          "WD7",
+          "WD8",
+          "WD9",
+          "WD13",
+          "WD14",
+          "WD15"
+        ],
+        "False": [
+          "WD10",
+          "WD11",
+          "WD12",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6",
+          "V7",
+          "V8",
+          "V9",
+          "P1",
+          "P2",
+          "P3",
+          "P4",
+          "P5"
+        ]
+      }
+    ],
+    "RainMode": []
   }
 }

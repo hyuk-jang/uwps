@@ -6,12 +6,14 @@ module.exports = function () {
 
     // server middleware
     router.use(function (req, res, next) {
+      BU.CLI('Admin Server Router')
         req.locals = DU.makeResObj(req, 1, 10);
         next();
     });
 
     // Read => display a list of all servers
     router.get("/", function (req, res) {
+      BU.CLI('Admin Server')
         biServer.getServerList(req.locals, function (err, result) {
             if (err) {
                 return res.status(500).send();

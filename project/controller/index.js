@@ -3,7 +3,7 @@ const InitSetter = require('./config/InitSetter.js');
 
 const Workers = require('./workers/Control.js');
 const mainConfig = require('./config.js');
-const BU = require('./public/js/util/baseUtil.js');
+const BU = require('base-util-jh').baseUtil;
 const DU = require('./public/js/util/domUtil.js');
 const SU = require('./public/js/util/salternUtil.js');
 global.BU = BU;
@@ -73,7 +73,7 @@ function operationController() {
   app.set('passport', passport);
   app.set('initSetter', initSetter);
 
-  let controller = require('./controllers')(app);
+  require('./controllers')(app);
   app.listen(initSetter.webPort, (req, res) => {
     console.log('Controller Server is Running', initSetter.webPort);
   });

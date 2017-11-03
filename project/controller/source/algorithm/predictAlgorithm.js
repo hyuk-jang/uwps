@@ -1,5 +1,4 @@
-﻿// var BU = require('../util/baseUtil.js');
-var _ = require('underscore');
+﻿var _ = require('underscore');
 
 exports.Algorithm = function () {
     var returnvalue = [];

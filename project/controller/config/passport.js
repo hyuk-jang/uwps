@@ -5,7 +5,7 @@ module.exports = function (app, aliceBobSecret) {
   const request = require('request');
   const crypto = require('crypto');
 
-  const BU = require('../public/js/util/baseUtil.js')
+  const BU = require('base-util-jh').baseUtil;
   // var biAuth = require('../models/auth/auth');
 
   // passport 설정

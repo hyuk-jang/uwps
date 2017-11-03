@@ -1,7 +1,7 @@
 module.exports = function (app) {
   let router = require('express').Router();
 
-  let BU = require('../public/js/util/baseUtil.js');
+  let BU = require('base-util-jh').baseUtil;
   let DU = require('../public/js/util/domUtil.js');
   let SU = require('../public/js/util/salternUtil.js');
   let biMain = require('../models/main.js');

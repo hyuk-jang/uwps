@@ -1,4 +1,4 @@
-const BU = require('./baseUtil.js');
+const BU = require('base-util-jh').baseUtil;
 
 //replaceAll prototype 선언
 String.prototype.replaceAll = function(org, dest) {

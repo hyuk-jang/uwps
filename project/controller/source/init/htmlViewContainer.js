@@ -4,8 +4,6 @@ var util = require('util');
 var fs = require("fs");
 var glob = require("glob");
 
-// var BU = require("../util/baseUtil.js");
-
 var HtmlView = function(){
     events.EventEmitter.call(this);
     var self = this;

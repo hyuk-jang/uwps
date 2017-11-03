@@ -1,5 +1,5 @@
 ﻿var _ = require("underscore");
-var BU = require("../source/util/baseUtil.js");
+var BU = require("base-util-jh").baseUtil;
 var BI = require("../source/db/bi.js")
 var _gcm = require("../source/init/gcm.js");
 require("../source/util/setJavascript.js")

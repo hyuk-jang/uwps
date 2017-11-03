@@ -6,7 +6,7 @@ module.exports = function (app) {
     var biServer = require('../../models/admin/server');
     var biMember = require('../../models/admin/member');
 
-    // var BU = require('../../public/js/util/baseUtil');
+    var BU = require('base-util-jh').baseUtil;
 
     // server middleware
     router.use(function (req, res, next) {

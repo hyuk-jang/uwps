@@ -3,7 +3,7 @@ var events = require('events');
 var util = require('util');
 var net = require("net");
 
-// var BU = require('../util/baseUtil.js');
+const BU = require('base-util-jh').baseUtil;
 var _GCM = require("../init/gcm.js");
 var _Smbuffer = require("../util/smBuffer.js");
 

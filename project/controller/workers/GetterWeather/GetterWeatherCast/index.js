@@ -1,6 +1,6 @@
 const Control = require('./Control.js');
 const config = require("./config.js");
-const BU = require("./baseUtil.js");
+const BU = require('base-util-jh').baseUtil;
 global.BU = BU;
 
 

@@ -3,7 +3,7 @@ var util = require('util');
 var _ = require("underscore");
 var gcm = require('node-gcm');
 
-// var BU = require("../util/baseUtil.js");
+var BU = require("base-util-jh").baseUtil;
 var BI = require("../db/BI.js");
 
 var GCM = function () {

@@ -2,7 +2,7 @@ const router = require('express').Router();
 const _ = require('underscore');
 
 const biApp = require('../../models/api/app.js');
-// const BU = require('../../../public/js/util/baseUtil.js');
+const BU = require('base-util-jh').baseUtil;
 module.exports = function (app) {
   // server middleware
   router.use(function (req, res, next) {

@@ -3,7 +3,7 @@ var events = require('events');
 var util = require('util');
 var fs = require('fs');
 
-// var BU = require('../util/baseUtil.js');
+const BU = require('base-util-jh').baseUtil;
 var Model = require('../model/model.js');
 
 

@@ -4,7 +4,7 @@ module.exports = function (app) {
     var biMap = require('../../models/admin/map');
     var biServer = require('../../models/admin/server');
 
-    var BU = require('../../public/js/util/baseUtil');
+    var BU = require('base-util-jh').baseUtil;
 
     // server middleware
     router.use(function (req, res, next) {

@@ -37,7 +37,7 @@
       database: process.env.SALTERN_DB ? process.env.SALTERN_DB : "saltpond_controller"
     },
     identificationNum: 3,
-    hasExchangeKey: true, // exchangeKey
+    hasExchangeKey: false, // exchangeKey
     hasMapDownload: false, // map download 
     webServerUrl: 'http://115.23.49.28:7505',
     controllerInfo: {},

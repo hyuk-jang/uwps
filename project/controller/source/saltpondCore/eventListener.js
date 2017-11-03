@@ -2,7 +2,7 @@
 var util = require('util');
 var _ = require("underscore");
 
-// var BU = require('../util/baseUtil.js');
+const BU = require('base-util-jh').baseUtil;
 var BI = require('../db/BI.js');
 var _gcm = require("../init/gcm.js");
 var ControlModel = require("./commander.js");

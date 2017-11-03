@@ -1,6 +1,6 @@
 ﻿var _ = require("underscore");
 
-// var BU = require("../util/baseUtil.js");
+var BU = require("base-util-jh").baseUtil;
 var daoC = require("./daoClient.js");
 var setInfo = require("../../config.js").setInfo;
 

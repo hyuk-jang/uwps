@@ -3,7 +3,7 @@ var util = require("util");
 var events = require("events");
 var _ = require("underscore");
 
-// var BU = require('../util/baseUtil.js');
+var BU = require('base-util-jh').baseUtil;
 var _Smbuffer = require("../util/smBuffer.js");
 var IntegratedServer = require("../phantomDevice/deviceIntegratedServer.js");
 

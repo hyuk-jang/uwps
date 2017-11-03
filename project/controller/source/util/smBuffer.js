@@ -1,7 +1,7 @@
 var events = require('events');
 var util = require('util');
 
-// var BU = require("./baseUtil.js");
+const BU = require('base-util-jh').baseUtil;
 
 var SmBuffer = function ()
 {

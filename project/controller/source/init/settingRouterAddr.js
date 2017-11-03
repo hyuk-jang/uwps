@@ -1,5 +1,5 @@
 ﻿var _ = require('underscore');
-// var BU = require("../util/baseUtil.js");
+var BU = require("base-util-jh").baseUtil;
 
 //페이지 설정 하는 곳입니다.
 exports.setAddr = function (app, routes) {

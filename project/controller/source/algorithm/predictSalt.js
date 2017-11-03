@@ -2,7 +2,6 @@
 var util = require('util');
 var _ = require("underscore");
 
-// var BU = require('../util/baseUtil.js');
 var _PredictAlgorithm = require("./predictAlgorithm.js");
 
 var PredictSalt = function (main) {

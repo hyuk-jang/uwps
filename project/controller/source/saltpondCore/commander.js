@@ -3,7 +3,7 @@ var util = require('util');
 var _ = require('underscore');
 
 var _gcm = require("../init/gcm.js");
-// var BU = require('../util/baseUtil.js');
+const BU = require('base-util-jh').baseUtil;
 var BI = require("../db/bi.js")
 
 var ResetSaltpondDeviceID = "DeviceClose";  // 제어 모드가 변경될 경우 장치 상태를 All Off로 변경시키는 예약 명령어

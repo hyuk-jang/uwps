@@ -1,7 +1,7 @@
 module.exports = function (app) {
   let router = require('express').Router();
 
-  let BU = require('../public/js/util/baseUtil.js');
+  let BU = require('base-util-jh').baseUtil;
   let DU = require('../public/js/util/domUtil.js');
   let SU = require('../public/js/util/salternUtil.js');
   let biConnector = require('../models/connector.js');
@@ -23,7 +23,7 @@ module.exports = function (app) {
       if (err) {
         return res.status(500).send(err);
       }
-      BU.CLI(DU.makeTestHtml(req.locals, list))
+      // BU.CLI(DU.makeTestHtml(req.locals, list))
       res.render('./connector/connect.html', DU.makeTestHtml(req.locals, list));
     })
     

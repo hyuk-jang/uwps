@@ -2,7 +2,7 @@
 var util = require('util');
 var _ = require('underscore');
 
-// var BU = require('../util/baseUtil.js');
+var BU = require('base-util-jh').baseUtil;
 var _gcm = require("../init/gcm.js");
 var _CalData = require("../algorithm/calcData.js");
 

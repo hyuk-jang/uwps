@@ -3,7 +3,7 @@ var _ = require("underscore");
 var util = require("util");
 var events = require("events");
 
-// var BU = require('../util/baseUtil.js');
+const BU = require('base-util-jh').baseUtil;
 var _Smbuffer = require("../util/smBuffer.js");
 
 
@@ -190,7 +190,7 @@ var Device_Server = function () {
             Device.IsDeviceServerRun = 0;
         });
         server.on('error', function (err) {
-            BU.CLI(Device);
+            // BU.CLI(Device);
             BU.log('Error occured:', err.message);
             //server.close();
             Device.IsDeviceServerRun = 0;

@@ -76,7 +76,9 @@ function operationController() {
   app.set('initSetter', initSetter);
 
   require('./controllers')(app);
-  app.listen(initSetter.webPort, (req, res) => {
+  // TEST
+  app.listen(7400, (req, res) => {
+  // app.listen(initSetter.webPort, (req, res) => {
     console.log('Controller Server is Running', initSetter.webPort);
   });
 

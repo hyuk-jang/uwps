@@ -1,7 +1,7 @@
 {
   "MAP": {
-    "MapSizeX": 1900,
-    "MapSizeY": 1900,
+    "MapSizeX": 880,
+    "MapSizeY": 1230,
     "ImgObjList": [
       {
         "ID": "Reservoir",
@@ -118,6 +118,15 @@
         }
       },
       {
+        "ID": "Valve_B",
+        "ImgData": {
+          "Type": "Squares",
+          "fontsizte": 12,
+          "Radius": 20,
+          "Color": "#329033"
+        }
+      },
+      {
         "ID": "WLSensor",
         "ImgData": {
           "Type": "Rect",
@@ -151,6 +160,14 @@
           "Width": 60,
           "Height": 20,
           "Color": "#FFFFFF"
+        }
+      },
+      {
+        "ID": "PipeOutlet",
+        "ImgData": {
+          "Type": "Circle",
+          "Radius": 10,
+          "Color": "#4224e4"
         }
       }
     ],
@@ -333,7 +350,7 @@
       {
         "ID": "WD4",
         "Name": "수문4",
-        "X": 310,
+        "X": 390,
         "Y": 380,
         "ImgID": "WaterDoor_A"
       },
@@ -487,11 +504,39 @@
         "X": 250,
         "Y": 180,
         "ImgID": "Valve_A"
+      },
+      {
+        "ID": "V6",
+        "Name": "밸브6",
+        "X": 100,
+        "Y": 1060,
+        "ImgID": "Valve_B"
+      },
+      {
+        "ID": "V7",
+        "Name": "밸브7",
+        "X": 630,
+        "Y": 70,
+        "ImgID": "Valve_B"
+      },
+      {
+        "ID": "V8",
+        "Name": "밸브8",
+        "X": 628,
+        "Y": 240,
+        "ImgID": "Valve_B"
+      },
+      {
+        "ID": "V9",
+        "Name": "밸브9",
+        "X": 650,
+        "Y": 900,
+        "ImgID": "Valve_B"
       }
     ],
     "PipeList": [
       {
-        "ID": "SPL1",
+        "ID": "PL1",
         "Name": "PL1",
         "ImgID": "PipeList_A",
         "Points": [
@@ -502,7 +547,7 @@
         ]
       },
       {
-        "ID": "SPL2",
+        "ID": "PL2",
         "Name": "PL2",
         "ImgID": "PipeList_A",
         "Points": [
@@ -513,7 +558,7 @@
         ]
       },
       {
-        "ID": "SPL3",
+        "ID": "PL3",
         "Name": "PL3",
         "ImgID": "PipeList_A",
         "Points": [
@@ -524,7 +569,7 @@
         ]
       },
       {
-        "ID": "SPL4",
+        "ID": "PL4",
         "Name": "PL4",
         "ImgID": "PipeList_A",
         "Points": [
@@ -535,7 +580,7 @@
         ]
       },
       {
-        "ID": "SPL5",
+        "ID": "PL5",
         "Name": "PL5",
         "ImgID": "PipeList_A",
         "Points": [
@@ -546,7 +591,7 @@
         ]
       },
       {
-        "ID": "SPL6",
+        "ID": "PL6",
         "Name": "PL6",
         "ImgID": "PipeList_A",
         "Points": [
@@ -557,7 +602,7 @@
         ]
       },
       {
-        "ID": "SPL7",
+        "ID": "PL7",
         "Name": "PL7",
         "ImgID": "PipeList_A",
         "Points": [
@@ -568,7 +613,7 @@
         ]
       },
       {
-        "ID": "SPL8",
+        "ID": "PL8",
         "Name": "PL8",
         "ImgID": "PipeList_A",
         "Points": [
@@ -579,7 +624,7 @@
         ]
       },
       {
-        "ID": "SPL9",
+        "ID": "PL9",
         "Name": "PL9",
         "ImgID": "PipeList_A",
         "Points": [
@@ -590,7 +635,7 @@
         ]
       },
       {
-        "ID": "SPL10",
+        "ID": "PL10",
         "Name": "PL10",
         "ImgID": "PipeList_A",
         "Points": [
@@ -601,7 +646,7 @@
         ]
       },
       {
-        "ID": "SPL11",
+        "ID": "PL11",
         "Name": "PL11",
         "ImgID": "PipeList_A",
         "Points": [
@@ -612,7 +657,7 @@
         ]
       },
       {
-        "ID": "SPL12",
+        "ID": "PL12",
         "Name": "PL12",
         "ImgID": "PipeList_A",
         "Points": [
@@ -623,7 +668,7 @@
         ]
       },
       {
-        "ID": "SPL13",
+        "ID": "PL13",
         "Name": "PL13",
         "ImgID": "PipeList_A",
         "Points": [
@@ -634,7 +679,7 @@
         ]
       },
       {
-        "ID": "SPL14",
+        "ID": "PL14",
         "Name": "PL14",
         "ImgID": "PipeList_A",
         "Points": [
@@ -645,25 +690,25 @@
         ]
       },
       {
-        "ID": "SPL15",
+        "ID": "PL15",
         "Name": "PL15",
         "ImgID": "PipeList_A",
         "Points": [
           770,
           160,
           770,
-          680
+          900
         ]
       },
       {
-        "ID": "SPL16",
+        "ID": "PL16",
         "Name": "PL16",
         "ImgID": "PipeList_A",
         "Points": [
           670,
-          680,
+          900,
           770,
-          680
+          900
         ]
       }
     ],
@@ -689,121 +734,184 @@
     "SaltRateSensorList": [
       {
         "ID": "S1",
-        "Name": "염도 1",
+        "Name": "염도1",
+        "X": 332,
+        "Y": 960,
+        "ImgID": "SRSensor"
+      },
+      {
+        "ID": "S2",
+        "Name": "염도2",
+        "X": 332,
+        "Y": 740,
+        "ImgID": "SRSensor"
+      },
+      {
+        "ID": "S3",
+        "Name": "염도3",
+        "X": 332,
+        "Y": 520,
+        "ImgID": "SRSensor"
+      },
+      {
+        "ID": "S4",
+        "Name": "염도4",
+        "X": 332,
+        "Y": 300,
+        "ImgID": "SRSensor"
+      },
+      {
+        "ID": "S5",
+        "Name": "염도5",
+        "X": 332,
+        "Y": 80,
+        "ImgID": "SRSensor"
+      },
+      {
+        "ID": "S6",
+        "Name": "염도6",
+        "X": 572,
+        "Y": 300,
+        "ImgID": "SRSensor"
+      },
+      {
+        "ID": "S7",
+        "Name": "염도7",
+        "X": 572,
+        "Y": 520,
+        "ImgID": "SRSensor"
+      },
+      {
+        "ID": "S8",
+        "Name": "염도8",
         "X": 572,
         "Y": 740,
         "ImgID": "SRSensor"
       },
       {
-        "ID": "S2",
-        "Name": "염도 2",
+        "ID": "S9",
+        "Name": "염도9",
+        "X": 572,
+        "Y": 960,
+        "ImgID": "SRSensor"
+      },
+      {
+        "ID": "S10",
+        "Name": "염도10",
         "X": 522,
         "Y": 94,
         "ImgID": "SRSensor"
       },
       {
-        "ID": "S3",
-        "Name": "염도 3",
+        "ID": "S11",
+        "Name": "염도11",
         "X": 662,
         "Y": 94,
         "ImgID": "SRSensor"
       },
       {
-        "ID": "S4",
-        "Name": "염도 4",
+        "ID": "S12",
+        "Name": "염도12",
         "X": 802,
         "Y": 94,
+        "ImgID": "SRSensor"
+      },
+      {
+        "ID": "S13",
+        "Name": "염도13",
+        "X": 102,
+        "Y": 990,
         "ImgID": "SRSensor"
       }
     ],
     "WaterLevelSensorList": [
       {
         "ID": "WL1",
-        "Name": "수위 1",
+        "Name": "수위1",
         "X": 283,
         "Y": 960,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL2",
-        "Name": "수위 2",
+        "Name": "수위2",
         "X": 283,
         "Y": 740,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL3",
-        "Name": "수위 3",
+        "Name": "수위3",
         "X": 283,
         "Y": 520,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL4",
-        "Name": "수위 4",
+        "Name": "수위4",
         "X": 283,
         "Y": 300,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL5",
-        "Name": "수위 5",
+        "Name": "수위5",
         "X": 283,
         "Y": 80,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL6",
-        "Name": "수위 6",
+        "Name": "수위6",
         "X": 523,
         "Y": 300,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL7",
-        "Name": "수위 7",
+        "Name": "수위7",
         "X": 523,
         "Y": 520,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL8",
-        "Name": "수위 8",
+        "Name": "수위8",
         "X": 523,
         "Y": 740,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL9",
-        "Name": "수위 9",
+        "Name": "수위9",
         "X": 523,
         "Y": 960,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL10",
-        "Name": "수위 10",
+        "Name": "수위10",
         "X": 473,
         "Y": 94,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL11",
-        "Name": "수위 11",
+        "Name": "수위11",
         "X": 613,
         "Y": 94,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL12",
-        "Name": "수위 12",
+        "Name": "수위12",
         "X": 753,
         "Y": 94,
         "ImgID": "WLSensor"
       },
       {
         "ID": "WL13",
-        "Name": "수위 13",
+        "Name": "수위13",
         "X": 53,
         "Y": 990,
         "ImgID": "WLSensor"
@@ -812,63 +920,63 @@
     "UnderWaterTemperatureList": [
       {
         "ID": "UT1",
-        "Name": "수중온도 1",
+        "Name": "수중온도1",
         "X": 268,
         "Y": 1000,
         "ImgID": "UWTemperature"
       },
       {
         "ID": "UT2",
-        "Name": "수중온도 2",
+        "Name": "수중온도2",
         "X": 268,
         "Y": 780,
         "ImgID": "UWTemperature"
       },
       {
         "ID": "UT3",
-        "Name": "수중온도 3",
+        "Name": "수중온도3",
         "X": 268,
         "Y": 560,
         "ImgID": "UWTemperature"
       },
       {
         "ID": "UT4",
-        "Name": "수중온도 4",
+        "Name": "수중온도4",
         "X": 268,
         "Y": 340,
         "ImgID": "UWTemperature"
       },
       {
         "ID": "UT5",
-        "Name": "수중온도 5",
+        "Name": "수중온도5",
         "X": 268,
         "Y": 120,
         "ImgID": "UWTemperature"
       },
       {
         "ID": "UT6",
-        "Name": "수중온도 6",
+        "Name": "수중온도6",
         "X": 508,
         "Y": 340,
         "ImgID": "UWTemperature"
       },
       {
         "ID": "UT7",
-        "Name": "수중온도 7",
+        "Name": "수중온도7",
         "X": 508,
         "Y": 560,
         "ImgID": "UWTemperature"
       },
       {
         "ID": "UT8",
-        "Name": "수중온도 8",
+        "Name": "수중온도8",
         "X": 508,
         "Y": 780,
         "ImgID": "UWTemperature"
       },
       {
         "ID": "UT9",
-        "Name": "수중온도 9",
+        "Name": "수중온도9",
         "X": 508,
         "Y": 1000,
         "ImgID": "UWTemperature"
@@ -877,31 +985,96 @@
     "ModuleTemperatureList": [
       {
         "ID": "MT1",
-        "Name": "모듈온도 1",
+        "Name": "모듈온도1",
         "X": 332,
         "Y": 1000,
         "ImgID": "MTemperature"
       },
       {
         "ID": "MT2",
-        "Name": "모듈온도 2",
+        "Name": "모듈온도2",
         "X": 332,
         "Y": 780,
         "ImgID": "MTemperature"
       },
       {
         "ID": "MT3",
-        "Name": "모듈온도 3",
+        "Name": "모듈온도3",
         "X": 332,
         "Y": 560,
         "ImgID": "MTemperature"
       },
       {
         "ID": "MT4",
-        "Name": "모듈온도 4",
+        "Name": "모듈온도4",
         "X": 332,
         "Y": 340,
         "ImgID": "MTemperature"
+      }
+    ],
+    "PipeOutletList": [
+      {
+        "ID": "PO1",
+        "Name": "배출구1",
+        "X": 250,
+        "Y": 930,
+        "ImgID": "PipeOutlet"
+      },
+      {
+        "ID": "PO2",
+        "Name": "배출구2",
+        "X": 250,
+        "Y": 810,
+        "ImgID": "PipeOutlet"
+      },
+      {
+        "ID": "PO3",
+        "Name": "배출구3",
+        "X": 250,
+        "Y": 490,
+        "ImgID": "PipeOutlet"
+      },
+      {
+        "ID": "PO4",
+        "Name": "배출구4",
+        "X": 250,
+        "Y": 370,
+        "ImgID": "PipeOutlet"
+      },
+      {
+        "ID": "PO5",
+        "Name": "배출구5",
+        "X": 250,
+        "Y": 150,
+        "ImgID": "PipeOutlet"
+      },
+      {
+        "ID": "PO6",
+        "Name": "배출구6",
+        "X": 100,
+        "Y": 1030,
+        "ImgID": "PipeOutlet"
+      },
+      {
+        "ID": "PO7",
+        "Name": "배출구7",
+        "X": 660,
+        "Y": 70,
+        "ImgID": "PipeOutlet"
+      },
+      {
+        "ID": "PO8",
+        "Name": "배출구8",
+        "X": 630,
+        "Y": 270,
+        "ImgID": "PipeOutlet"
+      },
+      {
+        "ID": "PO9",
+        "Name": "배출구9",
+        "X": 650,
+        "Y": 930,
+        "ImgID": "PipeOutlet"
       }
     ]
   },
@@ -978,6 +1151,34 @@
         "BoardID": "",
         "IP": "localhost",
         "Port": "14005"
+      },
+      {
+        "ID": "V6",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14006"
+      },
+      {
+        "ID": "V7",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14007"
+      },
+      {
+        "ID": "V8",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14008"
+      },
+      {
+        "ID": "V9",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "14009"
       }
     ],
     "WaterDoorData": [
@@ -1208,6 +1409,69 @@
         "BoardID": "",
         "IP": "localhost",
         "Port": "13004"
+      },
+      {
+        "ID": "S5",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13005"
+      },
+      {
+        "ID": "S6",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13006"
+      },
+      {
+        "ID": "S7",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13007"
+      },
+      {
+        "ID": "S8",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13008"
+      },
+      {
+        "ID": "S9",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13009"
+      },
+      {
+        "ID": "S10",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13010"
+      },
+      {
+        "ID": "S11",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13011"
+      },
+      {
+        "ID": "S12",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13012"
+      },
+      {
+        "ID": "S13",
+        "DeviceType": "Socket",
+        "BoardID": "",
+        "IP": "localhost",
+        "Port": "13013"
       }
     ],
     "UnderWaterTemperatureData": [
@@ -1327,7 +1591,9 @@
         "ListWaterLevel": [
           "WL1"
         ],
-        "ListSalinity": [],
+        "ListSalinity": [
+          "S1"
+        ],
         "ListValve": [
           "V1"
         ],
@@ -1352,7 +1618,9 @@
         "ListWaterLevel": [
           "WL2"
         ],
-        "ListSalinity": [],
+        "ListSalinity": [
+          "S2"
+        ],
         "ListValve": [
           "V2"
         ],
@@ -1377,7 +1645,9 @@
         "ListWaterLevel": [
           "WL3"
         ],
-        "ListSalinity": [],
+        "ListSalinity": [
+          "S3"
+        ],
         "ListValve": [
           "V3"
         ],
@@ -1402,7 +1672,9 @@
         "ListWaterLevel": [
           "WL4"
         ],
-        "ListSalinity": [],
+        "ListSalinity": [
+          "S4"
+        ],
         "ListValve": [
           "V4"
         ],
@@ -1425,7 +1697,9 @@
         "ListWaterLevel": [
           "WL5"
         ],
-        "ListSalinity": [],
+        "ListSalinity": [
+          "S5"
+        ],
         "ListValve": [
           "V5"
         ],
@@ -1448,8 +1722,12 @@
         "ListWaterLevel": [
           "WL6"
         ],
-        "ListSalinity": [],
-        "ListValve": [],
+        "ListSalinity": [
+          "S6"
+        ],
+        "ListValve": [
+          "V8"
+        ],
         "ListPump": []
       },
       {
@@ -1470,7 +1748,9 @@
         "ListWaterLevel": [
           "WL7"
         ],
-        "ListSalinity": [],
+        "ListSalinity": [
+          "S7"
+        ],
         "ListValve": [],
         "ListPump": []
       },
@@ -1493,7 +1773,7 @@
           "WL8"
         ],
         "ListSalinity": [
-          "S1"
+          "S8"
         ],
         "ListValve": [],
         "ListPump": []
@@ -1515,8 +1795,12 @@
         "ListWaterLevel": [
           "WL9"
         ],
-        "ListSalinity": [],
-        "ListValve": [],
+        "ListSalinity": [
+          "S9"
+        ],
+        "ListValve": [
+          "V9"
+        ],
         "ListPump": []
       }
     ],
@@ -1537,7 +1821,7 @@
           "WL10"
         ],
         "ListSalinity": [
-          "S2"
+          "S10"
         ],
         "ListValve": [],
         "ListPump": [
@@ -1560,9 +1844,11 @@
           "WL11"
         ],
         "ListSalinity": [
-          "S3"
+          "S11"
         ],
-        "ListValve": [],
+        "ListValve": [
+          "V7"
+        ],
         "ListPump": [
           "P4"
         ]
@@ -1583,7 +1869,7 @@
           "WL12"
         ],
         "ListSalinity": [
-          "S4"
+          "S12"
         ],
         "ListValve": [],
         "ListPump": [
@@ -1629,8 +1915,12 @@
         "ListWaterLevel": [
           "WL13"
         ],
-        "ListSalinity": [],
-        "ListValve": [],
+        "ListSalinity": [
+          "S13"
+        ],
+        "ListValve": [
+          "V6"
+        ],
         "ListPump": [
           "P2"
         ]
@@ -1705,25 +1995,36 @@
         "ID": "P1",
         "High": [],
         "Low": [
-          "V1"
+          "V6"
         ]
       },
       {
         "ID": "P2",
         "High": [],
         "Low": [
-          "V7"
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5"
         ]
       },
       {
         "ID": "P3",
         "High": [],
         "Low": [
-          "V8"
+          "V7"
         ]
       },
       {
         "ID": "P4",
+        "High": [],
+        "Low": [
+          "V8"
+        ]
+      },
+      {
+        "ID": "P5",
         "High": [],
         "Low": [
           "V9"
@@ -1732,71 +2033,74 @@
       {
         "ID": "V1",
         "High": [
-          "P1"
+          "P2"
         ],
         "Low": [
-          "V2",
-          "V3",
-          "V4",
-          "V5",
-          "V6"
         ]
       },
       {
         "ID": "V2",
         "High": [
-          "V1"
+          "P2"
         ],
-        "Low": []
+        "Low": [
+        ]
       },
       {
         "ID": "V3",
         "High": [
-          "V1"
+          "P2"
         ],
-        "Low": []
+        "Low": [
+        ]
       },
       {
         "ID": "V4",
         "High": [
-          "V1"
+          "P2"
         ],
-        "Low": []
+        "Low": [
+        ]
       },
       {
         "ID": "V5",
         "High": [
-          "V1"
+          "P2"
         ],
-        "Low": []
+        "Low": [
+        ]
       },
       {
         "ID": "V6",
         "High": [
-          "V1"
+          "P1"
         ],
-        "Low": []
+        "Low": [
+        ]
       },
       {
         "ID": "V7",
         "High": [
-          "P2"
+          "P3"
         ],
-        "Low": []
+        "Low": [
+        ]
       },
       {
         "ID": "V8",
         "High": [
-          "P3"
+          "P4"
         ],
-        "Low": []
+        "Low": [
+        ]
       },
       {
         "ID": "V9",
         "High": [
-          "P4"
+          "P5"
         ],
-        "Low": []
+        "Low": [
+        ]
       }
     ],
     "FeedRankData": [
@@ -1886,7 +2190,10 @@
       },
       {
         "ID": "SP8",
-        "Rank": []
+        "Rank": [
+          "WT3",
+          "WT2"
+        ]
       },
       {
         "ID": "SP9",
@@ -1895,9 +2202,749 @@
     ]
   },
   "CONTROL": {
-    "SimpleMode": [],
-    "AutomationMode": [],
-    "SettingMode": [],
+    "SimpleMode": [
+      {
+        "SrcID": "SP1",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD1",
+              "WD10"
+            ],
+            "False": [
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD1",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD1",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD1",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP2",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD2",
+              "WD10"
+            ],
+            "False": [
+              "WD1",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD2",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD1",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD2",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD1",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD2",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD1",
+              "WD3",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP3",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD3",
+              "WD10"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD4",
+              "WD5",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD3",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD3",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD3",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD4",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP4",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD4",
+              "WD10"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD5",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD4",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD4",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD4",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD5",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP5",
+        "DesList": [
+          {
+            "DesID": "WT1",
+            "Type": "Common",
+            "True": [
+              "WD5",
+              "WD10"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD13"
+            ]
+          },
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD5",
+              "WD13",
+              "WD11"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD5",
+              "WD13",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD5",
+              "WD13",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD1",
+              "WD2",
+              "WD3",
+              "WD4",
+              "WD10",
+              "WD8",
+              "WD9",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP6",
+        "DesList": [
+          {
+            "DesID": "SP7",
+            "Type": "Common",
+            "True": [
+              "WD6"
+            ],
+            "False": [
+              "WD7"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP7",
+        "DesList": [
+          {
+            "DesID": "SP8",
+            "Type": "Common",
+            "True": [
+              "WD7"
+            ],
+            "False": [
+              "WD6",
+              "WD8"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP8",
+        "DesList": [
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD8",
+              "WD11"
+            ],
+            "False": [
+              "WD7",
+              "WD9",
+              "WD13",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD8",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD7",
+              "WD9",
+              "WD13",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD8",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD7",
+              "WD9",
+              "WD13",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "SP9",
+        "DesList": [
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "WD9",
+              "WD11"
+            ],
+            "False": [
+              "WD8",
+              "WD13",
+              "WD14"
+            ]
+          },
+          {
+            "DesID": "WT3",
+            "Type": "Common",
+            "True": [
+              "WD9",
+              "WD14",
+              "WD12"
+            ],
+            "False": [
+              "WD8",
+              "WD13",
+              "WD11",
+              "WD15"
+            ]
+          },
+          {
+            "DesID": "WO2",
+            "Type": "Common",
+            "True": [
+              "WD9",
+              "WD14",
+              "WD15"
+            ],
+            "False": [
+              "WD8",
+              "WD13",
+              "WD11",
+              "WD12"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "WO1",
+        "DesList": [
+          {
+            "DesID": "RV1",
+            "Type": "Common",
+            "True": [
+              "P1",
+              "V6"
+            ],
+            "False": []
+          }
+        ]
+      },
+      {
+        "SrcID": "RV1",
+        "DesList": [
+          {
+            "DesID": "SP1",
+            "Type": "Common",
+            "True": [
+              "P2",
+              "V1"
+            ],
+            "False": [
+              "WD1"
+            ]
+          },
+          {
+            "DesID": "SP2",
+            "Type": "Common",
+            "True": [
+              "P2",
+              "V2"
+            ],
+            "False": [
+              "WD2"
+            ]
+          },
+          {
+            "DesID": "SP3",
+            "Type": "Common",
+            "True": [
+              "P2",
+              "V3"
+            ],
+            "False": [
+              "WD3"
+            ]
+          },
+          {
+            "DesID": "SP4",
+            "Type": "Common",
+            "True": [
+              "P2",
+              "V4"
+            ],
+            "False": [
+              "WD4"
+            ]
+          },
+          {
+            "DesID": "SP5",
+            "Type": "Common",
+            "True": [
+              "P2",
+              "V5"
+            ],
+            "False": [
+              "WD5"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "WT1",
+        "DesList": [
+          {
+            "DesID": "WT2",
+            "Type": "Common",
+            "True": [
+              "P3",
+              "V7"
+            ],
+            "False": [
+              "WD10",
+              "WD11"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "WT2",
+        "DesList": [
+          {
+            "DesID": "SP6",
+            "Type": "Common",
+            "True": [
+              "P4",
+              "V8"
+            ],
+            "False": [
+              "WD6",
+              "WD11"
+            ]
+          }
+        ]
+      },
+      {
+        "SrcID": "WT3",
+        "DesList": [
+          {
+            "DesID": "SP9",
+            "Type": "Common",
+            "True": [
+              "P5",
+              "V9"
+            ],
+            "False": [
+              "WD9",
+              "WD12"
+            ]
+          }
+        ]
+      }
+    ],
+    "AutomationMode": [
+      {
+        "Des": "SP9",
+        "Src": [
+          "WT3"
+        ]
+      }
+    ],
+    "SettingMode": [
+      {
+        "ID": "DeviceClose",
+        "True": [],
+        "False": [
+          "WD1",
+          "WD2",
+          "WD3",
+          "WD4",
+          "WD5",
+          "WD6",
+          "WD7",
+          "WD8",
+          "WD9",
+          "WD10",
+          "WD11",
+          "WD12",
+          "WD13",
+          "WD14",
+          "WD15",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6",
+          "V7",
+          "V8",
+          "V9",
+          "P1",
+          "P2",
+          "P3",
+          "P4",
+          "P5"
+        ]
+      },
+      {
+        "ID": "GoToSea",
+        "True": [
+          "WD1",
+          "WD2",
+          "WD3",
+          "WD4",
+          "WD5",
+          "WD6",
+          "WD7",
+          "WD8",
+          "WD9",
+          "WD13",
+          "WD14",
+          "WD15"
+        ],
+        "False": [
+          "WD10",
+          "WD11",
+          "WD12",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6",
+          "V7",
+          "V8",
+          "V9",
+          "P1",
+          "P2",
+          "P3",
+          "P4",
+          "P5"
+        ]
+      }
+    ],
     "RainMode": []
   }
 }

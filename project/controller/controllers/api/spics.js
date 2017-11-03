@@ -38,7 +38,7 @@ module.exports = function (app) {
 
   // 관제센터로부터 새로운 사용자가 로그인 할 거라고 요청받음
   router.post('/new-client', function (req, res) {
-    console.log('new-client')
+    // console.log('new-client')
     BU.CLI('newClient', req.locals)
 
     // 새로운 사용자가 로그인 할거라고 알려줌

@@ -575,6 +575,8 @@
 
 
 
+      
+
 
 
       var layer = new Kinetic.Layer();
@@ -836,6 +838,60 @@
       }
       // add the layer to the stage
       stage.add(layer);
+
+
+      /**
+       * 
+       * 
+      */
+      var layer = new Kinetic.Layer();
+      var PipeOutletList = Map.MAP.PipeOutletList;
+
+
+      for (var i = 0; i < PipeOutletList.length; i++) {
+
+        var pipeOutlet = PipeOutletList[i];
+        var X = pipeOutlet.X;
+        var Y = pipeOutlet.Y;
+        var Name = pipeOutlet.Name;
+        var ImgData = GetImgObj(pipeOutlet.ImgID).ImgData;
+
+        var circle = new Kinetic.Circle({
+          x: X,
+          y: Y,
+          radius: ImgData.Radius,
+          fill: ImgData.Color,
+          stroke: 'black',
+          strokeWidth: 1
+        });
+
+        var simpleText = new Kinetic.Text({
+          x: X,
+          y: Y,
+          text: Name,
+          fontSize: 15,
+          fontFamily: 'Calibri',
+          fill: 'black'
+        });
+
+        // to align text in the middle of the screen, we can set the
+        // shape offset to the center of the text shape after instantiating it
+        simpleText.offsetX(simpleText.width() / 2);
+        simpleText.offsetY(simpleText.height() / 2);
+
+        // add the shape to the layer
+        layer.add(circle);
+
+        layer.add(simpleText);
+
+
+      }
+      // add the layer to the stage
+      stage.add(layer);
+
+      /**
+       * 
+       */
     }
   </script>
 

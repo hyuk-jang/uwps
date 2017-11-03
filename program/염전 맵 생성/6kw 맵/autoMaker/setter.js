@@ -6,7 +6,7 @@ const config = require('./config');
 
 let imgObjList = map.MAP.ImgObjList;
 
-let finalArr = [];
+
 
 // MAP 카테고리 초기화
 init();
@@ -31,17 +31,11 @@ BU.writeFile('../autoMap.js', `var Map = ${JSON.stringify(map)}`, 'w', (err, res
  * except: SP, WT, RV, WO, SPL
  */
 function init() {
-  map.MAP.PumpList = [];
-  map.MAP.SaltRateSensorList = [];
-  map.MAP.UnderWaterTemperatureList = [];
-  map.MAP.ValveList = [];
-  map.MAP.WaterDoorList = [];
-  map.MAP.WaterLevelSensorList = [];
-  map.MAP.ModuleTemperatureList = [];
+  const initMapList = ['WD', 'WL', 'S', 'V', 'P', 'PO', 'UT', 'MT'];
+  initMapList.forEach(initId => map.MAP[getResource(initId, 'map')] = [])
 
   // SEt Info 강제 초기화 여부
   map.SETINFO = {};
-  console.log(map.SETINFO)
 }
 
 /**
@@ -57,16 +51,22 @@ function makeObjList(objectList) {
       let finalAxis = calcPlacePoint(obj, targetPoint);
 
       // Set MAP
-      map.MAP[getMapParentName(obj.placeId)].push({
+      let numId = obj.placeId.replace(/[a-zA-Z]/g, '');
+      map.MAP[getResource(obj.placeId, 'map')].push({
         ID: obj.placeId,
-        Name: getName(obj.placeId),
+        Name: getResource(obj.placeId, 'name') + numId,
         X: finalAxis[0],
         Y: finalAxis[1],
         ImgID: obj.placeImgId
       })
 
       // Set SETINFO
-      let placeSetInfo = getSetInfoParentName(obj.placeId);
+      let placeSetInfo = getResource(obj.placeId, 'setInfo');
+
+      if(_.isEmpty(placeSetInfo)){
+        return false;
+      }
+
       let setInfo = map.SETINFO[placeSetInfo.key];
       if (setInfo === undefined) {
         setInfo = map.SETINFO[placeSetInfo.key] = [];
@@ -112,14 +112,14 @@ function makeValueList(valueList) {
       // Set MAP
       map.MAP[cateInfo.list].push({
         ID: cateInfo.id + Number(tIndex + 1),
-        Name: `${getName(cateInfo.id)} ${Number(tIndex + 1)}`,
+        Name: `${getResource(cateInfo.id, 'name')}${Number(tIndex + 1)}`,
         X: x,
         Y: y,
         ImgID: cateImgInfo.ID
       })
 
       // Set SETINFO
-      let placeSetInfo = getSetInfoParentName(cateInfo.id);
+      let placeSetInfo = getResource(cateInfo.id, 'setInfo');
       let setInfo = map.SETINFO[placeSetInfo.key];
       if (setInfo === undefined) {
         setInfo = map.SETINFO[placeSetInfo.key] = [];
@@ -174,8 +174,8 @@ function makeRelation(relationInfo, objectList, valueList) {
   // config objectList Array 2차원 -> 1차원
   let configObjectGroup = _.flatten(objectList);
   // Base로 깔고 갈 Category
-  // const rCategoryList = ['MT', 'UT', 'WD', 'WL', 'S', 'V', 'P'];
-  const rCategoryList = ['WD', 'WL', 'S', 'V', 'P'];
+  const rCategoryList = ['MT', 'UT', 'WD', 'WL', 'S', 'V', 'P'];
+  // const rCategoryList = ['WD', 'WL', 'S', 'V', 'P'];
   // config relation object 순회
   _.each(relationInfo, (rGroup, rKey) => {
     // Relation Category init
@@ -183,7 +183,7 @@ function makeRelation(relationInfo, objectList, valueList) {
     // config relation category list 순회
     rGroup.forEach((relationObj, index) => {
       // base category setting
-      rCategoryList.forEach(ele => relationObj[getRelationParentName(ele)] = [])
+      rCategoryList.forEach(ele => relationObj[getResource(ele, 'relation')] = [])
 
       // Water Way Relation 일 경우
       let locatedIdList = [];
@@ -195,8 +195,9 @@ function makeRelation(relationInfo, objectList, valueList) {
 
       // config flatten objectList 순회 후 relation과 관계가 있다면 저장
       configObjectGroup.forEach(configObj => {
-        if (_.intersection(locatedIdList, configObj.locatedIdList).length) {
-          relationObj[getRelationParentName(configObj.placeId)].push(configObj.placeId)
+        let parentName = getResource(configObj.placeId, 'relation');
+        if (_.intersection(locatedIdList, configObj.locatedIdList).length && parentName.length) {
+          relationObj[parentName].push(configObj.placeId)
         }
       })
 
@@ -204,55 +205,17 @@ function makeRelation(relationInfo, objectList, valueList) {
       valueList.forEach((cateList, cateIndex) => {
         let cateInfo = getListValueList(cateIndex);
         cateList.forEach((targetId, tIndex) => {
-          if(locatedIdList.includes(targetId)){
-            relationObj[getRelationParentName(cateInfo.id)].push(cateInfo.id + Number(tIndex + 1))
+          if (locatedIdList.includes(targetId)) {
+            relationObj[getResource(cateInfo.id, 'relation')].push(cateInfo.id + Number(tIndex + 1))
           }
         })
       })
       // 최종 Map Relation Category 별로 Save
-      // relationObj.ID = relationObj.locatedId;
-      // delete relationObj.locatedId;
       map.RELATION[rKey].push(relationObj);
     })
   })
 }
 
-
-
-
-
-
-/**
- * Return Object Name
- * @param {String} id 객체 id (ex) WD1, WD2, P1, P2, V1
- * @return {String} Object Name 
- */
-function getName(id) {
-  // if (id.indexOf('SPL') !== -1)
-  //   return '수로'
-  // else if (id.indexOf('SP') !== -1)
-  //   return '염판'
-  // else if (id.indexOf('WT') !== -1)
-  //   return '해주'
-  // else if (id.indexOf('RV') !== -1)
-  //   return '저수조'
-  // else if (id.indexOf('WO') !== -1)
-  //   return '바다'
-  if (id.indexOf('UT') !== -1)
-    return `수중온도${id.replace('UT', '')}`;
-  else if (id.indexOf('MT') !== -1)
-    return `모듈온도${id.replace('MT', '')}`;
-  else if (id.indexOf('WL') !== -1)
-    return `수위${id.replace('WL', '')}`;
-  else if (id.indexOf('S') !== -1)
-    return `염도${id.replace('S', '')}`;
-  else if (id.indexOf('WD') !== -1)
-    return `수문${id.replace('WD', '')}`;
-  else if (id.indexOf('V') !== -1)
-    return `밸브${id.replace('V', '')}`;
-  else if (id.indexOf('P') !== -1)
-    return `펌프${id.replace('P', '')}`;
-}
 
 /**
  * 대상이 그려질 좌표 정보를 가져옴
@@ -287,7 +250,9 @@ function calcPlacePoint(placeObjInfo, locatedObjPoint) {
  * @return {Array} [x1, y1, x2, y2] Rect 기준으로 가져옴
  */
 function discoverObjectPoint(baseId) {
-  let targetInfo = _.findWhere(map.MAP[getMapParentName(baseId)], { ID: baseId });
+  // BU.CLIS(baseId, getMapParentName(baseId), map.MAP[getMapParentName(baseId)])
+  let targetInfo = _.findWhere(map.MAP[getResource(baseId, 'map')], { ID: baseId });
+  // BU.CLI(targetInfo)
   let imgInfo = _.findWhere(imgObjList, { ID: targetInfo.ImgID });
   // BU.CLI(baseId, imgInfo)
   let imgType = imgInfo.ImgData.Type;
@@ -314,73 +279,12 @@ function discoverObjectPoint(baseId) {
 }
 
 /**
- * Return an string for writing 'MAP' Category
- * @param {String} id Object Id => WD1, WD2, P1
- * @return {String} Map Category
+ * 
+ * @param {String} id WD1, WD2, PO5, WT3....
+ * @param {String} option name, map, setInfo, relation
  */
-function getMapParentName(id) {
-  if (id.indexOf('SPL') !== -1)
-    return 'SaltPondLineList'
-  else if (id.indexOf('SP') !== -1)
-    return 'SaltPlateList'
-  else if (id.indexOf('WT') !== -1)
-    return 'WaterTankList'
-  else if (id.indexOf('RV') !== -1)
-    return 'ReservoirList'
-  else if (id.indexOf('WO') !== -1)
-    return 'WaterOutList'
-  else if (id.indexOf('WD') !== -1)
-    return 'WaterDoorList'
-  else if (id.indexOf('V') !== -1)
-    return 'ValveList'
-  else if (id.indexOf('P') !== -1)
-    return 'PumpList'
-}
+function getResource(id, option){
+  let strId = id.replace(/\d/g, '');
 
-/**
- * Return an object for writing 'SETINFO'
- * @param {String} id Object Id => WD1, WD2, P1
- * @return {Object} {key, startPort}
- */
-function getSetInfoParentName(id) {
-  if (id.indexOf('WD') !== -1)
-    return { key: 'WaterDoorData', startPort: 11001 }
-  else if (id.indexOf('WL') !== -1)
-    return { key: 'WaterLevelData', startPort: 12001 }
-  else if (id.indexOf('UT') !== -1)
-    return { key: 'UnderWaterTemperatureData', startPort: 16001 }
-  else if (id.indexOf('MT') !== -1)
-    return { key: 'ModuleTemperatureData', startPort: 17001 }
-  else if (id.indexOf('S') !== -1)
-    return { key: 'SalinityData', startPort: 13001 }
-  else if (id.indexOf('V') !== -1)
-    return { key: 'ValveData', startPort: 14001 }
-  else if (id.indexOf('P') !== -1)
-    return { key: 'PumpData', startPort: 15001 }
-}
-
-
-
-/**
- * Return an object for writing 'RELATION'
- * @param {String} id Object Id => WD1, WD2, P1
- * @return {String} Category
- */
-function getRelationParentName(id) {
-  if (id.indexOf('SPL') !== -1)
-    return 'ListSaltPondLine'
-  else if (id.indexOf('MT') !== -1)
-    return 'ListModuleTemperature'
-  else if (id.indexOf('UT') !== -1)
-    return 'ListUnderWaterTemperature'
-  else if (id.indexOf('WD') !== -1)
-    return 'ListWaterDoor'
-  else if (id.indexOf('WL') !== -1)
-    return 'ListWaterLevel'
-  else if (id.indexOf('S') !== -1)
-    return 'ListSalinity'
-  else if (id.indexOf('V') !== -1)
-    return 'ListValve'
-  else if (id.indexOf('P') !== -1)
-    return 'ListPump'
+  return config.resource[strId][option];
 }

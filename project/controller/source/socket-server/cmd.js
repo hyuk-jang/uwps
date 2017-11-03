@@ -133,7 +133,7 @@ class CmdServer extends EventEmitter {
       };
 
       //zlog(JSON.stringify(responseObj) );
-      //BU.CLI(responseObj)
+      BU.CLI(responseObj)
       return callback(null, responseObj);
     }
 
@@ -152,7 +152,7 @@ class CmdServer extends EventEmitter {
         "SimpleControlList": SimpleControlList,
         "ShortListAutomation": ShortListAutomation
       };
-      //BU.CLI(responseObj)
+      BU.CLI(responseObj)
       return callback(null, responseObj);
     }
 
@@ -257,7 +257,7 @@ class CmdServer extends EventEmitter {
       //var SendData = BU.makeMessage(SendObj);
       //socket.write(SendData);
       //socket.destroy();
-
+      BU.CLI(responseObj)
       return callback(null, responseObj);
 
     } else if (receiveObj.CMD == "PumpOn") {

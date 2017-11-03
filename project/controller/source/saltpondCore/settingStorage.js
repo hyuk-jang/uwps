@@ -586,6 +586,8 @@ var Salt = function () {
             self.SaltData["ValveRankList"].push(AddObj);
         });
 
+        // BU.CLI(self.SaltData["ValveRankList"])
+
         _.each(mapRelation["FeedRankData"], function (Data) {
             var AddObj = {};
             AddObj["ID"] = Data["ID"];
@@ -595,6 +597,8 @@ var Salt = function () {
             });
             self.SaltData["FeedRankList"].push(AddObj);
         });
+
+        
 
         _.each(mapRelation["MaxSalinityFeedRankData"], function (Data) {
             var AddObj = {};

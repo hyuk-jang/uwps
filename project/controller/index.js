@@ -26,10 +26,12 @@ exchangeInfo()
   .then(res => {
     return downloadMap();
   }, error => {
+    BU.CLI('????')
     BU.errorLog('init', 'exchangeInfo() 실패', error);
     process.exit();
   })
   .then(res => {
+    BU.CLI(res)
     // let workersConfig = 
     initSetter.setterWorkersSetting(mainConfig.workers);
     operationController();
@@ -66,7 +68,7 @@ function downloadMap() {
 
 // 컨트롤러 구동 시작
 function operationController() {
-  // BU.CLI(mainConfig.workers.SocketServer.PushServer.current.port)
+  BU.CLI(mainConfig.workers.SocketServer.PushServer.current.port)
   let app = require('./config/app.js')(initSetter.dbInfo);
   let passport = require('./config/passport.js')(app, initSetter.aliceBobSecret);
   // BU.CLI(initSetter)

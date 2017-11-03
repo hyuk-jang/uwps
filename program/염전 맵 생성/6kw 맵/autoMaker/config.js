@@ -383,14 +383,170 @@ module.exports = {
         xMoveScale: 0,
         yMoveScale: 0
       },
-    ]
+    ],
+    pipeOutlet = [
+      {
+        placeId: 'PO1',
+        locatedIdList: ['SP1'],
+        placeImgId: 'PipeOutlet',
+        axis: [0, 0],
+        xMoveScale: 0.5,
+        yMoveScale: 2
+      },
+      {
+        placeId: 'PO2',
+        locatedIdList: ['SP2'],
+        placeImgId: 'PipeOutlet',
+        axis: [0, 1],
+        xMoveScale: 0.5,
+        yMoveScale: -2
+      },
+      {
+        placeId: 'PO3',
+        locatedIdList: ['SP3'],
+        placeImgId: 'PipeOutlet',
+        axis: [0, 0],
+        xMoveScale: 0.5,
+        yMoveScale: 2
+      },
+      {
+        placeId: 'PO4',
+        locatedIdList: ['SP4'],
+        placeImgId: 'PipeOutlet',
+        axis: [0, 1],
+        xMoveScale: 0.5,
+        yMoveScale: -2
+      },
+      {
+        placeId: 'PO5',
+        locatedIdList: ['SP5'],
+        placeImgId: 'PipeOutlet',
+        axis: [0, 1],
+        xMoveScale: 0.5,
+        yMoveScale: -2
+      },
+      {
+        placeId: 'PO6',
+        locatedIdList: ['RV1'],
+        placeImgId: 'PipeOutlet',
+        axis: [0.5, 1],
+        xMoveScale: 0,
+        yMoveScale: -2
+      },
+      {
+        placeId: 'PO7',
+        locatedIdList: ['WT2'],
+        placeImgId: 'PipeOutlet',
+        axis: [0, 0],
+        xMoveScale: 2,
+        yMoveScale: 0.5
+      },
+      {
+        placeId: 'PO8',
+        locatedIdList: ['SP6'],
+        placeImgId: 'PipeOutlet',
+        axis: [1, 0],
+        xMoveScale: -1.5,
+        yMoveScale: 2
+      },
+      {
+        placeId: 'PO9',
+        locatedIdList: ['SP9'],
+        placeImgId: 'PipeOutlet',
+        axis: [1, 0],
+        xMoveScale: -0.5,
+        yMoveScale: 2
+      },
+    ],
   ],
   valueList:
   [
     waterLevel = ['SP1', 'SP2', 'SP3', 'SP4', 'SP5', 'SP6', 'SP7', 'SP8', 'SP9', 'WT1', 'WT2', 'WT3', 'RV1'],
-    salinity = ['SP8', 'WT1', 'WT2', 'WT3'],
-    // brineTemperature = ['SP1', 'SP2', 'SP3', 'SP4', 'SP5', 'SP6', 'SP7', 'SP8', 'SP9'],
-    // moduleTemperature = ['SP1', 'SP2', 'SP3', 'SP4']
-  ]
+    salinity = ['SP1', 'SP2', 'SP3', 'SP4', 'SP5', 'SP6', 'SP7', 'SP8', 'SP9', 'WT1', 'WT2', 'WT3', 'RV1'],
+    // salinity = ['SP8', 'WT1', 'WT2', 'WT3'],
+    brineTemperature = ['SP1', 'SP2', 'SP3', 'SP4', 'SP5', 'SP6', 'SP7', 'SP8', 'SP9'],
+    moduleTemperature = ['SP1', 'SP2', 'SP3', 'SP4']
+  ],
+  resource:{
+      SPL: {
+        name: '수로',
+        map: 'SaltPondLineList',
+        setInfo: {},
+        relation:'ListSaltPondLine'
+      },
+      PO: {
+        name: '배출구',
+        map: 'PipeOutletList',
+        setInfo: {},
+        relation:''
+      },
+      SP: {
+        name: '염판',
+        map: 'SaltPlateList',
+        setInfo: {},
+        relation:''
+      },
+      WT: {
+        name: '해주',
+        map: 'WaterTankList',
+        setInfo: {},
+        relation:''
+      },
+      RV: {
+        name: '저수조',
+        map: 'ReservoirList',
+        setInfo: {},
+        relation:''
+      },
+      WO: {
+        name: '바다',
+        map: 'WaterOutList',
+        setInfo: {},
+        relation:''
+      },
+      UT: {
+        name: '수중온도',
+        map: 'UnderWaterTemperatureList',
+        setInfo: { key: 'UnderWaterTemperatureData', startPort: 16001 },
+        relation:'ListUnderWaterTemperature'
+      },
+      MT: {
+        name: '모듈온도',
+        map: 'ModuleTemperatureList',
+        setInfo: { key: 'ModuleTemperatureData', startPort: 17001 },
+        relation:'ListModuleTemperature'
+      },
+      WL: {
+        name: '수위',
+        map: 'WaterLevelSensorList',
+        setInfo: { key: 'WaterLevelData', startPort: 12001 },
+        relation:'ListWaterLevel'
+      },
+      S: {
+        name: '염도',
+        map: 'SaltRateSensorList',
+        setInfo: { key: 'SalinityData', startPort: 13001 },
+        relation:'ListSalinity'
+      },
+      WD: {
+        name: '수문',
+        map: 'WaterDoorList',
+        setInfo: { key: 'WaterDoorData', startPort: 11001 },
+        relation:'ListWaterDoor'
+      },
+      V: {
+        name: '밸브',
+        map: 'ValveList',
+        setInfo: { key: 'ValveData', startPort: 14001 },
+        relation:'ListValve'
+      },
+      P: {
+        name: '펌프',
+        map: 'PumpList',
+        setInfo: { key: 'PumpData', startPort: 15001 },
+        relation:'ListPump'
+      },
+
+    }
 
 }

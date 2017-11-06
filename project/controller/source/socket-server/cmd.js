@@ -57,8 +57,7 @@ class CmdServer extends EventEmitter {
       });
     });
     // TEST
-    socketServer.listen(7402);
-    // socketServer.listen(this.controllerInfo.cmd_port);
+    socketServer.listen(global.minyung.has ? global.minyung.cmdPort :  this.controllerInfo.cmd_port);
     BU.log("CmdServer.js : 소켓서버를 실행 했습니다. port : ", this.controllerInfo.cmd_port)
   }
 

@@ -1,6 +1,6 @@
 let BU = require('base-util-jh').baseUtil;
-let DU = require('../public/js/util/domUtil.js');
-let SU = require('../public/js/util/salternUtil.js');
+let DU = require('base-util-jh').domUtil;
+let SU = require('base-util-jh').salternUtil;
 
 module.exports = function(app) {
     SU.ChainingControllers(__dirname, app);
@@ -76,7 +76,6 @@ module.exports = function(app) {
             return res.redirect(307, '/api/app/delgcm');
         }
     });
-
 
 
 

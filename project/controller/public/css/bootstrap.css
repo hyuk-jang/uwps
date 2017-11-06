@@ -1285,7 +1285,7 @@ p {
   font-weight: 300;
   line-height: 1.4;
 }
-@media (min-width: 768px) {
+@media () {
   .lead {
     font-size: 21px;
   }
@@ -1431,7 +1431,7 @@ dt {
 dd {
   margin-left: 0;
 }
-@media (min-width: 768px) {
+@media () {
   .dl-horizontal dt {
     float: left;
     width: 160px;
@@ -1567,17 +1567,17 @@ pre code {
   margin-right: auto;
   margin-left: auto;
 }
-@media (min-width: 768px) {
+@media () {
   .container {
     width: 750px;
   }
 }
-@media (min-width: 992px) {
+@media () {
   .container {
     width: 970px;
   }
 }
-@media (min-width: 1200px) {
+@media () {
   .container {
     width: 1170px;
   }
@@ -1754,7 +1754,7 @@ pre code {
 .col-xs-offset-0 {
   margin-left: 0;
 }
-@media (min-width: 768px) {
+@media () {
   .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12 {
     float: left;
   }
@@ -2878,7 +2878,7 @@ select[multiple].form-group-lg .form-control {
   margin-bottom: 10px;
   color: #737373;
 }
-@media (min-width: 768px) {
+@media () {
   .form-inline .form-group {
     display: inline-block;
     margin-bottom: 0;
@@ -2944,7 +2944,7 @@ select[multiple].form-group-lg .form-control {
   margin-right: -15px;
   margin-left: -15px;
 }
-@media (min-width: 768px) {
+@media () {
   .form-horizontal .control-label {
     padding-top: 7px;
     margin-bottom: 0;
@@ -2954,12 +2954,12 @@ select[multiple].form-group-lg .form-control {
 .form-horizontal .has-feedback .form-control-feedback {
   right: 15px;
 }
-@media (min-width: 768px) {
+@media () {
   .form-horizontal .form-group-lg .control-label {
     padding-top: 14.333333px;
   }
 }
-@media (min-width: 768px) {
+@media () {
   .form-horizontal .form-group-sm .control-label {
     padding-top: 6px;
   }
@@ -3522,7 +3522,7 @@ tbody.collapse.in {
   bottom: 100%;
   margin-bottom: 2px;
 }
-@media (min-width: 768px) {
+@media () {
   .navbar-right .dropdown-menu {
     right: 0;
     left: auto;
@@ -3938,7 +3938,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   top: auto;
   left: auto;
 }
-@media (min-width: 768px) {
+@media () {
   .nav-tabs.nav-justified > li {
     display: table-cell;
     width: 1%;
@@ -3956,7 +3956,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .nav-tabs.nav-justified > .active > a:focus {
   border: 1px solid #ddd;
 }
-@media (min-width: 768px) {
+@media () {
   .nav-tabs.nav-justified > li > a {
     border-bottom: 1px solid #ddd;
     border-radius: 4px 4px 0 0;
@@ -4003,7 +4003,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   top: auto;
   left: auto;
 }
-@media (min-width: 768px) {
+@media () {
   .nav-justified > li {
     display: table-cell;
     width: 1%;
@@ -4024,7 +4024,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .nav-tabs-justified > .active > a:focus {
   border: 1px solid #ddd;
 }
-@media (min-width: 768px) {
+@media () {
   .nav-tabs-justified > li > a {
     border-bottom: 1px solid #ddd;
     border-radius: 4px 4px 0 0;
@@ -4054,12 +4054,12 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   margin-bottom: 20px;
   border: 1px solid transparent;
 }
-@media (min-width: 768px) {
+@media () {
   .navbar {
     border-radius: 4px;
   }
 }
-@media (min-width: 768px) {
+@media () {
   .navbar-header {
     float: left;
   }
@@ -4076,7 +4076,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-collapse.in {
   overflow-y: auto;
 }
-@media (min-width: 768px) {
+@media () {
   .navbar-collapse {
     width: auto;
     border-top: 0;

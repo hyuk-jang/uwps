@@ -2,8 +2,8 @@ module.exports = function (app) {
   let router = require('express').Router();
 
   let BU = require('base-util-jh').baseUtil;
-  let DU = require('../public/js/util/domUtil.js');
-  let SU = require('../public/js/util/salternUtil.js');
+  let DU = require('base-util-jh').domUtil;
+  
   let biInverter = require('../models/inverter.js');
   // server middleware
   router.use(function (req, res, next) {

@@ -1,8 +1,7 @@
 module.exports = function (app) {
   let router = require('express').Router();
   let BU = require('base-util-jh').baseUtil;
-  let DU = require('../public/js/util/domUtil.js');
-  let SU = require('../public/js/util/salternUtil.js');
+  let DU = require('base-util-jh').domUtil;
   let biTrend = require('../models/trend.js');
 
   // server middleware

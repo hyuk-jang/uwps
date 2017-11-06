@@ -1,11 +1,17 @@
-module.exports = function (app) {
-  let router = require('express').Router();
+const wrap = require('express-async-wrap');
+let router = require('express').Router();
 
-  let BU = require('base-util-jh').baseUtil;
-  let DU = require('../public/js/util/domUtil.js');
-  let SU = require('../public/js/util/salternUtil.js');
-  let biMain = require('../models/main.js');
-  let biSensor = require('../models/sensor.js');
+let BU = require('base-util-jh').baseUtil;
+let DU = require('base-util-jh').domUtil;
+
+let biMain = require('../models/main.js');
+let biSensor = require('../models/sensor.js');
+
+let Main = require('../models/Main.js');
+
+module.exports = function (app) {
+  const initSetter = app.get('initSetter');
+  const main = new Main(initSetter.dbInfo);
 
   // server middleware
   router.use(function (req, res, next) {
@@ -14,42 +20,45 @@ module.exports = function (app) {
   });
 
   // Get
-  router.get('/', function (req, res) {
-    BU.CLI('main', req.locals)
-    biMain.getDailyPower(req, function (err, result, query) {
-      BU.CLI(query)
-      if (err) {
-        return res.status(500).send(err);
-      }
-      res.render('./main/index.html', DU.makeMainHtml(req.locals, result))
-    })
-  });
-  // Post
-  router.post('/', function (req, res) {
-    BU.CLI('main', req.locals);
-    biMain.getModulePaging(req, function (err, result) {
-      if (err) {
-        return res.status(500).send(err);
-      }
-      res.send(DU.makeMainPaging(req.locals, result));
-    })
-  });
+  router.get('/', wrap(async (req, res) => {
+    let dailyPower = await main.getDailyPower();
+    let modulePaging = await main.getModulePaging(req);
+    // BU.CLIS(dailyPower, modulePaging)
 
-  router.get('/sensor', function (req, res) {
+    return res.render('./main/index.html', DU.makeMainHtml(req.locals, { dailyPower, modulePaging }))
+
+  }));
+
+  // Post
+  router.post('/', wrap(async (req, res) => {
+    let modulePaging = await main.getModulePaging(req);
+    // BU.CLIS(dailyPower, modulePaging)
+    return res.render('./main/index.html', DU.makeMainPaging(req.locals, { modulePaging }))
+  }));
+
+  router.get('/sensor', wrap(async (req, res) => {
     biSensor.getSensor(function (err, result) {
       if (err) {
         return res.status(500).send(err);
       }
-      req.locals.chart1=JSON.stringify(result.chart1);
-      req.locals.chart2=JSON.stringify(result.chart2);
-      req.locals.chart3=JSON.stringify(result.chart3);
-      req.locals.chart4=JSON.stringify(result.chart4);
-      req.locals.chart5=JSON.stringify(result.chart5);
-      req.locals.chart6=JSON.stringify(result.chart6);
-      req.locals.chart7=JSON.stringify(result.chart7);
+      req.locals.chart1 = JSON.stringify(result.chart1);
+      req.locals.chart2 = JSON.stringify(result.chart2);
+      req.locals.chart3 = JSON.stringify(result.chart3);
+      req.locals.chart4 = JSON.stringify(result.chart4);
+      req.locals.chart5 = JSON.stringify(result.chart5);
+      req.locals.chart6 = JSON.stringify(result.chart6);
+      req.locals.chart7 = JSON.stringify(result.chart7);
       console.log(req.locals)
       res.render('./sensor.html', req.locals);
     });
-  })
+  }))
+
+
+  router.use(wrap(async (err, req, res, next) => {
+    BU.CLI('Err')
+    res.status(500).send(err);
+  }));
+
+
   return router;
 }

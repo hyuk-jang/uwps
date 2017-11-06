@@ -64,8 +64,8 @@ class SocketServer {
       });
     });
 
-    socketServer.listen(7401, () => {
-    // socketServer.listen(this.controller.config.port, () => {
+    // TEST
+    socketServer.listen(global.minyung.has ? global.minyung.pushPort :  this.controller.config.port, () => {
       BU.CLI('Push Server Is Running', this.controller.config.port);
     });
   }

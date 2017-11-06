@@ -1,11 +1,13 @@
+
+
 const InitSetter = require('./config/InitSetter.js');
 
 
 const Workers = require('./workers/Control.js');
 const mainConfig = require('./config.js');
 const BU = require('base-util-jh').baseUtil;
-const DU = require('./public/js/util/domUtil.js');
-const SU = require('./public/js/util/salternUtil.js');
+let DU = require('base-util-jh').domUtil;
+let SU = require('base-util-jh').salternUtil;
 global.BU = BU;
 global.DU = DU;
 global.SU = SU;
@@ -66,6 +68,13 @@ function downloadMap() {
   });
 }
 
+global.minyung = {
+  has:true,
+  webPort: 7400,
+  pushPort:7401,
+  cmdPort:7402
+};
+
 // 컨트롤러 구동 시작
 function operationController() {
   BU.CLI(mainConfig.workers.SocketServer.PushServer.current.port)
@@ -77,8 +86,7 @@ function operationController() {
 
   require('./controllers')(app);
   // TEST
-  app.listen(7400, (req, res) => {
-  // app.listen(initSetter.webPort, (req, res) => {
+  app.listen(global.minyung.has ? global.minyung.webPort :  initSetter.webPort, (req, res) => {
     console.log('Controller Server is Running', initSetter.webPort);
   });
 
@@ -95,7 +103,7 @@ function operationController() {
 
   let workers = new Workers(mainConfig.workers);
   global.workers = workers;
-  workers.init();
+  // workers.init();
 
   global.pushServer = workers.socketServer.pushServer;
   app.set('workers', workers);

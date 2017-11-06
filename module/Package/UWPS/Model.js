@@ -1,7 +1,7 @@
 const Promise = require('bluebird');
 const _ = require('underscore');
 const cron = require('cron');
-const BMJ = require('base-model-jh');
+const bmjh = require('base-model-jh');
 const BUJ = require('base-util-jh');
 const BU = BUJ.baseUtil;
 
@@ -16,7 +16,7 @@ class Model {
     this.inverterControllerList = [];
     this.connectorControllerList = [];
 
-    this.BM = new BMJ(this.controller.config.dbInfo);
+    this.BM = new bmjh.BM(this.controller.config.dbInfo);
   }
 
   // 인버터 id로 인버터 컨트롤러 객체 찾아줌

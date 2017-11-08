@@ -11,13 +11,13 @@ class Control extends EventEmitter {
     this.config = {
       hasDev: false,
       deviceInfo: {},
-      calculateOption: {},
-      rainAlarmBoundaryList: {}
+      calculateOption: {}
     };
     Object.assign(this.config, config.current);
 
     this.connectedDevice = {};
     this.setTimer = {};
+
     // Processing
     this.p_SerialClient = new P_SerialClient(this);
 
@@ -25,17 +25,11 @@ class Control extends EventEmitter {
     this.model = new Model(this);
   }
 
-
   init() {
     // TODO 장치가 없을 경우 장치 접속 X (장치가 없이 테스트하고자 할 경우)
-    // BU.CLI('GetterSmRainSensor init', this.config)
-
     if (this.config.hasDev) {
       return false;
-    } 
-    // else {
-    //   this.connSerial();
-    // }
+    }
 
     this.eventHandler();
 
@@ -50,6 +44,7 @@ class Control extends EventEmitter {
           throw err;
         })
     })
+
   }
 
   // 시리얼 연결
@@ -70,21 +65,17 @@ class Control extends EventEmitter {
     return this.connectedDevice;
   }
 
-  // 레인센서 평균 값 가져오기
-  getRainData() {
-    return this.model.averageRain;
-  }
-
-  getCurrentRainLevel() {
-    return this.model.currentRainLevel;
+  // 평균 값 데이터 반환
+  getCalcAverageObj() {
+    return this.model.calcAverageObj;
   }
 
   eventHandler() {
-    this.p_SerialClient.on('receiveData', (err, rainData) => {
+    this.p_SerialClient.on('receiveData', (err, data) => {
       // BU.CLI('receiveData', rainData)
-      let rainStatus = this.model.onSmRainData(rainData);
+      let rainStatus = this.model.onSmRainData(data);
       if (!_.isEmpty(rainStatus)) {
-        return this.emit('updateSmRainSensor', rainStatus);
+        return this.emit('updateVantagePro2', err, rainStatus);
       }
     })
 
@@ -112,9 +103,6 @@ class Control extends EventEmitter {
       }
     })
   }
-
-
-
 }
 
 module.exports = Control;

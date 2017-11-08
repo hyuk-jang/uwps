@@ -27,7 +27,7 @@ control.p_SerialClient.on('receiveData', (err, VantagePro) => {
 
 
 // [ M -> C ] Davis VantagePro2 결과
-control.on('updateVantagePro2', updateData => {
+control.on('updateVantagePro2', (err, updateData) => {
   // Update 처리된 Model을 Get 하여 부모에게 반환
   BU.CLI('updateVantagePro2', updateData)
   // getCurrData();

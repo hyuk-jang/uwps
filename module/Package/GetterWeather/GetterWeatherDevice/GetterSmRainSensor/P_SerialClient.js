@@ -1,36 +1,41 @@
-const SerialConnector = require('./SerialConnector.js');
+const SerialClient = require('base-class-jh').SerialClient;
+const BU = require('base-util-jh').baseUtil;
 
-class P_SerialManager extends SerialConnector {
+class P_SerialClient extends SerialClient {
   constructor(controller) {
     super(controller.config.deviceInfo);
 
     // control 객체
     this.controller = controller;
     // 데이터 추출하기 위한 변수
-    this.bufferMaxSize = 70;
+
     this.rainDataSize = 8;
-    this.totalBuffer = new Buffer(this.bufferMaxSize);
+    this.totalBuffer = null;
     this.rainSeparator = 'RAIN %=';
   }
 
-  // 초기에 데이터를 입력해야할 경우에
-  init() {
-    // console.log('핸들러 init')
+  async connect() {
+    this.serialClient = await super.connect();
+    this.serialClient.on('close', error => {
+      this.serialClient = {};
+      this.emit('disconnectedDevice')
+    });
+    this.serialClient.on('error', error => {
+      this.serialClient = {};
+      this.emit('disconnectedDevice')
+    });
+
+    return this.serialClient;
   }
 
   // 데이터 처리 핸들러
   processData(resData) {
     // console.log('### Receive: ', resData.toString())
-
-    let strData = resData.toString();
-
-    // 무조건 Buffer Add
-    this.totalBuffer += Buffer.from(resData)
+    this.totalBuffer = this.totalBuffer === null ? resData : Buffer.concat([this.totalBuffer, resData]);
 
     // 입력된 Buffer를 String 변환
     let strBuffer = this.totalBuffer.toString();
 
-    // if (strBuffer.indexOf('RAIN' != -1))
     // Trans Key는 VIS로 자체 판단(프로토콜 정의 문서가 없음)
     if (strBuffer.indexOf('VIS') != -1) {
       // strBuffer에 rainSeparator가 포함되어 있다면 판독 시작
@@ -49,12 +54,11 @@ class P_SerialManager extends SerialConnector {
 
           // 데이터가 맞다면 16진수를 10진수로 변환하고 Buffer를 비움
           if (!hasAvailData) {
-            let rainData = this.converter().hex2dec(substrRainData);
+            let rainData = BU.Converter.hex2dec(substrRainData);
             // console.log('rainData', rainData)
+            this.totalBuffer = null;
 
-            this.controller._onSmRainSensorData_P(rainData);
-            // this.logicRain(rainData);
-            this.totalBuffer = new Buffer(this.bufferMaxSize);
+            return this.emit('receiveData', null, rainData);
           }
         }
       }
@@ -62,4 +66,4 @@ class P_SerialManager extends SerialConnector {
   }
 }
 
-module.exports = P_SerialManager;
+module.exports = P_SerialClient;

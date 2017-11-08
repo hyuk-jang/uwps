@@ -54,11 +54,18 @@ module.exports = {
     current: {
       hasDev: false,
       deviceInfo: {
-        deviceName: 'vantagePro2', // Device Name
+        target_name: 'vantagePro2',
         port: 'COM3', // Port를 직접 지정하고자 할때 사용
-        baudRate: 19200, // 장치 BaudRate
-        transportCode: '\n', // Serial이 연결되고 특정 Code를 전송해야 할 경우
-        identificationCode: '0a0d', // Transport 과정이 끝나고 난뒤 Receive Packet의 특정 Code 포함여부
+        baud_rate: 19200,
+        // transportCode: [0x4C, 0x4F, 0x4F, 0x50, 0x0A], // Serial이 연결되고 특정 Code를 전송해야 할 경우
+        transportCode: 'LOOP\n', // Serial이 연결되고 특정 Code를 전송해야 할 경우
+        identificationCode: '0a0d', // Transport 과정이 끝나고 난뒤 Receive Packet의 특정 Code 포함여부},
+
+        // deviceName: 'vantagePro2', // Device Name
+        // port: 'COM3', // Port를 직접 지정하고자 할때 사용
+        // baudRate: 19200, // 장치 BaudRate
+        // transportCode: '\n', // Serial이 연결되고 특정 Code를 전송해야 할 경우
+        // identificationCode: '0a0d', // Transport 과정이 끝나고 난뒤 Receive Packet의 특정 Code 포함여부
       },
       calculateOption: {
         averageCount: 3, // 평균 합산 변수

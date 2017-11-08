@@ -1,35 +1,49 @@
-const SerialConnector = require('./SerialConnector.js');
-// deivceInfo = {
-//     port,
-//     baudRate,
-//     transportCode,
-//     identificationCode}
+const SerialClient = require('base-class-jh').SerialClient;
+const BU = require('base-util-jh').baseUtil;
 
-class P_SerialManager extends SerialConnector {
+class P_SerialClient extends SerialClient {
   constructor(controller) {
     super(controller.config.deviceInfo);
 
     // control 객체
     this.controller = controller;
+    // 데이터 추출하기 위한 변수
 
+    this.transCode = controller.config.deviceInfo.transportCode;
     this.vantagePro2Protocol = require('./vantagePro2Protocol.js');
+
+    this.serialClient = {};
   }
 
-
-  // 초기에 데이터를 입력해야할 경우에
   init() {
-    // console.log('핸들러 init')
-    this.serialManager.write('LOOP\n', (err, results) => {
-      if (err)
-        console.log('err ' + err);
-      //console.log('results ' + results);
-    });
-    this._GetTheData();
+    this._requestData();
+
+    setTimeout(() => {
+      this._requestData()
+    }, 1000 * 60);
   }
 
+  async connect() {
+    this.serialClient = await super.connect();
+
+
+
+    this.serialClient.on('close', error => {
+      this.serialClient = {};
+      this.emit('disconnectedDevice')
+    });
+    this.serialClient.on('error', error => {
+      this.serialClient = {};
+      this.emit('disconnectedDevice')
+    });
+
+    return this.serialClient;
+  }
+
+  // 데이터 처리 핸들러
   processData(resData) {
-    let bufferData = new Buffer(resData);
-    //BU.CLI(bufferData)
+    let bufferData = Buffer.from(resData);
+    BU.CLI(bufferData)
 
     let addValue = 0;
     if (bufferData.length == 100) {
@@ -56,7 +70,7 @@ class P_SerialManager extends SerialConnector {
         }
         hexCode += TargetValue;
       }
-      protocol.value = this._ChangeData(protocol.key, this.converter().hex2dec(hexCode));
+      protocol.value = this._ChangeData(protocol.key, BU.Converter.hex2dec(hexCode));
     });
 
     let vantagePro2Data = {};
@@ -65,8 +79,9 @@ class P_SerialManager extends SerialConnector {
       vantagePro2Data[result.key] = result.value;
     })
 
-    this.controller._onVantagePro2Data_P(vantagePro2Data);
+    return this.emit('receiveData', null, vantagePro2Data);
   }
+
 
   getProtocolValue(findKey) {
     let findObj = this.vantagePro2Protocol.find((obj) => {
@@ -130,16 +145,12 @@ class P_SerialManager extends SerialConnector {
 
   }
 
-
-  _GetTheData() {
-    setTimeout(() => {
-      this.serialManager.write('LOOP\n', (err, results) => {
-        if (err)
-          console.log('err ' + err);
-      });
-      this._GetTheData(this.serialManager);
-    }, 1000 * 60);
+  _requestData() {
+    this.serialClient.write(this.transCode, (err, results) => {
+      if (err)
+        console.log('err ' + err);
+    });
   }
 }
 
-module.exports = P_SerialManager;
+module.exports = P_SerialClient;

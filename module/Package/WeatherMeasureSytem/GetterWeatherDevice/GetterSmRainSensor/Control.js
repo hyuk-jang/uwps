@@ -76,6 +76,7 @@ class Control extends EventEmitter {
   }
 
   getCurrentRainLevel() {
+    BU.CLI('this.model.currentRainLevel', this.model.currentRainLevel)
     return this.model.currentRainLevel;
   }
 
@@ -83,8 +84,9 @@ class Control extends EventEmitter {
     this.p_SerialClient.on('receiveData', (err, rainData) => {
       // BU.CLI('receiveData', rainData)
       let rainStatus = this.model.onSmRainData(rainData);
+      // BU.CLI('rainStatus',rainStatus)
       if (!_.isEmpty(rainStatus)) {
-        return this.emit('updateSmRainSensor', rainStatus);
+        return this.emit('updateSmRainSensor', err, rainStatus);
       }
     })
 

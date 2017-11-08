@@ -25,8 +25,7 @@ class CalculateAverage {
 
   // 데이터 수신 
   // {key:value}
-  onDataObj(dataObj, averageObj, callback) {
-    // BU.CLI("onDataObj")
+  onDataObj(dataObj, averageObj) {
     this.currCycleCount++;
 
     // 강제로 평균 값을 구하는 여부
@@ -51,7 +50,6 @@ class CalculateAverage {
       if (target.storage.length >= this.averageCount) {
         // 처음으로 데이터가 찼을 경우 평균 값 반환
         if (target.storage.length === this.cycleCount) {
-          // BU.CLI("최초")
           hasOccurEvent = true;
         } else {
           // 합산 count를 초과하였다면 첫 배열 삭제
@@ -69,7 +67,8 @@ class CalculateAverage {
 
 
 
-    return callback(hasOccurEvent, cloneAverageObj);
+    // return hasOccurEvent;
+    return {hasOccurEvent, cloneAverageObj};
   }
 
   // FIXME: 소수 자릿 수 지정 규칙 및 예외 처리 필요
@@ -77,7 +76,7 @@ class CalculateAverage {
     try {
       let average = array.reduce((a, b) => Number(a) + Number(b)) / array.length;
       if (this.isFloat(average)) {
-        average = Number(average.toFixed(2)) ;
+        average =  Number(average.toFixed(2));
       }
       return average;
     } catch (error) {

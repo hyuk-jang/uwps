@@ -69,7 +69,7 @@ function downloadMap() {
 }
 
 global.minyung = {
-  has:true,
+  has:false,
   webPort: 7400,
   pushPort:7401,
   cmdPort:7402

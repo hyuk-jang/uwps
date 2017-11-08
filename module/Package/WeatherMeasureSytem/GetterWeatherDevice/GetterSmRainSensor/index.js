@@ -40,7 +40,7 @@ control.p_SerialClient.on('receiveData', (err, rainData) => {
 // searchMatchingDevice();
 
 // [ M -> C ] 장치로부터 데이터가 들어올 경우 
-control.on('updateSmRainSensor', (updateData) => {
+control.on('updateSmRainSensor', (err, updateData) => {
   BU.CLI('updateSmRainSensor', updateData)
 
   // control._onSmRainSensorData_P(1000);

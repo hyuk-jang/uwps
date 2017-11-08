@@ -1,7 +1,7 @@
 const EventEmitter = require('events');
 const _ = require('underscore');
 
-const P_SerialManager = require('./P_SerialManager.js');
+const P_SerialClient = require('./P_SerialClient');
 const Model = require("./Model.js");
 
 class Control extends EventEmitter {
@@ -15,8 +15,11 @@ class Control extends EventEmitter {
     };
     Object.assign(this.config, config.current);
 
+    this.connectedDevice = {};
+    this.setTimer = {};
+
     // Processing
-    this.p_SerialManager = new P_SerialManager(this);
+    this.p_SerialClient = new P_SerialClient(this);
 
     // Model
     this.model = new Model(this);
@@ -25,19 +28,41 @@ class Control extends EventEmitter {
   init() {
     // TODO 장치가 없을 경우 장치 접속 X (장치가 없이 테스트하고자 할 경우)
     if (this.config.hasDev) {
-
-    } else {
-      this.connSerial();
+      return false;
     }
+
+    this.eventHandler();
+
+    return new Promise(resolve => {
+      this.connectDevice()
+        .then(r => {
+          resolve(r)
+          // return r;
+        })
+        .catch(err => {
+          BU.CLI(err)
+          throw err;
+        })
+    })
+
   }
 
   // 시리얼 연결
-  connSerial() {
-    if (this.p_SerialManager === null) {
-      console.log('선언이 잘못 됨.');
+  async connectDevice() {
+    if (!_.isEmpty(this.connectedDevice)) {
+      BU.CLI('이미 접속');
       return false;
     }
-    this.p_SerialManager.connect();
+
+    this.connectedDevice = await this.p_SerialClient.connect();
+
+
+    // 운영 중 상태로 변경
+    clearTimeout(this.setTimer);
+    this.model.hasConnectedDevice = true;
+    this.model.retryConnectDeviceCount = 0;
+
+    return this.connectedDevice;
   }
 
   // 평균 값 데이터 반환
@@ -45,14 +70,38 @@ class Control extends EventEmitter {
     return this.model.calcAverageObj;
   }
 
-  // P -> C 
-  _onVantagePro2Data_P(vantagePro2Data) {
-    this.model.onVantageData(vantagePro2Data);
-  }
+  eventHandler() {
+    this.p_SerialClient.on('receiveData', (err, data) => {
+      // BU.CLI('receiveData', rainData)
+      let rainStatus = this.model.onSmRainData(data);
+      if (!_.isEmpty(rainStatus)) {
+        return this.emit('updateVantagePro2', rainStatus);
+      }
+    })
 
-    // P -> C, 기상 관측 센서 업데이트 알림 이벤트
-  _onVantagePro2Data_M(calcAverageObj) {
-    this.emit('updateVantagePro2',calcAverageObj);
+    // 장치 접속 에러
+    this.p_SerialClient.on('disconnectedDevice', err => {
+      // BU.CLI('disconnectedDevice', err)
+      this.connectDevice = {};
+      // 장치 문제 발생
+      if (this.model.hasConnectedDevice) {
+        this.model.hasConnectedDevice = false;
+        // TODO 현재 객체에 이벤트 발생 이벤트 핸들링 필요
+        return this.emit('errorDisconnectedDevice');
+      }
+
+      if (this.model.retryConnectDeviceCount++ > 2) {
+        // 장치 접속에 문제가 있다면 Interval을 10배로 함. (현재 10분에 한번 시도)
+        this.setTimer = setTimeout(() => {
+          this.connectDevice();
+        }, this.model.controlStatus.reconnectDeviceInterval * 10);
+      } else {
+        // 인터벌에 따라 한번 접속 시도
+        this.setTimer = setTimeout(() => {
+          this.connectDevice();
+        }, this.model.controlStatus.reconnectDeviceInterval * 10);
+      }
+    })
   }
 }
 

@@ -5,7 +5,7 @@ function matchingMenu(base,target) {
 }
 %>
   <!--</script>-->
-
+<div class="wrap">
   <!--네비-->
   <nav class="navbar navbar-inverse navbar-inverse_st ">
     <div class="container-fluid container-fluid_st">
@@ -16,8 +16,8 @@ function matchingMenu(base,target) {
           <!--<img src="image/logo_w-04_180.png" />-->
         </a>
       </div>
-      <div class="collapse navbar-collapse" id="myNavbar">
-        <ul class="nav navbar-nav navbar-nav_st">
+      
+        <ul class="nav nav-pills navbar-nav_st" role="tablist" >
           <li class="<%= matchingMenu(1,menuNum)%>">
             <a href="/main">
               <i class="fa fa-home fa-home_st" aria-hidden="true"></i>홈</a>
@@ -45,7 +45,7 @@ function matchingMenu(base,target) {
           </li>
           <!-- <li class="<%= matchingMenu(8,menuNum)%>"><a href="/cctv" style="border:0;"> <i class="fa fa-camera-retro fa-home_st" aria-hidden="true"></i>cctv</a></li> -->
         </ul>
-      </div>
+     
     </div>
 
     <div class="row nav_row">

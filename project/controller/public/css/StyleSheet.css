@@ -26,6 +26,8 @@ ul li{list-style:none;}
   min-width: 1170px;
   background: #eee;}
 
+  
+
 .container-fluid_st{width:1170px !important; padding:0;}
 .nav_row{background:linear-gradient(#3A3A3A, #1A1A1A);  margin-left: 0px; margin-right: 0px;}
 .dropdown-menu>.active>a, .dropdown-menu>.active>a:focus, .dropdown-menu>.active>a:hover{background-color:#333!important;}

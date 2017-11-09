@@ -1,7 +1,7 @@
 const node_modbus = require('node-modbus');
 
-const BUJ = require('base-util-jh');
-const BU = BUJ.baseUtil;
+const BU = require('base-util-jh').baseUtil;
+
 
 const Converter = require('../Converter.js');
 const protocol = require('./protocol');

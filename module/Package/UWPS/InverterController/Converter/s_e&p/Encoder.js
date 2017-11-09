@@ -1,5 +1,5 @@
-const BUJ = require('base-util-jh');
-const BU = BUJ.baseUtil;
+const BU = require('base-util-jh').baseUtil;
+
 
 const Converter = require('../Converter.js');
 const s5500kProtocol = require('./s5500kProtocol.js');

@@ -2,8 +2,8 @@ const Promise = require('bluebird');
 const _ = require('underscore');
 const cron = require('cron');
 const bmjh = require('base-model-jh');
-const BUJ = require('base-util-jh');
-const BU = BUJ.baseUtil;
+const BU = require('base-util-jh').baseUtil;
+
 
 class Model {
   constructor(controller) {

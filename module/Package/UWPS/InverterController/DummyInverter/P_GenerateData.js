@@ -1,7 +1,7 @@
 const cron = require('cron');
 const _ = require('underscore');
-const BUJ = require('base-util-jh');
-const BU = BUJ.baseUtil;
+const BU = require('base-util-jh').baseUtil;
+
 const Promise = require('bluebird');
 
 class P_GenerateData {

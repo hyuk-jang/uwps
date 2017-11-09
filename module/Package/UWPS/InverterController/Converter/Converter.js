@@ -1,7 +1,7 @@
 const EventEmitter = require('events');
 
-const BUJ = require('base-util-jh');
-const BU = BUJ.baseUtil;
+const BU = require('base-util-jh').baseUtil;
+
 
 class Converter extends EventEmitter {
   constructor() {

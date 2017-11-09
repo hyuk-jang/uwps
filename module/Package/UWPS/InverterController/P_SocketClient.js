@@ -3,8 +3,8 @@ const _ = require('underscore');
 
 const SmSocketClient = require('base-class-jh').SmSocketClient;
 
-const BUJ = require('base-util-jh');
-const BU = BUJ.baseUtil;
+const BU = require('base-util-jh').baseUtil;
+
 
 class P_SocketServer extends SmSocketClient {
   constructor(controller) {

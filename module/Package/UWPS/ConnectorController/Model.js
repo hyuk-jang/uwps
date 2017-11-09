@@ -1,6 +1,6 @@
-const BUJ = require('base-util-jh');
+const BU = require('base-util-jh').baseUtil;
 
-const NU = BUJ.newUtil;
+const NU = require('base-util-jh').newUtil;
 
 class Model {
   constructor(controller) {

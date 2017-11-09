@@ -1,8 +1,8 @@
 const EventEmitter = require('events');
 const Promise = require('bluebird');
 
-const BUJ = require('base-util-jh');
-const BU = BUJ.baseUtil;
+const BU = require('base-util-jh').baseUtil;
+
 
 const Model = require('./Model.js');
 const P_Scheduler = require('./P_Scheduler');

@@ -4,8 +4,8 @@ const Model = require('./Model.js');
 const P_GenerateData = require('./P_GenerateData.js');
 
 const P_SocketServer = require('./P_SocketServer');
-const BUJ = require('base-util-jh');
-const BU = BUJ.baseUtil;
+const BU = require('base-util-jh').baseUtil;
+
 
 class Control extends EventEmitter {
   constructor(config) {

@@ -22,7 +22,7 @@ module.exports = function (app) {
   // Get
   router.get('/', wrap(async (req, res) => {
     let dailyPower = await main.getDailyPower();
-    let modulePaging = await main.getModulePaging(req);
+    let modulePaging = await main.getModulePaging(req.locals);
     // BU.CLIS(dailyPower, modulePaging)
 
     return res.render('./main/index.html', DU.makeMainHtml(req.locals, { dailyPower, modulePaging }))
@@ -55,7 +55,7 @@ module.exports = function (app) {
 
 
   router.use(wrap(async (err, req, res, next) => {
-    BU.CLI('Err')
+    BU.CLI('Err', err)
     res.status(500).send(err);
   }));
 

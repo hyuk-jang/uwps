@@ -47,7 +47,7 @@ class Control extends EventEmitter {
       return findTarget.getHasOperation();
     } catch (error) {
       throw error;
-    }    
+    }
   }
   /**
    * 접속반의 현재 동작상태를 가져옴
@@ -60,7 +60,7 @@ class Control extends EventEmitter {
       return findTarget.getHasOperation();
     } catch (error) {
       throw error;
-    }    
+    }
   }
 
   /**
@@ -74,7 +74,16 @@ class Control extends EventEmitter {
       return findTarget.inverterData;
     } catch (error) {
       throw error;
-    }    
+    }
+  }
+
+  /**
+ * 인버터 현재 상태 데이터를 가져옴
+ * @param {String} targetId 인버터 id
+ * @return {Object} Converter에 정의된 getBaseInverterValue json 대입
+ */
+  getInverterTotalData() {
+
   }
 
   /**
@@ -89,7 +98,7 @@ class Control extends EventEmitter {
       return findTarget.connectorData;
     } catch (error) {
       throw error;
-    }    
+    }
   }
 
   /**
@@ -100,12 +109,12 @@ class Control extends EventEmitter {
   init() {
     return new Promise(resolve => {
       this.eventHandler();
-      
+
       Promise.all([
         this.createInverterController(this.config.inverterList),
         this.createConnectorController(this.config.connectorList)
       ]).then(result => {
-        
+
         resolve(true);
       }).catch(err => {
         throw Error(err);

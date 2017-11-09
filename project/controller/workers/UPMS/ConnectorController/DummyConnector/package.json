@@ -1,0 +1,14 @@
+{
+  "name": "dummy-connector",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "author": "j.hyuk",
+  "license": "ISC",
+  "dependencies": {
+    "base-class-jh": "^1.0.0"
+  }
+}

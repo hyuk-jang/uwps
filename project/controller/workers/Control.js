@@ -2,8 +2,10 @@ const EventEmitter = require('events');
 const _ = require('underscore');
 
 const GcmSender = require('./GcmSender/Control.js');
-const GetterWeather = require('./GetterWeather/Control.js');
 const SocketServer = require('./SocketServer/Control.js')
+
+const UPMS = require('./UPMS/Control');
+const WMS = require('./WMS/Control');
 
 class Control extends EventEmitter {
   constructor(config) {
@@ -11,7 +13,9 @@ class Control extends EventEmitter {
     // 현재 Control 설정 변수
     this.config = {
       dbInfo: {},
-      gcmInfo: {}
+      gcmInfo: {},
+      UPMS: {},
+      WMS: {}
     };
     Object.assign(this.config, config.current);
 
@@ -19,12 +23,25 @@ class Control extends EventEmitter {
 
     // 자식 객체 선언 및 설정 변수
     this.gcmSender = new GcmSender(config.GcmSender);
-    this.getterWeather = new GetterWeather(config.GetterWeather);
     this.socketServer = new SocketServer(config.SocketServer);
+
+    this.uPMS = new UPMS(config.UPMS);
+    this.wMS = new WMS(config.WMS);
   }
 
   init() {
-    this.getterWeather.init();
+    return new Promise(resolve => {
+      Promise.all([
+        this.uPMS.init(),
+        this.wMS.init()
+      ])
+      .then(r => {
+        resolve(r);
+      })
+    })
+
+
+    // this.getterWeather.init();
     this.socketServer.init();
   }
 

@@ -1,0 +1,21 @@
+{
+  "name": "getter_weather",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "base-class-jh": "^1.0.0",
+    "base-util-jh": "^1.0.5",
+    "cron": "^1.2.1",
+    "mysql": "^2.13.0",
+    "node-gcm": "^0.14.6",
+    "serialport": "^5.0.0",
+    "underscore": "^1.8.3",
+    "xml2js": "^0.4.17"
+  }
+}

@@ -1,4 +1,4 @@
-
+const Promise = require('bluebird')
 
 const InitSetter = require('./config/InitSetter.js');
 
@@ -8,9 +8,11 @@ const mainConfig = require('./config.js');
 const BU = require('base-util-jh').baseUtil;
 let DU = require('base-util-jh').domUtil;
 let SU = require('base-util-jh').salternUtil;
+const _ = require('underscore');
 global.BU = BU;
 global.DU = DU;
 global.SU = SU;
+global._ = _;
 
 const CONTROLLERS_PATH = process.cwd() + '\\controllers';
 global.CONTROLLERS_PATH = CONTROLLERS_PATH;
@@ -69,51 +71,59 @@ function downloadMap() {
 }
 
 global.minyung = {
-  has:false,
+  has: false,
   webPort: 7400,
-  pushPort:7401,
-  cmdPort:7402
+  pushPort: 7401,
+  cmdPort: 7402
 };
 
 // 컨트롤러 구동 시작
 function operationController() {
-  BU.CLI(mainConfig.workers.SocketServer.PushServer.current.port)
+  // BU.CLI(mainConfig.workers.SocketServer.PushServer.current.port)
   let app = require('./config/app.js')(initSetter.dbInfo);
   let passport = require('./config/passport.js')(app, initSetter.aliceBobSecret);
-  // BU.CLI(initSetter)
   app.set('passport', passport);
   app.set('initSetter', initSetter);
 
   require('./controllers')(app);
   // TEST
-  app.listen(global.minyung.has ? global.minyung.webPort :  initSetter.webPort, (req, res) => {
+  app.listen(global.minyung.has ? global.minyung.webPort : initSetter.webPort, (req, res) => {
     console.log('Controller Server is Running', initSetter.webPort);
   });
 
 
-  let worker = require('./source')(initSetter.controllerInfo, initSetter.mapInfo);
 
-  // global.pushServer = worker.socketServer.pushServer;
-  global.cmdServer = worker.socketServer.cmdServer;
-
-  // Push, CMD Server 구동
-  // worker.socketServer.pushServer.createServer();
-  // worker.socketServer.pushServer.checkClientsSesstion();
-  worker.socketServer.cmdServer.createServer();
-
+  // PAC Pattern Workers
   let workers = new Workers(mainConfig.workers);
-  global.workers = workers;
-  // workers.init();
 
+  workers.init()
+    .then(r => {
+      // BU.CLI(r)
+      Promise.delay(1000).then(() => {
+        return workers.uPMS.getInverterData('IVT1');
+      })
+        .then(r => {
+          BU.CLI(r)
+        })
+
+
+    })
+    .catch(err => {
+      BU.CLI(err);
+    })
+
+  global.workers = workers;
   global.pushServer = workers.socketServer.pushServer;
   app.set('workers', workers);
-  
-  
 
+
+  // Source Worker
+  let worker = require('./source')(initSetter.controllerInfo, initSetter.mapInfo);
+  worker.socketServer.cmdServer.createServer();
+  global.cmdServer = worker.socketServer.cmdServer;
   global.worker = worker;
   app.set('worker', worker);
   var main = require('./source/main.js')(initSetter.mapInfo);
   main.emit('Start');
-
 
 }

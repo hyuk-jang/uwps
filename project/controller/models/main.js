@@ -7,8 +7,8 @@ class Main extends bmjh.BM {
 
   }
 
-  getDailyPower(date) {
-    date = date ? date : new Date();
+  getDailyPower() {
+    // date = date ? date : new Date();
 
     let sql = `select DATE_FORMAT(writedate,"%H:%i:%S")as writedate,round(sum(out_w)/count(writedate)/10,1) as out_w`
       + ` from inverter_data `
@@ -17,27 +17,26 @@ class Main extends bmjh.BM {
 
     return this.db.single(sql)
       .then(result => {
-        BU.CLI(result)
-        let chartList = [];
-        let out_w = [];
-        let date = [];
-
-        for (var i = 0; i < result.length; i++) {
-          date.push(result[i].writedate);
-          out_w.push(result[i].out_w);
-        }
-        chartList.push(date);
-        chartList.push(out_w);
-
+        // BU.CLI(result)
+        let chartList = [
+          _.pluck(result, 'out_w'),
+          _.pluck(result, 'writedate')
+        ];
         return chartList;
       });
   }
 
-  getModulePaging(req) {
-    let sql = `select concat("ch",cs.photovoltaic_seq," ","(",pt.target_name ,")")as title,(select target_name from connector where connector_seq=cs.connector_seq) as con_name
-              from photovoltaic pt ,connector_structure cs 
-              where pt.photovoltaic_seq=cs.photovoltaic_seq and connector_seq = 1 order by connector_seq,cs.photovoltaic_seq limit ${req.body.pageNum ? req.body.pageNum : 0},4`
-    return this.db.single(sql);
+  getModulePaging({ pageNum }) {
+    let listCount = 4;
+    let limit = pageNum === undefined ?  `0, ${listCount}` : `${(pageNum - 1) * listCount}, ${pageNum * listCount}`;
+
+    let sql = `SELECT *,
+    CONCAT("CH",cs.channel," (",pt.target_name ,")")AS title,
+    (SELECT target_name FROM connector WHERE connector_seq=cs.connector_seq) AS con_name
+    FROM photovoltaic pt ,connector_structure cs
+       WHERE pt.photovoltaic_seq=cs.photovoltaic_seq  ORDER BY connector_seq,cs.channel`
+        // LIMIT ${limit}`;
+    return this.db.single(sql, '', true);
   }
 
 

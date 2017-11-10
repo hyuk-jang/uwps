@@ -11,7 +11,7 @@ let Main = require('../models/Main.js');
 
 module.exports = function (app) {
   const initSetter = app.get('initSetter');
-  const main = new Main(initSetter.dbInfo);
+  const mMain = new Main(initSetter.dbInfo);
 
   // server middleware
   router.use(function (req, res, next) {
@@ -21,9 +21,9 @@ module.exports = function (app) {
 
   // Get
   router.get('/', wrap(async (req, res) => {
-    let dailyPower = await main.getDailyPower();
-    let modulePaging = await main.getModulePaging(req.locals);
-    // BU.CLIS(dailyPower, modulePaging)
+    let dailyPower = await mMain.getDailyPower();
+    let modulePaging = await mMain.getModuleInfo(req.locals);
+    BU.CLIS(dailyPower, modulePaging)
 
     return res.render('./main/index.html', DU.makeMainHtml(req.locals, { dailyPower, modulePaging }))
 
@@ -31,7 +31,7 @@ module.exports = function (app) {
 
   // Post
   router.post('/', wrap(async (req, res) => {
-    let modulePaging = await main.getModulePaging(req);
+    let modulePaging = await mamMainetModulePaging(req);
     // BU.CLIS(dailyPower, modulePaging)
     return res.render('./main/index.html', DU.makeMainPaging(req.locals, { modulePaging }))
   }));

@@ -52,10 +52,6 @@ class Control extends EventEmitter {
     return this.model.cmdList;
   }
 
-  get inverterTargetId() {
-    return this.model.ivtSavedInfo.target_id;
-  }
-
   get refineInverterData() {
     return this.model.refineInverterData;
   }

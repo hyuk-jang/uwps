@@ -2,28 +2,48 @@
 const bmjh = require('base-model-jh');
 const Promise = require('bluebird')
 
-class Main extends bmjh.BM {
+class BiModule extends bmjh.BM {
   constructor(dbInfo) {
     super(dbInfo);
 
   }
 
-  getDailyPower() {
+
+  /**
+   * inverter_seq에 따라서 현 인버터 데이터 반환.
+   * @param {Array} inverter_seq inverter_seq or [inverter_seq] or undefined.
+   */
+  getCurrInverterData(inverter_seq) {
+    let sql = `
+      select t1.*,
+      (SELECT iv.target_id FROM inverter iv WHERE iv.inverter_seq = t1.inverter_seq		) as target_id
+      from inverter_data t1,
+      (select *,max(writedate) as M from inverter_data group by inverter_seq) t2
+      where t1.writedate=t2.M and t1.inverter_seq=t2.inverter_seq
+      order by inverter_seq
+    `;
+    if(inverter_seq !== undefined || Array.isArray(inverter_seq)){
+      sql += `AND t1.inverter_seq IN (${inverter_seq})`;
+    }
+
+    return this.db.single(sql);
+  }
+
+  getDailyPowerReport() {
     // date = date ? date : new Date();
 
-    let sql = `select DATE_FORMAT(writedate,"%H:%i:%S")as writedate,round(sum(out_w)/count(writedate)/10,1) as out_w
-      from inverter_data 
-      where writedate>= CURDATE() and writedate<CURDATE() + 1
-      group by DATE_FORMAT(writedate,'%Y-%m-%d %H')`;
+    let sql = `select DATE_FORMAT(writedate,"%H:%i")as writedate,round(sum(out_w)/count(writedate)/10,1) as out_w`
+      + ` from inverter_data `
+      + ` where writedate>= CURDATE() and writedate<CURDATE() + 1`
+      + ` group by DATE_FORMAT(writedate,'%Y-%m-%d %H')`;
 
-      BU.CLI(sql)
-
-    return this.db.single(sql, '', true)
+    return this.db.single(sql)
       .then(result => {
         // BU.CLI(result)
         let chartList = [
+          _.pluck(result, 'writedate'),
           _.pluck(result, 'out_w'),
-          _.pluck(result, 'writedate')
+
         ];
         return chartList;
       });
@@ -51,7 +71,6 @@ class Main extends bmjh.BM {
           LIMIT 1
     `;
 
-
         return this.db.single(secondSql);
       })
         .then(measureModuleDataList => {
@@ -68,8 +87,5 @@ class Main extends bmjh.BM {
     })
   }
 
-
-
-
 }
-module.exports = Main;
+module.exports = BiModule;

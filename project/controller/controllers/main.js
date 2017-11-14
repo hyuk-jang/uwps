@@ -54,13 +54,6 @@ module.exports = function (app) {
     return res.render('./main/index.html', req.locals)
   }));
 
-  // Post
-  router.post('/', wrap(async (req, res) => {
-    let modulePaging = await mamMainetModulePaging(req);
-    // BU.CLIS(dailyPower, modulePaging)
-    return res.render('./main/index.html', DU.makeMainPaging(req.locals, { modulePaging }))
-  }));
-
   router.get('/sensor', wrap(async (req, res) => {
     biSensor.getSensor(function (err, result) {
       if (err) {

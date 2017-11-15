@@ -32,7 +32,8 @@ control.init()
   return control.measureConnector();
 })
 .then(connectorData => {
-  BU.CLI(connectorData)
+  BU.CLIS(connectorData, control.connectorData)
+  return ;
 })
 .catch(err => {
   BU.CLI(err)

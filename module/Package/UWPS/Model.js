@@ -47,6 +47,7 @@ class Model {
    * @returns {Promise} DB 입력한 결과
    */
   completeMeasureInverter(measureTime, inverterListData) {
+    BU.CLI(measureTime, inverterListData)
     let measureInverterDataList = [];
 
     inverterListData.forEach(refineData => {
@@ -106,7 +107,26 @@ class Model {
    * @returns {Promise} DB 입력한 결과
    */
   completeMeasureConnector(measureTime, connectorListData) {
+    BU.CLI(measureTime, connectorListData)
     let measureConnectorDataList = [];
+
+
+    // NOTE 나중에 db schema 변할 경우 작업
+    // connectorListData.forEach((refineData, key) => {
+    //   let volObj = {};
+    //   volObj.connector_seq = refineData.connector_seq;
+    //   volObj.data_type = 'vol';
+    //   volObj.value = refineData.vol;
+    //   measureConnectorDataList.push(volObj);
+
+    //   refineData.ampList.forEach((amp, index) => {
+    //     let ampObj = {};
+    //     amp.connector_seq = refineData.connector_seq;
+    //     amp.data_type = 'vol';
+    //     amp.value = refineData.vol;
+    //     measureConnectorDataList.push(volObj);
+    //   })
+    // })
 
     connectorListData.forEach(refineData => {
       // TODO 메시지 발송? 에러 처리? 접속반 정지? 고민 필요

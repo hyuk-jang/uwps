@@ -4,9 +4,7 @@ let router = require('express').Router();
 let BU = require('base-util-jh').baseUtil;
 let DU = require('base-util-jh').domUtil;
 
-let biMain = require('../models/main.js');
 let biSensor = require('../models/sensor.js');
-
 let BiModule = require('../models/BiModule.js');
 
 module.exports = function (app) {
@@ -21,13 +19,11 @@ module.exports = function (app) {
 
   // Get
   router.get('/', wrap(async (req, res) => {
-
     let workers = app.get('workers');
 
     let dailyPowerReport = await biModule.getDailyPowerReport();
-    let moduleStatus = await biModule.getModuleInfo(req.locals);
-// BU.CLIS(dailyPower, moduleStatus)
-    let inverterDataList = await biModule.getCurrInverterData();
+    let moduleStatus = await biModule.getTable('v_photovoltaic_status');
+    let inverterDataList = await biModule.getTable('v_inverter_status');
 
     let powerGenerationInfo = {
       currKw: (_.reduce(_.pluck(inverterDataList, 'out_w'), (accumulator, currentValue) => accumulator + currentValue ) / 10000).toFixed(3),
@@ -35,7 +31,6 @@ module.exports = function (app) {
       cumulativePower: (_.reduce(_.pluck(inverterDataList, 'c_wh'), (accumulator, currentValue) => accumulator + currentValue ) / 10000 / 1000).toFixed(3),
       hasOperationInverter: true,
     };
-
 
     // 인버터 동작 상태 가져옴
     let ivtOperation = _.map(inverterDataList, ivtData => {

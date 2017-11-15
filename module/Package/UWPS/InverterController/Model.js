@@ -28,6 +28,8 @@ class Model {
 
     // Converter에 정의한 getBaseInverterValue를 가져옴
     this.inverterData = this.controller.encoder.getBaseInverterValue();
+    // Dummy Data
+    this.ivtDummyData = this.controller.config.ivtDummyData;
     // Socket에 접속 중인 사용자 리스트
     this.ivtSavedInfo = this.controller.config.ivtSavedInfo;
 

@@ -10,69 +10,93 @@ const _ = require('underscore');
 global.BU = BU;
 global._ = _;
 
-// TEST : Inverter 객체 6개 생성
-// let ivtList = [];
-// let baseIvt = config.InverterController[0];
+const bmjh = require('base-model-jh');
+const BM = new bmjh.BM(config.current.dbInfo);
 
-// let comPort = 9;
-// let ivtSeq = 5;
-// for (let cnt = 1; cnt <= 3; cnt++) {
-//   let cloneIvt = JSON.parse(JSON.stringify(baseIvt));
+if (config.current.devOption.hasLoadSqlInverter) {
+  inverterSetter()
+    .then(inverterList => {
+      config.current.inverterList = inverterList;
 
-//   let test = cloneIvt.current.ivtSavedInfo.dialing;
-//   let buf = Buffer.from(test);
-//   cloneIvt.current.ivtSavedInfo.inverter_seq = ivtSeq++;
-//   cloneIvt.current.ivtSavedInfo.target_id = 'IVT' + cnt;
-//   cloneIvt.current.ivtSavedInfo.target_name = '인버터 ' + cnt;
-//   cloneIvt.current.ivtSavedInfo.connect_type = 'socket';
-//   cloneIvt.current.ivtSavedInfo.ip = 'localhost';
-//   cloneIvt.current.ivtSavedInfo.port = 'COM' + comPort++;
-//   cloneIvt.current.hasDev = true;
-//   BU.log(cloneIvt.current.ivtSavedInfo.target_id)
-//   ivtList.push(cloneIvt);
-// }
+      BU.writeFile('./config.json', `${JSON.stringify(config)}`, 'w', (err, res) => {
 
-// config.current.inverterList = ivtList;
-// BU.CLI(config)
-// return;
-let control = new Control(config);
+      })
+    });
+} else {
+  let control = new Control(config);
 
-console.time('Uwps Init')
-control.init()
-  .then(result => {
-    // TODO
-    console.timeEnd('Uwps Init')
-    // BU.CLI('UWPS INIT Result', result)
-    return control.hasOperationInverter('IVT1');
-  })
-  .then(result => {
-    // TODO
-    BU.CLI('hasOperationInverter IVT1', result)
-  })
-  .delay(1000)
-  .then(() => {
-    return control.getInverterData('IVT1');
-  })
-  .then((r) => {
-    BU.CLI(r)
-    return control.getConnectorData('CNT1');
-  })
-  .then(r => {
-    BU.CLI(r)
-  })
-  .catch(error => {
-    // TODO
-    BU.CLI(error)
-    return error;
+  console.time('Uwps Init')
+  control.init()
+    .then(result => {
+      // TODO
+      console.timeEnd('Uwps Init')
+      // BU.CLI('UWPS INIT Result', result)
+      return control.hasOperationInverter('IVT1');
+    })
+    .then(result => {
+      // TODO
+      BU.CLI('hasOperationInverter IVT1', result)
+    })
+    .delay(1000)
+    .then(() => {
+      return control.getInverterData('IVT1');
+    })
+    .then((r) => {
+      BU.CLI(r)
+      return control.getConnectorData('CNT1');
+    })
+    .then(r => {
+      BU.CLI(r)
+    })
+    .catch(error => {
+      // TODO
+      BU.CLI(error)
+      return error;
+    });
+
+
+
+  control.on('completeMeasureInverter', (err, res) => {
+    BU.CLI('completeMeasureInverter', res.length)
   });
 
+  control.on('completeMeasureConnector', (err, res) => {
+    BU.CLI('completeMeasureConnector', res.length)
+  });
+
+}
+
+
+async function inverterSetter() {
+  let inverterList = await BM.getTable('inverter');
+
+  BU.CLI(inverterList)
+
+  let returnValue = [];
+
+  return new Promise(resolve => {
+    Promise.map(inverterList, inverter => {
+      BU.CLI(inverter)
+      return BM.db.single(`SELECT d_wh, c_wh FROM inverter_data WHERE ${inverter.inverter_seq} = inverter_seq ORDER BY inverter_data_seq DESC LIMIT 1 `);
+    }).then(result => {
+      let ivtDataList = _.flatten(result);
+      inverterList.forEach((element, index) => {
+        let addObj = {
+          hasDev: true,
+          ivtDummyData: {},
+          ivtSavedInfo: element
+        }
+
+        addObj.ivtDummyData.dailyKwh = ivtDataList[index].d_wh / 10000;
+        addObj.ivtDummyData.cpKwh = ivtDataList[index].c_wh / 10000;
+        returnValue.push({ current: addObj });
+      });
+      // BU.CLI(returnValue)
+      resolve(returnValue);
+    })
+  })
+}
 
 
 
-control.on('completeMeasureInverter', (err, res) => {
-  BU.CLI('completeMeasureInverter', res.length)
-});
 
-control.on('completeMeasureConnector', (err, res) => {
-  BU.CLI('completeMeasureConnector', res.length)
-});

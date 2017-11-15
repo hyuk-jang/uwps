@@ -9,7 +9,7 @@ const BU = require('base-util-jh').baseUtil;
 
 
 class Control extends EventEmitter {
-  constructor() {
+  constructor(dummyData = {dailyKwh, cpKwh}) {
     super();
     // 현재 Control 설정 변수
     this.config = {
@@ -17,6 +17,8 @@ class Control extends EventEmitter {
       isSingle: 1,
       renewalCycle: 10, // sec  데이터 갱신 주기,
       dummyValue: {
+        dailyKwh: dummyData.dailyKwh,
+        cpKwh: dummyData.cpKwh,
         // 0시 ~ 23시까지(index와 매칭: 변환 효율표)
         powerRangeByYear: [68, 75, 76, 79, 84, 87, 96, 100, 92, 85, 76, 71],
         // 0시 ~ 23시까지(index와 매칭: 변환 효율표)

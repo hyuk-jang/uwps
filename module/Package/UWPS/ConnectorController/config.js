@@ -15,7 +15,7 @@ module.exports = {
       code: '장치 고유 id',
       addr_v: 0, // 3Kw, 
       addr_a: 4, // 전류값 시작 번지
-      ch_number: 6,  // CH 수
+      ch_number: 4,  // CH 수
       director_name: '홍길동',
       director_tel: '01012345589'
     }

@@ -1,6 +1,10 @@
 module.exports = {
   current: {
     hasDev: true, // 테스트모드 여부 -> 테스트 소켓 서버 및 테스트 데이터 생성 여부
+    ivtDummyData: {
+      dailyKwh: 4.5147,
+      cpKwh: 111.3691
+    },
     ivtSavedInfo: {
 			inverter_seq: 1,
 			connector_seq: 1,

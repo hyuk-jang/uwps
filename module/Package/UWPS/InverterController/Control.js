@@ -18,6 +18,7 @@ class Control extends EventEmitter {
     // 현재 Control 설정 변수
     this.config = {
       hasDev: true,
+      ivtDummyData: {},
       ivtSavedInfo: {},
     };
     Object.assign(this.config, config.current);
@@ -39,7 +40,7 @@ class Control extends EventEmitter {
     this.p_SerialClient = new P_SerialClient(this);
 
     // Child
-    this.dummyInverter = new DummyInverter();
+    this.dummyInverter = new DummyInverter(this.config.ivtDummyData);
 
     this.setTimer = null;
   }

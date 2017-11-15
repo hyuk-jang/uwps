@@ -73,8 +73,8 @@ class Model {
     this.power = {
       // pvWh: 0, //  현재 태양 전지 출력 전력량, 단위: 
       gridKw: 0,  // 출력 전력
-      dailyKwh: 0,  // 하루 발전량 kWh
-      cpKwh: 0, // 인버터 누적 발전량 mWh  Cumulative Power Generation
+      dailyKwh: this.config.dummyValue.dailyKwh || 0,  // 하루 발전량 kWh
+      cpKwh: this.config.dummyValue.cpKwh ||0, // 인버터 누적 발전량 mWh  Cumulative Power Generation
       pf: 0,  // 역률 Power Factor %
     }
 

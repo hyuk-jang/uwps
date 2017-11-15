@@ -26,7 +26,7 @@ class Model {
     })
 
     // returnvalue = NU.multiplyScale2Obj(returnvalue, 10, 0);
-    returnvalue.connector_data_seq = this.cntSavedInfo.connector_seq;
+    returnvalue.connector_seq = this.cntSavedInfo.connector_seq;
 
     // Scale 10 배수 처리
     return returnvalue;
@@ -43,7 +43,7 @@ class Model {
     })
 
     returnvalue = NU.multiplyScale2Obj(returnvalue, 0.1, 1);
-    returnvalue.connector_data_seq = this.cntSavedInfo.connector_seq;
+    returnvalue.connector_seq = this.cntSavedInfo.connector_seq;
     return returnvalue;
   }
 

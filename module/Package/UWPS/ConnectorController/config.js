@@ -7,7 +7,11 @@ module.exports = {
       target_category: 'modbus_tcp',
       target_id: 'CNT1',
       target_name: '접속반 1',
-      dialing: 1, // id,
+      // dialing: 1, // id,
+      "dialing": {
+        "type": "Buffer",
+        "data": [2]
+      },
       // connect_type: 'socket', // `socket` or `serial`
       ip: 'localhost', // Socket 연결 시 사용
       port: 5555, // Port를 직접 지정하고자 할때 사용

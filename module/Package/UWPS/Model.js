@@ -107,7 +107,7 @@ class Model {
    * @returns {Promise} DB 입력한 결과
    */
   completeMeasureConnector(measureTime, connectorListData) {
-    BU.CLI(measureTime, connectorListData)
+    // BU.CLI(measureTime, connectorListData)
     let measureConnectorDataList = [];
 
 

@@ -22,7 +22,8 @@ class P_ModbusClient {
       this.connectionInfo = {
         'host': config.host ? config.host : 'localhost', /* IP or name of server host */
         'port': config.port ? config.port : 0, /* well known Modbus port */
-        'unitId': config.dialing ? config.dialing : 1,
+        // 'unitId': config.dialing ? config.dialing : 1,
+        'unitId': config.dialing.type === 'Buffer' ? Buffer.from(config.dialing).toString() : 1,
         'timeout': 2000, /* 2 sec */
         'autoReconnect': true, /* reconnect on connection is lost */
         'reconnectTimeout': 15000, /* wait 15 sec if auto reconnect fails to often */

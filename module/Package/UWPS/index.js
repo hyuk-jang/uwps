@@ -13,64 +13,72 @@ global._ = _;
 const bmjh = require('base-model-jh');
 const BM = new bmjh.BM(config.current.dbInfo);
 
-if (config.current.devOption.hasLoadSqlInverter) {
-  inverterSetter()
-    .then(inverterList => {
-      config.current.inverterList = inverterList;
 
-      BU.writeFile('./config.json', `${JSON.stringify(config)}`, 'w', (err, res) => {
-
-      })
-    });
-} else {
-  let control = new Control(config);
-
+setter()
+.then(res => {
   console.time('Uwps Init')
-  control.init()
-    .then(result => {
-      // TODO
-      console.timeEnd('Uwps Init')
-      // BU.CLI('UWPS INIT Result', result)
-      return control.hasOperationInverter('IVT1');
-    })
-    .then(result => {
-      // TODO
-      BU.CLI('hasOperationInverter IVT1', result)
-    })
-    .delay(1000)
-    .then(() => {
-      return control.getInverterData('IVT1');
-    })
-    .then((r) => {
-      BU.CLI(r)
-      return control.getConnectorData('CNT1');
-    })
-    .then(r => {
-      BU.CLI(r)
-    })
-    .catch(error => {
-      // TODO
-      BU.CLI(error)
-      return error;
-    });
-
-
-
+  let control = new Control(config);
   control.on('completeMeasureInverter', (err, res) => {
     BU.CLI('completeMeasureInverter', res.length)
   });
-
+  
   control.on('completeMeasureConnector', (err, res) => {
     BU.CLI('completeMeasureConnector', res.length)
   });
+  
+  return control.init();
+})
+.then(result => {
+  // TODO
+  console.timeEnd('Uwps Init')
+  // BU.CLI('UWPS INIT Result', result)
+  return control.hasOperationInverter('IVT1');
+})
+.then(result => {
+  // TODO
+  BU.CLI('hasOperationInverter IVT1', result)
+})
+// .delay(1000)
+.then(() => {
+  return control.getInverterData('IVT1');
+})
+.then((r) => {
+  BU.CLI(r)
+  return control.getConnectorData('CNT1');
+})
+.then(r => {
+  BU.CLI(r)
+})
+.catch(error => {
+  // TODO
+  BU.CLI(error)
+  return error;
+});
 
+
+
+
+async function setter() {
+  if (config.current.devOption.hasLoadSqlInverter) {
+    config.current.inverterList = await inverterSetter();
+  }
+
+  if (config.current.devOption.hasLoadSqlConnector) {
+    config.current.connectorList = await connectorSetter();
+  }
+
+  if (config.current.devOption.hasSaveConnectorConfig || config.current.devOption.hasSaveInverterConfig) {
+    BU.writeFile('./config.json', `${JSON.stringify(config)}`, 'w', (err, res) => {
+      BU.CLI(err, res)
+      process.exit();
+    })
+  }
+
+  return true;
 }
-
 
 async function inverterSetter() {
   let inverterList = await BM.getTable('inverter');
-
-  BU.CLI(inverterList)
 
   let returnValue = [];
 
@@ -89,7 +97,9 @@ async function inverterSetter() {
 
         addObj.ivtDummyData.dailyKwh = ivtDataList[index].d_wh / 10000;
         addObj.ivtDummyData.cpKwh = ivtDataList[index].c_wh / 10000;
-        returnValue.push({ current: addObj });
+        returnValue.push({
+          current: addObj
+        });
       });
       // BU.CLI(returnValue)
       resolve(returnValue);
@@ -97,6 +107,21 @@ async function inverterSetter() {
   })
 }
 
+async function connectorSetter() {
+  let connectorList = await BM.getTable('connector');
 
+  let returnValue = [];
+  let basePort = 5555;
+  connectorList.forEach((element, index) => {
+    let addObj = {
+      hasDev: true,
+      devPort: basePort + index,
+      cntSavedInfo: element
+    }
+    returnValue.push({
+      current: addObj
+    });
+  });
 
-
+  return returnValue;
+}

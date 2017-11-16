@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>SM부트스트랩 테마디자인</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <!-- 위 3개의 메타 태그는 *반드시* head 태그의 처음에 와야합니다; 어떤 다른 콘텐츠들은 반드시 이 태그들 *다음에* 와야 합니다 -->
+
+    <!-- 부트스트랩 -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <link href="css/StyleSheet.css" rel="stylesheet" />
+</head>
+
+<body>
+    <!-- jQuery (부트스트랩의 자바스크립트 플러그인을 위해 필요합니다) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- 모든 컴파일된 플러그인을 포함합니다 (아래), 원하지 않는다면 필요한 각각의 파일을 포함하세요 -->
+    <script src="js/bootstrap.min.js"></script>
+
+
+    <link href="fonts/font-awesome.min.css" rel="stylesheet" />
+    <!--네비-->
+    <%- include("../master/header.html") %>
+
+        <!--메인-->
+
+
+
+
+        <div class="jumbotron text-center  jumbotron_line">
+            <div class="row row_st_line">
+
+                <div class="row row_width">
+                    <div class="col-sm-4 cctv_h">Playback</div>
+                    <div class="col-sm-4 cctv_h">Log</div>
+                    <div class="col-sm-4 cctv_h">Others Option</div>
+                    <div class="col-sm-9 cctv_l">
+
+                        <div class="cam cam_u"> <img src="image/cam01.png" /></div>
+                        <div class="cam cam_u">
+                            <img src="image/cam02.png" /></div>
+                        <div class="cam">
+                            <img src="image/cam03.png" /></div>
+                        <div class="cam">
+
+                        </div>
+                        <div class="cctv_f">
+                            <img src="image/option.jpg" />
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="col-sm-3 cctv_r" style="border:solid 1px #ddd;">
+                        <div class="cctv_r_con">
+
+                            <img style="margin-top:10px;" src="image/cont_angle.png" />
+
+                            <div class="step" style="margin-top:10px;">
+                                <span style="color:#fff; font-size:15px; float:left; margin-left:25px; margin-right:25px;">step(1-8): </span>
+                                <select class="form-control" id="sel1" style="width:80px; margin-top:-2px; height:25px; padding: 2px 8px; float:left;">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                    <option>6</option>
+                                    <option>7</option>
+                                    <option>8</option>
+                                </select>
+                            </div>
+
+
+                            <div class="zoom_st">
+                                <div class="zoom_st_in">
+                                    <img src="image/--.png" />
+                                    <p>Zoom</p>
+                                    <img src="image/-.png" /> </div>
+
+
+                                <div class="zoom_st_in">
+                                    <img src="image/--.png" />
+                                    <p>Focus</p>
+                                    <img src="image/-.png" />
+                                </div>
+
+
+                                <div class="zoom_st_in">
+                                    <img src="image/--.png" />
+                                    <p>Iris</p>
+                                    <img src="image/-.png" />
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                        <div class="cctv_r_col">
+                            <div class="cctv_r_col_tab">
+                                <div class="cctv_color">Color</div>
+                                <div class="cctv_color">Other</div>
+                            </div>
+
+
+                            <div class="cctv_r_col_main">
+                                <img style="margin-top:20px;" src="image/col.png" />
+                                <button type="button" class="btn btn-default btn-md" style="padding:5px 10px; margin-top:30px; float:left; margin-left:30px;">Default</button>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+            </div>
+            <div style="margin:0 auto; margin-top:70px; text-align: center;">
+
+                <p style="font-size: 13px;"> COPYRIGHT 2005. 에스엠소프트웨어(주) ALL RIGHTS RESERVED.</p>
+            </div>
+
+        </div>
+
+
+
+
+
+
+
+</body>
+
+</html>

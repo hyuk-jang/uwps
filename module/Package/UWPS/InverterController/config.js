@@ -9,7 +9,7 @@ module.exports = {
 			inverter_seq: 1,
 			connector_seq: 1,
 			target_id: 'IVT1',
-			target_category: 's_hex',
+			target_category: 'dev',
 			target_name: '인버터 1',
 			target_type: 'single_ivt',
 			dialing: '0x3031',

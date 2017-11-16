@@ -28,7 +28,7 @@ SELECT
       END AS writedate
       
       FROM photovoltaic pt
-      JOIN saltern_block sb
+      LEFT JOIN saltern_block sb
       	ON sb.saltern_block_seq = pt.saltern_block_seq
       ,connector_structure cs
       

@@ -37,6 +37,7 @@ control.init()
 .then(result => {
   BU.CLI(result)
   BU.CLI(control.model.inverterData)
+  BU.CLI(control.operationInfo)
 })
 .catch(error => {
   BU.CLI(error)

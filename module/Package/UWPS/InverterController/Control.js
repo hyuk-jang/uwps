@@ -53,8 +53,20 @@ class Control extends EventEmitter {
     return this.model.cmdList;
   }
 
+
+  /**
+   * DB 에 입력할 데이터 형태 반환
+   */
   get refineInverterData() {
     return this.model.refineInverterData;
+  }
+
+  /**
+   * 인버터 동작 상태
+   * @return {Object} {isRun, isError, temperature, errorList, warningList}
+   */
+  get operationInfo() {
+    return this.model.operationInfo;
   }
 
   // DB 정보를 넣어둔 데이터 호출
@@ -104,7 +116,7 @@ class Control extends EventEmitter {
     // await Promise.delay(1000);
     // console.timeEnd('ivt' + this.inverterId)
     // NOTE 인텔리전스를 위해 P_Setter에서 재정의함
-    let connectedInverter =  await this.connectInverter();
+    let connectedInverter = await this.connectInverter();
     // BU.CLI(connectedInverter)
 
     return this;
@@ -161,11 +173,11 @@ class Control extends EventEmitter {
       this.model.initControlStatus();
       this.model.controlStatus.reserveCmdList = this.encoder.makeMsg();
       return await Promise.each(this.model.controlStatus.reserveCmdList, cmd => {
-        this.model.controlStatus.reserveCmdList.shift();
-        this.model.controlStatus.processCmd = cmd;
-        this.model.controlStatus.sendIndex++;
-        return this.send2Cmd(cmd);
-      })
+          this.model.controlStatus.reserveCmdList.shift();
+          this.model.controlStatus.processCmd = cmd;
+          this.model.controlStatus.sendIndex++;
+          return this.send2Cmd(cmd);
+        })
         // .bind({})
         .then((result) => {
           // BU.CLIS(result, this.model.refineInverterData)
@@ -185,7 +197,7 @@ class Control extends EventEmitter {
           return {};
 
           return this.model.refineInverterData;
-          
+
           // throw err;
         })
     }
@@ -200,16 +212,16 @@ class Control extends EventEmitter {
     // console.time(this.config.ivtSavedInfo.target_id + cmd)
     let timeout = {};
     return Promise.race(
-      [
-        this.msgSendController(cmd),
-        new Promise((_, reject) => {
-          timeout = setTimeout(() => {
-            // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
-            reject(new Error('timeout'))
-          }, this.model.controlStatus.sendMsgTimeOutSec)
-        })
-      ]
-    )
+        [
+          this.msgSendController(cmd),
+          new Promise((_, reject) => {
+            timeout = setTimeout(() => {
+              // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
+              reject(new Error('timeout'))
+            }, this.model.controlStatus.sendMsgTimeOutSec)
+          })
+        ]
+      )
       .then(result => {
         clearTimeout(timeout);
         // console.timeEnd(this.config.ivtSavedInfo.target_id + cmd)

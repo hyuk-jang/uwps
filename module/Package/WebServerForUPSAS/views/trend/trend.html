@@ -38,6 +38,24 @@
 
     <div class="jumbotron text-center jumbotron_line">
       <div class="row row_st_line">
+          <select class="form-control form-control_st" id="sel1" name="connector_seq" onchange="changeConnector(this.value)">
+              <%
+              for(var i = 0 ; i < connectorList.length ; i++){
+                  var connectorInfo = connectorList[i];
+                  var cntSeq = connectorInfo.connector_seq;
+                  var cntName = connectorInfo.target_name;
+                  var selected = '';
+                  if(cntSeq === connector_seq){
+                    selected = 'selected';
+                  }
+                %>
+                <option <%=selected %> value='<%=cntSeq %>'>
+                    <%= cntName %>
+                </option>
+                <%
+              }
+              %>
+            </select>
 
         <div class="row row_width">
 
@@ -85,10 +103,7 @@
         </div>
       </div>
 
-      <div style="margin:0 auto;  margin-top:70px; text-align: center;">
-
-        <p style="font-size: 13px;"> COPYRIGHT 2005. 에스엠소프트웨어(주) ALL RIGHTS RESERVED.</p>
-      </div>
+      <%- include("../master/footer.html") %>
 
     </div>
 
@@ -108,11 +123,6 @@
           yAxis: {
             title: {
               text: '발전량(Wh)'
-            }
-          },
-          plotOptions: {
-            series: {
-              pointStart: 0
             }
           },
           legend: {  //범례

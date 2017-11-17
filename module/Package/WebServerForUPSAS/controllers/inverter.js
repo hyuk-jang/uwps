@@ -1,10 +1,12 @@
-module.exports = function (app) {
-  let router = require('express').Router();
+const wrap = require('express-async-wrap');
+let router = require('express').Router();
 
-  let BU = require('base-util-jh').baseUtil;
-  let DU = require('base-util-jh').domUtil;
+let BiModule = require('../models/BiModule.js');
+
+module.exports = function (app) {
+  const initSetter = app.get('initSetter');
+  const biModule = new BiModule(initSetter.dbInfo);
   
-  let biInverter = require('../models/inverter.js');
   // server middleware
   router.use(function (req, res, next) {
     req.locals = DU.makeBaseHtml(req, 4);
@@ -12,18 +14,42 @@ module.exports = function (app) {
   });
 
   // Get
-  router.get('/', function (req, res) {
-    BU.CLI('inverter', req.locals)
-    //데이터 Test
-    biInverter.getInverter(function (err, list) {
-      if (err) {
-        return res.status(500).send(err);
-      }
-      res.render('./inverter/inverter.html', DU.makeInverterHtml(req.locals, list))
+  router.get('/', wrap(async(req, res) => {
+    // BU.CLI('inverter', req.locals)
 
+    // console.time('getTable')
+    let inverterStatus = await biModule.getTable('v_inverter_status')
+    // console.timeEnd('getTable')
+    // console.time('getInverterHistory')
+    let inverterHistory = await biModule.getInverterHistory();
+
+    let series = [];
+    _.each(inverterHistory, (statusObj, ivtSeq) => {
+      let findObj = _.findWhere(inverterStatus, {inverter_seq : Number(ivtSeq)});
+      let addObj = {
+        name: findObj ? findObj.target_name : '',
+        data: _.pluck(statusObj, 'out_w')
+      }
+      series.push(addObj);
     })
 
-  });
+    // console.timeEnd('getInverterHistory')
+
+    BU.CLI('series',series)
+    req.locals.inverterStatus = inverterStatus;
+    req.locals.series = series;
+    req.locals.powerInfo = {
+      measureTime: _.first(inverterStatus) ? BU.convertDateToText(_.first(inverterStatus).writedate) : ''
+    };
+
+    return res.render('./inverter/inverter.html', req.locals);
+  }));
+
+
+  router.use(wrap(async (err, req, res, next) => {
+    BU.CLI('Err', err)
+    res.status(500).send(err);
+  }));
 
   return router;
 }

@@ -279,8 +279,8 @@
 
               var chName = "CH " + moduleInfo.channel;
               var deviceName = moduleInfo.target_name;
-              var amp = moduleInfo.amp / 10;
-              var vol = moduleInfo.vol / 10;
+              var amp = moduleInfo.amp ;
+              var vol = moduleInfo.vol;
               var kw = (amp * vol / 1000).toFixed(2);
 
 
@@ -371,7 +371,7 @@
             max: 60,
             minorTickInterval: 10,
             title: {
-              text: '금일 발전량'
+              text: ''
             }
           },
 
@@ -428,7 +428,7 @@
         $(function () {
           
           var data =<%- JSON.stringify(dailyPowerReport.chartList) %>; 
-          // console.log('data', data)
+          // console.log('data', data[0])
           $('#dailyPowerChart').highcharts({
             title: {
               text: ''

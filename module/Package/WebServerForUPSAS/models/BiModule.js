@@ -35,13 +35,18 @@ class BiModule extends bmjh.BM {
       });
   }
 
+  
 
   getConnectorHistory(connector = {
     connector_seq,
     ch_number
   }) {
-    let sql = `select writedate, DATE_FORMAT(writedate,'%H:%i:%S') AS writedate,
-      ROUND(v / 10, 1) AS vol
+    let sql = `
+      SELECT
+        connector_seq,
+        writedate,
+        DATE_FORMAT(writedate,'%H:%i') AS hour_time,
+        ROUND(v / 10, 1) AS vol
     `;
     for (let i = 1; i <= connector.ch_number; i++) {
       sql += ` 
@@ -57,7 +62,7 @@ class BiModule extends bmjh.BM {
     ORDER BY connector_seq, writedate
     `;
 
-    return this.db.single(sql)
+    return this.db.single(sql, '', true)
       .then(result => {
         let returnValue = {};
         returnValue.chartDataList = [];
@@ -65,9 +70,103 @@ class BiModule extends bmjh.BM {
         for (let cnt = 1; cnt <= connector.ch_number; cnt++) {
           returnValue.chartDataList.push(_.pluck(result, `ch_${cnt}`));
         }
-        returnValue.rangeData = _.pluck(result, `writedate`);
+        returnValue.rangeData = _.pluck(result, `hour_time`);
 
         return returnValue;
+      })
+  }
+
+  getConnectorHistory2(connector = {connector_seq,ch_number}, startDate, endDate, selectType) {
+    startDate = startDate ? startDate : 'CURDATE()';
+    endDate = endDate ? endDate : 'CURDATE() + 1';
+    selectType = selectType ? selectType : 'day';
+
+    let dateFormat = '';
+    switch (selectType) {
+      case 'day':
+        dateFormat = '%H';
+        break;
+      case 'month':
+        dateFormat = '%Y-%m-%d';
+        break;
+      case 'year':
+        dateFormat = '%Y-%m';
+        break;
+      default:
+        dateFormat = '%H';
+        break;
+    }
+
+    let sql = `
+      SELECT 
+        connector_seq,
+        writedate, 
+        DATE_FORMAT(writedate,'%H:%i') AS hour_time,
+        ROUND(v / 10, 1) AS vol
+    `;
+    for (let i = 1; i <= connector.ch_number; i++) {
+      sql += ` 
+        ${i === 1 ? ',' : ''}
+        ROUND(ch_${i}/10,1) AS ch_${i}
+        ${i === connector.ch_number ? '' : ','}
+      `;
+    }
+    
+    sql += `
+    FROM connector_data
+    WHERE writedate>= ${startDate} and writedate<${endDate} AND connector_seq = ${connector.connector_seq}
+    GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), connector_seq
+    ORDER BY connector_seq, writedate
+    `;
+
+    return this.db.single(sql, '', true)
+      .then(result => {
+        let returnValue = {};
+        returnValue.chartDataList = [];
+        returnValue.rangeData = [];
+        for (let cnt = 1; cnt <= connector.ch_number; cnt++) {
+          returnValue.chartDataList.push(_.pluck(result, `ch_${cnt}`));
+        }
+        returnValue.rangeData = _.pluck(result, `hour_time`);
+
+        return returnValue;
+      })
+  }
+
+
+
+  getInverterHistory(inverter_seq_list, startDate, endDate) {
+    startDate = startDate ? startDate : 'CURDATE()';
+    endDate = endDate ? endDate : 'CURDATE() + 1';
+    
+    let sql = `
+      SELECT 
+      inverter_seq,
+      writedate, 
+      DATE_FORMAT(writedate,'%H:%i:%S') AS hour_time,
+      ROUND(in_a / 10, 1) AS in_a,
+      ROUND(in_v / 10, 1) AS in_v,
+      ROUND(in_w / 10, 1) AS in_w,
+      ROUND(out_a / 10, 1) AS out_a,
+      ROUND(out_v / 10, 1) AS out_v,
+      ROUND(out_w / 10, 1) AS out_w,
+      ROUND(p_f / 10, 1) AS p_f,
+      ROUND(d_wh / 10, 1) AS d_wh,
+      ROUND(c_wh / 10, 1) AS c_wh
+      FROM inverter_data
+        WHERE writedate>= ${startDate} AND writedate<${endDate}
+    `;
+    if(Array.isArray(inverter_seq_list)){
+      sql += ` AND inverter_seq IN (${inverter_seq_list})`;
+    }
+    sql += `
+      GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), inverter_seq
+      ORDER BY inverter_seq, writedate
+    `;
+
+    return this.db.single(sql)
+      .then(result => {
+        return _.groupBy(result, rows => rows.inverter_seq);
       })
   }
 

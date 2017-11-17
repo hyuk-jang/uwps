@@ -24,31 +24,46 @@ module.exports = function (app) {
     let connector_seq = req.query.connector_seq ? Number(req.query.connector_seq)  : _.first(connectorList).connector_seq;
     let selectedConnector = _.findWhere(connectorList, {connector_seq: connector_seq})
     let moduleStatusList = await biModule.getTable('v_photovoltaic_status', 'connector_seq', connector_seq)
-    let connectorHistory = await biModule.getConnectorHistory(selectedConnector);
+    let connectorHistory = await biModule.getConnectorHistory2(selectedConnector);
 
+    let returnValue = {};
+    returnValue.chartDataList = [];
+    returnValue.rangeData = [];
+    for (let cnt = 1; cnt <= connector.ch_number; cnt++) {
+      returnValue.chartDataList.push(_.pluck(result, `ch_${cnt}`));
+    }
+    returnValue.rangeData = _.pluck(result, `hour_time`);
+
+
+
+    BU.CLI(connectorHistory)
+    // return;
     let ampList = _.pluck(moduleStatusList, 'amp');
     let volList = _.pluck(moduleStatusList, 'vol');
 
-    let totalAmp = _.reduce(ampList, (accumulator, currentValue) => accumulator + currentValue ) / 10;
-    let vol = _.reduce(volList, (accumulator, currentValue) => accumulator + currentValue ) / 10 / volList.length;
+    let totalAmp = _.reduce(ampList, (accumulator, currentValue) => accumulator + currentValue );
+    let vol = _.reduce(volList, (accumulator, currentValue) => accumulator + currentValue ) / volList.length;
+    
     
     // 접속반 리스트
     req.locals.connectorList = connectorList;
     req.locals.connector_seq = connector_seq;
     req.locals.gridInfo = {
       // 총전류, 전압, 보여줄 컬럼 개수
-      totalAmp, vol, maxModuleViewNum : 8
+      totalAmp, vol, maxModuleViewNum : 8, 
+      measureTime: _.first(moduleStatusList) ? BU.convertDateToText(_.first(moduleStatusList).writedate) : ''
     }
     // 모듈 상태값들 가지고 있는 배열
     req.locals.moduleStatusList = moduleStatusList;
     // 금일 발전 현황
     req.locals.connectorHistory = connectorHistory;
+
     return res.render('./connector/connect.html', req.locals);
   }));
 
 
   router.use(wrap(async (err, req, res, next) => {
-    BU.CLI('Err', err)
+    console.trace(err);
     res.status(500).send(err);
   }));
 

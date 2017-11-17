@@ -1,6 +1,12 @@
 SELECT 
 	connector.*,
-	v, ch_1, ch_2, ch_3, ch_4, writedate
+	ROUND(v / 10, 1) AS v,
+	ROUND(ch_1 / 10, 1) AS ch_1,
+	ROUND(ch_2 / 10, 1) AS ch_2,
+	ROUND(ch_3 / 10, 1) AS ch_3,
+	ROUND(ch_4 / 10, 1) AS ch_4,
+
+	writedate
 	FROM connector_data 
 	LEFT JOIN connector
 		ON connector.connector_seq = connector_data.connector_seq

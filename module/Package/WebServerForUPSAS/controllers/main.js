@@ -26,9 +26,9 @@ module.exports = function (app) {
     let inverterDataList = await biModule.getTable('v_inverter_status');
 
     let powerGenerationInfo = {
-      currKw: (_.reduce(_.pluck(inverterDataList, 'out_w'), (accumulator, currentValue) => accumulator + currentValue ) / 10000).toFixed(3),
-      dailyPower: (_.reduce(_.pluck(inverterDataList, 'd_wh'), (accumulator, currentValue) => accumulator + currentValue ) / 10000).toFixed(3),
-      cumulativePower: (_.reduce(_.pluck(inverterDataList, 'c_wh'), (accumulator, currentValue) => accumulator + currentValue ) / 10000 / 1000).toFixed(3),
+      currKw: (_.reduce(_.pluck(inverterDataList, 'out_w'), (accumulator, currentValue) => accumulator + currentValue ) / 1000).toFixed(3),
+      dailyPower: (_.reduce(_.pluck(inverterDataList, 'd_wh'), (accumulator, currentValue) => accumulator + currentValue ) / 1000).toFixed(3),
+      cumulativePower: (_.reduce(_.pluck(inverterDataList, 'c_wh'), (accumulator, currentValue) => accumulator + currentValue ) / 1000 / 1000).toFixed(3),
       hasOperationInverter: true,
     };
 

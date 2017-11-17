@@ -7,15 +7,15 @@ SELECT
       (SELECT target_name FROM connector WHERE connector_seq=cs.connector_seq) AS connector_name,
       CASE 
       	WHEN cs.channel = 1
-      	THEN (SELECT ch_1 FROM connector_data WHERE connector_seq = cs.connector_seq ORDER BY connector_data.connector_data_seq DESC LIMIT 1)
+      	THEN ROUND((SELECT ch_1 FROM connector_data WHERE connector_seq = cs.connector_seq ORDER BY connector_data.connector_data_seq DESC LIMIT 1) / 10, 1)
 			WHEN cs.channel = 2
-      	THEN (SELECT ch_2 FROM connector_data WHERE connector_seq = cs.connector_seq ORDER BY connector_data.connector_data_seq DESC LIMIT 1)
+      	THEN ROUND((SELECT ch_2 FROM connector_data WHERE connector_seq = cs.connector_seq ORDER BY connector_data.connector_data_seq DESC LIMIT 1) / 10, 1)
 			WHEN cs.channel = 3
-      	THEN (SELECT ch_3 FROM connector_data WHERE connector_seq = cs.connector_seq ORDER BY connector_data.connector_data_seq DESC LIMIT 1)
+      	THEN ROUND((SELECT ch_3 FROM connector_data WHERE connector_seq = cs.connector_seq ORDER BY connector_data.connector_data_seq DESC LIMIT 1) / 10, 1)
 			WHEN cs.channel = 4
-      	THEN (SELECT ch_4 FROM connector_data WHERE connector_seq = cs.connector_seq ORDER BY connector_data.connector_data_seq DESC LIMIT 1)
-      END AS amp,
-      (SELECT v FROM connector_data WHERE connector_seq = cs.connector_seq ORDER BY connector_data.connector_data_seq DESC LIMIT 1) AS vol,
+      	THEN ROUND((SELECT ch_4 FROM connector_data WHERE connector_seq = cs.connector_seq ORDER BY connector_data.connector_data_seq DESC LIMIT 1) / 10, 1)
+      END AS  amp,
+      ROUND((SELECT v FROM connector_data WHERE connector_seq = cs.connector_seq ORDER BY connector_data.connector_data_seq DESC LIMIT 1) / 10, 1) AS vol,
       CASE 
       	WHEN cs.channel = 1
       	THEN (SELECT writedate FROM connector_data WHERE connector_seq = cs.connector_seq ORDER BY connector_data.connector_data_seq DESC LIMIT 1)

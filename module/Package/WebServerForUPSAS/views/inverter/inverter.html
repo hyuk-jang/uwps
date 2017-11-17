@@ -22,6 +22,9 @@
   <!-- 모든 컴파일된 플러그인을 포함합니다 (아래), 원하지 않는다면 필요한 각각의 파일을 포함하세요 -->
   <script src="js/bootstrap.min.js"></script>
 
+  <script src="js/underscore-min.js"></script>
+
+
   <!-- 구글 차트 -->
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script src="https://code.highcharts.com/highcharts.src.js"></script>
@@ -38,72 +41,82 @@
       <div class="row row_st_line">
 
         <div class="row row_width">
-
+          <div class="title" style="float: none; margin-bottom: 20px"> 실시간 인버터 모니터링
+            <span style="position: absolute;color: black;width: 300px; text-align: left; text-indent: 30px">
+              측정시간:
+              <%- powerInfo.measureTime %>
+            </span>
+          </div>
           <div class="table-responsive">
             <table class="table table-hover ">
               <thead>
                 <tr>
                   <th style="width:8%;"></th>
-                  <th style="width:9%;">DC 전압<br>(V)</th>
-                  <th style="width:9%;">DC 전류<br>(A)</th>
-                  <th style="width:9%;">DC 전력<br>(W)</th>
-                  <th style="width:9%;">AC 전압<br>(V)</th>
-                  <th style="width:9%;">AC 전류<br>(A)</th>
-                  <th style="width:9%;">AC 전력<br>(W)</th>
-                  <th style="width:9%;">변환효율<br>(%)</th>
-                  <th style="width:11%;">금일발전량<br>(Wh)</th>
-                  <th style="width:11%;">누적발전량<br>(kWh)</th>
+                  <th style="width:9%;">DC 전압
+                    <br>(V)</th>
+                  <th style="width:9%;">DC 전류
+                    <br>(A)</th>
+                  <th style="width:9%;">DC 전력
+                    <br>(kW)</th>
+                  <th style="width:9%;">AC 전압
+                    <br>(V)</th>
+                  <th style="width:9%;">AC 전류
+                    <br>(A)</th>
+                  <th style="width:9%;">AC 전력
+                    <br>(kW)</th>
+                  <th style="width:9%;">변환효율
+                    <br>(%)</th>
+                  <th style="width:11%;">금일발전량
+                    <br>(kWh)</th>
+                  <th style="width:11%;">누적발전량
+                    <br>(mWh)</th>
                   <th style="width:7%; text-align:center; padding-bottom:15px;">장치상태</th>
 
                 </tr>
               </thead>
               <tbody id="myTable">
                 <%
-                var Total_DCA=0,Total_DCK=0,Total_ACA=0,Total_ACK=0;
-                var Today_kWh=0,Total_MWh=0;
-                for(var i = 0 ;i < ivtTableList.length ; i++)
-                {
-                var Data = ivtTableList[i];
-                Total_DCA+= Data.in_a;
-                Total_ACA+= Data.out_a;
-                
-                Total_DCK+=Data.in_w;
-                Total_ACK+=Data.out_w;
+                let total_in_w = _.pluck(inverterStatus, 'in_w').sum().scale(0.001, 3)
+                let total_out_w = _.pluck(inverterStatus, 'out_w').sum().scale(0.001, 3)
+                let total_d_wh = _.pluck(inverterStatus, 'd_wh').sum().scale(0.001, 3)
+                let total_c_wh = _.pluck(inverterStatus, 'c_wh').sum().scale(0.000001, 4);
 
-                Today_kWh+=Data.d_wh;
-                Total_MWh+=Data.c_wh;
+
+                for(let i = 0 ;i < inverterStatus.length ; i++)
+                {
+                  let inverterData = inverterStatus[i];
                 %>
 
                   <tr class="sel">
                     <td class="td1">
-                      인버터 <%=Data.inverter_seq%>
+                      <%=inverterData.target_name %>
                     </td>
                     <td>
-                      <%=Data.in_v.toFixed(1)%>
+                      <%=inverterData.in_v%>
                     </td>
                     <td>
-                      <%=Data.in_a.toFixed(1)%>
+                      <%=inverterData.in_a%>
                     </td>
                     <td>
-                      <%=Data.in_w.toFixed(1)%>
+                      <%=inverterData.in_w.scale(0.001, 3)%>
                     </td>
                     <td>
-                      <%=Data.out_v.toFixed(1)%>
+                      <%=inverterData.out_v%>
                     </td>
                     <td>
-                      <%=Data.out_a.toFixed(1)%>
+                      <%=inverterData.out_a%>
                     </td>
                     <td>
-                      <%=Data.out_w.toFixed(1)%>
+                      <%=inverterData.out_w.scale(0.001, 3)%>
                     </td>
                     <td>
-                      <%=Data.p_f.toFixed(1)%> %
+                      <%=inverterData.p_f%>
                     </td>
                     <td>
-                      <%=Data.d_wh.toFixed(1)%>
+                      <%=inverterData.d_wh.scale(0.001, 3)%>
                     </td>
                     <td>
-                      <%=Data.c_wh.toFixed(3)%>
+                      <%=inverterData.c_wh.scale(0.000001, 4)%>
                     </td>
                     <td class="center_ball">
                       <img src="image/green.png" />
@@ -116,38 +129,37 @@
                       <td class="td1" style="text-align:right;">계</td>
                       <td></td>
                       <td>
-                        <%=Total_DCA.toFixed(1)%>
                       </td>
 
                       <td>
-                        <%=Total_DCK.toFixed(1)%>
+                        <%=total_in_w%>
                       </td>
                       <td></td>
                       <td>
-                        <%=Total_ACA.toFixed(1)%>
                       </td>
                       <td>
-                        <%=Total_ACK.toFixed(1)%>
+                        <%=total_out_w%>
                       </td>
                       <td></td>
                       <td>
-                        <%=Today_kWh.toFixed(1)%>
+                        <%=total_d_wh%>
                       </td>
                       <td>
-                        <%=Total_MWh.toFixed(3)%>
+                        <%= total_c_wh%>
                       </td>
                       <td></td>
                     </tr>
 
 
               </tbody>
+
             </table>
           </div>
           <div class="row row_title">
-              <div class="title" style="margin-top:20px; float:left;"> 금일 시간 별 전류 값</div>
-            </div>
+            <div class="title" style="margin-top:20px; float:left;"> 금일 시간 별 전류 값</div>
+          </div>
 
-            <div class="title_box" id="chart_div" style="height :300px"></div>
+          <div class="title_box" id="chart_div" style="height :300px"></div>
         </div>
 
 
@@ -161,58 +173,41 @@
 
     <script type="text/javascript">
       $(document).ready(function () {
-        $(".sel").each(function () {
-          $(this).click(function () {
-            $(this).addClass("selected"); //클릭된 부분을 상단에 정의된 CCS인 selected클래스로 적용
-            $(this).siblings().removeClass("selected"); //siblings:형제요소들,    removeClass:선택된 클래스의 특성을 없앰
-          });
-        });
+       
       });
       $(function () {
-        var data =<%- chartList %>; 
+        let yMax = 1500;
+
         $('#chart_div').highcharts({
           title: {
             text: ''
           },
           xAxis: {
+            // opposite: true,
             title: {
               text: '시간(Time)'
             },
-            // categories: data[6],
             // tickInterval: 6
-            categories: ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
+            categories: _.range(24)
           },
           yAxis: {
+            max: yMax,
             title: {
               text: '전력(Wh)'
             }
           },
-          legend: {  //범례
+          plotOptions: {
+            series: {
+              pointStart: 0
+            }
+          },
+          legend: { //범례
             layout: 'vertical',
             align: 'right',
             verticalAlign: 'middle',
-            borderWidth: 0
+            borderWidth: 0,
           },
-          series: [{   //값
-            name: 'CH1',
-            data: data[0]
-          }, {
-            name: 'CH2',
-            data: data[1]
-          }, {
-            name: 'CH3',
-            data: data[2]
-          }, {
-            name: 'CH4',
-            data: data[3]
-          }, {
-            name: 'CH5',
-            data: data[4]
-          }, {
-            name: 'CH6',
-            data: data[5]
-          }
-          ]
+          series: <%- JSON.stringify (series) %>
         });
       });
     </script>

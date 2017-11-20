@@ -219,42 +219,10 @@
         location.href = 'connector?connector_seq=' + target;
       }
     </script>
-    <!-- 접속반 구글 차트 -->
-    <!-- <script type="text/javascript">
-      google.charts.load('current', { 'packages': ['line'] });
-      google.charts.setOnLoadCallback(drawChart);
-
-      var connectorHistory = <%-connectorHistory %>;
-      function drawChart() {
-        var data = new google.visualization.arrayToDataTable(connectorHistory, false);
-        var options = {
-          vAxis :{title : '전류(A)'},
-          hAxis :{title : '시간(Time)'}
-        };
-
-        var chart = new google.charts.Line(document.getElementById('chart_div'));
-
-        chart.draw(data, google.charts.Line.convertOptions(options));
-      }
-    </script> -->
 
     <!-- 접속반 하이차트-->
     <script type="text/javascript">
       $(function () {
-        var connectorHistory = <%- JSON.stringify(connectorHistory)  %>;
-        var chartDataList = connectorHistory.chartDataList;
-        let rangeData = connectorHistory.rangeData;
-        // console.log('rangeData',rangeData)
-        let series = [];
-
-        for (let i = 0; i < chartDataList.length; i++) {
-          let addObj = {
-            name: `CH${i + 1}`,
-            data: chartDataList[i]
-          }
-          series.push(addObj);
-        }
-
         $('#chart_div').highcharts({
           title: {
             text: ''
@@ -263,7 +231,7 @@
             title: {
               text: '시간(Time)'
             },
-            categories: _.range(24)
+            categories: <%- JSON.stringify (chartDataObj.range) %>
             // categories: rangeData,
             // tickInterval: 6
             // categories: ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24']
@@ -279,7 +247,7 @@
             verticalAlign: 'middle',
             borderWidth: 0
           },
-          series
+          series : <%- JSON.stringify (chartDataObj.series) %>
         });
       });
     </script>

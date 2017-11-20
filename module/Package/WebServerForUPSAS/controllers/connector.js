@@ -24,26 +24,27 @@ module.exports = function (app) {
     let connector_seq = req.query.connector_seq ? Number(req.query.connector_seq)  : _.first(connectorList).connector_seq;
     let selectedConnector = _.findWhere(connectorList, {connector_seq: connector_seq})
     let moduleStatusList = await biModule.getTable('v_photovoltaic_status', 'connector_seq', connector_seq)
-    let connectorHistory = await biModule.getConnectorHistory2(selectedConnector);
+    let connectorHistory = await biModule.getConnectorHistory(selectedConnector);
 
-    let returnValue = {};
-    returnValue.chartDataList = [];
-    returnValue.rangeData = [];
-    for (let cnt = 1; cnt <= connector.ch_number; cnt++) {
-      returnValue.chartDataList.push(_.pluck(result, `ch_${cnt}`));
+    let chartDataObj = {
+      range: connectorHistory.range,
+      series: []
+    } 
+
+    for (let cnt = 1; cnt <= selectedConnector.ch_number; cnt++) {
+      let addObj = {};
+      let moduleInfo = _.findWhere(moduleStatusList, {connector_seq:selectedConnector.connector_seq, channel:cnt});
+      addObj.name = `CH_${cnt} ${moduleInfo.target_name}`;
+      addObj.data = _.pluck(connectorHistory.gridInfo, `ch_${cnt}`);
+      chartDataObj.series.push(addObj);
     }
-    returnValue.rangeData = _.pluck(result, `hour_time`);
 
-
-
-    BU.CLI(connectorHistory)
     // return;
     let ampList = _.pluck(moduleStatusList, 'amp');
     let volList = _.pluck(moduleStatusList, 'vol');
 
     let totalAmp = _.reduce(ampList, (accumulator, currentValue) => accumulator + currentValue );
     let vol = _.reduce(volList, (accumulator, currentValue) => accumulator + currentValue ) / volList.length;
-    
     
     // 접속반 리스트
     req.locals.connectorList = connectorList;
@@ -56,7 +57,7 @@ module.exports = function (app) {
     // 모듈 상태값들 가지고 있는 배열
     req.locals.moduleStatusList = moduleStatusList;
     // 금일 발전 현황
-    req.locals.connectorHistory = connectorHistory;
+    req.locals.chartDataObj = chartDataObj;
 
     return res.render('./connector/connect.html', req.locals);
   }));

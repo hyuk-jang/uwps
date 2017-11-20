@@ -35,65 +35,36 @@ class BiModule extends bmjh.BM {
       });
   }
 
-  
-
-  getConnectorHistory(connector = {
-    connector_seq,
-    ch_number
-  }) {
-    let sql = `
-      SELECT
-        connector_seq,
-        writedate,
-        DATE_FORMAT(writedate,'%H:%i') AS hour_time,
-        ROUND(v / 10, 1) AS vol
-    `;
-    for (let i = 1; i <= connector.ch_number; i++) {
-      sql += ` 
-        ${i === 1 ? ',' : ''}
-        ROUND(ch_${i}/10,1) AS ch_${i}
-        ${i === connector.ch_number ? '' : ','}
-      `;
-    }
-    sql += `
-    FROM connector_data
-    WHERE writedate>= CURDATE() and writedate<CURDATE() + 1 AND connector_seq = ${connector.connector_seq}
-    GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), connector_seq
-    ORDER BY connector_seq, writedate
-    `;
-
-    return this.db.single(sql, '', true)
-      .then(result => {
-        let returnValue = {};
-        returnValue.chartDataList = [];
-        returnValue.rangeData = [];
-        for (let cnt = 1; cnt <= connector.ch_number; cnt++) {
-          returnValue.chartDataList.push(_.pluck(result, `ch_${cnt}`));
-        }
-        returnValue.rangeData = _.pluck(result, `hour_time`);
-
-        return returnValue;
-      })
-  }
-
-  getConnectorHistory2(connector = {connector_seq,ch_number}, startDate, endDate, selectType) {
+  /**
+   * return connector report
+   * @param {Object} connector {connector_seq, ch_number}
+   * @param {Date} startDate 
+   * @param {Date} endDate 
+   * @param {String} selectType day or month or tear
+   */
+  getConnectorHistory(connector = {connector_seq,ch_number}, startDate, endDate, selectType) {
     startDate = startDate ? startDate : 'CURDATE()';
     endDate = endDate ? endDate : 'CURDATE() + 1';
     selectType = selectType ? selectType : 'day';
 
     let dateFormat = '';
+    let range = [];
     switch (selectType) {
       case 'day':
         dateFormat = '%H';
+        range = _.range(24);
         break;
       case 'month':
         dateFormat = '%Y-%m-%d';
+        range = _.range(32);
         break;
       case 'year':
         dateFormat = '%Y-%m';
+        range = _.range(13);
         break;
       default:
         dateFormat = '%H';
+        range = _.range(24);
         break;
     }
 
@@ -114,23 +85,50 @@ class BiModule extends bmjh.BM {
     
     sql += `
     FROM connector_data
-    WHERE writedate>= ${startDate} and writedate<${endDate} AND connector_seq = ${connector.connector_seq}
+    WHERE writedate>= ${startDate} and writedate<${endDate}
+      AND connector_seq = ${connector.connector_seq}
     GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), connector_seq
     ORDER BY connector_seq, writedate
     `;
 
     return this.db.single(sql, '', true)
       .then(result => {
-        let returnValue = {};
-        returnValue.chartDataList = [];
-        returnValue.rangeData = [];
-        for (let cnt = 1; cnt <= connector.ch_number; cnt++) {
-          returnValue.chartDataList.push(_.pluck(result, `ch_${cnt}`));
+        return {
+          range,
+          gridInfo: result
         }
-        returnValue.rangeData = _.pluck(result, `hour_time`);
-
-        return returnValue;
       })
+    ;
+  }
+
+  /**
+   * 접속반, Relation, trend를 융합하여 chart data 를 뽑아냄
+   * @param {Object} connectorInfo 
+   * @param {Array} relationInfo 
+   * @param {Array} connectorHistory 
+   */
+  getGridReport(connectorInfo = {ch_number, connector_seq}, relationInfo, connectorHistory ){
+    let returnValue = {
+      range: connectorHistory.range,
+      series: []
+    } 
+
+    for (let cnt = 1; cnt <= connectorInfo.ch_number; cnt++) {
+      let addObj = {};
+      let moduleInfo = _.findWhere(relationInfo, {connector_seq:connectorInfo.connector_seq, channel:cnt});
+      addObj.name = `CH_${cnt} ${moduleInfo.target_name}`;
+      addObj.data = _.pluck(connectorHistory.gridInfo, `ch_${cnt}`);
+      returnValue.series.push(addObj);
+    }
+
+    // BU.CLI(returnValue)
+    return returnValue;
+  }
+
+  getMeasureTime(gridReport, startDate, endDate, selectedType){
+    // BU.CLI(gridReport);
+
+
   }
 
 

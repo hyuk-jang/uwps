@@ -23,21 +23,23 @@ module.exports = function (app) {
     // console.time('getInverterHistory')
     let inverterHistory = await biModule.getInverterHistory();
 
-    let series = [];
+    let chartDataObj = {
+      range: [],
+      series: []
+    } 
     _.each(inverterHistory, (statusObj, ivtSeq) => {
       let findObj = _.findWhere(inverterStatus, {inverter_seq : Number(ivtSeq)});
       let addObj = {
         name: findObj ? findObj.target_name : '',
         data: _.pluck(statusObj, 'out_w')
       }
-      series.push(addObj);
+      chartDataObj.series.push(addObj);
     })
 
     // console.timeEnd('getInverterHistory')
 
-    BU.CLI('series',series)
     req.locals.inverterStatus = inverterStatus;
-    req.locals.series = series;
+    req.locals.chartDataObj = chartDataObj;
     req.locals.powerInfo = {
       measureTime: _.first(inverterStatus) ? BU.convertDateToText(_.first(inverterStatus).writedate) : ''
     };

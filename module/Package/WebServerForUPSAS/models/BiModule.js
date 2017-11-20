@@ -40,16 +40,18 @@ class BiModule extends bmjh.BM {
    * @param {Object} connector {connector_seq, ch_number}
    * @param {Date} startDate 
    * @param {Date} endDate 
-   * @param {String} selectType day or month or tear
+   * @param {String} searchType day or month or tear
    */
-  getConnectorHistory(connector = {connector_seq,ch_number}, startDate, endDate, selectType) {
-    startDate = startDate ? startDate : 'CURDATE()';
-    endDate = endDate ? endDate : 'CURDATE() + 1';
-    selectType = selectType ? selectType : 'day';
+  getConnectorHistory(connector = {connector_seq,ch_number}, searchRange = {startDate, endDate}, searchType) {
+    let startDate = searchRange.startDate;
+    let endDate = searchRange.endDate;
+    searchType = searchType ? searchType : 'day';
+
+    BU.CLIS(startDate, endDate)
 
     let dateFormat = '';
     let range = [];
-    switch (selectType) {
+    switch (searchType) {
       case 'day':
         dateFormat = '%H';
         range = _.range(24);
@@ -85,13 +87,14 @@ class BiModule extends bmjh.BM {
     
     sql += `
     FROM connector_data
-    WHERE writedate>= ${startDate} and writedate<${endDate}
+    WHERE writedate>= "${startDate}" and writedate<"${endDate}"
       AND connector_seq = ${connector.connector_seq}
     GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), connector_seq
     ORDER BY connector_seq, writedate
     `;
 
-    return this.db.single(sql, '', true)
+    // return this.db.single(sql, '', true)
+    return this.db.single(sql)
       .then(result => {
         return {
           range,
@@ -107,7 +110,7 @@ class BiModule extends bmjh.BM {
    * @param {Array} relationInfo 
    * @param {Array} connectorHistory 
    */
-  getGridReport(connectorInfo = {ch_number, connector_seq}, relationInfo, connectorHistory ){
+  getModlePowerTrend(connectorInfo = {ch_number, connector_seq}, relationInfo, connectorHistory ){
     let returnValue = {
       range: connectorHistory.range,
       series: []
@@ -117,11 +120,63 @@ class BiModule extends bmjh.BM {
       let addObj = {};
       let moduleInfo = _.findWhere(relationInfo, {connector_seq:connectorInfo.connector_seq, channel:cnt});
       addObj.name = `CH_${cnt} ${moduleInfo.target_name}`;
-      addObj.data = _.pluck(connectorHistory.gridInfo, `ch_${cnt}`);
+      addObj.data = _.map(connectorHistory.gridInfo, gridInfo => gridInfo[`ch_${cnt}`] * gridInfo.vol)
+        // _.pluck(connectorHistory.gridInfo, `ch_${cnt}`);
       returnValue.series.push(addObj);
     }
 
     // BU.CLI(returnValue)
+    return returnValue;
+  }
+
+  /**
+   * 검색 종류와 검색 기간에 따라 검색 시작 값과 종료 값 반환
+   * @param {String} searchType day, month, year, range
+   * @param {*} strStartDate '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
+   * @param {*} strEndDate '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
+   * @return {Object} {startDate, endDate}
+   */
+  getSearchRange(searchType, strStartDate, strEndDate){
+    // BU.CLIS(searchType, strStartDate, strEndDate)
+    let startDate = strStartDate ? new Date(strStartDate) : new Date();
+    let endDate =  strEndDate ? new Date(strStartDate) : new Date();
+
+    let returnValue = {
+      startDate: null,
+      endDate: null,
+      rangeStart: '',
+      rangeEnd: '',
+      start: '',
+      end: '',
+      
+    }
+   
+    if(searchType === 'day'){
+      startDate.setHours(0, 0, 0)
+      endDate = (new Date(startDate)).addDays(1);
+      returnValue.start = BU.convertDateToText(startDate, '', 2);
+      returnValue.rangeEnd = BU.convertDateToText(startDate, '', 2);      
+    } else if(searchType === 'month'){
+      startDate.setDate(1)
+      endDate = (new Date(startDate)).addMonths(1);
+      returnValue.start = BU.convertDateToText(startDate, '', 1);
+      returnValue.rangeEnd = BU.convertDateToText((new Date(endDate)).setDate(-1), '', 2);
+    } else if(searchType === 'year'){
+      startDate.setMonth(0, 1)
+      endDate = (new Date(startDate)).addYear(1);
+      returnValue.start = BU.convertDateToText(startDate, '', 0);
+      returnValue.rangeEnd = BU.convertDateToText((new Date(endDate)).setMonth(-1), '', 2);
+    } else {
+      endDate = strEndDate ? new Date(strEndDate) : new Date();
+      returnValue.start = BU.convertDateToText(startDate, '', 2);
+      returnValue.end = BU.convertDateToText(endDate, '', 2);
+      returnValue.rangeEnd = BU.convertDateToText(endDate, '', 2);
+    }
+
+    returnValue.startDate = BU.convertDateToText(startDate);
+    returnValue.endDate = BU.convertDateToText(endDate);
+    returnValue.rangeStart = BU.convertDateToText(startDate, '', 2);
+
     return returnValue;
   }
 

@@ -20,59 +20,78 @@ module.exports = function (app) {
 
   // Get
   router.get('/', wrap(async(req, res) => {
-    let searchType = req.query.searchType ? searchType : 'day';
+    // console.log('req',req)
+    let searchType = req.query.search_type ? req.query.search_type : 'day';
+    let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
+
     console.time('all')
     console.time('getTable')
+  
     let connectorList = await biModule.getTable('connector');
+    let connector_seq =  !isNaN(req.query.connector_seq) && req.query.connector_seq !== '' ? Number(req.query.connector_seq) : _.pluck(connectorList, 'connector_seq');
     console.timeEnd('getTable')
-    let connector_seq = req.query.connector_seq ? Number(req.query.connector_seq) : _.pluck(connectorList, 'connector_seq');
+
     let searchConnectorList = Array.isArray(connector_seq) ? connectorList : [_.findWhere(connectorList, {
       connector_seq: connector_seq
     })];
+
+    // BU.CLI(searchConnectorList)
 
     console.time('v_relation_upms')
     let upmsRelation = await biModule.getTable('v_relation_upms')
     console.timeEnd('v_relation_upms')
 
     // 트렌드 중에서 가장 최근에 나온 날짜 리스트 
-    let lastDateList = [];
-
+    // let lastDateList = [];
+    // let firstDateList = [];
     console.time('map')
     let gridChartReport = await Promise.map(searchConnectorList, searchConnector => {
-        return biModule.getConnectorHistory(searchConnector)
+        return biModule.getConnectorHistory(searchConnector, searchRange, searchType)
           .then(connectorHistory => {
-            lastDateList.push(_.max(connectorHistory.gridInfo, rowsInfo => rowsInfo.writedate));
+            // firstDateList.push(_.min(connectorHistory.gridInfo, rowsInfo => rowsInfo.writedate));
+            // lastDateList.push(_.max(connectorHistory.gridInfo, rowsInfo => rowsInfo.writedate));
             // BU.CLI(connectorHistory)
-            return biModule.getGridReport(searchConnector, upmsRelation, connectorHistory);
+            return biModule.getModlePowerTrend(searchConnector, upmsRelation, connectorHistory);
           });
       })
       .then(gridReportList => {
-        let gridChartReport = {
+        // BU.CLI(gridReportList)
+        // let firstDateObj = _.min(firstDateList, 'writedate');
+        // let lastDateObj = _.max(lastDateList, 'writedate');
+        let modulePowerObj = {
+          // firstDate: firstDateObj.writedate,
+          // lastDate: lastDateObj.writedate,
           range: [],
           series: []
         };
         gridReportList.forEach(ele => {
-          gridChartReport.range = ele.range;
-          gridChartReport.series = gridChartReport.series.concat(ele.series)
+          modulePowerObj.range = ele.range;
+          modulePowerObj.series = modulePowerObj.series.concat(ele.series)
         })
-        return gridChartReport;
+        return modulePowerObj;
       })
 
-    let startDate = req.query.start ? req.query.start : BU.convertDateToText(new Date());
-    biModule.getMeasureTime(gridChartReport, req.query.start, req.query.end, searchType);
+    // BU.CLI(gridChartReport)
 
     req.locals.gridInfo = {
-      measureTime: `[${req.query.start ? req.query.start : BU.convertDateToText(new Date(), '', 2)} 00:00:00
-        ~ ${req.query.end ? req.query.end : BU.convertDateToText(new Date(), '', 4)}:00
-      ]`
+      measureTime: `[${searchRange.start} ~ ${searchRange.end}]`
+      // measureTime: `[${req.query.start ? req.query.start : BU.convertDateToText(new Date(), '', 2)} 00:00:00
+      //   ~ ${req.query.end ? req.query.end : BU.convertDateToText(new Date(), '', 4)}:00
+      // ]`
     }
     console.timeEnd('map')
-    connectorList.unshift({connector_seq: 'all', target_name: '모두'})
+    connectorList.unshift({
+      connector_seq: 'all',
+      target_name: '모두'
+    })
+
+    BU.CLI(searchRange)
 
     req.locals.searchType = searchType;
     req.locals.connector_seq = Array.isArray(connector_seq) ? 'all' : connector_seq;
     req.locals.connectorList = connectorList;
     req.locals.gridChartReport = gridChartReport;
+    req.locals.searchRange = searchRange;
 
     console.timeEnd('all')
     return res.render('./trend/trend.html', req.locals);

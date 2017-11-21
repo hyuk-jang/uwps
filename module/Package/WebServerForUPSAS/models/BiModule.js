@@ -94,7 +94,6 @@ class BiModule extends bmjh.BM {
   }, searchType) {
     let strStartDate = searchRange.strStartDate;
     let strEndDate = searchRange.strEndDate;
-    searchType = searchType ? searchType : 'day';
 
     let startDate = new Date(strStartDate);
     let endDate = new Date(strEndDate);
@@ -104,21 +103,28 @@ class BiModule extends bmjh.BM {
     // strEndDate = BU.convertDateToText(endtDate)
     // TEST
 
-    let gapDate =  BU.calcDateInterval(strEndDate, strStartDate)
-    BU.CLI(gapDate)
-
-    if(gapDate.remainDay >= 365){
-      searchType = 'year';
-    } else if(gapDate.remainDay > 29){
-      searchType = 'month';
-    } else if(gapDate.remainDay > 0){
-      searchType = 'day';
-    } else {
-      searchType = 'hour';
+    
+    
+    
+    // 기간 검색일 경우 시작일과 종료일의 날짜 차 계산하여 searchType 정의
+    if(searchType === 'range'){
+      let gapDate =  BU.calcDateInterval(strEndDate, strStartDate)
+      BU.CLI(gapDate)
+      if(gapDate.remainDay >= 365){
+        searchType = 'year';
+      } else if(gapDate.remainDay > 29){
+        searchType = 'month';
+      } else if(gapDate.remainDay > 0){
+        searchType = 'day';
+      } else {
+        searchType = 'hour';
+      }
     }
 
-    let range = BU.getBetweenDatePoint(strEndDate, strStartDate, searchType);
-    BU.CLI(range)
+    
+
+    // let range = BU.getBetweenDatePoint(strEndDate, strStartDate, searchType);
+    // BU.CLI(range)
 
     let dateFormat = '';
     switch (searchType) {
@@ -135,7 +141,7 @@ class BiModule extends bmjh.BM {
         dateFormat = '%Y-%m-%d %H';
         break;
       default:
-        dateFormat = '%H';
+        dateFormat = '%Y-%m';
         break;
     }
 
@@ -175,8 +181,8 @@ class BiModule extends bmjh.BM {
       return this.db.single(sql)
       .then(result => {
         return {
-          range,
-          gridInfo: result
+          // range,
+          gridPowerInfo: result
         }
       });
   }
@@ -187,18 +193,7 @@ class BiModule extends bmjh.BM {
    * @param {Array} relationInfo 
    * @param {Array} connectorHistory 
    */
-  getMoudlePowerTrend(connectorInfo = {ch_number,connector_seq}, relationInfo, connectorHistory = {range, gridInfo}) {
-    let returnValue = {
-      range: connectorHistory.range,
-      series: []
-    }
-    // BU.CLI(connectorHistory)
-
-    let cntRange = connectorHistory.range;
-    let cntGridInfo = connectorHistory.gridInfo;
-
-    // BU.CLI(cntRange)
-
+  processModulePowerTrend(connectorInfo = {ch_number,connector_seq}, relationInfo, connectorHistory = {range, gridPowerInfo}) {
     // 트렌드를 구할 모듈 정보 초기화
     let moudlePowerReport = [];
     for (let cnt = 1; cnt <= connectorInfo.ch_number; cnt++) {
@@ -215,78 +210,87 @@ class BiModule extends bmjh.BM {
     }
 
     // 검색 기간 만큼 반복
-    cntRange.forEach(strDateFormat => {
+    connectorHistory.range.forEach(strDateFormat => {
       // dateFormat 이 같은 데이터 추출
-      let findGridObj = _.findWhere(cntGridInfo, {group_date:strDateFormat});
+      let findGridObj = _.findWhere(connectorHistory.gridPowerInfo, {group_date:strDateFormat});
       // 같은 데이터가 없다면 빈 데이터 삽입
       if (_.isEmpty(findGridObj)) {
         moudlePowerReport.forEach(element => {
           element.data.push('');
         });
       } else {
+        // 정의된 접속반 연결 채널 수 만큼 반복
         for (let cnt = 1; cnt <= connectorInfo.ch_number; cnt++) {
+          // 고유 채널명 정의
           let targetId =`id_${findGridObj.connector_seq}_${cnt}`;
-          
+          // 고유 채널과 일치하는 moudlePowerReport 객체 찾아옴
           let findPowerReport = _.findWhere(moudlePowerReport, {id:targetId});
+          // 해당 데이터 삽입
           findPowerReport.data.push(findGridObj[`total_ch_wh_${cnt}`]);
         }
       }
     });
 
     // BU.CLI('moudlePowerReport', moudlePowerReport);
-    returnValue.series = moudlePowerReport;
-    return returnValue;
+    return {
+      range: connectorHistory.range,
+      series: moudlePowerReport
+    };
   }
 
   /**
    * 검색 종류와 검색 기간에 따라 검색 시작 값과 종료 값 반환
    * @param {String} searchType day, month, year, range
-   * @param {String} strStartDate '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
-   * @param {String} strEndDate '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
+   * @param {String} start_date '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
+   * @param {String} end_date '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
    * @return {Object} {startDate, endDate}
    */
-  getSearchRange(searchType, strStartDate, strEndDate) {
-    // BU.CLIS(searchType, strStartDate, strEndDate)
-    let startDate = strStartDate ? BU.convertTextToDate(strStartDate) : new Date();
-    let endDate = strEndDate ? BU.convertTextToDate(strEndDate) : new Date(startDate);
+  getSearchRange(searchType, start_date, end_date) {
+    BU.CLIS(searchType, start_date, end_date)
+    let startDate = start_date ? BU.convertTextToDate(start_date) : new Date();
+    let endDate = end_date ? BU.convertTextToDate(end_date) : new Date(startDate);
 
     let returnValue = {
-      dataCount: 0,
-      strStartDate: null,
-      strEndDate: null,
-      rangeStart: '',
-      rangeEnd: '',
-      start: '',
-      end: '',
-
+      searchType,
+      strStartDate: null, // sql writedate range 사용
+      strEndDate: null,   // sql writedate range 사용
+      rangeStart: '',     // Chart 위에 표시될 시작 날짜
+      rangeEnd: '',       // Chart 위에 표시될 종료 날짜
+      strStartDateInputValue: '',   // input에 표시될 시작 날짜
+      strEndDateInputValue: '',     // input에 표시될 종료 날짜
     }
 
-    if (searchType === 'day') {
-      startDate.setHours(0, 0, 0)
+    // 검색 시작 시분초 초기화
+    startDate.setHours(0, 0, 0);
+    if (searchType === 'hour' || searchType === '') {
       endDate = (new Date(startDate)).addDays(1);
-      returnValue.start = BU.convertDateToText(startDate, '', 2);
-      returnValue.rangeEnd = BU.convertDateToText(startDate, '', 2);
-    } else if (searchType === 'month') {
+      returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', 2);
+      returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', 2);
+    } else if (searchType === 'day') {
       startDate.setDate(1)
       endDate = (new Date(startDate)).addMonths(1);
-      returnValue.start = BU.convertDateToText(startDate, '', 1);
-      returnValue.rangeEnd = BU.convertDateToText((new Date(endDate)).setDate(-1), '', 2);
-    } else if (searchType === 'year') {
+      returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', 1);
+      returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', 1);
+      // returnValue.rangeEnd = BU.convertDateToText((new Date(endDate)).setDate(-1), '', 2);
+    } else if (searchType === 'month') {
       startDate.setMonth(0, 1)
       endDate = (new Date(startDate)).addYear(1);
-      returnValue.start = BU.convertDateToText(startDate, '', 0);
-      returnValue.rangeEnd = BU.convertDateToText((new Date(endDate)).setMonth(-1), '', 2);
-    } else {
-      endDate = strEndDate ? new Date(strEndDate) : new Date();
-      returnValue.start = BU.convertDateToText(startDate, '', 2);
-      returnValue.end = BU.convertDateToText(endDate, '', 2);
-      returnValue.rangeEnd = BU.convertDateToText(endDate, '', 2);
-    }
+      returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', 0);
+      returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', 0);
+      // returnValue.rangeEnd = BU.convertDateToText((new Date(endDate)).setDate(-1), '', 2);
+    } else if (searchType === 'range') {
+      endDate = end_date ? new Date(end_date) : new Date();
 
+      returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', 2);
+      returnValue.rangeEnd = BU.convertDateToText(endDate, 'kor', 2);
+
+      returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', 2);
+      returnValue.strEndDateInputValue = BU.convertDateToText(endDate, '', 2);
+    } 
     returnValue.strStartDate = BU.convertDateToText(startDate);
     returnValue.strEndDate = BU.convertDateToText(endDate);
-    returnValue.rangeStart = BU.convertDateToText(startDate, '', 2);
-    BU.CLI(returnValue)
+    // returnValue.rangeStart = BU.convertDateToText(startDate, '', 2);
+    // BU.CLI(returnValue)
     return returnValue;
   }
 

@@ -133,8 +133,8 @@
         let startDateDom = document.querySelector('#start');
         let endDateDom = document.querySelector('#end');
 
-        let startDate = new Date(searchRange.start);
-        let endDate = searchRange.end === '' ||  new Date(searchRange.end) === 'Invalid Date' ? startDate : new Date(searchRange.end);
+        let startDate = new Date(searchRange.strStartDateInputValue);
+        let endDate = searchRange.strEndDateInputValue === '' ||  new Date(searchRange.strEndDateInputValue) === 'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
 
         if (checkRadio == 'range') {
           $('#end').show();
@@ -166,10 +166,6 @@
         let searchType = document.querySelector('#selectTypeArea input[name="searchType"]:checked').value;
         let startDate = document.getElementById('start').value;
         let endDate = document.getElementById('end').value;
-
-        if(searchType !== 'range'){
-          endDate = startDate;
-        }
 
         if(searchType === 'range' && startDate > endDate){
           return alert('종료일이 시작일보다 빠를 수 없습니다.');
@@ -206,10 +202,17 @@
     </script>
 
     <script type="text/javascript">
+    let modulePowerTrendTitle = '';
+      if(searchRange.rangeEnd !== ''){
+        modulePowerTrendTitle = `[ ${searchRange.rangeStart} ~ + ${searchRange.rangeEnd} ]`;
+      } else {
+        modulePowerTrendTitle = `[ ${searchRange.rangeStart} ]`;
+      }
+    
       $(function () {
         $('#moduleChart_1').highcharts({
           title: {
-            text: searchRange.rangeStart + ' ~ ' + searchRange.rangeEnd
+            text: modulePowerTrendTitle
           },
           xAxis: {
             title: {

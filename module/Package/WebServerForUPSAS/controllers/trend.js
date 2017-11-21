@@ -21,8 +21,9 @@ module.exports = function (app) {
   // Get
   router.get('/', wrap(async(req, res) => {
     
-    let searchType = req.query.search_type ? req.query.search_type : 'day';
+    let searchType = req.query.search_type ? req.query.search_type : 'hour';
     let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
+    // BU.CLI(searchRange)
 
     let connectorList = await biModule.getTable('connector');
     let connector_seq =  !isNaN(req.query.connector_seq) && req.query.connector_seq !== '' ? Number(req.query.connector_seq) : _.pluck(connectorList, 'connector_seq');
@@ -35,12 +36,11 @@ module.exports = function (app) {
 
     let upmsRelation = await biModule.getTable('v_relation_upms')
 
-    // 트렌드 중에서 가장 최근에 나온 날짜 리스트 
     let gridChartReport = await Promise.map(searchConnectorList, searchConnector => {
         return biModule.getTrendHistory(searchConnector, searchRange, searchType)
           .then(connectorHistory => {
-            // BU.CLI(connectorHistory)
-            return biModule.getMoudlePowerTrend(searchConnector, upmsRelation, connectorHistory);
+            BU.CLI(connectorHistory)
+            return biModule.processModulePowerTrend(searchConnector, upmsRelation, connectorHistory);
           });
       })
       .then(gridReportList => {

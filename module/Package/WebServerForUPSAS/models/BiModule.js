@@ -1,5 +1,6 @@
 const bmjh = require('base-model-jh');
 const Promise = require('bluebird')
+const BU = require('base-util-jh').baseUtil;
 
 class BiModule extends bmjh.BM {
   constructor(dbInfo) {
@@ -40,36 +41,10 @@ class BiModule extends bmjh.BM {
    * @param {Object} connector {connector_seq, ch_number}
    * @param {Date} startDate 
    * @param {Date} endDate 
-   * @param {String} searchType day or month or tear
+   * @param {String} selectType day or month or tear
    */
-  getConnectorHistory(connector = {connector_seq,ch_number}, searchRange = {startDate, endDate}, searchType) {
-    let startDate = searchRange.startDate;
-    let endDate = searchRange.endDate;
-    searchType = searchType ? searchType : 'day';
-
-    BU.CLIS(startDate, endDate)
-
-    let dateFormat = '';
+  getConnectorHistory(connector = {connector_seq,ch_number}) {
     let range = [];
-    switch (searchType) {
-      case 'day':
-        dateFormat = '%H';
-        range = _.range(24);
-        break;
-      case 'month':
-        dateFormat = '%Y-%m-%d';
-        range = _.range(32);
-        break;
-      case 'year':
-        dateFormat = '%Y-%m';
-        range = _.range(13);
-        break;
-      default:
-        dateFormat = '%H';
-        range = _.range(24);
-        break;
-    }
-
     let sql = `
       SELECT 
         connector_seq,
@@ -87,14 +62,13 @@ class BiModule extends bmjh.BM {
     
     sql += `
     FROM connector_data
-    WHERE writedate>= "${startDate}" and writedate<"${endDate}"
+    WHERE writedate>= CURDATE() and writedate<CURDATE() + 1
       AND connector_seq = ${connector.connector_seq}
-    GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), connector_seq
+    GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), connector_seq
     ORDER BY connector_seq, writedate
     `;
 
-    // return this.db.single(sql, '', true)
-    return this.db.single(sql)
+    return this.db.single(sql, '', true)
       .then(result => {
         return {
           range,
@@ -105,63 +79,199 @@ class BiModule extends bmjh.BM {
   }
 
   /**
+   * return connector report
+   * @param {Object} connector {connector_seq, ch_number}
+   * @param {String} startDate 
+   * @param {String} endDate 
+   * @param {String} searchType day or month or tear
+   */
+  getTrendHistory(connector = {
+    connector_seq,
+    ch_number
+  }, searchRange = {
+    strStartDate,
+    strEndDate
+  }, searchType) {
+    let strStartDate = searchRange.strStartDate;
+    let strEndDate = searchRange.strEndDate;
+    searchType = searchType ? searchType : 'day';
+
+    let startDate = new Date(strStartDate);
+    let endDate = new Date(strEndDate);
+
+    // TEST
+    // endtDate = new Date('2017-11-16');
+    // strEndDate = BU.convertDateToText(endtDate)
+    // TEST
+
+    let gapDate =  BU.calcDateInterval(strEndDate, strStartDate)
+    BU.CLI(gapDate)
+
+    if(gapDate.remainDay >= 365){
+      searchType = 'year';
+    } else if(gapDate.remainDay > 29){
+      searchType = 'month';
+    } else if(gapDate.remainDay > 0){
+      searchType = 'day';
+    } else {
+      searchType = 'hour';
+    }
+
+    let range = BU.getBetweenDatePoint(strEndDate, strStartDate, searchType);
+    BU.CLI(range)
+
+    let dateFormat = '';
+    switch (searchType) {
+      case 'year':
+        dateFormat = '%Y';
+        break;
+      case 'month':
+        dateFormat = '%Y-%m';
+        break;
+      case 'day':
+        dateFormat = '%Y-%m-%d';
+        break;
+      case 'hour':
+        dateFormat = '%Y-%m-%d %H';
+        break;
+      default:
+        dateFormat = '%H';
+        break;
+    }
+
+    let sql = `
+    SELECT calc_cnt.*, DATE_FORMAT(writedate,"${dateFormat}") AS group_date
+        ,AVG(vol) AS avg_vol
+     `;
+    for (let i = 1; i <= connector.ch_number; i++) {
+      sql += ` ${i === 1 ? ',' : ''}SUM(ch_a_${i}) AS total_ch_a_${i}
+      ,ROUND(SUM(ch_a_1 * vol), 2) AS total_ch_wh_${i}
+      ${i === connector.ch_number ? '' : ','}
+      `;
+    };
+
+    sql += `
+     FROM(
+      SELECT 
+        connector_seq,
+        writedate, 
+        DATE_FORMAT(writedate, "${dateFormat}") AS dateFormat,
+        ROUND(v / 10, 1) AS vol
+    `;
+    for (let i = 1; i <= connector.ch_number; i++) {
+      sql += `${i === 1 ? ',' : ''}ROUND(ch_${i}/10,1) AS ch_a_${i}${i === connector.ch_number ? '' : ','}`;
+    }
+
+    sql += `
+      FROM connector_data
+      WHERE writedate>= "${strStartDate}" and writedate<"${strEndDate}"
+        AND connector_seq = ${connector.connector_seq}
+      GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), connector_seq
+      ORDER BY connector_seq, writedate) calc_cnt
+    GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), connector_seq
+    `;
+
+    // return this.db.single(sql, '', true)
+      return this.db.single(sql)
+      .then(result => {
+        return {
+          range,
+          gridInfo: result
+        }
+      });
+  }
+
+  /**
    * 접속반, Relation, trend를 융합하여 chart data 를 뽑아냄
    * @param {Object} connectorInfo 
    * @param {Array} relationInfo 
    * @param {Array} connectorHistory 
    */
-  getModlePowerTrend(connectorInfo = {ch_number, connector_seq}, relationInfo, connectorHistory ){
+  getMoudlePowerTrend(connectorInfo = {ch_number,connector_seq}, relationInfo, connectorHistory = {range, gridInfo}) {
     let returnValue = {
       range: connectorHistory.range,
       series: []
-    } 
+    }
+    // BU.CLI(connectorHistory)
 
+    let cntRange = connectorHistory.range;
+    let cntGridInfo = connectorHistory.gridInfo;
+
+    // BU.CLI(cntRange)
+
+    // 트렌드를 구할 모듈 정보 초기화
+    let moudlePowerReport = [];
     for (let cnt = 1; cnt <= connectorInfo.ch_number; cnt++) {
+      let moduleInfo = _.findWhere(relationInfo, {
+        connector_seq: connectorInfo.connector_seq,
+        channel: cnt
+      });
       let addObj = {};
-      let moduleInfo = _.findWhere(relationInfo, {connector_seq:connectorInfo.connector_seq, channel:cnt});
+      addObj.id = `id_${moduleInfo.connector_seq}_${cnt}`;
       addObj.name = `CH_${cnt} ${moduleInfo.target_name}`;
-      addObj.data = _.map(connectorHistory.gridInfo, gridInfo => gridInfo[`ch_${cnt}`] * gridInfo.vol)
-        // _.pluck(connectorHistory.gridInfo, `ch_${cnt}`);
-      returnValue.series.push(addObj);
+      addObj.group_date = [];
+      addObj.data = []
+      moudlePowerReport.push(addObj);
     }
 
-    // BU.CLI(returnValue)
+    // 검색 기간 만큼 반복
+    cntRange.forEach(strDateFormat => {
+      // dateFormat 이 같은 데이터 추출
+      let findGridObj = _.findWhere(cntGridInfo, {group_date:strDateFormat});
+      // 같은 데이터가 없다면 빈 데이터 삽입
+      if (_.isEmpty(findGridObj)) {
+        moudlePowerReport.forEach(element => {
+          element.data.push('');
+        });
+      } else {
+        for (let cnt = 1; cnt <= connectorInfo.ch_number; cnt++) {
+          let targetId =`id_${findGridObj.connector_seq}_${cnt}`;
+          
+          let findPowerReport = _.findWhere(moudlePowerReport, {id:targetId});
+          findPowerReport.data.push(findGridObj[`total_ch_wh_${cnt}`]);
+        }
+      }
+    });
+
+    // BU.CLI('moudlePowerReport', moudlePowerReport);
+    returnValue.series = moudlePowerReport;
     return returnValue;
   }
 
   /**
    * 검색 종류와 검색 기간에 따라 검색 시작 값과 종료 값 반환
    * @param {String} searchType day, month, year, range
-   * @param {*} strStartDate '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
-   * @param {*} strEndDate '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
+   * @param {String} strStartDate '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
+   * @param {String} strEndDate '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
    * @return {Object} {startDate, endDate}
    */
-  getSearchRange(searchType, strStartDate, strEndDate){
+  getSearchRange(searchType, strStartDate, strEndDate) {
     // BU.CLIS(searchType, strStartDate, strEndDate)
-    let startDate = strStartDate ? new Date(strStartDate) : new Date();
-    let endDate =  strEndDate ? new Date(strStartDate) : new Date();
+    let startDate = strStartDate ? BU.convertTextToDate(strStartDate) : new Date();
+    let endDate = strEndDate ? BU.convertTextToDate(strEndDate) : new Date(startDate);
 
     let returnValue = {
-      startDate: null,
-      endDate: null,
+      dataCount: 0,
+      strStartDate: null,
+      strEndDate: null,
       rangeStart: '',
       rangeEnd: '',
       start: '',
       end: '',
-      
+
     }
-   
-    if(searchType === 'day'){
+
+    if (searchType === 'day') {
       startDate.setHours(0, 0, 0)
       endDate = (new Date(startDate)).addDays(1);
       returnValue.start = BU.convertDateToText(startDate, '', 2);
-      returnValue.rangeEnd = BU.convertDateToText(startDate, '', 2);      
-    } else if(searchType === 'month'){
+      returnValue.rangeEnd = BU.convertDateToText(startDate, '', 2);
+    } else if (searchType === 'month') {
       startDate.setDate(1)
       endDate = (new Date(startDate)).addMonths(1);
       returnValue.start = BU.convertDateToText(startDate, '', 1);
       returnValue.rangeEnd = BU.convertDateToText((new Date(endDate)).setDate(-1), '', 2);
-    } else if(searchType === 'year'){
+    } else if (searchType === 'year') {
       startDate.setMonth(0, 1)
       endDate = (new Date(startDate)).addYear(1);
       returnValue.start = BU.convertDateToText(startDate, '', 0);
@@ -173,14 +283,14 @@ class BiModule extends bmjh.BM {
       returnValue.rangeEnd = BU.convertDateToText(endDate, '', 2);
     }
 
-    returnValue.startDate = BU.convertDateToText(startDate);
-    returnValue.endDate = BU.convertDateToText(endDate);
+    returnValue.strStartDate = BU.convertDateToText(startDate);
+    returnValue.strEndDate = BU.convertDateToText(endDate);
     returnValue.rangeStart = BU.convertDateToText(startDate, '', 2);
-
+    BU.CLI(returnValue)
     return returnValue;
   }
 
-  getMeasureTime(gridReport, startDate, endDate, selectedType){
+  getMeasureTime(gridReport, startDate, endDate, selectedType) {
     // BU.CLI(gridReport);
 
 
@@ -191,7 +301,7 @@ class BiModule extends bmjh.BM {
   getInverterHistory(inverter_seq_list, startDate, endDate) {
     startDate = startDate ? startDate : 'CURDATE()';
     endDate = endDate ? endDate : 'CURDATE() + 1';
-    
+
     let sql = `
       SELECT 
       inverter_seq,
@@ -209,7 +319,7 @@ class BiModule extends bmjh.BM {
       FROM inverter_data
         WHERE writedate>= ${startDate} AND writedate<${endDate}
     `;
-    if(Array.isArray(inverter_seq_list)){
+    if (Array.isArray(inverter_seq_list)) {
       sql += ` AND inverter_seq IN (${inverter_seq_list})`;
     }
     sql += `

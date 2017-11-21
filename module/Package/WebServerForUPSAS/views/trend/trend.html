@@ -64,11 +64,11 @@
           <div class="col-xs-5">
             <div id="selectTypeArea" class="input_st">
               <label class="radio-inline" >
-                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="day">일일</label>
+                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="hour">일일</label>
               <label class="radio-inline">
-                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="month">월간</label>
+                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="day">월간</label>
               <label class="radio-inline">
-                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="year">년간</label>
+                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="month">년간</label>
               <label class="radio-inline">
                 <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="range">기간선택</label>
             </div>
@@ -76,8 +76,8 @@
 
           <div class="col-xs-5 serch_st">
             날짜 &nbsp;
-            <input class="input_tre" name="start" id="start" type="text" value='<%= searchRange.start %>' readonly>
-            <input class="input_tre" name="end" id="end" type="text" '<%= searchRange.end %>' readonly hidden="hidden">
+            <input class="input_tre" name="start" id="start" type="text" readonly>
+            <input class="input_tre" name="end" id="end" type="text" readonly hidden="hidden">
             <button type="button" class="btn btn-primary" onclick="searchTrend()" style="margin-bottom:3px; height:28px;" id="search">검색</button>
 
           </div>
@@ -112,19 +112,111 @@
 
     </div>
 
+    <script>
+      // 초기 시작시 라디오 체크버튼 클릭처리
+      let searchRange = <%- JSON.stringify(searchRange)  %>;
+      let gridChartReport = <%- JSON.stringify (gridChartReport) %>;
+
+      $(document).ready(() => {
+        console.log('searchRange',searchRange, gridChartReport)
+        let searchType = '<%-searchType%>';
+        if(searchRange.dataCount === 0) {
+          alert('조회 내역이 없습니다.');
+        }
+        let selectedObj = document.querySelector(`#selectTypeArea input[value=${searchType}]`)
+
+        $(selectedObj).trigger('click');
+      })
+
+      function setterSelectType(target){
+        var checkRadio = target.value;
+        let startDateDom = document.querySelector('#start');
+        let endDateDom = document.querySelector('#end');
+
+        let startDate = new Date(searchRange.start);
+        let endDate = searchRange.end === '' ||  new Date(searchRange.end) === 'Invalid Date' ? startDate : new Date(searchRange.end);
+
+        if (checkRadio == 'range') {
+          $('#end').show();
+          startDatePicker(0, 'yyyy-mm-dd');
+          endDatePicker();
+          startDateDom.value = startDate.toISOString().substring(0, 10);
+          endDateDom.value = endDate.toISOString().substring(0, 10);
+          
+        } else {
+          $('#end').hide();
+          if (checkRadio == 'month') {
+            startDatePicker(2, 'yyyy');
+            startDateDom.value = startDate.toISOString().substring(0, 4);
+            endDateDom.value = endDate.toISOString().substring(0, 4);
+          } else if (checkRadio == 'day') {
+            startDatePicker(1, 'yyyy-mm');
+            startDateDom.value = startDate.toISOString().substring(0, 7);
+            endDateDom.value = endDate.toISOString().substring(0, 7);
+          } else if (checkRadio == 'hour') {
+            startDatePicker(0, 'yyyy-mm-dd');
+            startDateDom.value = startDate.toISOString().substring(0,10);
+            endDateDom.value = endDate.toISOString().substring(0, 10);
+          } 
+        }
+      }
+
+      function searchTrend(){
+        let connector_seq = document.querySelector('#sel1 option:checked').value;
+        let searchType = document.querySelector('#selectTypeArea input[name="searchType"]:checked').value;
+        let startDate = document.getElementById('start').value;
+        let endDate = document.getElementById('end').value;
+
+        if(searchType !== 'range'){
+          endDate = startDate;
+        }
+
+        if(searchType === 'range' && startDate > endDate){
+          return alert('종료일이 시작일보다 빠를 수 없습니다.');
+        }
+
+        return location.href = `/trend?connector_seq=${connector_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}`;
+      }
+
+      //DatePicker++
+      function startDatePicker(mode, format) {
+        $('#start').datepicker('remove');
+
+        $('#start').datepicker({
+          format: format,
+          language: "kr",
+          autoclose: 1,
+          todayHighlight: 1,
+          clearBtn: 1,
+          minViewMode: mode
+          //mode: 0-일,1-월,2-년
+        });
+      }
+
+      function endDatePicker() {
+        $('#end').datepicker('remove');
+        $('#end').datepicker({
+          format: "yyyy-mm-dd",
+          language: "kr",
+          autoclose: 1,
+          todayHighlight: 1,
+          clearBtn: 1,
+        });
+      }
+    </script>
+
     <script type="text/javascript">
       $(function () {
-
         $('#moduleChart_1').highcharts({
           title: {
-            text: <%- JSON.stringify(gridInfo.measureTime)  %>
+            text: searchRange.rangeStart + ' ~ ' + searchRange.rangeEnd
           },
           xAxis: {
             title: {
               text: '시간(Time)'
             },
             tickInterval: 1,
-            categories: <%- JSON.stringify (gridChartReport.range) %>
+            categories: gridChartReport.range
           },
           yAxis: {
             title: {
@@ -137,7 +229,7 @@
             verticalAlign: 'middle',
             borderWidth: 0
           },
-          series: <%- JSON.stringify (gridChartReport.series) %>
+          series: gridChartReport.series
         });
       });
     </script>
@@ -211,113 +303,7 @@
         }]
       });
     </script>
-    <script>
-      // 초기 시작시 라디오 체크버튼 클릭처리
-      $(document).ready(() => {
-        let searchType = '<%-searchType%>';
-        // let selectedObj = document.querySelector(`#selectTypeArea input[value=${searchType}]`)
-
-        // $(selectedObj).trigger('click');
-      })
-
-      function setterSelectType(target){
-        console.log('setterSelectType', target)
-        var checkRadio = target.value;
-        var currDate = new Date();
-        console.log('checkRadio',checkRadio)
-        let startDate = document.querySelector('#start');
-        let endDate = document.querySelector('#end');
-        if (checkRadio == 'range') {
-          $('#end').show();
-          startDatePicker(0, 'yyyy-mm-dd');
-          endDatePicker();
-          startDate.value = currDate.toISOString().substring(0,10);
-          endDate.value = currDate.toISOString().substring(0,10);
-          
-        } else {
-          $('#end').hide();
-          if (checkRadio == 'month') {
-            startDatePicker(1, 'yyyy-mm');
-            startDate.value = currDate.toISOString().substring(0, 7);
-          } else if (checkRadio == 'day') {
-            startDatePicker(0, 'yyyy-mm-dd');
-            startDate.value = currDate.toISOString().substring(0,10);
-          } else if (checkRadio == 'year') {
-            startDatePicker(2, 'yyyy');
-            startDate.value = currDate.toISOString().substring(0, 4);
-          }
-        }
-      }
-
-      function searchTrend(){
-
-        let connector_seq = document.querySelector('#sel1 option:checked').value;
-        let searchType = document.querySelector('#selectTypeArea input[name="searchType"]:checked').value;
-        let startDate = document.getElementById('start').value;
-        let endDate = document.getElementById('end').value;
-
-        
-
-        console.log('searchType',searchType)
-
-        if(searchType === 'range' && startDate > endDate){
-          return alert('종료일이 시작일보다 빠를 수 없습니다.');
-        }
-
-        return location.href = `/trend?connector_seq=${connector_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}`;
-      }
-
-      // $('#search').click(function () {
-      //   var searchType = $('input[type=radio][name=searchType]:checked').val();
-      //   var start = $('#start').val();
-      //   var end = $('#end').val();
-
-      //   if (searchType == 'select') {
-      //     if (start == '' || end == '') {
-      //       alert('날짜를 선택해주세요');
-      //     } else {
-      //       if (start > end) {
-      //         alert('종료일이 시작일보다 빠를수 없습니다.');
-      //         $('#end').val('');
-      //       } else {
-      //         return location.href = '/trend?start=' + start + '&end=' + end + '&searchType=' + checkRadio;
-      //       }
-      //     }
-      //   } else {
-      //     if (start == '') {
-      //       alert('날짜를 선택해주세요');
-      //     } else {
-      //       return location.href = '/trend?start=' + start + '&end=' + end + '&searchType=' + checkRadio;
-      //     }
-      //   }
-      // });
-
-      //DatePicker++
-      function startDatePicker(mode, format) {
-        $('#start').datepicker('remove');
-
-        $('#start').datepicker({
-          format: format,
-          language: "kr",
-          autoclose: 1,
-          todayHighlight: 1,
-          clearBtn: 1,
-          minViewMode: mode
-          //mode: 0-일,1-월,2-년
-        });
-      }
-
-      function endDatePicker() {
-        $('#end').datepicker('remove');
-        $('#end').datepicker({
-          format: "yyyy-mm-dd",
-          language: "kr",
-          autoclose: 1,
-          todayHighlight: 1,
-          clearBtn: 1,
-        });
-      }
-    </script>
+    
 
 </body>
 

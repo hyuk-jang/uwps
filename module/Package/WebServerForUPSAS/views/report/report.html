@@ -9,21 +9,26 @@
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
     <!-- 위 3개의 메타 태그는 *반드시* head 태그의 처음에 와야합니다; 어떤 다른 콘텐츠들은 반드시 이 태그들 *다음에* 와야 합니다 -->
 
-    <!-- 부트스트랩 -->
-    <link href="css/bootstrap.min.css" rel="stylesheet" />
+      <!-- 부트스트랩 -->
+  <link href="css/bootstrap.min.css" rel="stylesheet" />
+  <link href="css/datepicker3.css" rel="stylesheet" />
+  <link href="css/StyleSheet.css" rel="stylesheet" />
 
-    <script src="js/jquery-3.1.1.min.js"></script>
-    <link href="css/StyleSheet.css" rel="stylesheet" />
+  <script src="js/jquery-3.1.1.min.js"></script>
+
 </head>
 
 <body>
     <!-- jQuery (부트스트랩의 자바스크립트 플러그인을 위해 필요합니다) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <!-- 모든 컴파일된 플러그인을 포함합니다 (아래), 원하지 않는다면 필요한 각각의 파일을 포함하세요 -->
-    <script src="js/bootstrap.min.js"></script>
-
-
-    <link href="fonts/font-awesome.min.css" rel="stylesheet" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <!-- 모든 컴파일된 플러그인을 포함합니다 (아래), 원하지 않는다면 필요한 각각의 파일을 포함하세요 -->
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/bootstrap-datepicker.js"></script>
+  <script src="js/bootstrap-datepicker.kr.js"></script>
+  <!-- 차트 관련 -->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://code.highcharts.com/highcharts.src.js"></script>
+  <link href="fonts/font-awesome.min.css" rel="stylesheet" />
     <!--네비-->
     <%- include("../master/header.html") %>
 
@@ -55,10 +60,10 @@
 
 
                         <div class="input_st">
-                            <label class="radio-inline"><input type="radio" class="right_check" name="optradio">일일</label>
-                            <label class="radio-inline"><input type="radio" class="right_check" name="optradio">월간</label>
-                            <label class="radio-inline"><input type="radio" class="right_check" name="optradio">년간</label>
-                            <label class="radio-inline"><input type="radio" class="right_check_2" name="optradio">기간선택</label>
+                          <label class="radio-inline"><input type="radio" class="right_check" name="optradio" value="day">일일</label>
+                          <label class="radio-inline"><input type="radio" class="right_check" name="optradio" value="month">월간</label>
+                          <label class="radio-inline"><input type="radio" class="right_check" name="optradio" value="year">년간</label>
+                          <label class="radio-inline"><input type="radio" class="right_check_2" name="optradio" value="select">기간선택</label>
                         </div>
                     </div>
 

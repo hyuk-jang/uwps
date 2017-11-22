@@ -43,7 +43,10 @@ class BiModule extends bmjh.BM {
    * @param {Date} endDate 
    * @param {String} selectType day or month or tear
    */
-  getConnectorHistory(connector = {connector_seq,ch_number}) {
+  getConnectorHistory(connector = {
+    connector_seq,
+    ch_number
+  }) {
     let range = [];
     let sql = `
       SELECT 
@@ -59,7 +62,7 @@ class BiModule extends bmjh.BM {
         ${i === connector.ch_number ? '' : ','}
       `;
     }
-    
+
     sql += `
     FROM connector_data
     WHERE writedate>= CURDATE() and writedate<CURDATE() + 1
@@ -74,8 +77,7 @@ class BiModule extends bmjh.BM {
           range,
           gridInfo: result
         }
-      })
-    ;
+      });
   }
 
   /**
@@ -89,9 +91,11 @@ class BiModule extends bmjh.BM {
     connector_seq,
     ch_number
   }, searchRange = {
+    searchType,
     strStartDate,
     strEndDate
-  }, searchType) {
+  }) {
+    let searchType = searchRange.searchType;
     let strStartDate = searchRange.strStartDate;
     let strEndDate = searchRange.strEndDate;
 
@@ -103,28 +107,24 @@ class BiModule extends bmjh.BM {
     // strEndDate = BU.convertDateToText(endtDate)
     // TEST
 
-    
-    
-    
+    // BU.CLI(searchRange)
+
+
     // 기간 검색일 경우 시작일과 종료일의 날짜 차 계산하여 searchType 정의
-    if(searchType === 'range'){
-      let gapDate =  BU.calcDateInterval(strEndDate, strStartDate)
-      BU.CLI(gapDate)
-      if(gapDate.remainDay >= 365){
-        searchType = 'year';
-      } else if(gapDate.remainDay > 29){
-        searchType = 'month';
-      } else if(gapDate.remainDay > 0){
-        searchType = 'day';
+    if (searchType === 'range') {
+      let gapDate = BU.calcDateInterval(strEndDate, strStartDate);
+      // remainDay + remainHour + remainMin + remainSec
+      let sumValues = Object.values(gapDate).sum();
+      if (gapDate.remainDay >= 365) {
+        searchRange.searchType = searchType = 'year';
+      } else if (gapDate.remainDay > 29) {
+        searchRange.searchType = searchType = 'month';
+      } else if (gapDate.remainDay > 0 && sumValues > 1) {
+        searchRange.searchType = searchType = 'day';
       } else {
-        searchType = 'hour';
+        searchRange.searchType = searchType = 'hour';
       }
     }
-
-    
-
-    // let range = BU.getBetweenDatePoint(strEndDate, strStartDate, searchType);
-    // BU.CLI(range)
 
     let dateFormat = '';
     switch (searchType) {
@@ -146,9 +146,9 @@ class BiModule extends bmjh.BM {
     }
 
     let sql = `
-    SELECT calc_cnt.*, DATE_FORMAT(writedate,"${dateFormat}") AS group_date
-        ,AVG(vol) AS avg_vol
-     `;
+      SELECT calc_cnt.*, DATE_FORMAT(writedate,"${dateFormat}") AS group_date
+      ,AVG(vol) AS avg_vol
+    `;
     for (let i = 1; i <= connector.ch_number; i++) {
       sql += ` ${i === 1 ? ',' : ''}SUM(ch_a_${i}) AS total_ch_a_${i}
       ,ROUND(SUM(ch_a_1 * vol), 2) AS total_ch_wh_${i}
@@ -157,31 +157,34 @@ class BiModule extends bmjh.BM {
     };
 
     sql += `
-     FROM(
-      SELECT 
+      FROM(
+        SELECT 
         connector_seq,
         writedate, 
         DATE_FORMAT(writedate, "${dateFormat}") AS dateFormat,
         ROUND(v / 10, 1) AS vol
-    `;
+      `;
     for (let i = 1; i <= connector.ch_number; i++) {
       sql += `${i === 1 ? ',' : ''}ROUND(ch_${i}/10,1) AS ch_a_${i}${i === connector.ch_number ? '' : ','}`;
     }
 
     sql += `
-      FROM connector_data
-      WHERE writedate>= "${strStartDate}" and writedate<"${strEndDate}"
+        FROM connector_data
+        WHERE writedate>= "${strStartDate}" and writedate<"${strEndDate}"
         AND connector_seq = ${connector.connector_seq}
-      GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), connector_seq
-      ORDER BY connector_seq, writedate) calc_cnt
-    GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), connector_seq
+        GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), connector_seq
+        ORDER BY connector_seq, writedate) calc_cnt
+      GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), connector_seq
     `;
 
+    let betweenDatePointObj = BU.getBetweenDatePoint(strEndDate, strStartDate, searchType);
+    // BU.CLI(betweenDatePointObj)
+
     // return this.db.single(sql, '', true)
-      return this.db.single(sql)
+    return this.db.single(sql)
       .then(result => {
         return {
-          // range,
+          betweenDatePointObj,
           gridPowerInfo: result
         }
       });
@@ -193,9 +196,17 @@ class BiModule extends bmjh.BM {
    * @param {Array} relationInfo 
    * @param {Array} connectorHistory 
    */
-  processModulePowerTrend(connectorInfo = {ch_number,connector_seq}, relationInfo, connectorHistory = {range, gridPowerInfo}) {
+  processModulePowerTrend(connectorInfo = {
+    ch_number,
+    connector_seq
+  }, relationInfo, connectorHistory = {
+    betweenDatePointObj,
+    gridPowerInfo
+  }, searchRange) {
+    BU.CLI('processModulePowerTrend', searchRange)
     // 트렌드를 구할 모듈 정보 초기화
     let moudlePowerReport = [];
+    let hasData = false;  // 데이터가 있는지 없는지
     for (let cnt = 1; cnt <= connectorInfo.ch_number; cnt++) {
       let moduleInfo = _.findWhere(relationInfo, {
         connector_seq: connectorInfo.connector_seq,
@@ -210,9 +221,11 @@ class BiModule extends bmjh.BM {
     }
 
     // 검색 기간 만큼 반복
-    connectorHistory.range.forEach(strDateFormat => {
+    connectorHistory.betweenDatePointObj.fullTxtPoint.forEach((strDateFormat, ftpIndex) => {
       // dateFormat 이 같은 데이터 추출
-      let findGridObj = _.findWhere(connectorHistory.gridPowerInfo, {group_date:strDateFormat});
+      let findGridObj = _.findWhere(connectorHistory.gridPowerInfo, {
+        group_date: strDateFormat
+      });
       // 같은 데이터가 없다면 빈 데이터 삽입
       if (_.isEmpty(findGridObj)) {
         moudlePowerReport.forEach(element => {
@@ -222,18 +235,74 @@ class BiModule extends bmjh.BM {
         // 정의된 접속반 연결 채널 수 만큼 반복
         for (let cnt = 1; cnt <= connectorInfo.ch_number; cnt++) {
           // 고유 채널명 정의
-          let targetId =`id_${findGridObj.connector_seq}_${cnt}`;
+          let targetId = `id_${findGridObj.connector_seq}_${cnt}`;
           // 고유 채널과 일치하는 moudlePowerReport 객체 찾아옴
-          let findPowerReport = _.findWhere(moudlePowerReport, {id:targetId});
+          let findPowerReport = _.findWhere(moudlePowerReport, {
+            id: targetId
+          });
           // 해당 데이터 삽입
-          findPowerReport.data.push(findGridObj[`total_ch_wh_${cnt}`]);
+          let totalPower = findGridObj[`total_ch_wh_${cnt}`];
+          hasData = totalPower ? true : hasData;  // 데이터가 한개라면 있다면 true
+          switch (searchRange.searchType) {
+            case 'year':
+              totalPower = (totalPower / 1000 / 1000).toFixed(4);
+              break;
+            case 'month':
+              totalPower = (totalPower / 1000).toFixed(3);
+              break;
+            case 'day':
+              totalPower = (totalPower / 1000).toFixed(3);
+              break;
+            case 'hour':
+              break;
+            default:
+              break;
+          }
+          // BU.CLI('totalPower',totalPower)
+          findPowerReport.data.push(Number(totalPower));
         }
       }
     });
 
+    let mainTitle = '';
+    let xAxisTitle = '';
+    let yAxisTitle = '';
+    switch (searchRange.searchType) {
+      case 'year':
+        xAxisTitle = '시간(년)'
+        yAxisTitle = '발전량(MWh)'
+        break;
+      case 'month':
+        xAxisTitle = '시간(월)'
+        yAxisTitle = '발전량(kWh)'
+        break;
+      case 'day':
+        xAxisTitle = '시간(일)'
+        yAxisTitle = '발전량(kWh)'
+        break;
+      case 'hour':
+        xAxisTitle = '시간(시)'
+        yAxisTitle = '발전량(Wh)'
+        break;
+      default:
+        break;
+    }
+
+    if (searchRange.rangeEnd !== '') {
+      mainTitle = `[ ${searchRange.rangeStart} ~ ${searchRange.rangeEnd} ]`;
+    } else {
+      mainTitle = `[ ${searchRange.rangeStart} ]`;
+    }
+
     // BU.CLI('moudlePowerReport', moudlePowerReport);
     return {
-      range: connectorHistory.range,
+      hasData,
+      chartOptionInfo: {
+        mainTitle,
+        xAxisTitle,
+        yAxisTitle,
+        columnList:connectorHistory.betweenDatePointObj.shortTxtPoint
+      },
       series: moudlePowerReport
     };
   }
@@ -248,58 +317,50 @@ class BiModule extends bmjh.BM {
   getSearchRange(searchType, start_date, end_date) {
     BU.CLIS(searchType, start_date, end_date)
     let startDate = start_date ? BU.convertTextToDate(start_date) : new Date();
-    let endDate = end_date ? BU.convertTextToDate(end_date) : new Date(startDate);
+    let endDate = searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : new Date(startDate);
 
     let returnValue = {
       searchType,
       strStartDate: null, // sql writedate range 사용
-      strEndDate: null,   // sql writedate range 사용
-      rangeStart: '',     // Chart 위에 표시될 시작 날짜
-      rangeEnd: '',       // Chart 위에 표시될 종료 날짜
-      strStartDateInputValue: '',   // input에 표시될 시작 날짜
-      strEndDateInputValue: '',     // input에 표시될 종료 날짜
+      strEndDate: null, // sql writedate range 사용
+      rangeStart: '', // Chart 위에 표시될 시작 날짜
+      rangeEnd: '', // Chart 위에 표시될 종료 날짜
+      strStartDateInputValue: '', // input에 표시될 시작 날짜
+      strEndDateInputValue: '', // input에 표시될 종료 날짜
     }
+
+    let spliceIndex = 0;
 
     // 검색 시작 시분초 초기화
     startDate.setHours(0, 0, 0);
     if (searchType === 'hour' || searchType === '') {
+      spliceIndex = 2;
       endDate = (new Date(startDate)).addDays(1);
-      returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', 2);
-      returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', 2);
     } else if (searchType === 'day') {
+      spliceIndex = 1;
       startDate.setDate(1)
       endDate = (new Date(startDate)).addMonths(1);
-      returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', 1);
-      returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', 1);
-      // returnValue.rangeEnd = BU.convertDateToText((new Date(endDate)).setDate(-1), '', 2);
     } else if (searchType === 'month') {
+      spliceIndex = 0;
       startDate.setMonth(0, 1)
       endDate = (new Date(startDate)).addYear(1);
-      returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', 0);
-      returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', 0);
-      // returnValue.rangeEnd = BU.convertDateToText((new Date(endDate)).setDate(-1), '', 2);
     } else if (searchType === 'range') {
-      endDate = end_date ? new Date(end_date) : new Date();
-
-      returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', 2);
-      returnValue.rangeEnd = BU.convertDateToText(endDate, 'kor', 2);
-
-      returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', 2);
-      returnValue.strEndDateInputValue = BU.convertDateToText(endDate, '', 2);
-    } 
+      spliceIndex = 2;
+      // endDate = end_date ? new Date(end_date) : new Date();
+      // chart title에 사용될 기간을 설정
+      returnValue.rangeEnd = BU.convertDateToText(endDate, 'kor', spliceIndex, 0);
+      // 검색 조건 input value txt 설정
+      returnValue.strEndDateInputValue = BU.convertDateToText(endDate, '', spliceIndex, 0);
+      // SQL 날짜 검색에 사용할 범위를 위하여 하루 증가
+      endDate = (new Date(endDate)).addDays(1);
+    }
+    returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', spliceIndex, 0);
+    returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', spliceIndex, 0);
     returnValue.strStartDate = BU.convertDateToText(startDate);
     returnValue.strEndDate = BU.convertDateToText(endDate);
-    // returnValue.rangeStart = BU.convertDateToText(startDate, '', 2);
     // BU.CLI(returnValue)
     return returnValue;
   }
-
-  getMeasureTime(gridReport, startDate, endDate, selectedType) {
-    // BU.CLI(gridReport);
-
-
-  }
-
 
 
   getInverterHistory(inverter_seq_list, startDate, endDate) {

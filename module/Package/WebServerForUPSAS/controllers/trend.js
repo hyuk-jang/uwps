@@ -10,8 +10,6 @@ module.exports = function (app) {
   const initSetter = app.get('initSetter');
   const biModule = new BiModule(initSetter.dbInfo);
 
-  let biTrend = require('../models/trend.js');
-
   // server middleware
   router.use(function (req, res, next) {
     req.locals = DU.makeBaseHtml(req, 5);
@@ -20,7 +18,6 @@ module.exports = function (app) {
 
   // Get
   router.get('/', wrap(async(req, res) => {
-    
     let searchType = req.query.search_type ? req.query.search_type : 'hour';
     let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
     // BU.CLI(searchRange)
@@ -37,38 +34,34 @@ module.exports = function (app) {
     let upmsRelation = await biModule.getTable('v_relation_upms')
 
     let gridChartReport = await Promise.map(searchConnectorList, searchConnector => {
-        return biModule.getTrendHistory(searchConnector, searchRange, searchType)
+        return biModule.getTrendHistory(searchConnector, searchRange)
           .then(connectorHistory => {
-            BU.CLI(connectorHistory)
-            return biModule.processModulePowerTrend(searchConnector, upmsRelation, connectorHistory);
+            // BU.CLI(connectorHistory)
+            return biModule.processModulePowerTrend(searchConnector, upmsRelation, connectorHistory, searchRange);
           });
       })
       .then(gridReportList => {
         // BU.CLI(gridReportList)
         let modulePowerObj = {
-          range: [],
+          hasData: false,
+          chartOptionInfo: {},
           series: []
         };
-        gridReportList.forEach(ele => {
-          modulePowerObj.range = ele.range;
-          modulePowerObj.series = modulePowerObj.series.concat(ele.series)
+        gridReportList.forEach(modulePowerTrend => {
+          modulePowerObj.hasData = modulePowerTrend.hasData ? true : modulePowerObj.hasData;
+          modulePowerObj.chartOptionInfo = modulePowerTrend.chartOptionInfo;
+          modulePowerObj.series = modulePowerObj.series.concat(modulePowerTrend.series)
         })
         return modulePowerObj;
       })
 
+      
+      connectorList.unshift({
+        connector_seq: 'all',
+        target_name: '모두'
+      })
+
     // BU.CLI(gridChartReport)
-
-    connectorList.unshift({
-      connector_seq: 'all',
-      target_name: '모두'
-    })
-
-    _.pluck(gridChartReport.series, 'data').forEach(ele => {
-      if(ele.length > searchRange.dataCount){
-        searchRange.dataCount = ele.length;
-      }
-    });
-
     req.locals.searchType = searchType;
     req.locals.connector_seq = Array.isArray(connector_seq) ? 'all' : connector_seq;
     req.locals.connectorList = connectorList;

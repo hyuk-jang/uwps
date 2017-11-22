@@ -63,7 +63,7 @@
           </div>
           <div class="col-xs-5">
             <div id="selectTypeArea" class="input_st">
-              <label class="radio-inline" >
+              <label class="radio-inline">
                 <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="hour">일일</label>
               <label class="radio-inline">
                 <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="day">월간</label>
@@ -118,9 +118,9 @@
       let gridChartReport = <%- JSON.stringify (gridChartReport) %>;
 
       $(document).ready(() => {
-        console.log('searchRange',searchRange, gridChartReport)
+        console.log('searchRange', searchRange, gridChartReport)
         let searchType = '<%-searchType%>';
-        if(searchRange.dataCount === 0) {
+        if (!gridChartReport.hasData) {
           alert('조회 내역이 없습니다.');
         }
         let selectedObj = document.querySelector(`#selectTypeArea input[value=${searchType}]`)
@@ -128,47 +128,53 @@
         $(selectedObj).trigger('click');
       })
 
-      function setterSelectType(target){
-        var checkRadio = target.value;
+
+      /**
+       * 검색 기간 Radio 클릭 시 날짜 영역 설정
+       * @param {Dom} input[name='searchType']
+       * @return {void} 
+       */
+      function setterSelectType(target) {
+        let checkRadio = target.value;
         let startDateDom = document.querySelector('#start');
         let endDateDom = document.querySelector('#end');
 
         let startDate = new Date(searchRange.strStartDateInputValue);
-        let endDate = searchRange.strEndDateInputValue === '' ||  new Date(searchRange.strEndDateInputValue) === 'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
+        let endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
+          'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
 
         if (checkRadio == 'range') {
           $('#end').show();
           startDatePicker(0, 'yyyy-mm-dd');
           endDatePicker();
-          startDateDom.value = startDate.toISOString().substring(0, 10);
-          endDateDom.value = endDate.toISOString().substring(0, 10);
-          
+          endDateDom.value = startDateDom.value = startDate.toISOString().substring(0, 10);
         } else {
           $('#end').hide();
           if (checkRadio == 'month') {
             startDatePicker(2, 'yyyy');
             startDateDom.value = startDate.toISOString().substring(0, 4);
-            endDateDom.value = endDate.toISOString().substring(0, 4);
           } else if (checkRadio == 'day') {
             startDatePicker(1, 'yyyy-mm');
             startDateDom.value = startDate.toISOString().substring(0, 7);
-            endDateDom.value = endDate.toISOString().substring(0, 7);
           } else if (checkRadio == 'hour') {
             startDatePicker(0, 'yyyy-mm-dd');
-            startDateDom.value = startDate.toISOString().substring(0,10);
-            endDateDom.value = endDate.toISOString().substring(0, 10);
-          } 
+            startDateDom.value = startDate.toISOString().substring(0, 10);
+          }
         }
       }
 
-      function searchTrend(){
+      // 검색 클릭 시
+      function searchTrend() {
         let connector_seq = document.querySelector('#sel1 option:checked').value;
         let searchType = document.querySelector('#selectTypeArea input[name="searchType"]:checked').value;
         let startDate = document.getElementById('start').value;
-        let endDate = document.getElementById('end').value;
+        let endDate = '';
 
-        if(searchType === 'range' && startDate > endDate){
-          return alert('종료일이 시작일보다 빠를 수 없습니다.');
+        if (searchType === 'range') {
+          endDate = document.getElementById('end').value;
+          if (startDate > endDate) {
+            return alert('종료일이 시작일보다 빠를 수 없습니다.');
+          }
         }
 
         return location.href = `/trend?connector_seq=${connector_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}`;
@@ -202,28 +208,22 @@
     </script>
 
     <script type="text/javascript">
-    let modulePowerTrendTitle = '';
-      if(searchRange.rangeEnd !== ''){
-        modulePowerTrendTitle = `[ ${searchRange.rangeStart} ~ + ${searchRange.rangeEnd} ]`;
-      } else {
-        modulePowerTrendTitle = `[ ${searchRange.rangeStart} ]`;
-      }
-    
       $(function () {
+        console.log('gridChartReport.shortTxtPoint', gridChartReport.shortTxtPoint)
         $('#moduleChart_1').highcharts({
           title: {
-            text: modulePowerTrendTitle
+            text: gridChartReport.chartOptionInfo.mainTitle
           },
           xAxis: {
             title: {
-              text: '시간(Time)'
+              text: gridChartReport.chartOptionInfo.xAxisTitle
             },
             tickInterval: 1,
-            categories: gridChartReport.range
+            categories: gridChartReport.chartOptionInfo.columnList
           },
           yAxis: {
             title: {
-              text: '발전량(Wh)'
+              text: gridChartReport.chartOptionInfo.yAxisTitle
             }
           },
           legend: { //범례
@@ -306,7 +306,7 @@
         }]
       });
     </script>
-    
+
 
 </body>
 

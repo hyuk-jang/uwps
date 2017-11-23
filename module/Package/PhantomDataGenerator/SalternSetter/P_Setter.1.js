@@ -6,8 +6,6 @@ const bmjh = require('base-model-jh');
 const Promise = require('bluebird')
 const BU = require('base-util-jh').baseUtil;
 
-const TempStorage = require('./TempStorage');
-
 class P_Setter extends bmjh.BM {
   constructor(controller) {
     super(controller.config.dbInfo);
@@ -25,13 +23,10 @@ class P_Setter extends bmjh.BM {
 
   async init() {
     // console.log(this.mapSetInfo)
-    console.time('setDeviceStructure')
+
     await this.setDeviceStructure(this.structureInfo);
-    console.timeEnd('setDeviceStructure')
-    console.time('setDeviceInfo')
     await this.setDeviceInfo(this.mapSetInfo);
-    console.timeEnd('setDeviceInfo')
-    
+
 
     return;
 
@@ -72,64 +67,35 @@ class P_Setter extends bmjh.BM {
 
   }
 
-
-  /**
-   * 저장소에 저장된 내역을 기준으로 insert, update 수행 후 Promise 반환
-   * @param {Object} storage TempStroage Class Object
-   * @param {String} tblName 
-   * @param {String} updateKey 
-   * @return {Promise}
-   */
-  async doQuery(storage, tblName, updateKey) {
-    let finalStorage = storage.getFinalStorage();
-
-    if (finalStorage.insertObjList.length) {
-      await this.setTables(tblName, finalStorage.insertObjList);
-    } 
-    
-    if (finalStorage.updateObjList.length) {
-      return new Promise(resolve => {
-        Promise.map(finalStorage.updateObjList, updateObj => {
-            // BU.CLI(updateObj)
-            return this.updateTable(tblName, {
-              key: updateKey,
-              value: updateObj[updateKey]
-            }, updateObj);
-          })
-          .then(result => {
-            resolve(result)
-          })
-      })
-    }
-
-    return true;
-  }
-
   // 장치 구성 정보 설정
   async setDeviceStructure(structureInfoList) {
-    let tempStorage = new TempStorage();
     let deviceStructureList = await this.getTable('device_structure');
+    let structureHeaderList = _.pluck(deviceStructureList, 'structure_header');
 
-    tempStorage.initAlreadyStorage(deviceStructureList);
+    let insertList = [];
 
     structureInfoList.forEach(structureInfo => {
-      tempStorage.addStorage(structureInfo, 'structure_header', 'device_structure_seq');
+      if (!_.contains(structureHeaderList, structureInfo.structure_header)) {
+        insertList.push(structureInfo);
+      }
     });
-    
-    return this.doQuery(tempStorage, 'device_structure', 'device_structure_seq');
-  }
 
+    if (!insertList.length) {
+      return false;
+    }
+    return this.setTables('device_structure', insertList);
+  }
 
   // 염전 설정 장비 세팅
   async setDeviceInfo(mapSetInfo) {
-    let tempStorage = new TempStorage();
-
     let regx = /\d/;
     let deviceStructureList = await this.getTable('device_structure');
     let salternDeviceInfoList = await this.getTable('saltern_device_info');
 
-    // 존재 저장소 설정
-    tempStorage.initAlreadyStorage(salternDeviceInfoList);
+    let submitDataList = [];
+    let insertList = [];
+    let updateList = [];
+
 
     _.each(mapSetInfo, category => {
       _.each(category, deviceInfo => {
@@ -147,80 +113,43 @@ class P_Setter extends bmjh.BM {
           port: deviceInfo.Port
         }
 
-        tempStorage.addStorage(submitDataObj, 'target_id', 'saltern_device_info_seq');
+        let findSubmitObj = _.findWhere(submitDataList, {
+          target_id: submitDataObj.target_id
+        });
+        submitDataList.push(submitDataObj);
+        if (!_.isEmpty(findSubmitObj)) {
+          throw ('중복 ID 발생  ' + submitDataObj.target_id);
+        }
+
+        let findAlready = _.findWhere(salternDeviceInfoList, {
+          target_id: submitDataObj.target_id
+        });
+        // Insert
+        if (_.isEmpty(findAlready)) {
+          insertList.push(submitDataObj)
+        } else {
+          submitDataObj.saltern_device_info_seq = findAlready.saltern_device_info_seq;
+          updateList.push(submitDataObj);
+        }
       })
     })
 
-    return this.doQuery(tempStorage, 'saltern_device_info', 'saltern_device_info_seq');
-
-    // let finalStorage = tempStorage.getFinalStorage();
-
-    // if (finalStorage.insertObjList.length) {
-    //   await this.setTables('saltern_device_info', finalStorage.insertObjList);
-    // } else if (finalStorage.updateObjList.length) {
-    //   return new Promise(resolve => {
-    //     Promise.map(finalStorage.updateObjList, updateObj => {
-    //         // BU.CLI(updateObj)
-    //         return this.updateTable('saltern_device_info', {
-    //           key: 'saltern_device_info_seq',
-    //           value: updateObj.saltern_device_info_seq
-    //         }, updateObj);
-    //       })
-    //       .then(result => {
-    //         resolve(result)
-    //       })
-    //   })
-    // }
-    // return true;
-  }
-
-  // 염전 구성 객체 세팅(saltern_block, brine_warehouse, reservoir, sea, waterway)
-  async setSalternObject(mapRelation) {
-    let keyInfo = {
-      saltern_block: 'SaltPlateData',
-      brine_warehouse: 'WaterTankData',
-      sea: 'WaterOutData',
-      reservoir: 'ReservoirData',
-      waterway: 'WaterWayData'
+    if (insertList.length) {
+      await this.setTables('saltern_device_info', insertList);
+    } else if (updateList.length) {
+      return new Promise(resolve => {
+        Promise.map(updateList, updateObj => {
+            // BU.CLI(updateObj)
+            return this.updateTable('saltern_device_info', {
+              key: 'saltern_device_info_seq',
+              value: updateObj.saltern_device_info_seq
+            }, updateObj);
+          })
+          .then(result => {
+            resolve(result)
+          })
+      })
     }
-
-
-  }
-
-  async setSalternBlock(mapRelationSalternBlock) {
-    let relationObjectList = await this.getTable('saltern_block');
-
-    // 염판 세팅
-    _.each(mapRelationSalternBlock, relationInfo => {
-      let convertRelationInfo = {
-        target_id: relationInfo.ID,
-        target_type: relationInfo.PlateType.indexOf('Evaporating') !== -1 ? 'concentration' : 'crystalizing',
-        target_name: this.findTargetName('ID', relationInfo.ID),
-        setting_salinity: typeof relationInfo.SettingSalinity === 'number' ? relationInfo.SettingSalinity : 0,
-        water_level_count: typeof relationInfo.WaterLevelCount === 'number' ? relationInfo.WaterLevelCount : 0,
-        min_water_level: relationInfo.MinWaterLevel,
-        max_water_level: relationInfo.MaxWaterLevel,
-        water_cm: '',
-        depth: relationInfo.Depth
-      }
-    })
-  }
-
-
-  setRelationInfo() {
-    let keyInfo = {
-      saltern_block: 'SaltPlateData',
-      brine_warehouse: 'WaterTankData',
-      reservoir: 'ReservoirData',
-      sea: 'WaterOutData',
-      waterway: 'WaterWayData'
-    }
-    _.each(this.mapRelation, (category, key) => {
-      if (key === 'SaltPlateData') {
-        this.setSalternBlock(category);
-      }
-
-    })
   }
 
   // 모듈 정보 설정
@@ -325,7 +254,21 @@ class P_Setter extends bmjh.BM {
     return returnvalue;
   }
 
+  setRelationInfo() {
+    let keyInfo = {
+      saltern_block: 'SaltPlateData',
+      brine_warehouse: 'WaterTankData',
+      reservoir: 'ReservoirData',
+      sea: 'WaterOutData',
+      waterway: 'WaterWayData'
+    }
+    _.each(this.mapRelation, (category, key) => {
+      if (key === 'SaltPlateData') {
+        this.setSalternBlock(category);
+      }
 
+    })
+  }
 
   setSalternBlock(relationList) {
     BU.CLI('setSalternBlock')

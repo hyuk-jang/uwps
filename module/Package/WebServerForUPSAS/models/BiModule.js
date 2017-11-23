@@ -35,6 +35,7 @@ class BiModule extends bmjh.BM {
         }
       });
   }
+  
 
   /**
    * return connector report
@@ -83,11 +84,9 @@ class BiModule extends bmjh.BM {
   /**
    * return connector report
    * @param {Object} connector {connector_seq, ch_number}
-   * @param {String} startDate 
-   * @param {String} endDate 
-   * @param {String} searchType day or month or tear
+   * @param {Object} searchRange 
    */
-  getTrendHistory(connector = {
+  getReportByConnector(connector = {
     connector_seq,
     ch_number
   }, searchRange = {
@@ -190,13 +189,111 @@ class BiModule extends bmjh.BM {
       });
   }
 
+    /**
+   * return connector report
+   * @param {Array} inverterSeqList {connector_seq, ch_number}
+   * @param {Object} searchRange 
+   */
+  getReportByInverter(inverterSeqList, searchRange) {
+    let searchType = searchRange.searchType;
+    let strStartDate = searchRange.strStartDate;
+    let strEndDate = searchRange.strEndDate;
+
+    let startDate = new Date(strStartDate);
+    let endDate = new Date(strEndDate);
+
+    // TEST
+    // endtDate = new Date('2017-11-16');
+    // strEndDate = BU.convertDateToText(endtDate)
+    // TEST
+
+    // BU.CLI(searchRange)
+
+
+    // 기간 검색일 경우 시작일과 종료일의 날짜 차 계산하여 searchType 정의
+    if (searchType === 'range') {
+      let gapDate = BU.calcDateInterval(strEndDate, strStartDate);
+      // remainDay + remainHour + remainMin + remainSec
+      let sumValues = Object.values(gapDate).sum();
+      if (gapDate.remainDay >= 365) {
+        searchRange.searchType = searchType = 'year';
+      } else if (gapDate.remainDay > 29) {
+        searchRange.searchType = searchType = 'month';
+      } else if (gapDate.remainDay > 0 && sumValues > 1) {
+        searchRange.searchType = searchType = 'day';
+      } else {
+        searchRange.searchType = searchType = 'hour';
+      }
+    }
+
+    let dateFormat = '';
+    switch (searchType) {
+      case 'year':
+        dateFormat = '%Y';
+        break;
+      case 'month':
+        dateFormat = '%Y-%m';
+        break;
+      case 'day':
+        dateFormat = '%Y-%m-%d';
+        break;
+      case 'hour':
+        dateFormat = '%Y-%m-%d %H';
+        break;
+      default:
+        dateFormat = '%Y-%m';
+        break;
+    }
+
+    let sql = `
+      SELECT trend_ivt_tbl.*, 
+      DATE_FORMAT(writedate,"${dateFormat}") AS group_date,
+      SUM(in_wh) AS total_in_wh,
+      SUM(out_wh) AS total_out_wh
+      FROM
+        (
+        SELECT
+        inverter_seq,
+        writedate,
+        DATE_FORMAT(writedate, "${dateFormat}") AS dateFormat
+        ,ROUND(in_w / 10, 1) AS in_wh
+        ,ROUND(in_v / 10, 1) AS in_vol
+        ,ROUND(out_w / 10, 1) AS out_wh
+        ,ROUND(out_v / 10, 1) AS out_vol
+        FROM inverter_data
+        WHERE writedate>= "${strStartDate}" and writedate<"${strEndDate}"
+      `;
+      if(inverterSeqList){
+        sql += `AND inverter_seq IN (${inverterSeqList})`;
+      }
+        sql += `
+        GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), inverter_seq
+        ORDER BY inverter_seq, writedate
+        ) trend_ivt_tbl
+      GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), inverter_seq
+    `;
+
+    let betweenDatePointObj = BU.getBetweenDatePoint(strEndDate, strStartDate, searchType);
+    // BU.CLI(betweenDatePointObj)
+
+    return this.db.single(sql, '', true)
+    // return this.db.single(sql)
+      .then(result => {
+        return {
+          betweenDatePointObj,
+          gridPowerInfo: result
+        }
+      });
+  }
+
+
   /**
    * 접속반, Relation, trend를 융합하여 chart data 를 뽑아냄
    * @param {Object} connectorInfo 
    * @param {Array} relationInfo 
    * @param {Array} connectorHistory 
    */
-  processModulePowerTrend(connectorInfo = {
+  processReportByConnector(connectorInfo = {
     ch_number,
     connector_seq
   }, relationInfo, connectorHistory = {

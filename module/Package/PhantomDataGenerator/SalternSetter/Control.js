@@ -27,8 +27,10 @@ class Control extends EventEmitter {
     // Child
   }
 
-  init() {
-    this.p_Setter.init();
+  async init() {
+    await this.p_Setter.init();
+
+    return true;
 
   }
 }

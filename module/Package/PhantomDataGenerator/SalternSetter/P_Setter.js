@@ -14,6 +14,7 @@ class P_Setter extends bmjh.BM {
     this.controller = controller;
 
     this.structureInfo = this.controller.config.device_structure;
+    this.configUpms = this.controller.config.UPMS;
 
     this.mapImgInfo = map.MAP;
     this.mapSetInfo = map.SETINFO;
@@ -24,52 +25,22 @@ class P_Setter extends bmjh.BM {
   }
 
   async init() {
-    // console.log(this.mapSetInfo)
+
     console.time('setDeviceStructure')
     await this.setDeviceStructure(this.structureInfo);
     console.timeEnd('setDeviceStructure')
+
     console.time('setDeviceInfo')
     await this.setDeviceInfo(this.mapSetInfo);
     console.timeEnd('setDeviceInfo')
-    
 
-    return;
+    console.time('setSalternObject')
+    await this.setSalternObject(this.mapRelation);
+    console.timeEnd('setSalternObject')
 
-    // 장치 구성 정보
-    setTimeout(() => {
-      this.setDeviceStructure();
-    }, 1000);
-
-
-    // 염전 설정 장비 
-    setTimeout(() => {
-      this.setDeviceInfo();
-    }, 1000 * 2);
-
-
-    // 염판 설정
-    setTimeout(() => {
-      this.setRelationInfo();
-    }, 1000 * 3);
-
-
-    // 모듈 정보
-    setTimeout(() => {
-      this.setPhotovoltaic();
-    }, 1000 * 4);
-
-
-    // 접속반
-    setTimeout(() => {
-      this.setConnector();
-    }, 1000 * 5);
-
-
-    setTimeout(() => {
-      this.setInverter();
-    }, 1000 * 6);
-
-
+    console.time('setUnderwaterPhotovoltaic')
+    await this.setUnderwaterPhotovoltaic(this.configUpms);
+    console.timeEnd('setUnderwaterPhotovoltaic')
   }
 
 
@@ -80,27 +51,17 @@ class P_Setter extends bmjh.BM {
    * @param {String} updateKey 
    * @return {Promise}
    */
-  async doQuery(storage, tblName, updateKey) {
+  async doQuery(storage, tblName, updateKey, hasViewQuery) {
     let finalStorage = storage.getFinalStorage();
 
-    if (finalStorage.insertObjList.length) {
-      await this.setTables(tblName, finalStorage.insertObjList);
-    } 
-    
-    if (finalStorage.updateObjList.length) {
-      return new Promise(resolve => {
-        Promise.map(finalStorage.updateObjList, updateObj => {
-            // BU.CLI(updateObj)
-            return this.updateTable(tblName, {
-              key: updateKey,
-              value: updateObj[updateKey]
-            }, updateObj);
-          })
-          .then(result => {
-            resolve(result)
-          })
-      })
-    }
+    await this.setTables(tblName, finalStorage.insertObjList, hasViewQuery);
+
+    await Promise.map(finalStorage.updateObjList, updateObj => {
+      return this.updateTable(tblName, {
+        key: updateKey,
+        value: updateObj[updateKey]
+      }, updateObj, hasViewQuery);
+    })
 
     return true;
   }
@@ -115,7 +76,7 @@ class P_Setter extends bmjh.BM {
     structureInfoList.forEach(structureInfo => {
       tempStorage.addStorage(structureInfo, 'structure_header', 'device_structure_seq');
     });
-    
+
     return this.doQuery(tempStorage, 'device_structure', 'device_structure_seq');
   }
 
@@ -152,27 +113,12 @@ class P_Setter extends bmjh.BM {
     })
 
     return this.doQuery(tempStorage, 'saltern_device_info', 'saltern_device_info_seq');
-
-    // let finalStorage = tempStorage.getFinalStorage();
-
-    // if (finalStorage.insertObjList.length) {
-    //   await this.setTables('saltern_device_info', finalStorage.insertObjList);
-    // } else if (finalStorage.updateObjList.length) {
-    //   return new Promise(resolve => {
-    //     Promise.map(finalStorage.updateObjList, updateObj => {
-    //         // BU.CLI(updateObj)
-    //         return this.updateTable('saltern_device_info', {
-    //           key: 'saltern_device_info_seq',
-    //           value: updateObj.saltern_device_info_seq
-    //         }, updateObj);
-    //       })
-    //       .then(result => {
-    //         resolve(result)
-    //       })
-    //   })
-    // }
-    // return true;
   }
+
+
+  /********************************/
+  //        Set Relation
+  /********************************/
 
   // 염전 구성 객체 세팅(saltern_block, brine_warehouse, reservoir, sea, waterway)
   async setSalternObject(mapRelation) {
@@ -184,17 +130,37 @@ class P_Setter extends bmjh.BM {
       waterway: 'WaterWayData'
     }
 
+    let result = await Promise.all([
+      this.setSalternBlock(mapRelation[keyInfo.saltern_block]),
+      this.setBrineWarehouse(mapRelation[keyInfo.brine_warehouse]),
+      this.setSea(mapRelation[keyInfo.sea]),
+      this.setReservoir(mapRelation[keyInfo.reservoir]),
+      this.setWaterway(mapRelation[keyInfo.waterway]),
+    ])
 
+    // await this.setSalternBlock(mapRelation[keyInfo.saltern_block]);
+    // await this.setBrineWarehouse(mapRelation[keyInfo.brine_warehouse]);
+    // await this.setSea(mapRelation[keyInfo.sea]);
+    // await this.setReservoir(mapRelation[keyInfo.reservoir]);
+    // await this.setWaterway(mapRelation[keyInfo.waterway]);
+
+
+    return result;
   }
 
-  async setSalternBlock(mapRelationSalternBlock) {
-    let relationObjectList = await this.getTable('saltern_block');
+  // 염판 설정
+  async setSalternBlock(relationObjectList) {
+    let tempStorage = new TempStorage();
+    let alreadyDataList = await this.getTable('saltern_block');
+
+    // 존재 저장소 설정
+    tempStorage.initAlreadyStorage(alreadyDataList);
 
     // 염판 세팅
-    _.each(mapRelationSalternBlock, relationInfo => {
-      let convertRelationInfo = {
+    _.each(relationObjectList, relationInfo => {
+      let submitDataObj = {
         target_id: relationInfo.ID,
-        target_type: relationInfo.PlateType.indexOf('Evaporating') !== -1 ? 'concentration' : 'crystalizing',
+        target_type: relationInfo.PlateType.includes('Evaporating') ? 'concentration' : 'crystalizing',
         target_name: this.findTargetName('ID', relationInfo.ID),
         setting_salinity: typeof relationInfo.SettingSalinity === 'number' ? relationInfo.SettingSalinity : 0,
         water_level_count: typeof relationInfo.WaterLevelCount === 'number' ? relationInfo.WaterLevelCount : 0,
@@ -203,112 +169,187 @@ class P_Setter extends bmjh.BM {
         water_cm: '',
         depth: relationInfo.Depth
       }
+      tempStorage.addStorage(submitDataObj, 'target_id', 'saltern_block_seq');
     })
+    return this.doQuery(tempStorage, 'saltern_block', 'saltern_block_seq');
+
   }
 
+  // 해주 설정
+  async setBrineWarehouse(relationObjectList) {
+    let tempStorage = new TempStorage();
+    let alreadyDataList = await this.getTable('brine_warehouse');
 
-  setRelationInfo() {
-    let keyInfo = {
-      saltern_block: 'SaltPlateData',
-      brine_warehouse: 'WaterTankData',
-      reservoir: 'ReservoirData',
-      sea: 'WaterOutData',
-      waterway: 'WaterWayData'
-    }
-    _.each(this.mapRelation, (category, key) => {
-      if (key === 'SaltPlateData') {
-        this.setSalternBlock(category);
+    // 존재 저장소 설정
+    tempStorage.initAlreadyStorage(alreadyDataList);
+
+    // 염판 세팅
+    _.each(relationObjectList, relationInfo => {
+      let submitDataObj = {
+        target_id: relationInfo.ID,
+        target_type: relationInfo.TankType.includes('Evaporating') ? 'concentration' : 'crystalizing',
+        target_name: this.findTargetName('ID', relationInfo.ID),
+        setting_salinity: typeof relationInfo.SettingSalinity === 'number' ? relationInfo.SettingSalinity : 0,
+        min_water_level: relationInfo.MinWaterLevel,
+        max_water_level: relationInfo.MaxWaterLevel,
+        water_cm: '',
+        depth: relationInfo.Depth
       }
-
+      tempStorage.addStorage(submitDataObj, 'target_id', 'brine_warehouse_seq');
     })
+    return this.doQuery(tempStorage, 'brine_warehouse', 'brine_warehouse_seq');
+
   }
 
-  // 모듈 정보 설정
-  setPhotovoltaic() {
-    let config = this.controller.config.UWPS.photovoltaic;
-    let tableName = 'photovoltaic';
-    this.bi.getInfoTable('saltern_block', '', '', (err, result) => {
-      if (err) {
-        BU.CLI('ERROR OCCUR', err)
-        process.exit();
+  // 바다 설정
+  async setSea(relationObjectList) {
+    let tempStorage = new TempStorage();
+    let alreadyDataList = await this.getTable('sea');
+
+    // 존재 저장소 설정
+    tempStorage.initAlreadyStorage(alreadyDataList);
+
+    // 염판 세팅
+    _.each(relationObjectList, relationInfo => {
+      let submitDataObj = {
+        target_id: relationInfo.ID,
+        target_name: this.findTargetName('ID', relationInfo.ID),
+        depth: relationInfo.Depth
       }
-
-      let result_saltern_block = result;
-      _.each(config, (infoObj, key) => {
-        let saltern_block = _.findWhere(result_saltern_block, {
-          target_id: infoObj.saltern_block_id
-        })
-
-        let convertObj = {
-          saltern_block_seq: saltern_block ? saltern_block.saltern_block_seq : null,
-          target_id: infoObj.target_id,
-          target_name: infoObj.target_name,
-          install_place: infoObj.install_place,
-          module_type: infoObj.module_type,
-          compose_count: infoObj.compose_count,
-          amount: infoObj.amount,
-          manufacturer: infoObj.manufacturer
-        }
-
-        this.bi.setterUwps(tableName, convertObj, (err, result) => {
-          if (err) {
-            BU.CLI('ERROR OCCUR', err)
-            process.exit();
-          }
-        })
-      })
-    });
-  }
-
-  // 접속반 정보 설정
-  setConnector() {
-    let config = this.controller.config.UWPS.connector;
-    let tableName = 'connector';
-    _.each(config, (infoObj, key) => {
-      this.bi.setterUwps(tableName, infoObj, (err, result) => {
-        if (err) {
-          BU.CLI('ERROR OCCUR', err)
-          process.exit();
-        }
-      })
+      tempStorage.addStorage(submitDataObj, 'target_id', 'sea_seq');
     })
+    return this.doQuery(tempStorage, 'sea', 'sea_seq');
+
   }
 
-  // 인버터 정보 설정
-  setInverter() {
-    let config = this.controller.config.UWPS.inverter;
-    let tableName = 'inverter';
-    this.bi.getInfoTable('connector', '', '', (err, result) => {
-      if (err) {
-        BU.CLI('ERROR OCCUR', err)
-        process.exit();
+  // 저수지 설정
+  async setReservoir(relationObjectList) {
+    let tempStorage = new TempStorage();
+    let alreadyDataList = await this.getTable('reservoir');
+
+    // 존재 저장소 설정
+    tempStorage.initAlreadyStorage(alreadyDataList);
+
+    // 염판 세팅
+    _.each(relationObjectList, relationInfo => {
+      let submitDataObj = {
+        target_id: relationInfo.ID,
+        target_name: this.findTargetName('ID', relationInfo.ID),
+        depth: relationInfo.Depth
       }
+      tempStorage.addStorage(submitDataObj, 'target_id', 'reservoir_seq');
+    })
+    return this.doQuery(tempStorage, 'reservoir', 'reservoir_seq');
 
-      let result_connector = result;
-      _.each(config, (infoObj, key) => {
-        let connector = _.findWhere(result_connector, {
-          target_id: infoObj.connector_id
-        })
-        let convertObj = {
-          connector_seq: connector ? connector.connector_seq : null,
-          target_id: infoObj.target_id,
-          target_name: infoObj.target_name,
-          target_type: 0, // 단상
-          dialing: infoObj.dialing,
-          code: infoObj.code,
-          amount: infoObj.amount,
-          director_name: infoObj.director_name,
-          director_tel: infoObj.director_tel
-        }
-        this.bi.setterUwps(tableName, convertObj, (err, result, query) => {
-          if (err) {
-            BU.CLI('ERROR OCCUR', err)
-            process.exit();
-          }
-        })
-      })
-    });
   }
+  // 수로 설정
+  async setWaterway(relationObjectList) {
+    let tempStorage = new TempStorage();
+    let alreadyDataList = await this.getTable('waterway');
+
+    // 존재 저장소 설정
+    tempStorage.initAlreadyStorage(alreadyDataList);
+
+    // 수로 세팅
+    _.each(relationObjectList, relationInfo => {
+      let submitDataObj = {
+        target_id: relationInfo.ID,
+        target_name: this.findTargetName('ID', relationInfo.ID),
+        depth: relationInfo.Depth
+      }
+      tempStorage.addStorage(submitDataObj, 'target_id', 'waterway_seq');
+    })
+    return this.doQuery(tempStorage, 'waterway', 'waterway_seq');
+
+  }
+
+
+
+
+
+
+
+  /********************************/
+  //        Set Underwater Photovoltaic Measure System
+  /********************************/
+
+  async setUnderwaterPhotovoltaic(configUpms) {
+    await this.setBase(configUpms.photovoltaic, 'photovoltaic', 'target_id')
+    await this.setBase(configUpms.connector, 'connector', 'target_id')
+    await this.setBase(configUpms.inverter, 'inverter', 'target_id')
+
+    await this.setRelationUpms(configUpms.relationUPMS)
+    return true;
+  }
+
+
+
+
+
+
+  // 기본 설정
+  async setBase(list, tblName, id) {
+    let tempStorage = new TempStorage();
+    let alreadyDataList = await this.getTable(tblName);
+
+    // 존재 저장소 설정
+    tempStorage.initAlreadyStorage(alreadyDataList);
+
+    // 세팅
+    _.each(list, infoObj => {
+      let submitDataObj = infoObj;
+      tempStorage.addStorage(submitDataObj, id, `${tblName}_seq`);
+    })
+
+    // BU.CLI(tempStorage.getFinalStorage())
+    return this.doQuery(tempStorage, tblName, `${tblName}_seq`);
+
+  }
+
+  // 관계 설정
+  async setRelationUpms(list) {
+    let tempStorage = new TempStorage();
+    let photovoltaicList = await this.getTable('photovoltaic');
+    let saltern_blockList = await this.getTable('saltern_block');
+    let connectorList = await this.getTable('connector');
+    let inverterList = await this.getTable('inverter');
+
+    let alreadyDataList = await this.getTable('relation_upms');
+
+    // 존재 저장소 설정
+    tempStorage.initAlreadyStorage(alreadyDataList);
+
+    // 세팅
+    _.each(list, infoObj => {
+      let findPhotovoltaic = _.findWhere(photovoltaicList, {target_id:infoObj.photovoltaicId});
+      let findSalternBlock = _.findWhere(saltern_blockList, {target_id:infoObj.salternBlockId});
+      let findConnector = _.findWhere(connectorList, {target_id:infoObj.connectorId});
+      let findInverter = _.findWhere(inverterList, {target_id:infoObj.inverterId});
+
+      let submitDataObj = {
+        photovoltaic_seq: findPhotovoltaic == null ? null : findPhotovoltaic.photovoltaic_seq,
+        saltern_block_seq: findSalternBlock == null ? null : findSalternBlock.saltern_block_seq,
+        connector_seq: findConnector == null ? null : findConnector.connector_seq,
+        inverter_seq: findInverter == null ? null : findInverter.inverter_seq,
+        connector_ch: infoObj.connector_ch
+      };
+      tempStorage.addStorage(submitDataObj, 'photovoltaic_seq', 'photovoltaic_seq');
+    })
+
+    // BU.CLI(tempStorage.getFinalStorage())
+    return this.doQuery(tempStorage, 'relation_upms', 'photovoltaic_seq', false);
+  }
+
+
+
+
+  /********************************/
+  //        Set Underwater Photovoltaic Measure System
+  /********************************/
+
+
+
+
 
   // map Img 설정 정보에서 정의한 이름을 찾아줌
   findTargetName(key, value) {
@@ -323,36 +364,6 @@ class P_Setter extends bmjh.BM {
       }
     })
     return returnvalue;
-  }
-
-
-
-  setSalternBlock(relationList) {
-    BU.CLI('setSalternBlock')
-
-    _.each(relationList, (relationInfo, key) => {
-      // BU.CLI(relationInfo)
-      let convertRelationInfo = {
-        target_id: relationInfo.ID,
-        target_type: relationInfo.PlateType.indexOf('Evaporating') !== -1 ? 0 : 1,
-        target_name: this.findTargetName('ID', relationInfo.ID),
-        setting_salinity: typeof relationInfo.SettingSalinity === 'number' ? relationInfo.SettingSalinity : 0,
-        water_level_count: typeof relationInfo.WaterLevelCount === 'number' ? relationInfo.WaterLevelCount : 0,
-        min_water_level: relationInfo.MinWaterLevel,
-        max_water_level: relationInfo.MaxWaterLevel,
-        water_cm: '',
-        depth: relationInfo.Depth
-      }
-
-      // return BU.CLI(convertDeviceInfo);
-      this.bi.setter_saltern_block(convertRelationInfo, (err, result, query) => {
-        if (err) {
-          BU.CLI('ERROR OCCUR', err)
-          process.exit();
-        }
-
-      })
-    })
   }
 
 

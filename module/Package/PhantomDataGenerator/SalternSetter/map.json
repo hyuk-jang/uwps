@@ -1578,7 +1578,7 @@
         "Depth": 5,
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
-        "SettingSalinity": "",
+        "SettingSalinity": -1,
         "ListModuleTemperature": [
           "MT1"
         ],
@@ -1605,7 +1605,7 @@
         "Depth": 5,
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
-        "SettingSalinity": "",
+        "SettingSalinity": -1,
         "ListModuleTemperature": [
           "MT2"
         ],
@@ -1632,7 +1632,7 @@
         "Depth": 5,
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
-        "SettingSalinity": "",
+        "SettingSalinity": -1,
         "ListModuleTemperature": [
           "MT3"
         ],
@@ -1659,7 +1659,7 @@
         "Depth": 5,
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
-        "SettingSalinity": "",
+        "SettingSalinity": -1,
         "ListModuleTemperature": [
           "MT4"
         ],
@@ -1686,7 +1686,7 @@
         "Depth": 5,
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
-        "SettingSalinity": "",
+        "SettingSalinity": -1,
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [
           "UT5"
@@ -1711,7 +1711,7 @@
         "Depth": 4,
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
-        "SettingSalinity": "",
+        "SettingSalinity": -1,
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [
           "UT6"
@@ -1736,7 +1736,7 @@
         "Depth": 3,
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
-        "SettingSalinity": "",
+        "SettingSalinity": -1,
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [
           "UT7"
@@ -1760,7 +1760,7 @@
         "Depth": 2,
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
-        "SettingSalinity": "18",
+        "SettingSalinity": 18,
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [
           "UT8"
@@ -1784,7 +1784,7 @@
         "Depth": 1,
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
-        "SettingSalinity": "",
+        "SettingSalinity": -1,
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [
           "UT9"
@@ -1811,7 +1811,7 @@
         "Depth": -1,
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
-        "SettingSalinity": "5",
+        "SettingSalinity": 5,
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
@@ -1834,7 +1834,7 @@
         "Depth": -1,
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
-        "SettingSalinity": "15",
+        "SettingSalinity": 15,
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [],
         "ListWaterDoor": [
@@ -1859,7 +1859,7 @@
         "Depth": -1,
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
-        "SettingSalinity": "20",
+        "SettingSalinity": 20,
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [],
         "ListWaterDoor": [

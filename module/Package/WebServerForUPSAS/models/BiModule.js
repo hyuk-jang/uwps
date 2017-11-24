@@ -263,10 +263,10 @@ class BiModule extends bmjh.BM {
         FROM inverter_data
         WHERE writedate>= "${strStartDate}" and writedate<"${strEndDate}"
       `;
-      if(inverterSeqList){
-        sql += `AND inverter_seq IN (${inverterSeqList})`;
-      }
-        sql += `
+    if (inverterSeqList) {
+      sql += `AND inverter_seq IN (${inverterSeqList})`;
+    }
+    sql += `
         GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), inverter_seq
         ORDER BY inverter_seq, writedate
         ) trend_ivt_tbl

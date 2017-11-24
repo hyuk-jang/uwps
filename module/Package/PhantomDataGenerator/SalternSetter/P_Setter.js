@@ -1,12 +1,11 @@
+const Promise = require('bluebird')
 const _ = require('underscore');
-const Bi = require('./Bi.js');
+
 const map = require('./map.json');
 
 const bmjh = require('base-model-jh');
-const Promise = require('bluebird')
+const bcjh = require('base-class-jh');
 const BU = require('base-util-jh').baseUtil;
-
-const TempStorage = require('./TempStorage');
 
 class P_Setter extends bmjh.BM {
   constructor(controller) {
@@ -19,8 +18,6 @@ class P_Setter extends bmjh.BM {
     this.mapImgInfo = map.MAP;
     this.mapSetInfo = map.SETINFO;
     this.mapRelation = map.RELATION;
-
-    this.bi = new Bi(this.controller.config.dbInfo);
 
   }
 
@@ -56,19 +53,14 @@ class P_Setter extends bmjh.BM {
 
     await this.setTables(tblName, finalStorage.insertObjList, hasViewQuery);
 
-    await Promise.map(finalStorage.updateObjList, updateObj => {
-      return this.updateTable(tblName, {
-        key: updateKey,
-        value: updateObj[updateKey]
-      }, updateObj, hasViewQuery);
-    })
+    await this.updateTablesByPool(tblName, updateKey, finalStorage.updateObjList);
 
     return true;
   }
 
   // 장치 구성 정보 설정
   async setDeviceStructure(structureInfoList) {
-    let tempStorage = new TempStorage();
+    let tempStorage = new bcjh.db.TempStorage();
     let deviceStructureList = await this.getTable('device_structure');
 
     tempStorage.initAlreadyStorage(deviceStructureList);
@@ -83,7 +75,7 @@ class P_Setter extends bmjh.BM {
 
   // 염전 설정 장비 세팅
   async setDeviceInfo(mapSetInfo) {
-    let tempStorage = new TempStorage();
+    let tempStorage = new bcjh.db.TempStorage();
 
     let regx = /\d/;
     let deviceStructureList = await this.getTable('device_structure');
@@ -150,7 +142,7 @@ class P_Setter extends bmjh.BM {
 
   // 염판 설정
   async setSalternBlock(relationObjectList) {
-    let tempStorage = new TempStorage();
+    let tempStorage = new bcjh.db.TempStorage();
     let alreadyDataList = await this.getTable('saltern_block');
 
     // 존재 저장소 설정
@@ -177,7 +169,7 @@ class P_Setter extends bmjh.BM {
 
   // 해주 설정
   async setBrineWarehouse(relationObjectList) {
-    let tempStorage = new TempStorage();
+    let tempStorage = new bcjh.db.TempStorage();
     let alreadyDataList = await this.getTable('brine_warehouse');
 
     // 존재 저장소 설정
@@ -203,7 +195,7 @@ class P_Setter extends bmjh.BM {
 
   // 바다 설정
   async setSea(relationObjectList) {
-    let tempStorage = new TempStorage();
+    let tempStorage = new bcjh.db.TempStorage();
     let alreadyDataList = await this.getTable('sea');
 
     // 존재 저장소 설정
@@ -224,7 +216,7 @@ class P_Setter extends bmjh.BM {
 
   // 저수지 설정
   async setReservoir(relationObjectList) {
-    let tempStorage = new TempStorage();
+    let tempStorage = new bcjh.db.TempStorage();
     let alreadyDataList = await this.getTable('reservoir');
 
     // 존재 저장소 설정
@@ -244,7 +236,7 @@ class P_Setter extends bmjh.BM {
   }
   // 수로 설정
   async setWaterway(relationObjectList) {
-    let tempStorage = new TempStorage();
+    let tempStorage = new bcjh.db.TempStorage();
     let alreadyDataList = await this.getTable('waterway');
 
     // 존재 저장소 설정
@@ -289,7 +281,7 @@ class P_Setter extends bmjh.BM {
 
   // 기본 설정
   async setBase(list, tblName, id) {
-    let tempStorage = new TempStorage();
+    let tempStorage = new bcjh.db.TempStorage();
     let alreadyDataList = await this.getTable(tblName);
 
     // 존재 저장소 설정
@@ -308,7 +300,7 @@ class P_Setter extends bmjh.BM {
 
   // 관계 설정
   async setRelationUpms(list) {
-    let tempStorage = new TempStorage();
+    let tempStorage = new bcjh.db.TempStorage();
     let photovoltaicList = await this.getTable('photovoltaic');
     let saltern_blockList = await this.getTable('saltern_block');
     let connectorList = await this.getTable('connector');

@@ -1,6 +1,5 @@
 const EventEmitter = require('events');
 
-const Model = require('./Model.js');
 const P_Setter = require('./P_Setter.js');
 
 class Control extends EventEmitter {
@@ -19,7 +18,6 @@ class Control extends EventEmitter {
     Object.assign(this.config, config.current);
 
     // Model
-    this.model = new Model(this);
 
     // Process
     this.p_Setter = new P_Setter(this);

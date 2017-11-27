@@ -122,7 +122,7 @@ class P_Setter extends bmjh.BM {
       waterway: 'WaterWayData'
     }
 
-    let result = await Promise.all([
+    await Promise.all([
       this.setSalternBlock(mapRelation[keyInfo.saltern_block]),
       this.setBrineWarehouse(mapRelation[keyInfo.brine_warehouse]),
       this.setSea(mapRelation[keyInfo.sea]),
@@ -130,14 +130,9 @@ class P_Setter extends bmjh.BM {
       this.setWaterway(mapRelation[keyInfo.waterway]),
     ])
 
-    // await this.setSalternBlock(mapRelation[keyInfo.saltern_block]);
-    // await this.setBrineWarehouse(mapRelation[keyInfo.brine_warehouse]);
-    // await this.setSea(mapRelation[keyInfo.sea]);
-    // await this.setReservoir(mapRelation[keyInfo.reservoir]);
-    // await this.setWaterway(mapRelation[keyInfo.waterway]);
+    await this.setRelationSaltern(keyInfo, this.mapRelation);
 
-
-    return result;
+    return true;
   }
 
   // 염판 설정
@@ -255,6 +250,84 @@ class P_Setter extends bmjh.BM {
 
   }
 
+  async setRelationSaltern(sscsObject, mapRelation) {
+    // BU.CLI(sscsObject)
+
+    // 1. saltern_device_info 가져옴
+    let salternDeviceInfo = await this.getTable('saltern_device_info');
+
+    // 2. Saltern Relation Object Table 가져옴
+    let alreadyTableName = Object.keys(sscsObject);
+    let sscsTableList = await Promise.map(alreadyTableName, key => {
+      return Promise.props({
+        [key]: this.getTable(key)
+      });
+    })
+
+    let sscsTables = {};
+    _.each(sscsTableList, sscsTbl => {
+      Object.assign(sscsTables, sscsTbl);
+
+    })
+
+    // 3. 기존 Table 불러옴
+    let tempStorage = new bcjh.db.TempStorage();
+    let alreadyDataList = await this.getTable('relation_saltern');
+    // 존재 저장소 설정
+    tempStorage.initAlreadyStorage(alreadyDataList);
+
+    // 4. device_info 순회 조회. 관계 있다면 업데이트
+    salternDeviceInfo.forEach(ele => {
+      // 최종 넣을 데이터
+      let submitObj = {
+        saltern_device_info_seq: ele.saltern_device_info_seq,
+        device_structure_seq: ele.device_structure_seq,
+        saltern_block_seq: null,
+        sea_seq: null,
+        reservoir_seq: null,
+        brine_warehouse_seq: null,
+        waterway_seq: null
+      }
+      // 조회하고자 하는 id
+      let targetId = ele.target_id;
+      // SaltPlateData, WaterTankData, WaterOutData, ....
+      for (let relCategory in mapRelation) {
+        // BU.CLI('relCategory', relCategory)
+        mapRelation[relCategory].forEach(relationObj => {
+          // ListModuleTemperature, ListWaterDoor, ListWaterLevel ....
+          for (let relKey in relationObj) {
+            // List Type이고 해당 Value를 가지고 있다면 해당 객체가 장비를 포함하고 있다고 판단
+            if (Array.isArray(relationObj[relKey]) && relationObj[relKey].length && relationObj[relKey].includes(targetId)) {
+              // 부모 객체 ID 가져옴
+              let parentId = relationObj.ID;
+              // BU.CLI(parentId)
+              // ex) SaltPlateData --> saltern_block (정해진 key로 변환)
+              // BU.CLI('relKey', relKey, relationObj[relKey], targetId)
+              let cateKey = '';
+              _.each(sscsObject, (ele, key) => {
+                if(ele === relCategory){
+                  cateKey = key;
+                }
+              })
+              // BU.CLIS(sscsTables[cateKey], cateKey)
+              // db에 저장되어 있는 데이터 카테고리 중 중 target_id가 같은 obj 가져옴
+              let findObj = _.findWhere(sscsTables[cateKey], {
+                target_id: parentId
+              });
+              // 찾은 데이터가 있따면 해당 seq 추가
+              if (!_.isEmpty(findObj)) {
+                submitObj[`${cateKey}_seq`] = findObj[`${cateKey}_seq`];
+              }
+            }
+          }
+        })
+      }
+      // BU.CLI(submitObj)
+      tempStorage.addStorage(submitObj, 'saltern_device_info_seq', 'relation_saltern_seq');
+    })
+    return this.doQuery(tempStorage, 'relation_saltern', 'relation_saltern_seq')
+  }
+
 
 
 
@@ -313,10 +386,18 @@ class P_Setter extends bmjh.BM {
 
     // 세팅
     _.each(list, infoObj => {
-      let findPhotovoltaic = _.findWhere(photovoltaicList, {target_id:infoObj.photovoltaicId});
-      let findSalternBlock = _.findWhere(saltern_blockList, {target_id:infoObj.salternBlockId});
-      let findConnector = _.findWhere(connectorList, {target_id:infoObj.connectorId});
-      let findInverter = _.findWhere(inverterList, {target_id:infoObj.inverterId});
+      let findPhotovoltaic = _.findWhere(photovoltaicList, {
+        target_id: infoObj.photovoltaicId
+      });
+      let findSalternBlock = _.findWhere(saltern_blockList, {
+        target_id: infoObj.salternBlockId
+      });
+      let findConnector = _.findWhere(connectorList, {
+        target_id: infoObj.connectorId
+      });
+      let findInverter = _.findWhere(inverterList, {
+        target_id: infoObj.inverterId
+      });
 
       let submitDataObj = {
         photovoltaic_seq: findPhotovoltaic == null ? null : findPhotovoltaic.photovoltaic_seq,

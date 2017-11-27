@@ -2,26 +2,55 @@ module.exports = {
   current: {
     hasDev: true,
     devPort: 5555,
-    cntSavedInfo: {
-      connector_seq: 5,
-      target_category: 'modbus_tcp',
-      target_id: 'CNT1',
-      target_name: '접속반 1',
-      // dialing: 1, // id,
+    "cntSavedInfo": {
+      "connector_seq": 1,
+      "target_id": "CNT1",
+      "target_category": "modbus_tcp",
+      "target_name": "접속반 1",
       "dialing": {
         "type": "Buffer",
-        "data": [2]
+        "data": [1]
       },
-      // connect_type: 'socket', // `socket` or `serial`
-      ip: 'localhost', // Socket 연결 시 사용
-      port: 5555, // Port를 직접 지정하고자 할때 사용
-      baud_rate: 9600, // 장치 BaudRate
-      code: '장치 고유 id',
-      addr_v: 0, // 3Kw, 
-      addr_a: 4, // 전류값 시작 번지
-      ch_number: 4,  // CH 수
-      director_name: '홍길동',
-      director_tel: '01012345589'
-    }
+      "code": "324f78ff-452c-4a46-844a-ffe47defc1f7",
+      "ip": "localhost",
+      "port": null,
+      "baud_rate": 9600,
+      "addr_v": 0,
+      "addr_a": 4,
+      "director_name": "에스엠관리자",
+      "director_tel": "01012345678",
+      "ch_number": 4
+    },
+    moduleList: [
+      {
+        "photovoltaic_seq": 1,
+        "inverter_seq": 1,
+        "connector_seq": 1,
+        "saltern_block_seq": 1,
+        "connector_ch": 1
+      },
+      {
+        "photovoltaic_seq": 2,
+        "inverter_seq": 1,
+        "connector_seq": 1,
+        "saltern_block_seq": 2,
+        "connector_ch": 2
+      },
+      {
+        "photovoltaic_seq": 3,
+        "inverter_seq": 3,
+        "connector_seq": 1,
+        "saltern_block_seq": 3,
+        "connector_ch": 3
+      },
+      {
+        "photovoltaic_seq": 4,
+        "inverter_seq": 4,
+        "connector_seq": 1,
+        "saltern_block_seq": 4,
+        "connector_ch": 4
+      },
+
+    ]
   }
 }

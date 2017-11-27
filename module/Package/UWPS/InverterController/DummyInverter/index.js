@@ -30,6 +30,13 @@ global.BU = BU;
 //   });
 
 
+
+
+
+ /**
+  * Inverter Data Dabasebase INserter
+  */
+return false;
 let inverterList = [1, 2, 3, 4, 5, 6];
 let dummyInverterList = insertDummyInverterData2Db(inverterList);
 let finalDummyDataList = _.flatten(dummyInverterList);
@@ -73,15 +80,3 @@ async function insertDb(insertList) {
 
   return await BM.setTables('inverter_data', insertList);
 }
-
-
-
-
-
-
-// let control2 = new Control(config);
-// control2.init((err, port) => {
-//   BU.CLI(err, port)
-// });
-
-// BU.CLI(control)

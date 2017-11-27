@@ -1,6 +1,7 @@
 const Control = require('./Control.js');
 const config = require('./config.js');
 const BU = require('base-util-jh').baseUtil;
+const bmjh = require('base-model-jh');
 
 const eventToPromise = require('event-to-promise');
 const Promise = require('bluebird')
@@ -10,14 +11,35 @@ const _ = require('underscore');
 global.BU = BU;
 global._ = _;
 
-const bmjh = require('base-model-jh');
 const BM = new bmjh.BM(config.current.dbInfo);
+
+/**
+ * Init Config Setting
+ */
+
+ async function getTables(){
+
+  let inverter = await BM.getTable('inverter');
+  let connector = await BM.db.single(`SELECT *,(SELECT COUNT(*) FROM relation_upms WHERE cnt.connector_seq = relation_upms.connector_seq  ) AS ch_number FROM connector cnt`);
+  return {
+    inverter, connector
+  }
+ }
+
+ 
+
+
+
+
+
+
+ let control = {};
 
 
 setter()
 .then(res => {
   console.time('Uwps Init')
-  let control = new Control(config);
+  control = new Control(config);
   control.on('completeMeasureInverter', (err, res) => {
     BU.CLI('completeMeasureInverter', res.length)
   });
@@ -59,6 +81,7 @@ setter()
 
 
 async function setter() {
+  BU.CLI('setter')
   if (config.current.devOption.hasLoadSqlInverter) {
     config.current.inverterList = await inverterSetter();
   }
@@ -78,37 +101,37 @@ async function setter() {
 }
 
 async function inverterSetter() {
+  BU.CLI('inverterSetter')
   let inverterList = await BM.getTable('inverter');
 
   let returnValue = [];
 
-  return new Promise(resolve => {
-    Promise.map(inverterList, inverter => {
-      BU.CLI(inverter)
-      return BM.db.single(`SELECT d_wh, c_wh FROM inverter_data WHERE ${inverter.inverter_seq} = inverter_seq ORDER BY inverter_data_seq DESC LIMIT 1 `);
-    }).then(result => {
-      let ivtDataList = _.flatten(result);
-      inverterList.forEach((element, index) => {
-        let addObj = {
-          hasDev: true,
-          ivtDummyData: {},
-          ivtSavedInfo: element
-        }
-
-        addObj.ivtDummyData.dailyKwh = ivtDataList[index].d_wh / 10000;
-        addObj.ivtDummyData.cpKwh = ivtDataList[index].c_wh / 10000;
-        returnValue.push({
-          current: addObj
-        });
-      });
-      // BU.CLI(returnValue)
-      resolve(returnValue);
-    })
+  let recentInverterDataList = await Promise.map(inverterList, inverter => {
+    return BM.db.single(`SELECT d_wh, c_wh FROM inverter_data WHERE ${inverter.inverter_seq} = inverter_seq ORDER BY inverter_data_seq DESC LIMIT 1 `);
   })
+
+  let ivtDataList = _.flatten(recentInverterDataList);
+
+  inverterList.forEach((element, index) => {
+    let addObj = {
+      hasDev: true,
+      ivtDummyData: {},
+      ivtSavedInfo: element
+    }
+
+    addObj.ivtDummyData.dailyKwh = ivtDataList[index].d_wh / 10000;
+    addObj.ivtDummyData.cpKwh = ivtDataList[index].c_wh / 10000;
+    returnValue.push({
+      current: addObj
+    });
+  });
+  BU.CLI(returnValue)
+
+  return returnValue;
 }
 
 async function connectorSetter() {
-  let connectorList = await BM.getTable('connector');
+  let connectorList = await BM.db.single(`SELECT *,(SELECT COUNT(*) FROM relation_upms WHERE cnt.connector_seq = relation_upms.connector_seq  ) AS ch_number FROM connector cnt`);
 
   let returnValue = [];
   let basePort = 5555;
@@ -123,5 +146,6 @@ async function connectorSetter() {
     });
   });
 
+  BU.CLI(returnValue)
   return returnValue;
 }

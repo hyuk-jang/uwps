@@ -14,7 +14,8 @@ class Control extends EventEmitter {
     this.config = {
       hasDev: false,
       devPort: 0,
-      cntSavedInfo: {}
+      cntSavedInfo: {},
+      moduleList: []
     };
     Object.assign(this.config, config.current);
 

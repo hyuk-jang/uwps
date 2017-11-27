@@ -6,6 +6,7 @@ class Model {
   constructor(controller) {
     this.controller = controller;
     this.cntSavedInfo = controller.config.cntSavedInfo;
+    this.moduleList = controller.config.moduleList;
 
     this.hasConnectedConnector = false;
 
@@ -56,15 +57,15 @@ class Model {
   onData(data) {
     // BU.CLI('ondata', data, this.config)
     // TEST Test data
-    data = [2513, 0, 0, 0, 25, 22, 65, 43, 68, 96]
+    data = [2513, 0, 0, 0, 20, 21, 22, 23, 24, 25]
 
-    NU.multiplyScale2Obj(data)
+    // NU.multiplyScale2Obj(data)
     
     this.vol = data[this.cntSavedInfo.addr_v];
-    this.ampList = data.slice(this.cntSavedInfo.addr_a, this.cntSavedInfo.addr_a + this.cntSavedInfo.ch_number)
+    this.ampList = data.slice(this.cntSavedInfo.addr_a, this.cntSavedInfo.addr_a + this.moduleList.length)
 
-    // BU.CLIS(this.vol, this.ampList, this.refineConnectorData)
-    // return true;
+    BU.CLIS(this.vol, this.ampList, this.refineConnectorData)
+    return true;
   }
 }
 

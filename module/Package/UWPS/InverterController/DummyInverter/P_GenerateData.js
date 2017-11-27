@@ -19,9 +19,9 @@ class P_GenerateData {
     this.dailyPoint = -1;
 
     // 데이터 기간 생성기
-    this.datePoint = new Date(this.controller.config.dummyValue.startDate);
+    this.dateCurrPoint = new Date();
+    this.dateEndPoint = new Date();
     this.generateIntervalMin = this.controller.config.dummyValue.generateIntervalMin;
-    this.cutLineDate = new Date();
     this.dummyRangeData = [];
     this.dateCount = 0;
   }
@@ -50,17 +50,38 @@ class P_GenerateData {
     }
   }
 
-  dummyRangeDataMaker() {
+  /**
+   * 시작, 종료 날짜값을 기준으로 데이터 생성 --> db 입력용
+   * @param {Date} startDate YYYY-mm-dd HH:mm 시작
+   * @param {Date} endDate YYYY-mm-dd HH:mm 종료
+   * @param {Number} generateIntervalMin 측정 인터벌 분
+   * @param {Number} inverter_seq 인버터 장치 seq
+   */
+  dummyRangeDataMaker(startDate, endDate, generateIntervalMin, inverter_seq) {
+    this.dateCurrPoint = startDate != null ? BU.convertTextToDate(startDate) : this.dateCurrPoint;
+    this.dateEndPoint = endDate != null ? BU.convertTextToDate(endDate) : this.dateEndPoint;
+    this.generateIntervalMin = generateIntervalMin != null ? Number(generateIntervalMin) : this.generateIntervalMin;
+
+
+    this.dateCurrPoint.setMinutes(0,0,0)
     // BU.CLI('dummyRangeDataMaker')
-    let arr = new Array(15)
-    return Promise.each(arr, ele => {
-      this.datePoint.setMinutes(this.datePoint.getMinutes() + this.generateIntervalMin);
-      let res = this.dataMaker(this.datePoint);
-      return this.dummyRangeData.push(res);
-    })
-      .then(() => {
-        return this.dummyRangeData;
-      })
+
+    let returnValue = [];
+
+    do {
+      let res = this.dataMaker(this.dateCurrPoint);
+      let makedData = this.controller.model.refineInverterData;
+      makedData.inverter_seq = Number(inverter_seq);
+      makedData.writedate = BU.convertDateToText(this.dateCurrPoint) ;
+
+      returnValue.push(makedData)
+
+      this.dateCurrPoint.setMinutes(this.dateCurrPoint.getMinutes() + this.generateIntervalMin);
+    } while (this.dateCurrPoint < this.dateEndPoint);
+
+    // BU.CLI(returnValue)
+
+    return returnValue;
   }
 
   dataMaker(currDate) {

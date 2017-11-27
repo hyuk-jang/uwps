@@ -9,28 +9,31 @@ const BU = require('base-util-jh').baseUtil;
 
 
 class Control extends EventEmitter {
-  constructor(dummyData = {dailyKwh, cpKwh}) {
+  constructor(dummyData = {
+    dailyKwh,
+    cpKwh
+  }) {
     super();
     // 현재 Control 설정 변수
     this.config = {
       port: 38000,
       isSingle: 1,
       renewalCycle: 10, // sec  데이터 갱신 주기,
+      inverter_seq: 1, // inverter seq
       dummyValue: {
         dailyKwh: dummyData.dailyKwh,
         cpKwh: dummyData.cpKwh,
         // 0시 ~ 23시까지(index와 매칭: 변환 효율표)
         powerRangeByYear: [68, 75, 76, 79, 84, 87, 96, 100, 92, 85, 76, 71],
         // 0시 ~ 23시까지(index와 매칭: 변환 효율표)
-        powerRangeByDay: [0, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50, 70, 90, 100, 95, 85, 65, 40, 25, 10, 0, 0, 0, 0],
+        powerRangeByDay: [0, 0, 0, 0, 0, 0, 10, 20, 30, 40, 70, 88, 100, 96, 85, 75, 45, 30, 17, 0, 0, 0, 0, 0],
         dailyScale: [],
-        dummyScale:[],
-        startDate: '2017-07-15 08:00:00',
+        dummyScale: [],
         generateIntervalMin: 10,
         pv: {
-          amp: 6.4,  // Ampere
-          vol: 225,  // voltage
-          baseAmp: 6.5,  // 기준
+          amp: 6.4, // Ampere
+          vol: 225, // voltage
+          baseAmp: 6.5, // 기준
           baseVol: 230,
           ampCritical: 2,
           volCritical: 20
@@ -43,7 +46,7 @@ class Control extends EventEmitter {
       }
     }
 
-    
+
     let arrMonthData = [];
     this.config.dummyValue.powerRangeByYear.forEach((monthData, yIndex) => {
       arrMonthData[yIndex] = new Array();
@@ -54,7 +57,7 @@ class Control extends EventEmitter {
         let dayScale = hasRain ? _.random(40, 50) : _.random(90, 100);
         this.config.dummyValue.powerRangeByDay.forEach((dayData, dIndex) => {
           arrMonthData[yIndex][cnt][dIndex] = new Array();
-          arrMonthData[yIndex][cnt][dIndex].push( (monthData / 100) * dayData * dayScale / 100) 
+          arrMonthData[yIndex][cnt][dIndex].push((monthData / 100) * dayData * dayScale / 100)
         })
 
       }
@@ -90,10 +93,6 @@ class Control extends EventEmitter {
     this.p_GenerateData.runCronForMeasureInverter();
   }
 
-  dummyRangeDataMaker() {
-    this.p_GenerateData.dummyRangeDataMaker();
-  }
-
   get socketServerPort() {
     return this.model.socketServerPort;
   }
@@ -123,8 +122,8 @@ class Control extends EventEmitter {
       sn: null, // Serial Number,
       // Operation Info
       isRun: null, // 인버터 동작 유무
-      isError: null,  // 인버터 에러 발생 유무
-      temperature: null,  // 인버터 온도
+      isError: null, // 인버터 에러 발생 유무
+      temperature: null, // 인버터 온도
       errorList: null, // 에러 리스트 Array
       warningList: null // 경고 리스트 Array
     }
@@ -150,6 +149,17 @@ class Control extends EventEmitter {
   // 에러 옵션이 필요할 경우
   generateFault() {
 
+  }
+
+  /**
+   * 시작, 종료 날짜값을 기준으로 데이터 생성 --> db 입력용
+   * @param {Date} startDate YYYY-mm-dd HH:mm 시작
+   * @param {Date} endDate YYYY-mm-dd HH:mm 종료
+   * @param {Number} generateIntervalMin 측정 인터벌 분
+   * @param {Number} inverter_seq inverter_seq
+   */
+  dummyRangeDataMaker(startDate, endDate, generateIntervalMin, inverter_seq) {
+    return this.p_GenerateData.dummyRangeDataMaker(startDate, endDate, generateIntervalMin, inverter_seq)
   }
 
   /**

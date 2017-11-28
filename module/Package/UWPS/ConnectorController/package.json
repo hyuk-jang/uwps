@@ -9,11 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "base-class-jh": "^1.0.0",
-    "base-util-jh": "^1.0.1",
-    "bluebird": "^3.5.0",
+    "base-class-jh": "^1.0.2",
+    "base-util-jh": "^1.0.6",
+    "bluebird": "^3.5.1",
     "event-to-promise": "^0.8.0",
-    "node-modbus": "^4.0.1",
+    "modbus-serial": "^7.0.1",
     "serialport": "^5.0.0",
     "underscore": "^1.8.3"
   }

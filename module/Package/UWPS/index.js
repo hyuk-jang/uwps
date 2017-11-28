@@ -17,29 +17,21 @@ const BM = new bmjh.BM(config.current.dbInfo);
  * Init Config Setting
  */
 
- async function getTables(){
 
-  let inverter = await BM.getTable('inverter');
-  let connector = await BM.db.single(`SELECT *,(SELECT COUNT(*) FROM relation_upms WHERE cnt.connector_seq = relation_upms.connector_seq  ) AS ch_number FROM connector cnt`);
-  return {
-    inverter, connector
-  }
- }
+startIndex()
+  .then(res => {
+    BU.CLI(res)
+  })
+  .catch(err => {
+    BU.CLI(err);
+  })
 
- 
+async function startIndex() {
+  await setter();
 
-
-
-
-
-
- let control = {};
-
-
-setter()
-.then(res => {
-  console.time('Uwps Init')
-  control = new Control(config);
+  const control = new Control(config);
+  let result = {};
+  
   control.on('completeMeasureInverter', (err, res) => {
     BU.CLI('completeMeasureInverter', res.length)
   });
@@ -48,34 +40,22 @@ setter()
     BU.CLI('completeMeasureConnector', res.length)
   });
   
-  return control.init();
-})
-.then(result => {
-  // TODO
+  console.time('Uwps Init')
+  await control.init();
   console.timeEnd('Uwps Init')
-  // BU.CLI('UWPS INIT Result', result)
-  return control.hasOperationInverter('IVT1');
-})
-.then(result => {
+
   // TODO
+  result = control.hasOperationInverter('IVT1');
   BU.CLI('hasOperationInverter IVT1', result)
-})
-// .delay(1000)
-.then(() => {
-  return control.getInverterData('IVT1');
-})
-.then((r) => {
-  BU.CLI(r)
-  return control.getConnectorData('CNT1');
-})
-.then(r => {
-  BU.CLI(r)
-})
-.catch(error => {
-  // TODO
-  BU.CLI(error)
-  return error;
-});
+  result = control.getInverterData('IVT1');
+  BU.CLI('getInverterData IVT1', result)
+  result = control.getConnectorData('CNT1');
+  BU.CLI('getConnectorData CNT1', result)
+
+  return true;
+}
+
+
 
 
 
@@ -101,7 +81,7 @@ async function setter() {
 }
 
 async function inverterSetter() {
-  BU.CLI('inverterSetter')
+  // BU.CLI('inverterSetter')
   let inverterList = await BM.getTable('inverter');
 
   let returnValue = [];
@@ -125,27 +105,32 @@ async function inverterSetter() {
       current: addObj
     });
   });
-  BU.CLI(returnValue)
+  // BU.CLI(returnValue)
 
   return returnValue;
 }
 
 async function connectorSetter() {
   let connectorList = await BM.db.single(`SELECT *,(SELECT COUNT(*) FROM relation_upms WHERE cnt.connector_seq = relation_upms.connector_seq  ) AS ch_number FROM connector cnt`);
+  let relation_upms = await BM.getTable('relation_upms');
 
   let returnValue = [];
+  // let moduleList = [];
   let basePort = 5555;
   connectorList.forEach((element, index) => {
     let addObj = {
       hasDev: true,
       devPort: basePort + index,
-      cntSavedInfo: element
+      cntSavedInfo: element,
+      moduleList: _.where(relation_upms, {
+        connector_seq: element.connector_seq
+      })
     }
     returnValue.push({
       current: addObj
     });
   });
 
-  BU.CLI(returnValue)
+  // BU.CLI(returnValue)
   return returnValue;
 }

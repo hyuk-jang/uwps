@@ -9,6 +9,7 @@ class Model {
     this.moduleList = controller.config.moduleList;
 
     this.maxChNum = _.max(this.moduleList, moduleObj => moduleObj.connector_ch).connector_ch;
+    this.maxAddrNum = this.maxChNum + this.cntSavedInfo.addr_a;
 
     this.moduleDataList = [];
    
@@ -58,13 +59,13 @@ class Model {
    * @returns {Void} 
    */
   onData(data) {
-    // BU.CLI('ondata', data, this.config)
+    BU.CLI('ondata', data)
     // TEST Test data
     data = [2513, 0, 0, 0, 20, 21, 22, 23, 24, 25]
 
     // NU.multiplyScale2Obj(data)
     this.vol = data[this.cntSavedInfo.addr_v];
-    this.ampList = data.slice(this.cntSavedInfo.addr_a, this.cntSavedInfo.addr_a + this.maxChNum)
+    this.ampList = data.slice(this.cntSavedInfo.addr_a, this.maxAddrNum)
     
     this.moduleList.forEach(moduleObj => {
       let chIndex = Number(moduleObj.connector_ch) - 1;
@@ -73,7 +74,7 @@ class Model {
       findModuleData.vol = this.vol;
     })
 
-    // BU.CLI(this.moduleDataList)
+    BU.CLI(this.moduleDataList)
     // BU.CLIS(this.vol, this.ampList, this.refineConnectorData)
     return this.moduleDataList;
   }

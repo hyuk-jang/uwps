@@ -201,7 +201,32 @@ module.exports = {
           "director_name": "에스엠관리자",
           "director_tel": "01012345678",
           "ch_number": 4
-        }
+        },
+        "moduleList": [{
+          "photovoltaic_seq": 1,
+          "inverter_seq": 1,
+          "connector_seq": 1,
+          "saltern_block_seq": 1,
+          "connector_ch": 1
+        }, {
+          "photovoltaic_seq": 2,
+          "inverter_seq": 1,
+          "connector_seq": 1,
+          "saltern_block_seq": 2,
+          "connector_ch": 2
+        }, {
+          "photovoltaic_seq": 3,
+          "inverter_seq": 3,
+          "connector_seq": 1,
+          "saltern_block_seq": 3,
+          "connector_ch": 3
+        }, {
+          "photovoltaic_seq": 4,
+          "inverter_seq": 4,
+          "connector_seq": 1,
+          "saltern_block_seq": 4,
+          "connector_ch": 4
+        }]
       }
     }, {
       "current": {
@@ -225,7 +250,20 @@ module.exports = {
           "director_name": "에스엠관리자",
           "director_tel": "01012345678",
           "ch_number": 2
-        }
+        },
+        "moduleList": [{
+          "photovoltaic_seq": 5,
+          "inverter_seq": 5,
+          "connector_seq": 2,
+          "saltern_block_seq": null,
+          "connector_ch": 1
+        }, {
+          "photovoltaic_seq": 6,
+          "inverter_seq": 6,
+          "connector_seq": 2,
+          "saltern_block_seq": null,
+          "connector_ch": 2
+        }]
       }
     }]
   },

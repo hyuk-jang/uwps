@@ -64,10 +64,10 @@ class Control extends EventEmitter {
   }
 
   /**
- * 인버터 현재 상태 데이터를 가져옴
- * @param {String} targetId 인버터 id
- * @return {Object} Converter에 정의된 getBaseInverterValue json 대입
- */
+   * 인버터 현재 상태 데이터를 가져옴
+   * @param {String} targetId 인버터 id
+   * @return {Object} Converter에 정의된 getBaseInverterValue json 대입
+   */
   getInverterData(targetId) {
     try {
       let findTarget = this.model.findMeasureInverter(targetId);
@@ -78,19 +78,19 @@ class Control extends EventEmitter {
   }
 
   /**
- * 인버터 현재 상태 데이터를 가져옴
- * @param {String} targetId 인버터 id
- * @return {Object} Converter에 정의된 getBaseInverterValue json 대입
- */
+   * 인버터 현재 상태 데이터를 가져옴
+   * @param {String} targetId 인버터 id
+   * @return {Object} Converter에 정의된 getBaseInverterValue json 대입
+   */
   getInverterTotalData() {
 
   }
 
   /**
- * 접속반 현재 상태 데이터를 가져옴
- * @param {String} targetId 접속반 id
- * @return {Object} {v, ch_a, cnt_seq}
- */
+   * 접속반 현재 상태 데이터를 가져옴
+   * @param {String} targetId 접속반 id
+   * @return {Object} {v, ch_a, cnt_seq}
+   */
   getConnectorData(targetId) {
     // BU.CLI('getConnectorData', targetId)
     try {
@@ -106,43 +106,39 @@ class Control extends EventEmitter {
    * EventHandler 등록, 인버터 컨트롤러 객체 및 접속반 컨트롤러 객체 생성
    * @return {Promise} true or exceptino
    */
-  init() {
-    return new Promise(resolve => {
-      this.eventHandler();
-
-      Promise.all([
-        this.createInverterController(this.config.inverterList),
-        this.createConnectorController(this.config.connectorList)
-      ]).then(result => {
-
-        resolve(true);
-      }).catch(err => {
-        throw Error(err);
-      })
-    })
+  async init() {
+    console.time('init')
+    
+    this.eventHandler();
+    
+    await Promise.all([
+      this.createInverterController(this.config.inverterList),
+      this.createConnectorController(this.config.connectorList)
+    ])
+    console.timeEnd('init')
+    // BU.CLI('??????????')
+    return true;
   }
 
   /**
- * 인버터 설정 값에 따라 인버터 계측 컨트롤러 생성 및 계측 스케줄러 실행
- * @param {Object} inverterConfigList 인버터 설정 값
- * @returns {Promise} 인버터 계측 컨트롤러 생성 결과 Promise
- */
-  createInverterController(inverterConfigList) {
+   * 인버터 설정 값에 따라 인버터 계측 컨트롤러 생성 및 계측 스케줄러 실행
+   * @param {Object} inverterConfigList 인버터 설정 값
+   * @returns {Promise} 인버터 계측 컨트롤러 생성 결과 Promise
+   */
+  async createInverterController(inverterConfigList) {
     // BU.CLI('createInverterController, configList)
 
-    return new Promise((resolve, reject) => {
-      Promise.map(inverterConfigList, ivtConfig => {
-        const inverterObj = new InverterController(ivtConfig);
-        return inverterObj.init()
-      }).then(inverterControllerList => {
-        this.model.inverterControllerList = inverterControllerList;
-        this.p_Scheduler.runCronForMeasureInverter(inverterControllerList);
-        resolve(inverterControllerList)
-      }).catch(err => {
-        BU.errorLog('createInverterController', err)
-        reject(err)
-      })
+    console.time('createInverterController')
+    let inverterControllerList = await Promise.map(inverterConfigList, ivtConfig => {
+      const inverterObj = new InverterController(ivtConfig);
+      return inverterObj.init()
     })
+    
+    this.model.inverterControllerList = inverterControllerList;
+    this.p_Scheduler.runCronForMeasureInverter(inverterControllerList);
+    
+    console.timeEnd('createInverterController')
+    return true;
   }
 
   /**
@@ -150,22 +146,19 @@ class Control extends EventEmitter {
    * @param {Object} connectorConfigList 인버터 설정 값
    * @returns {Promise} 접속반 계측 컨트롤러 생성 결과 Promise
    */
-  createConnectorController(connectorConfigList) {
+  async createConnectorController(connectorConfigList) {
     // BU.CLI('createConnectorController', connectorConfigList.length)
-    return new Promise((resolve, reject) => {
-      Promise.map(connectorConfigList, cntConfig => {
-        const connectorObj = new ConectorController(cntConfig);
-        return connectorObj.init();
-      }).then(connectorControllerList => {
-        this.model.connectorControllerList = connectorControllerList;
-        BU.CLI(connectorControllerList.length)
-        this.p_Scheduler.runCronForMeasureConnector(connectorControllerList);
-        resolve(connectorControllerList);
-      }).catch(err => {
-        BU.errorLog('createConnectorController', err)
-        reject(err);
-      })
+    console.time('createConnectorController')
+    let connectorControllerList = await Promise.map(connectorConfigList, cntConfig => {
+      const connectorObj = new ConectorController(cntConfig);
+      return connectorObj.init();
     })
+    
+    this.model.connectorControllerList = connectorControllerList;
+    this.p_Scheduler.runCronForMeasureConnector(connectorControllerList);
+    
+    console.timeEnd('createConnectorController')
+    return true;
   }
 
 

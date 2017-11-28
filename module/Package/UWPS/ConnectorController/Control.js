@@ -5,7 +5,8 @@ const EventEmitter = require('events');
 const Model = require('./Model.js');
 const P_ModbusClient = require('./P_ModbusClient');
 
-const t_Server = require('./t_server')
+// const t_Server = require('./t_server')
+const modbusTcpServer = require('./modbusTcpServer')
 
 class Control extends EventEmitter {
   constructor(config) {
@@ -18,7 +19,7 @@ class Control extends EventEmitter {
       moduleList: []
     };
     Object.assign(this.config, config.current);
-
+    
     // Model
     this.model = new Model(this);
 
@@ -59,15 +60,17 @@ class Control extends EventEmitter {
    */
   async init() {
     // BU.CLI('init ConnectorController', this.config.devPort)
+    
     try {
       if (this.config.hasDev) {
-        t_Server(this.config.devPort);
+        // BU.CLI(server)
+        modbusTcpServer.startServer(this.config.devPort)
         this.config.cntSavedInfo.port = this.config.devPort;
       }
       this.eventHandler();
       // Module List에 맞는 데이터 저장소 정의
       this.model.initModule();
-      this.p_ModbusClient.init(this.config.cntSavedInfo);
+      await this.p_ModbusClient.init(this.config.cntSavedInfo);
       return this;
     } catch (err) {
       BU.CLI(err)
@@ -79,11 +82,12 @@ class Control extends EventEmitter {
   // 접속반 modbus 프로토콜로 접속하여 데이터 추출
   async measureConnector() {
     try {
-      let res = await this.p_ModbusClient.measure();
-      // BU.CLI('res', res)
-      this.model.onData(res[0]);
+      let moduleDat = await this.p_ModbusClient.measure();
+      BU.CLI('res', moduleDat)
+      this.model.onData(moduleDat);
       return this.model.refineConnectorData;
     } catch (error) {
+      console.error(error)
       return {};
     }
   }

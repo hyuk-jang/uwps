@@ -47,7 +47,7 @@ class Model {
    * @returns {Promise} DB 입력한 결과
    */
   completeMeasureInverter(measureTime, inverterListData) {
-    BU.CLI(measureTime, inverterListData)
+    // BU.CLI(measureTime, inverterListData)
     let measureInverterDataList = [];
 
     inverterListData.forEach(refineData => {
@@ -63,19 +63,7 @@ class Model {
 
     // TEST 인버터 데이터에 기초해 데이터 넣음
     if (this.hasCopyInverterData) {
-      let connectorSeqList = [[1, 2, 5, 3], [4, 6]];
-      let connectorArr = [{}, {}];
-      inverterListData.forEach(refineData => {
-        connectorSeqList.forEach((cntSeqGroup, cIndex) => {
-          let findIndex = cntSeqGroup.findIndex(ele => ele === refineData.inverter_seq);
-          if (findIndex !== -1) {
-            connectorArr[cIndex][`ch_${findIndex + 1}`] = refineData.in_a;
-            connectorArr[cIndex].v = refineData.in_v;
-            connectorArr[cIndex].connector_seq = cIndex + 1;
-          }
-        })
-      })
-      this.completeMeasureConnector(measureTime, connectorArr);
+      // this.completeMeasureConnector(measureTime, connectorArr);
       // BU.CLI(connectorArr)
     }
 
@@ -107,7 +95,7 @@ class Model {
    * @returns {Promise} DB 입력한 결과
    */
   completeMeasureConnector(measureTime, connectorListData) {
-    // BU.CLI(measureTime, connectorListData)
+    BU.CLI(measureTime, connectorListData)
     let measureConnectorDataList = [];
 
 

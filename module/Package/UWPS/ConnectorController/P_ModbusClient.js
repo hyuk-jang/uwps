@@ -1,5 +1,7 @@
 const node_modbus = require('node-modbus')
 const eventToPromise = require('event-to-promise');
+const Promise = require('bluebird')
+const ModbusRTU = require('modbus-serial');
 
 class P_ModbusClient {
   constructor(controller) {
@@ -9,81 +11,47 @@ class P_ModbusClient {
     this.connectionInfo = {};
     this.connectionType = '';
 
-    this.client = {};
-
     this.searchRange = [this.config.addr_a, this.config.addr_a + this.config.ch_number];
+
+    this.client = new ModbusRTU();
 
     // this.init(this.config);
   }
 
-  init(config) {
+
+  async init(config) {
     if (config.target_category === 'modbus_tcp') {
       this.connectionType = 'tcp';
-      this.connectionInfo = {
-        'host': config.host ? config.host : 'localhost', /* IP or name of server host */
-        'port': config.port ? config.port : 0, /* well known Modbus port */
-        // 'unitId': config.dialing ? config.dialing : 1,
-        'unitId': config.dialing.type === 'Buffer' ? Buffer.from(config.dialing).toString() : 1,
-        'timeout': 2000, /* 2 sec */
-        'autoReconnect': true, /* reconnect on connection is lost */
-        'reconnectTimeout': 15000, /* wait 15 sec if auto reconnect fails to often */
-        'logLabel': 'ModbusClientTCP', /* label to identify in log files */
-        'logLevel': 'debug', /* for less log use: info, warn or error */
-        'logEnabled': false
-      }
+      // open connection to a tcp line
+      let host = config.ip ? config.ip : 'localhost';
+      await this.client.connectTCP(host, {
+        port: config.port
+      });
     } else {
       this.connectionType = 'serial';
-      this.connectionInfo = {
-        'portName': config.port ? config.port : '/dev/ttyS0', /* COM1 */
-        'baudRate': config.baudRate ? config.baudRate : 9600, /* */
-        'dataBits': 8, /* 5, 6, 7 */
-        'stopBits': 1, /* 1.5, 2 */
-        'parity': 'none', /* even, odd, mark, space */
-        'connectionType': '', /* RTU or ASCII */
-        'connectionDelay': 250, /* 250 msec - sometimes you need more on windows */
-        'timeout': 2000, /* 2 sec */
-        'autoReconnect': true, /* reconnect on connection is lost */
-        'reconnectTimeout': 15000, /* wait 15 sec if auto reconnect fails to often */
-        'logLabel': 'ModbusClientSerial', /* label to identify in log files */
-        'logLevel': 'debug', /* for less log use: info, warn or error */
-        'logEnabled': true
-      };
-
       this.connectionInfo.connectionType = config.target_category === 'modbus_rtu' ? 'RTU' : 'ASCII'
+      // open connection to a serial port
+      await this.client.connectRTU(config.port, {
+        baudrate: config.baudRate ? config.baudRate : 9600
+      });
     }
+
+    let id = config.dialing.type === 'Buffer' ? config.dialing.data[0] : 0;
+    this.client.setID(id);
+    this.client.setTimeout(1000);
+    return this.client;
   }
 
   async measure() {
+    let data = {};
+    data = await this.client.readHoldingRegisters(0, this.controller.model.maxAddrNum || 10);
     if (this.connectionType === 'tcp') {
-      this.client = node_modbus.client.tcp.complete(this.connectionInfo);
+      return data.data;
     } else {
-      this.client = node_modbus.client.serial.complete(this.connectionInfo);
+      let int32 = data.buffer.readUInt32BE();
+      console.log(int32);
+      return int32;
     }
-
-    this.client.connect();
-    this.client.on('connect', () => {
-      // BU.CLI('connecoted')
-      this.controller.emit('connected')
-      // BU.CLI('connect', this.searchRange)
-      this.client.readInputRegisters(this.searchRange[0], this.searchRange[1])
-        .then(resp => {
-          // BU.CLI(resp.register);
-          return this.client.emit('receiveConnectorData', resp.register);
-        }).catch(err => {
-          this.client.emit('receiveErr', err)
-        })
-        .done(() => {
-          this.client.close();
-        })
-    })
-
-    this.client.on('error', err => {
-      // BU.CLI(err)
-      this.controller.emit('disconnected', err)
-      return Error(err);
-    })
-
-    return await eventToPromise.multi(this.client, ['receiveConnectorData', ['receiveErr']]);
   }
 }
 

@@ -75,21 +75,24 @@ class P_Scheduler extends EventEmitter {
   }
 
   // 정기적인 접속반 데이터 요청 메시지 이벤트 발생
-  _measureConnector(measureTime, connectorControllerList) {
-    // BU.CLI('_measureConnector', measureTime);
+  async _measureConnector(measureTime, connectorControllerList) {
+    BU.CLI('_measureConnector', measureTime);
 
-    Promise.map(connectorControllerList, connectorController => {
+    let connectorListData = await Promise.map(connectorControllerList, connectorController => {
       return connectorController.measureConnector();
     })
-    // 데이터 수집 완료시 해당 데이터 반환
-    .then(connectorListData => {
-      // BU.CLI(connectorListData);
-      return this.emit('completeMeasureConnector', measureTime, connectorListData);
-    })
-    // TODO 오류가 있을 경우 처리 필요
-    .catch(err => {
-      BU.CLI(err);
-    })
+
+    BU.CLI(connectorListData);
+    return this.emit('completeMeasureConnector', measureTime, connectorListData);
+
+    // // 데이터 수집 완료시 해당 데이터 반환
+    // .then(connectorListData => {
+      
+    // })
+    // // TODO 오류가 있을 경우 처리 필요
+    // .catch(err => {
+    //   BU.CLI(err);
+    // })
 
   }
 

@@ -4,11 +4,9 @@ const cron = require('cron');
 const bmjh = require('base-model-jh');
 const BU = require('base-util-jh').baseUtil;
 
-
 class Model {
   constructor(controller) {
     this.controller = controller;
-    
 
     this.hasCopyInverterData = controller.config.devOption.hasCopyInverterData;
     this.hasInsertQuery = controller.config.devOption.hasInsertQuery;
@@ -46,7 +44,7 @@ class Model {
    * @param {Object} inverterListData 계측한 값. NOTE 쓸지 말지는 기획에 따라서 차후 처리
    * @returns {Promise} DB 입력한 결과
    */
-  completeMeasureInverter(measureTime, inverterListData) {
+  async completeMeasureInverter(measureTime, inverterListData) {
     // BU.CLI(measureTime, inverterListData)
     let measureInverterDataList = [];
 
@@ -63,8 +61,18 @@ class Model {
 
     // TEST 인버터 데이터에 기초해 데이터 넣음
     if (this.hasCopyInverterData) {
-      // this.completeMeasureConnector(measureTime, connectorArr);
-      // BU.CLI(connectorArr)
+      let testCntDataList = [];
+      inverterListData.forEach(ivtData => {
+        let addObj = {
+          photovoltaic_seq: ivtData.inverter_seq,
+          amp: ivtData.in_a || null ,
+          vol: ivtData.in_v || null,
+        }
+        testCntDataList.push(addObj);
+      })
+
+      // BU.CLI(testCntDataList)
+      this.completeMeasureConnector(measureTime, testCntDataList);
     }
 
     // BU.CLI(measureInverterDataList)
@@ -76,15 +84,7 @@ class Model {
       return false;
     }
 
-    this.BM.setTables('inverter_data', measureInverterDataList)
-      .then(result => {
-        // 데이터 정상적으로 입력 수행
-        BU.CLI(result)
-        return true;
-      }).catch(err => {
-        BU.errorLog('measureInverterScheduler', err);
-        return false;
-      })
+    return await this.BM.setTables('inverter_data', measureInverterDataList);
   }
 
   // TODO 에러 시 예외처리, 인버터 n개 중 부분 성공일 경우 처리
@@ -94,30 +94,12 @@ class Model {
    * @param {Object} connectorListData 계측한 값. NOTE 쓸지 말지는 기획에 따라서 차후 처리
    * @returns {Promise} DB 입력한 결과
    */
-  completeMeasureConnector(measureTime, connectorListData) {
-    BU.CLI(measureTime, connectorListData)
+  async completeMeasureConnector(measureTime, connectorListData) {
+    // BU.CLI('completeMeasureConnector', connectorListData)
     let measureConnectorDataList = [];
 
-
-    // NOTE 나중에 db schema 변할 경우 작업
-    // connectorListData.forEach((refineData, key) => {
-    //   let volObj = {};
-    //   volObj.connector_seq = refineData.connector_seq;
-    //   volObj.data_type = 'vol';
-    //   volObj.value = refineData.vol;
-    //   measureConnectorDataList.push(volObj);
-
-    //   refineData.ampList.forEach((amp, index) => {
-    //     let ampObj = {};
-    //     amp.connector_seq = refineData.connector_seq;
-    //     amp.data_type = 'vol';
-    //     amp.value = refineData.vol;
-    //     measureConnectorDataList.push(volObj);
-    //   })
-    // })
-
     connectorListData.forEach(refineData => {
-      // TODO 메시지 발송? 에러 처리? 접속반 정지? 고민 필요
+      // TODO 메시지 발송? 에러 처리? 인버터 정지? 고민 필요
       if (_.isEmpty(refineData)) {
         return;
       }
@@ -135,19 +117,8 @@ class Model {
       return false;
     }
 
-    Promise.map(measureConnectorDataList, measureData => {
-      return this.BM.setTable('connector_data', measureData);
-    }).then(result => {
-      // 데이터 정상적으로 입력 수행
-      BU.CLI(result)
-      
-      return true;
-    }).catch(err => {
-      BU.errorLog('measureConnectorScheduler', err);
-      return false;
-    })
-
-
+    // BU.CLI(measureConnectorDataList)
+    return await this.BM.setTables('module_data', measureConnectorDataList)
   }
 }
 

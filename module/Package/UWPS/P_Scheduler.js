@@ -12,6 +12,7 @@ class P_Scheduler extends EventEmitter {
     this.cronJobMeasureInverter = null;
     this.cronJobMeasureConnector = null;
 
+    this.scheduleIntervalMin = 10; // 10 분마다
 
   }
 
@@ -22,9 +23,9 @@ class P_Scheduler extends EventEmitter {
         // BU.CLI('Stop')
         this.cronJobMeasureInverter.stop();
       }
-      // 1분마다 요청
+      // 10분마다 요청
       this.cronJobMeasureInverter = new cron.CronJob({
-        cronTime: '0 * * * * *',
+        cronTime: `0 */${this.scheduleIntervalMin} * * * *`,
         onTick: () => {
           this._measureInverter(new Date(), inverterControllerList);
         },
@@ -43,9 +44,9 @@ class P_Scheduler extends EventEmitter {
         // BU.CLI('Stop')
         this.cronJobMeasureInverter.stop();
       }
-      // 1분마다 요청
+      // 10분마다 요청
       this.cronJobMeasureInverter = new cron.CronJob({
-        cronTime: '0 * * * * *',
+        cronTime: `0 */${this.scheduleIntervalMin} * * * *`,
         onTick: () => {
           this._measureConnector(new Date(), connectorControllerList);
         },
@@ -58,31 +59,35 @@ class P_Scheduler extends EventEmitter {
   }
 
   // 정기적인 인버터 데이터 요청 메시지 이벤트 발생 메소드
-  _measureInverter(measureTime, inverterControllerList) {
+  async _measureInverter(measureTime, inverterControllerList) {
     // BU.CLI('_measureInverter', measureTime)
-    Promise.map(inverterControllerList, inverterController => {
+    let inverterListData = await Promise.map(inverterControllerList, inverterController => {
       return inverterController.measureInverter();
     })
-    // 데이터 수집 완료시 해당 데이터 반환
-    .then(inverterListData => {
-      // BU.CLI(inverterListData);
-      return this.emit('completeMeasureInverter', measureTime, inverterListData);
-    })
-    // TODO 오류가 있을 경우 처리 필요
-    .catch(err => {
-      BU.CLI(err);
-    })
+
+    return this.emit('completeMeasureInverter', measureTime, inverterListData);
+
+
+    // // 데이터 수집 완료시 해당 데이터 반환
+    // .then(inverterListData => {
+    //   // BU.CLI(inverterListData);
+    //   return this.emit('completeMeasureInverter', measureTime, inverterListData);
+    // })
+    // // TODO 오류가 있을 경우 처리 필요
+    // .catch(err => {
+    //   BU.CLI(err);
+    // })
   }
 
   // 정기적인 접속반 데이터 요청 메시지 이벤트 발생
   async _measureConnector(measureTime, connectorControllerList) {
-    BU.CLI('_measureConnector', measureTime);
+    // BU.CLI('_measureConnector', measureTime);
 
     let connectorListData = await Promise.map(connectorControllerList, connectorController => {
       return connectorController.measureConnector();
     })
 
-    BU.CLI(connectorListData);
+    // BU.CLI(connectorListData);
     return this.emit('completeMeasureConnector', measureTime, connectorListData);
 
     // // 데이터 수집 완료시 해당 데이터 반환

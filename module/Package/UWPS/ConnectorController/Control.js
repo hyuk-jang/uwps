@@ -83,7 +83,7 @@ class Control extends EventEmitter {
   async measureConnector() {
     try {
       let moduleDat = await this.p_ModbusClient.measure();
-      BU.CLI('res', moduleDat)
+      // BU.CLI('res', moduleDat)
       this.model.onData(moduleDat);
       return this.model.refineConnectorData;
     } catch (error) {

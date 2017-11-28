@@ -35,13 +35,13 @@ control.init()
   // BU.CLI(result)
   return control.measureConnector();
 })
-// .then(connectorData => {
-//   BU.CLIS(connectorData, control.connectorData)
-//   return ;
-// })
-// .catch(err => {
-//   BU.CLI(err)
-// });
+.then(connectorData => {
+  BU.CLIS(connectorData, control.connectorData)
+  return ;
+})
+.catch(err => {
+  BU.CLI(err)
+});
 
 // // .then(result => {
 // //   return control.me measureInverter();

@@ -172,7 +172,7 @@ class Control extends EventEmitter {
     });
     // 스케줄러 실행
     this.p_Scheduler.on('completeMeasureConnector', (measureTime, connectorListData) => {
-      // BU.CLI(measureTime, inverterListData)
+      // BU.CLI(measureTime, connectorListData)
       // TEST 접속반 더미 프로그램이 없는 관계로 
       if (this.config.devOption.hasCopyInverterData) {
         return false;

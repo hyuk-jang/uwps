@@ -5,21 +5,24 @@ module.exports = {
       dailyKwh: 4.5147,
       cpKwh: 111.3691
     },
-    ivtSavedInfo: {
-			inverter_seq: 1,
-			target_id: 'IVT1',
-			target_name: '인버터 1',
-			target_type: 'single_ivt',
-			target_category: 'dev',
-			connect_type: 'socket',
-			dialing: Buffer.from([0x30, 0x31]),
-			ip: 'localhost',
-			port: 'COM1',
-			baud_rate: 9600,
-			code: '11ae01ed-5f42-4063-858f-d500294dcf11',
-			amount: 30,
-			director_name: '홍길동 1',
-			director_tel: '01011114444'
-		}
+    "ivtSavedInfo": {
+      "inverter_seq": 1,
+      "target_id": "IVT1",
+      "target_name": "인버터 1",
+      "target_type": "single_ivt",
+      "target_category": "dev",
+      "connect_type": "socket",
+      "dialing": {
+        "type": "Buffer",
+        "data": [48, 49]
+      },
+      "ip": "localhost",
+      "port": null,
+      "baud_rate": 9600,
+      "code": "e279f4c4-cdc8-4423-97f8-d30a78c5aff1",
+      "amount": 30,
+      "director_name": "홍길동 1",
+      "director_tel": "01011114444"
+    }
   }
 }

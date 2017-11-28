@@ -59,7 +59,7 @@ class Model {
    * @returns {Void} 
    */
   onData(data) {
-    BU.CLI('ondata', data)
+    // BU.CLI('ondata', data)
     // TEST Test data
     data = [2513, 0, 0, 0, 20, 21, 22, 23, 24, 25]
 
@@ -74,7 +74,7 @@ class Model {
       findModuleData.vol = this.vol;
     })
 
-    BU.CLI(this.moduleDataList)
+    // BU.CLI(this.moduleDataList)
     // BU.CLIS(this.vol, this.ampList, this.refineConnectorData)
     return this.moduleDataList;
   }

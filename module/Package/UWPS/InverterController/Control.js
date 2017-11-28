@@ -105,12 +105,16 @@ class Control extends EventEmitter {
     return this.model.hasConnectedInverter;
   }
 
+  /**
+   * Controller 을 설정하고 해당 객체를 반환
+   * @return {Object} Controller
+   */
   async init() {
     // BU.CLI('init InverterController')
     this.eventHandler();
-    // try {
     // 인버터 타입에 맞는 프로토콜을 바인딩
     let dialing = this.config.ivtSavedInfo.dialing;
+    dialing = dialing.type === 'Buffer' ? Buffer.from(dialing) : dialing;
     let socketPort = await this.p_Setter.settingConverter(dialing);
     // console.time('ivt' + this.inverterId)
     // await Promise.delay(1000);
@@ -120,10 +124,6 @@ class Control extends EventEmitter {
     // BU.CLI(connectedInverter)
 
     return this;
-    // } catch (error) {
-    //   // BU.CLI(error)
-    //   throw Error(error);
-    // }
   }
 
   // 인버터 접속 클라이언트 설정
@@ -134,17 +134,18 @@ class Control extends EventEmitter {
       // if (this.config.hasDev) {
       //   this.connectedInverter = await this.socketClient.connect(this.model.socketServerPort);
       // } else 
-      if (this.config.ivtSavedInfo.connect_type === 'socket') { // TODO Serial Port에 접속하는 기능
-        // BU.CLI(this.config.ivtSavedInfo.port, this.config.ivtSavedInfo.ip)
+      let ivtSavedInfo = this.config.ivtSavedInfo;
+      if (ivtSavedInfo.connect_type === 'socket') { // TODO Serial Port에 접속하는 기능
+        // BU.CLI(ivtSavedInfo.port, ivtSavedInfo.ip)
 
         // NOTE Dev모드에서는 Socket Port를 재설정하므로 지정 경로로 접속기능 필요
-        this.connectedInverter = await this.p_SocketClient.connect(this.config.ivtSavedInfo.port, this.config.ivtSavedInfo.ip);
-        // BU.CLI('Socket에 접속하였습니다.  ' + this.config.ivtSavedInfo.port)
+        this.connectedInverter = await this.p_SocketClient.connect(ivtSavedInfo.port, ivtSavedInfo.ip);
+        // BU.CLI('Socket에 접속하였습니다.  ' + ivtSavedInfo.port)
         // BU.CLI('TTTTT')
       } else {
         this.connectedInverter = await this.p_SerialClient.connect();
       }
-      BU.log('Sucess Connected to Inverter ', this.config.ivtSavedInfo.target_id);
+      BU.log('Sucess Connected to Inverter ', ivtSavedInfo.target_id);
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
@@ -165,14 +166,18 @@ class Control extends EventEmitter {
    * 인버터 계측 데이터 요청 리스트 전송 및 응답 시 결과 데이터 반환
    * @returns {Promise} 정제된 Inverter 계측 데이터 전송(DB 입력 용)
    */
-  async measureInverter() {
+  measureInverter() {
+    return new Promise((resolve, reject) => {
+      if (!BU.isEmpty(this.model.processCmd)) {
+        reject('현재 진행중인 명령이 존재합니다.\n' + this.model.processCmd)
+        // return new Error('현재 진행중인 명령이 존재합니다.\n' + this.model.processCmd);
+      }
 
-    if (!BU.isEmpty(this.model.processCmd)) {
-      return new Error('현재 진행중인 명령이 존재합니다.\n' + this.model.processCmd);
-    } else {
       this.model.initControlStatus();
       this.model.controlStatus.reserveCmdList = this.encoder.makeMsg();
-      return await Promise.each(this.model.controlStatus.reserveCmdList, cmd => {
+
+      // BU.CLI(this.model.controlStatus.reserveCmdList)
+      Promise.each(this.model.controlStatus.reserveCmdList, cmd => {
           this.model.controlStatus.reserveCmdList.shift();
           this.model.controlStatus.processCmd = cmd;
           this.model.controlStatus.sendIndex++;
@@ -180,10 +185,12 @@ class Control extends EventEmitter {
         })
         // .bind({})
         .then((result) => {
+          // BU.CLI(result)
           // BU.CLIS(result, this.model.refineInverterData)
           // BU.CLI(`${this.inverterId}의 명령 수행이 모두 완료되었습니다.`);
           // BU.CLI(this.inverterId, this.model.controlStatus)
-          return this.model.refineInverterData;
+          // return this.model.refineInverterData;
+          resolve(this.model.refineInverterData)
         })
         .catch(err => {
           let msg = `${this.inverterId}의 ${this.model.processCmd}명령 수행 도중 ${err.message}오류가 발생하였습니다.`;
@@ -194,13 +201,9 @@ class Control extends EventEmitter {
 
           // TODO 에러시 어떻게 처리할 지 고민 필요
           //에러가 발생할 경우 빈 객체 반환
-          return {};
-
-          return this.model.refineInverterData;
-
-          // throw err;
+          resolve({})
         })
-    }
+    })
   }
 
   /**
@@ -208,33 +211,22 @@ class Control extends EventEmitter {
    * @param  cmd 요청할 명령
    */
   async send2Cmd(cmd) {
-    // BU.CLI(cmd)
     // console.time(this.config.ivtSavedInfo.target_id + cmd)
     let timeout = {};
-    return Promise.race(
-        [
-          this.msgSendController(cmd),
-          new Promise((_, reject) => {
-            timeout = setTimeout(() => {
-              // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
-              reject(new Error('timeout'))
-            }, this.model.controlStatus.sendMsgTimeOutSec)
-          })
-        ]
-      )
-      .then(result => {
-        clearTimeout(timeout);
-        // console.timeEnd(this.config.ivtSavedInfo.target_id + cmd)
-        return this.model.refineInverterData;
-      })
-      .catch(err => {
-        // BU.CLI(this.config.ivtSavedInfo.target_id + cmd)
-        // console.timeEnd(this.config.ivtSavedInfo.target_id + cmd)
-        throw err;
-      })
-    // .done((result) => {
-    //   console.timeEnd(this.config.ivtSavedInfo.target_id + cmd)
-    // })
+    let resRace = await Promise.race(
+      [
+        this.msgSendController(cmd),
+        new Promise((_, reject) => {
+          timeout = setTimeout(() => {
+            // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
+            reject(new Error('timeout'))
+          }, this.model.controlStatus.sendMsgTimeOutSec)
+        })
+      ]
+    )
+    clearTimeout(timeout);
+    return this.model.refineInverterData;
+
   }
 
   async msgSendController(cmd) {

@@ -65,6 +65,8 @@ class Control extends EventEmitter {
         this.config.cntSavedInfo.port = this.config.devPort;
       }
       this.eventHandler();
+      // Module List에 맞는 데이터 저장소 정의
+      this.model.initModule();
       this.p_ModbusClient.init(this.config.cntSavedInfo);
       return this;
     } catch (err) {

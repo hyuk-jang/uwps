@@ -28,7 +28,7 @@ let control = new Control(config);
 
 control.init()
 .then(result => {
-  BU.CLI(result)
+  // BU.CLI(result)
   return control.measureConnector();
 })
 .then(connectorData => {

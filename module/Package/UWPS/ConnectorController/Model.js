@@ -8,44 +8,47 @@ class Model {
     this.cntSavedInfo = controller.config.cntSavedInfo;
     this.moduleList = controller.config.moduleList;
 
+    this.maxChNum = _.max(this.moduleList, moduleObj => moduleObj.connector_ch).connector_ch;
+
+    this.moduleDataList = [];
+   
     this.hasConnectedConnector = false;
 
     this.vol = 0;
     this.ampList = [];
   }
 
+  // Module List에 맞는 데이터 저장소 정의
+  initModule(){
+    this.moduleList.forEach(moduleObj => {
+      let addObj = {
+        photovoltaic_seq: moduleObj.photovoltaic_seq,
+        amp: 0,
+        vol: 0,
+      }
+      this.moduleDataList.push(addObj);
+    })
+
+  }
+
 
   // 데이터 정제한 데이터 테이블
   get refineConnectorData() {
-    let returnvalue = {
-      v: this.vol
-    };
-
-    // BU.CLI(this.ampList)
-    this.ampList.forEach((ele, index) => {
-      returnvalue['ch_' + (index + 1)] = ele;
-    })
-
-    // returnvalue = NU.multiplyScale2Obj(returnvalue, 10, 0);
-    returnvalue.connector_seq = this.cntSavedInfo.connector_seq;
-
-    // Scale 10 배수 처리
-    return returnvalue;
+    return this.moduleDataList;
   }
 
   get connectorData() {
-    let returnvalue = {
-      v: this.vol
-    };
+    let returnValue = [];
 
-    // BU.CLI(this.ampList)
-    this.ampList.forEach((ele, index) => {
-      returnvalue['ch_' + (index + 1)] = ele;
+    returnValue = _.map(this.moduleDataList, moduleData => {
+      return {
+        photovoltaic_seq: moduleData.photovoltaic_seq,
+        amp:NU.multiplyScale2Value(moduleData.amp, 0.1, 1),
+        vol:NU.multiplyScale2Value(moduleData.vol, 0.1, 1),
+      }
     })
 
-    returnvalue = NU.multiplyScale2Obj(returnvalue, 0.1, 1);
-    returnvalue.connector_seq = this.cntSavedInfo.connector_seq;
-    return returnvalue;
+    return returnValue;
   }
 
   // Connecotr Data 수신
@@ -60,12 +63,19 @@ class Model {
     data = [2513, 0, 0, 0, 20, 21, 22, 23, 24, 25]
 
     // NU.multiplyScale2Obj(data)
-    
     this.vol = data[this.cntSavedInfo.addr_v];
-    this.ampList = data.slice(this.cntSavedInfo.addr_a, this.cntSavedInfo.addr_a + this.moduleList.length)
+    this.ampList = data.slice(this.cntSavedInfo.addr_a, this.cntSavedInfo.addr_a + this.maxChNum)
+    
+    this.moduleList.forEach(moduleObj => {
+      let chIndex = Number(moduleObj.connector_ch) - 1;
+      let findModuleData = _.findWhere(this.moduleDataList, {photovoltaic_seq: moduleObj.photovoltaic_seq});
+      findModuleData.amp = this.ampList[chIndex];
+      findModuleData.vol = this.vol;
+    })
 
-    BU.CLIS(this.vol, this.ampList, this.refineConnectorData)
-    return true;
+    // BU.CLI(this.moduleDataList)
+    // BU.CLIS(this.vol, this.ampList, this.refineConnectorData)
+    return this.moduleDataList;
   }
 }
 

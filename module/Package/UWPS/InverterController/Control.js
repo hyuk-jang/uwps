@@ -100,6 +100,8 @@ class Control extends EventEmitter {
 
   /**
    * 현재 인버터 컨트롤러가 작동하는지 여부
+   * Socket or Serial 연결이 되어있는 상태면 동작 중인걸로 판단
+   * @return {Boolean}
    */
   getHasOperation() {
     return this.model.hasConnectedInverter;
@@ -131,13 +133,9 @@ class Control extends EventEmitter {
     // BU.CLI('connectInverter')
     try {
       // 개발 버전일경우 자체 더미 인버터 소켓에 접속
-      // if (this.config.hasDev) {
-      //   this.connectedInverter = await this.socketClient.connect(this.model.socketServerPort);
-      // } else 
       let ivtSavedInfo = this.config.ivtSavedInfo;
       if (ivtSavedInfo.connect_type === 'socket') { // TODO Serial Port에 접속하는 기능
         // BU.CLI(ivtSavedInfo.port, ivtSavedInfo.ip)
-
         // NOTE Dev모드에서는 Socket Port를 재설정하므로 지정 경로로 접속기능 필요
         this.connectedInverter = await this.p_SocketClient.connect(ivtSavedInfo.port, ivtSavedInfo.ip);
         // BU.CLI('Socket에 접속하였습니다.  ' + ivtSavedInfo.port)

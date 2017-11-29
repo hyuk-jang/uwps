@@ -3,7 +3,6 @@ const Promise = require('bluebird');
 
 const BU = require('base-util-jh').baseUtil;
 
-
 const Model = require('./Model.js');
 const P_Scheduler = require('./P_Scheduler');
 
@@ -89,7 +88,7 @@ class Control extends EventEmitter {
   /**
    * 접속반 현재 상태 데이터를 가져옴
    * @param {String} targetId 접속반 id
-   * @return {Object} {v, ch_a, cnt_seq}
+   * @return {Object} {photovoltaic_seq, amp, vol, writedate}
    */
   getConnectorData(targetId) {
     // BU.CLI('getConnectorData', targetId)

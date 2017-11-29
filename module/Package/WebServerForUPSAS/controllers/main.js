@@ -21,14 +21,19 @@ module.exports = function (app) {
   router.get('/', wrap(async (req, res) => {
     // let workers = app.get('workers');
 
+    let moduleStatus = await biModule.getModuleStatus();
+    let v_upsas_profile = await biModule.getTable('v_upsas_profile');
+    let monthPower = await biModule.getMonthPower();
     let dailyPowerReport = await biModule.getDailyPowerReport();
-    let moduleStatus = await biModule.getTable('v_photovoltaic_status');
     let inverterDataList = await biModule.getTable('v_inverter_status');
-
+    
+    let pv_amount = _.reduce(_.pluck(v_upsas_profile, 'pv_amount'), (accumulator, currentValue) => accumulator + currentValue);
     let powerGenerationInfo = {
-      currKw: (_.reduce(_.pluck(inverterDataList, 'out_w'), (accumulator, currentValue) => accumulator + currentValue ) / 1000).toFixed(3),
-      dailyPower: (_.reduce(_.pluck(inverterDataList, 'd_wh'), (accumulator, currentValue) => accumulator + currentValue ) / 1000).toFixed(3),
-      cumulativePower: (_.reduce(_.pluck(inverterDataList, 'c_wh'), (accumulator, currentValue) => accumulator + currentValue ) / 1000 / 1000).toFixed(3),
+      currKw: Number((_.reduce(_.pluck(inverterDataList, 'out_w'), (accumulator, currentValue) => accumulator + currentValue ) / 1000).toFixed(3)) ,
+      currKwYaxisMax: Math.ceil(pv_amount / 10),
+      dailyPower: Number((_.reduce(_.pluck(inverterDataList, 'd_wh'), (accumulator, currentValue) => accumulator + currentValue ) / 1000).toFixed(3)),
+      monthPower,
+      cumulativePower: Number((_.reduce(_.pluck(inverterDataList, 'c_wh'), (accumulator, currentValue) => accumulator + currentValue ) / 1000 / 1000).toFixed(3)),
       hasOperationInverter: true,
     };
 

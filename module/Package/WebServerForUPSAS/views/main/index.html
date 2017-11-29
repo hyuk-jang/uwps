@@ -56,12 +56,12 @@
             <input type="text" name="kW" value=<%- powerGenerationInfo.dailyPower %>>
             <span>kWh</span>
           </div>
-<!-- 
+
           <div class="row power_2">
             <p>당월발전량</p>
-            <input type="text" name="kW" value="12.7">
-            <span>MWh</span>
-          </div> -->
+            <input type="text" name="kW" value=<%- powerGenerationInfo.monthPower %>>
+            <span>kWh</span>
+          </div>
 
           <div class="row power_2">
             <p>누적발전량</p>
@@ -93,7 +93,7 @@
                   hasOperationInverterCss = "btn-warning";
                 }
               %>
-              <button type="button" class="btn <%= hasOperationInverterCss %>">RUN</button>
+                <button type="button" class="btn <%= hasOperationInverterCss %>">RUN</button>
             </div>
             <div class="col-xs-6 power_3in">
               <img src="image/sun_11.png" />
@@ -162,7 +162,9 @@
             <div class="row con_2">
               <h5 style="float:left; margin-left:20px;">금일발전현황 </h5>
               <span style="float:right; margin-right:20px; font-size:12px; color:#ddd; line-height:4;  color:burlywood;">
-                [<%- dailyPowerReport.dailyPowerRange.start %> ~ <%- dailyPowerReport.dailyPowerRange.end %>]
+                [
+                <%- dailyPowerReport.dailyPowerRange.start %> ~
+                  <%- dailyPowerReport.dailyPowerRange.end %>]
               </span>
             </div>
             <div class="row con_2_1" style="height:135px;" id="dailyPowerChart">
@@ -225,7 +227,9 @@
           <b style="position: absolute; top:22px; left:16px">
             <span id="pageNumCount" data-count="1"> 1</span>
             <span>/</span>
-            <span id="pageNumLimit" data-count="<%=  Math.ceil(moduleStatus.length / 4) %>"> <%=  Math.ceil(moduleStatus.length / 4) %></span>
+            <span id="pageNumLimit" data-count="<%=  Math.ceil(moduleStatus.length / 4) %>">
+              <%=  Math.ceil(moduleStatus.length / 4) %>
+            </span>
           </b>
 
           <i class="fa fa-sort-asc arrow " aria-hidden="true" onclick=changeModuleInfo(-1); id="up"></i>
@@ -240,6 +244,7 @@
 
 
     <%- include("../master/footer.html") %>
+
       <script>
         $(document).ready(() => {
           changeModuleInfo();
@@ -248,6 +253,7 @@
 
         const moduleStatus = <%- JSON.stringify(moduleStatus) %>;
         const moduleViewSizeCount = 4;
+
         function changeModuleInfo(changeValue) {
           // console.log('changeModuleInfo',changeValue)
           changeValue = Number.isInteger(changeValue) ? changeValue : 0;
@@ -277,9 +283,9 @@
             if (moduleStatus[currIndex]) {
               var moduleInfo = moduleStatus[currIndex];
 
-              var chName = "CH " + moduleInfo.channel;
+              var chName = "CH " + moduleInfo.connector_ch;
               var deviceName = moduleInfo.target_name;
-              var amp = moduleInfo.amp ;
+              var amp = moduleInfo.amp;
               var vol = moduleInfo.vol;
               var kw = (amp * vol / 1000).toFixed(2);
 
@@ -304,11 +310,10 @@
           document.querySelector('#pageNumCount').innerHTML = changeCount;
           $('#moduleStatus').html(drawPagingList)
         }
-
-
       </script>
-      
+
       <script type="text/javascript">
+        let powerGenerationInfo = <%- JSON.stringify(powerGenerationInfo) %>;
         var gaugeOptions = {
 
           chart: {
@@ -343,7 +348,7 @@
               [0.9, '#DF5353'] // red
             ],
             lineWidth: 0,
-            minorTickInterval: 2,
+            minorTickInterval: null,
             tickAmount: 2,
             title: {
               y: -70
@@ -356,7 +361,7 @@
           plotOptions: {
             solidgauge: {
               dataLabels: {
-                y: 5,
+                y: 10,
                 borderWidth: 0,
                 useHTML: true
               }
@@ -365,39 +370,13 @@
         };
 
         // The speed gauge
-        var dailyPowerChart = Highcharts.chart('chart_div_2', Highcharts.merge(gaugeOptions, {
-          yAxis: {
-            min: 0,
-            max: 60,
-            minorTickInterval: 10,
-            title: {
-              text: ''
-            }
-          },
-
-          credits: {
-            enabled: false
-          },
-
-          series: [{
-            name: '금일 발전량',
-            data: [<%- powerGenerationInfo.dailyPower %>],
-            dataLabels: {
-              format: '<div style="text-align:center"><span style="font-size:25px;color:' +
-              ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
-              '<span style="font-size:12px;color:silver">kWh</span></div>'
-            },
-            tooltip: {
-              valueSuffix: 'kWh'
-            }
-          }]
-
-        }));
         var currentPower = Highcharts.chart('chart_div_1', Highcharts.merge(gaugeOptions, {
           yAxis: {
             min: 0,
-            max: 10,
-            minorTickInterval: 1,
+            max: powerGenerationInfo.currKwYaxisMax,
+            tickPositioner: function () {
+              return [this.min, this.max];
+            },
             title: {
               text: '현재 출력'
             }
@@ -409,11 +388,42 @@
 
           series: [{
             name: '현재 출력',
-            data: [<%- powerGenerationInfo.currKw %>],
+            data: [Number(powerGenerationInfo.currKw.toFixed(2))],
             dataLabels: {
               format: '<div style="text-align:center"><span style="font-size:25px;color:' +
-              ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
-              '<span style="font-size:12px;color:silver">kWh</span></div>'
+                ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
+                '<span style="font-size:12px;color:silver">kWh</span></div>'
+            },
+            tooltip: {
+              valueSuffix: 'kWh'
+            }
+          }]
+
+        }));
+
+        var dailyPowerChart = Highcharts.chart('chart_div_2', Highcharts.merge(gaugeOptions, {
+          yAxis: {
+            min: 0,
+            max: powerGenerationInfo.currKwYaxisMax * 6,
+            tickPositioner: function () {
+              return [this.min, this.max];
+            },
+            title: {
+              text: ''
+            }
+          },
+
+          credits: {
+            enabled: false
+          },
+
+          series: [{
+            name: '금일 발전량',
+            data: [Number(powerGenerationInfo.dailyPower.toFixed(2))],
+            dataLabels: {
+              format: '<div style="text-align:center"><span style="font-size:25px;color:' +
+                ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
+                '<span style="font-size:12px;color:silver">kWh</span></div>'
             },
             tooltip: {
               valueSuffix: 'kWh'
@@ -426,8 +436,8 @@
       <!-- Main 하이차트 -->
       <script type="text/javascript">
         $(function () {
-          
-          var data =<%- JSON.stringify(dailyPowerReport.chartList) %>; 
+
+          var data = <%- JSON.stringify(dailyPowerReport.chartList) %>;
           // console.log('data', data[0])
           $('#dailyPowerChart').highcharts({
             title: {
@@ -446,17 +456,19 @@
                 text: '발전량(Wh)'
               }
             },
-            legend: {  //범례
+            legend: { //범례
               layout: 'vertical',
               align: 'right',
               verticalAlign: 'middle',
               borderWidth: 0
             },
-            series: [{   //값
+            series: [{ //값
               name: '금일 발전량',
               data: data[1]
-            }
-            ]
+            }],
+            credits: {
+              enabled: false
+            },
           });
         });
       </script>

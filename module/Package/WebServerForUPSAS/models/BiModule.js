@@ -8,6 +8,80 @@ class BiModule extends bmjh.BM {
 
   }
 
+  /**
+   * 접속반 기준 Module 최신 데이터 가져옴
+   *  
+   * @param {} photovoltatic_seq Format => Number or Array or undefinded
+   */
+  getModuleStatus(photovoltatic_seq) {
+    let sql = `
+      SELECT
+        pv.*,
+        ru.connector_ch,
+        (SELECT amp / 10 FROM module_data md WHERE md.photovoltaic_seq = pv.photovoltaic_seq ORDER BY md.writedate DESC LIMIT 1) AS amp,
+        (SELECT vol / 10 FROM module_data md WHERE md.photovoltaic_seq = pv.photovoltaic_seq ORDER BY md.writedate DESC LIMIT 1) AS vol,
+        (SELECT writedate FROM module_data md WHERE md.photovoltaic_seq = pv.photovoltaic_seq ORDER BY md.writedate DESC LIMIT 1) AS writedate
+        FROM
+        photovoltaic pv
+        JOIN relation_upms ru
+          ON ru.photovoltaic_seq = pv.photovoltaic_seq
+        LEFT JOIN saltern_block sb
+          ON sb.saltern_block_seq = ru.saltern_block_seq
+    `;
+    if (Number.isInteger(photovoltatic_seq)) {
+      sql += `WHERE pv.photovoltaic_seq = (${photovoltatic_seq})`
+    } else if (Array.isArray(photovoltatic_seq)) {
+      sql += `WHERE pv.photovoltaic_seq IN (${photovoltatic_seq})`
+    }
+    sql += 'ORDER BY ru.connector_seq, ru.connector_ch';
+
+    return this.db.single(sql);
+  }
+
+  /**
+   * Inverter에서 수집된 월의 발전량을 출력
+   * @param {Date} targetDate 해당 월
+   * @param {} inverter_seq Format => Number or Array or undefinded
+   */
+  async getMonthPower(targetDate, inverter_seq){
+    targetDate = targetDate instanceof Date ? targetDate : new Date();
+    let sql = ` 
+      SELECT 
+        ROUND(SUM(sum_d_wh) / 10 / 1000, 3) AS m_kwh
+        FROM
+        (
+        SELECT
+          *,
+          DATE_FORMAT(writedate,"%Y-%m") AS group_date,
+          SUM(max_d_wh) AS sum_d_wh
+          FROM
+          (SELECT 
+            *,
+            MAX(d_wh) AS max_d_wh
+            FROM 
+            inverter_data
+            GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d"), inverter_seq
+          ) AS step_1
+      `;
+      if (Number.isInteger(inverter_seq)) {
+        sql += `WHERE pv.inverter_seq = (${inverter_seq})`
+      } else if (Array.isArray(inverter_seq)) {
+        sql += `WHERE pv.inverter_seq IN (${inverter_seq})`
+      }
+        sql += `
+          GROUP BY DATE_FORMAT(writedate,"%Y-%m"), inverter_seq
+        ) AS step_2
+        WHERE group_date = "${BU.convertDateToText(targetDate, '', 1, 0)}"
+        GROUP BY group_date	
+    `;
+    let monthData = await this.db.single(sql);
+    if(monthData.length){
+      return monthData[0].m_kwh;
+    } else {
+      return 0;
+    }
+  }
+
   getDailyPowerReport() {
     // date = date ? date : new Date();
 
@@ -35,7 +109,37 @@ class BiModule extends bmjh.BM {
         }
       });
   }
-  
+
+  /**
+   * 접속반에서 쓸 데이터 
+   * @param {} moduleSeq null, String, Array
+   */
+  getModuleReportForConnector(moduleSeq){
+    let sql = `
+      SELECT
+        md.photovoltaic_seq,
+        ROUND(md.amp / 10, 1) AS amp,
+        ROUND(md.vol / 10, 1) AS vol,
+        ROUND(amp * vol / 100, 1) AS wh,
+        DATE_FORMAT(writedate,'%H:%i') AS hour_time
+        FROM module_data md
+          WHERE writedate>= CURDATE() and writedate<CURDATE() + 1
+    `;
+      if(moduleSeq){
+        sql += `AND photovoltaic_seq IN (${moduleSeq})`
+      }
+      sql += `
+          GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), photovoltaic_seq
+          ORDER BY photovoltaic_seq, writedate
+    `;
+    return this.db.single(sql);
+  }
+
+
+
+
+
+
 
   /**
    * return connector report
@@ -189,7 +293,7 @@ class BiModule extends bmjh.BM {
       });
   }
 
-    /**
+  /**
    * return connector report
    * @param {Array} inverterSeqList {connector_seq, ch_number}
    * @param {Object} searchRange 
@@ -277,7 +381,7 @@ class BiModule extends bmjh.BM {
     // BU.CLI(betweenDatePointObj)
 
     return this.db.single(sql, '', true)
-    // return this.db.single(sql)
+      // return this.db.single(sql)
       .then(result => {
         return {
           betweenDatePointObj,
@@ -303,7 +407,7 @@ class BiModule extends bmjh.BM {
     BU.CLI('processModulePowerTrend', searchRange)
     // 트렌드를 구할 모듈 정보 초기화
     let moudlePowerReport = [];
-    let hasData = false;  // 데이터가 있는지 없는지
+    let hasData = false; // 데이터가 있는지 없는지
     for (let cnt = 1; cnt <= connectorInfo.ch_number; cnt++) {
       let moduleInfo = _.findWhere(relationInfo, {
         connector_seq: connectorInfo.connector_seq,
@@ -339,7 +443,7 @@ class BiModule extends bmjh.BM {
           });
           // 해당 데이터 삽입
           let totalPower = findGridObj[`total_ch_wh_${cnt}`];
-          hasData = totalPower ? true : hasData;  // 데이터가 한개라면 있다면 true
+          hasData = totalPower ? true : hasData; // 데이터가 한개라면 있다면 true
           switch (searchRange.searchType) {
             case 'year':
               totalPower = (totalPower / 1000 / 1000).toFixed(4);
@@ -398,7 +502,7 @@ class BiModule extends bmjh.BM {
         mainTitle,
         xAxisTitle,
         yAxisTitle,
-        columnList:connectorHistory.betweenDatePointObj.shortTxtPoint
+        columnList: connectorHistory.betweenDatePointObj.shortTxtPoint
       },
       series: moudlePowerReport
     };

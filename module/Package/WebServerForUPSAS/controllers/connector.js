@@ -19,39 +19,60 @@ module.exports = function (app) {
   // Get
   router.get('/', wrap(async(req, res) => {
     // BU.CLI('connector', req.locals);
-    // 접속반 리스트 가져옴
-    let connectorList = await biModule.getTable('connector');
-    let connector_seq = req.query.connector_seq ? Number(req.query.connector_seq)  : _.first(connectorList).connector_seq;
-    let selectedConnector = _.findWhere(connectorList, {connector_seq: connector_seq})
-    let moduleStatusList = await biModule.getTable('v_photovoltaic_status', 'connector_seq', connector_seq)
-    let connectorHistory = await biModule.getConnectorHistory(selectedConnector);
+    // upsas 현황
+    let upsasProfile = await biModule.getTable('v_upsas_profile')
+    // 접속반 리스트
+    let connectorList = _.groupBy(upsasProfile, profile => profile.connector_seq);
+    // 선택된 접속반 seq 정의
+    let connector_seq = req.query.connector_seq ? Number(req.query.connector_seq) : Number(_.first(Object.keys(connectorList)));
+    // 접속반에 물려있는 모듈 seq 정의
+    let moduleSeqList = _.sortBy(_.pluck(connectorList[connector_seq], 'photovoltaic_seq'), 'connector_ch');
+    // 모듈 현황
+    let moduleStatusList = await biModule.getTable('v_module_status', 'photovoltaic_seq', moduleSeqList, true);
+    // 금일 접속반 발전량 현황
+    let todayModuleReport = await biModule.getModuleReportForConnector(moduleSeqList);
+    todayModuleReport = _.groupBy(todayModuleReport, 'photovoltaic_seq');
+
+    // 차트 데이터로 변환
+    let chartRange = [];
+    let reportSeries = _.map(todayModuleReport, (moduleDataObj, moduleKey) => {
+      let addObj = {
+        name: '',
+        data: []
+      };
+      let upsasInfo = _.findWhere(upsasProfile, {
+        photovoltaic_seq: moduleKey
+      });
+      if (_.isEmpty(upsasInfo)) {
+        return addObj;
+      }
+      addObj.name = `CH_${upsasInfo.connector_ch} ${upsasInfo.pv_target_name}`
+      addObj.data = _.pluck(moduleDataObj, 'wh');
+      chartRange = _.pluck(moduleDataObj, 'hour_time');
+      return addObj;
+    })
 
     let chartDataObj = {
-      range: connectorHistory.range,
-      series: []
-    } 
-
-    for (let cnt = 1; cnt <= selectedConnector.ch_number; cnt++) {
-      let addObj = {};
-      let moduleInfo = _.findWhere(moduleStatusList, {connector_seq:selectedConnector.connector_seq, channel:cnt});
-      addObj.name = `CH_${cnt} ${moduleInfo.target_name}`;
-      addObj.data = _.pluck(connectorHistory.gridInfo, `ch_${cnt}`);
-      chartDataObj.series.push(addObj);
+      range: chartRange,
+      series: reportSeries
     }
+
 
     // return;
     let ampList = _.pluck(moduleStatusList, 'amp');
     let volList = _.pluck(moduleStatusList, 'vol');
 
-    let totalAmp = _.reduce(ampList, (accumulator, currentValue) => accumulator + currentValue );
-    let vol = _.reduce(volList, (accumulator, currentValue) => accumulator + currentValue ) / volList.length;
-    
+    let totalAmp = _.reduce(ampList, (accumulator, currentValue) => accumulator + currentValue);
+    let vol = _.reduce(volList, (accumulator, currentValue) => accumulator + currentValue) / volList.length;
+
     // 접속반 리스트
     req.locals.connectorList = connectorList;
     req.locals.connector_seq = connector_seq;
     req.locals.gridInfo = {
       // 총전류, 전압, 보여줄 컬럼 개수
-      totalAmp, vol, maxModuleViewNum : 8, 
+      totalAmp,
+      vol,
+      maxModuleViewNum: 8,
       measureTime: _.first(moduleStatusList) ? BU.convertDateToText(_.first(moduleStatusList).writedate) : ''
     }
     // 모듈 상태값들 가지고 있는 배열
@@ -63,7 +84,7 @@ module.exports = function (app) {
   }));
 
 
-  router.use(wrap(async (err, req, res, next) => {
+  router.use(wrap(async(err, req, res, next) => {
     console.trace(err);
     res.status(500).send(err);
   }));

@@ -115,12 +115,12 @@
     <script>
       // 초기 시작시 라디오 체크버튼 클릭처리
       let searchRange = <%- JSON.stringify(searchRange)  %>;
-      let gridChartReport = <%- JSON.stringify (gridChartReport) %>;
+      let trendReportList = <%- JSON.stringify (trendReportList) %>;
 
       $(document).ready(() => {
-        console.log('searchRange', searchRange, gridChartReport)
+        console.log('searchRange', searchRange, trendReportList)
         let searchType = '<%-searchType%>';
-        if (!gridChartReport.hasData) {
+        if (!trendReportList.hasData) {
           alert('조회 내역이 없습니다.');
         }
         let selectedObj = document.querySelector(`#selectTypeArea input[value=${searchType}]`)
@@ -147,7 +147,8 @@
           $('#end').show();
           startDatePicker(0, 'yyyy-mm-dd');
           endDatePicker();
-          endDateDom.value = startDateDom.value = startDate.toISOString().substring(0, 10);
+          startDateDom.value = startDate.toISOString().substring(0, 10);
+          endDateDom.value = endDate.toISOString().substring(0, 10);
         } else {
           $('#end').hide();
           if (checkRadio == 'month') {
@@ -209,21 +210,21 @@
 
     <script type="text/javascript">
       $(function () {
-        console.log('gridChartReport.shortTxtPoint', gridChartReport.shortTxtPoint)
+        console.log('trendReportList.shortTxtPoint', trendReportList.shortTxtPoint)
         $('#moduleChart_1').highcharts({
           title: {
-            text: gridChartReport.chartOptionInfo.mainTitle
+            text: trendReportList.chartOptionInfo.mainTitle
           },
           xAxis: {
             title: {
-              text: gridChartReport.chartOptionInfo.xAxisTitle
+              text: trendReportList.chartOptionInfo.xAxisTitle
             },
             tickInterval: 1,
-            categories: gridChartReport.chartOptionInfo.columnList
+            categories: trendReportList.columnList
           },
           yAxis: {
             title: {
-              text: gridChartReport.chartOptionInfo.yAxisTitle
+              text: trendReportList.chartOptionInfo.yAxisTitle
             }
           },
           legend: { //범례
@@ -232,7 +233,7 @@
             verticalAlign: 'middle',
             borderWidth: 0
           },
-          series: gridChartReport.series
+          series: trendReportList.series
         });
       });
     </script>

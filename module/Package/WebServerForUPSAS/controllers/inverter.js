@@ -22,6 +22,7 @@ module.exports = function (app) {
     // console.timeEnd('getTable')
     // console.time('getInverterHistory')
     let inverterHistory = await biModule.getInverterHistory();
+    // BU.CLI(inverterHistory)
 
     let chartDataObj = {
       range: [],
@@ -33,6 +34,7 @@ module.exports = function (app) {
         name: findObj ? findObj.target_name : '',
         data: _.pluck(statusObj, 'out_w')
       }
+      chartDataObj.range = _.pluck(statusObj, 'hour_time')
       chartDataObj.series.push(addObj);
     })
 

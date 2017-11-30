@@ -43,7 +43,7 @@ class BiModule extends bmjh.BM {
    * @param {Date} targetDate 해당 월
    * @param {} inverter_seq Format => Number or Array or undefinded
    */
-  async getMonthPower(targetDate, inverter_seq){
+  async getMonthPower(targetDate, inverter_seq) {
     targetDate = targetDate instanceof Date ? targetDate : new Date();
     let sql = ` 
       SELECT 
@@ -63,19 +63,19 @@ class BiModule extends bmjh.BM {
             GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d"), inverter_seq
           ) AS step_1
       `;
-      if (Number.isInteger(inverter_seq)) {
-        sql += `WHERE pv.inverter_seq = (${inverter_seq})`
-      } else if (Array.isArray(inverter_seq)) {
-        sql += `WHERE pv.inverter_seq IN (${inverter_seq})`
-      }
-        sql += `
+    if (Number.isInteger(inverter_seq)) {
+      sql += `WHERE pv.inverter_seq = (${inverter_seq})`
+    } else if (Array.isArray(inverter_seq)) {
+      sql += `WHERE pv.inverter_seq IN (${inverter_seq})`
+    }
+    sql += `
           GROUP BY DATE_FORMAT(writedate,"%Y-%m"), inverter_seq
         ) AS step_2
         WHERE group_date = "${BU.convertDateToText(targetDate, '', 1, 0)}"
         GROUP BY group_date	
     `;
     let monthData = await this.db.single(sql);
-    if(monthData.length){
+    if (monthData.length) {
       return monthData[0].m_kwh;
     } else {
       return 0;
@@ -114,26 +114,253 @@ class BiModule extends bmjh.BM {
    * 접속반에서 쓸 데이터 
    * @param {} moduleSeq null, String, Array
    */
-  getModuleReportForConnector(moduleSeq){
+  getModuleReportForConnector(moduleSeq) {
     let sql = `
       SELECT
         md.photovoltaic_seq,
-        ROUND(md.amp / 10, 1) AS amp,
-        ROUND(md.vol / 10, 1) AS vol,
-        ROUND(amp * vol / 100, 1) AS wh,
-        DATE_FORMAT(writedate,'%H:%i') AS hour_time
+        ROUND(AVG(amp / 10), 1) AS amp,
+        ROUND(AVG(vol / 10), 1) AS vol,
+        ROUND(AVG(amp) * AVG(vol) / 100, 1) AS wh,
+        DATE_FORMAT(writedate,'%H') AS hour_time
         FROM module_data md
           WHERE writedate>= CURDATE() and writedate<CURDATE() + 1
     `;
-      if(moduleSeq){
-        sql += `AND photovoltaic_seq IN (${moduleSeq})`
-      }
-      sql += `
+    if (moduleSeq) {
+      sql += `AND photovoltaic_seq IN (${moduleSeq})`
+    }
+    sql += `
           GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), photovoltaic_seq
           ORDER BY photovoltaic_seq, writedate
     `;
     return this.db.single(sql);
   }
+
+  getModuleTrendByConnector(moduleSeq, searchRange) {
+    let searchType = searchRange.searchType;
+    let strStartDate = searchRange.strStartDate;
+    let strEndDate = searchRange.strEndDate;
+
+    let startDate = new Date(strStartDate);
+    let endDate = new Date(strEndDate);
+
+    // TEST
+    // endtDate = new Date('2017-11-16');
+    // strEndDate = BU.convertDateToText(endtDate)
+    // TEST
+
+    // BU.CLI(searchRange)
+
+
+    // 기간 검색일 경우 시작일과 종료일의 날짜 차 계산하여 searchType 정의
+    if (searchType === 'range') {
+      let gapDate = BU.calcDateInterval(strEndDate, strStartDate);
+      // remainDay + remainHour + remainMin + remainSec
+      let sumValues = Object.values(gapDate).sum();
+      if (gapDate.remainDay >= 365) {
+        searchRange.searchType = searchType = 'year';
+      } else if (gapDate.remainDay > 29) {
+        searchRange.searchType = searchType = 'month';
+      } else if (gapDate.remainDay > 0 && sumValues > 1) {
+        searchRange.searchType = searchType = 'day';
+      } else {
+        searchRange.searchType = searchType = 'hour';
+      }
+    }
+
+    let dateFormat = '';
+    switch (searchType) {
+      case 'year':
+        dateFormat = '%Y';
+        break;
+      case 'month':
+        dateFormat = '%Y-%m';
+        break;
+      case 'day':
+        dateFormat = '%Y-%m-%d';
+        break;
+      case 'hour':
+        dateFormat = '%Y-%m-%d %H';
+        break;
+      default:
+        dateFormat = '%Y-%m';
+        break;
+    }
+
+    let sql = `
+      SELECT
+        md_group.photovoltaic_seq,
+        DATE_FORMAT(writedate,"${dateFormat}") AS group_date,
+        ROUND(SUM(avg_amp), 1) AS total_amp,
+        ROUND(AVG(avg_vol), 1) AS avg_vol,
+        ROUND(SUM(avg_amp) * AVG(avg_vol), 1) AS total_wh
+        FROM
+        (
+        SELECT
+          md.photovoltaic_seq,
+          writedate,
+          ROUND(AVG(amp / 10), 1) AS avg_amp,
+          ROUND(AVG(vol / 10), 1) AS avg_vol,
+          DATE_FORMAT(writedate,"%H") AS hour_time
+          FROM module_data md
+        WHERE writedate>= "${strStartDate}" and writedate<"${strEndDate}"
+    `;
+    if (moduleSeq.length) {
+      sql += `AND photovoltaic_seq IN (${moduleSeq})`
+    }
+    sql += `
+        GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), photovoltaic_seq
+        ORDER BY photovoltaic_seq, writedate
+      ) md_group
+      GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), photovoltaic_seq
+    `;
+
+    let betweenDatePointObj = BU.getBetweenDatePoint(strEndDate, strStartDate, searchType);
+    // BU.CLI(betweenDatePointObj)
+
+    // return this.db.single(sql, '', true)
+      return this.db.single(sql)
+      .then(result => {
+        let groupByResult = _.groupBy(result, 'photovoltaic_seq')
+
+        return {
+          betweenDatePointObj,
+          gridPowerInfo: groupByResult
+        }
+      });
+  }
+
+  /**
+   * 접속반, Relation, trend를 융합하여 chart data 를 뽑아냄
+   * @param {Object} connectorInfo 
+   * @param {Array} upsasProfile 
+   * @param {Array} moduleReportList 
+   */
+  processTrendByConnector(upsasProfile, moduleReportList, searchRange) {
+    // BU.CLI('processTrendByConnector', searchRange)
+    // 트렌드를 구할 모듈 정보 초기화
+    let trendReportList = [];
+
+    // 모듈 기본정보 입력
+    _.each(moduleReportList.gridPowerInfo, (moduleDataList, moduleSeq) => {
+      // BU.CLI(moduleSeq)
+      let findProfile = _.findWhere(upsasProfile, {
+        photovoltaic_seq: Number(moduleSeq)
+      });
+      // BU.CLI(findProfile)
+      let trendReportObj = {};
+      trendReportObj.id = `id_${moduleSeq}`;
+      trendReportObj.name = `CH_${findProfile.connector_ch} ${findProfile.pv_target_name}`;
+      trendReportObj.group_date = moduleReportList.betweenDatePointObj.fullTxtPoint;
+      trendReportObj.data = []
+
+      moduleReportList.betweenDatePointObj.fullTxtPoint.forEach((strDateFormat, ftpIndex) => {
+        // BU.CLIS(strDateFormat, moduleDataList)
+        let findGridObj = _.findWhere(moduleDataList, {
+          group_date: strDateFormat
+        });
+
+        // BU.CLI(findGridObj)
+        let data = _.isEmpty(findGridObj) ? '' : this.convertValueBySearchType(searchRange.searchType, findGridObj.total_wh);
+        trendReportObj.data.push(data);
+      });
+      trendReportList.push(trendReportObj);
+    })
+
+    // BU.CLI(trendReportList);
+
+    let chartOptionInfo = this.makeChartOption(searchRange);
+    // BU.CLI('moudlePowerReport', moudlePowerReport);
+    return {
+      hasData: _.isEmpty(moduleReportList.gridPowerInfo) ? false : true,
+      columnList: moduleReportList.betweenDatePointObj.shortTxtPoint,
+      chartOptionInfo,
+      series: trendReportList
+    };
+  }
+
+
+  /**
+   * 
+   * @param {String} searchType 
+   * @param {Number} number 
+   */
+  convertValueBySearchType(searchType, number) {
+    // BU.CLI('convertValueBySearchType', searchType, number)
+    let returnValue = 0;
+    switch (searchType) {
+      case 'year':
+        returnValue = (number / 1000 / 1000).toFixed(4);
+        break;
+      case 'month':
+        returnValue = (number / 1000).toFixed(3);
+        break;
+      case 'day':
+        returnValue = (number / 1000).toFixed(3);
+        break;
+      case 'hour':
+      default:
+        returnValue = number;
+        break;
+    }
+    return Number(returnValue)
+  }
+
+  makeChartOption(searchRange) {
+    let mainTitle = '';
+    let xAxisTitle = '';
+    let yAxisTitle = '';
+    switch (searchRange.searchType) {
+      case 'year':
+        xAxisTitle = '시간(년)'
+        yAxisTitle = '발전량(MWh)'
+        break;
+      case 'month':
+        xAxisTitle = '시간(월)'
+        yAxisTitle = '발전량(kWh)'
+        break;
+      case 'day':
+        xAxisTitle = '시간(일)'
+        yAxisTitle = '발전량(kWh)'
+        break;
+      case 'hour':
+        xAxisTitle = '시간(시)'
+        yAxisTitle = '발전량(Wh)'
+        break;
+      default:
+        break;
+    }
+
+    if (searchRange.rangeEnd !== '') {
+      mainTitle = `[ ${searchRange.rangeStart} ~ ${searchRange.rangeEnd} ]`;
+    } else {
+      mainTitle = `[ ${searchRange.rangeStart} ]`;
+    }
+    return {
+      mainTitle,
+      xAxisTitle,
+      yAxisTitle
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -176,7 +403,7 @@ class BiModule extends bmjh.BM {
     ORDER BY connector_seq, writedate
     `;
 
-    return this.db.single(sql, '', true)
+    return this.db.single(sql)
       .then(result => {
         return {
           range,
@@ -380,7 +607,7 @@ class BiModule extends bmjh.BM {
     let betweenDatePointObj = BU.getBetweenDatePoint(strEndDate, strStartDate, searchType);
     // BU.CLI(betweenDatePointObj)
 
-    return this.db.single(sql, '', true)
+    return this.db.single(sql)
       // return this.db.single(sql)
       .then(result => {
         return {
@@ -388,124 +615,6 @@ class BiModule extends bmjh.BM {
           gridPowerInfo: result
         }
       });
-  }
-
-
-  /**
-   * 접속반, Relation, trend를 융합하여 chart data 를 뽑아냄
-   * @param {Object} connectorInfo 
-   * @param {Array} relationInfo 
-   * @param {Array} connectorHistory 
-   */
-  processReportByConnector(connectorInfo = {
-    ch_number,
-    connector_seq
-  }, relationInfo, connectorHistory = {
-    betweenDatePointObj,
-    gridPowerInfo
-  }, searchRange) {
-    BU.CLI('processModulePowerTrend', searchRange)
-    // 트렌드를 구할 모듈 정보 초기화
-    let moudlePowerReport = [];
-    let hasData = false; // 데이터가 있는지 없는지
-    for (let cnt = 1; cnt <= connectorInfo.ch_number; cnt++) {
-      let moduleInfo = _.findWhere(relationInfo, {
-        connector_seq: connectorInfo.connector_seq,
-        channel: cnt
-      });
-      let addObj = {};
-      addObj.id = `id_${moduleInfo.connector_seq}_${cnt}`;
-      addObj.name = `CH_${cnt} ${moduleInfo.target_name}`;
-      addObj.group_date = [];
-      addObj.data = []
-      moudlePowerReport.push(addObj);
-    }
-
-    // 검색 기간 만큼 반복
-    connectorHistory.betweenDatePointObj.fullTxtPoint.forEach((strDateFormat, ftpIndex) => {
-      // dateFormat 이 같은 데이터 추출
-      let findGridObj = _.findWhere(connectorHistory.gridPowerInfo, {
-        group_date: strDateFormat
-      });
-      // 같은 데이터가 없다면 빈 데이터 삽입
-      if (_.isEmpty(findGridObj)) {
-        moudlePowerReport.forEach(element => {
-          element.data.push('');
-        });
-      } else {
-        // 정의된 접속반 연결 채널 수 만큼 반복
-        for (let cnt = 1; cnt <= connectorInfo.ch_number; cnt++) {
-          // 고유 채널명 정의
-          let targetId = `id_${findGridObj.connector_seq}_${cnt}`;
-          // 고유 채널과 일치하는 moudlePowerReport 객체 찾아옴
-          let findPowerReport = _.findWhere(moudlePowerReport, {
-            id: targetId
-          });
-          // 해당 데이터 삽입
-          let totalPower = findGridObj[`total_ch_wh_${cnt}`];
-          hasData = totalPower ? true : hasData; // 데이터가 한개라면 있다면 true
-          switch (searchRange.searchType) {
-            case 'year':
-              totalPower = (totalPower / 1000 / 1000).toFixed(4);
-              break;
-            case 'month':
-              totalPower = (totalPower / 1000).toFixed(3);
-              break;
-            case 'day':
-              totalPower = (totalPower / 1000).toFixed(3);
-              break;
-            case 'hour':
-              break;
-            default:
-              break;
-          }
-          // BU.CLI('totalPower',totalPower)
-          findPowerReport.data.push(Number(totalPower));
-        }
-      }
-    });
-
-    let mainTitle = '';
-    let xAxisTitle = '';
-    let yAxisTitle = '';
-    switch (searchRange.searchType) {
-      case 'year':
-        xAxisTitle = '시간(년)'
-        yAxisTitle = '발전량(MWh)'
-        break;
-      case 'month':
-        xAxisTitle = '시간(월)'
-        yAxisTitle = '발전량(kWh)'
-        break;
-      case 'day':
-        xAxisTitle = '시간(일)'
-        yAxisTitle = '발전량(kWh)'
-        break;
-      case 'hour':
-        xAxisTitle = '시간(시)'
-        yAxisTitle = '발전량(Wh)'
-        break;
-      default:
-        break;
-    }
-
-    if (searchRange.rangeEnd !== '') {
-      mainTitle = `[ ${searchRange.rangeStart} ~ ${searchRange.rangeEnd} ]`;
-    } else {
-      mainTitle = `[ ${searchRange.rangeStart} ]`;
-    }
-
-    // BU.CLI('moudlePowerReport', moudlePowerReport);
-    return {
-      hasData,
-      chartOptionInfo: {
-        mainTitle,
-        xAxisTitle,
-        yAxisTitle,
-        columnList: connectorHistory.betweenDatePointObj.shortTxtPoint
-      },
-      series: moudlePowerReport
-    };
   }
 
   /**
@@ -516,7 +625,7 @@ class BiModule extends bmjh.BM {
    * @return {Object} {startDate, endDate}
    */
   getSearchRange(searchType, start_date, end_date) {
-    BU.CLIS(searchType, start_date, end_date)
+    // BU.CLIS(searchType, start_date, end_date)
     let startDate = start_date ? BU.convertTextToDate(start_date) : new Date();
     let endDate = searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : new Date(startDate);
 
@@ -572,7 +681,7 @@ class BiModule extends bmjh.BM {
       SELECT 
       inverter_seq,
       writedate, 
-      DATE_FORMAT(writedate,'%H:%i:%S') AS hour_time,
+      DATE_FORMAT(writedate,'%H') AS hour_time,
       ROUND(in_a / 10, 1) AS in_a,
       ROUND(in_v / 10, 1) AS in_v,
       ROUND(in_w / 10, 1) AS in_w,

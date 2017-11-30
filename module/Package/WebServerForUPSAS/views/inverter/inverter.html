@@ -176,6 +176,7 @@
        
       });
       $(function () {
+        var chartDataObj = <%- JSON.stringify (chartDataObj) %>;
         let yMax = 1500;
 
         $('#chart_div').highcharts({
@@ -185,15 +186,15 @@
           xAxis: {
             // opposite: true,
             title: {
-              text: '시간(Time)'
+              text: '시간(Hour)'
             },
             // tickInterval: 6
-            categories: _.range(24)
+            categories: chartDataObj.range
           },
           yAxis: {
             max: yMax,
             title: {
-              text: '전력(Wh)'
+              text: '전력(wh)'
             }
           },
           plotOptions: {
@@ -207,7 +208,10 @@
             verticalAlign: 'middle',
             borderWidth: 0,
           },
-          series : <%- JSON.stringify (chartDataObj.series) %>
+          series : chartDataObj.series,
+          credits: {
+            enabled: false
+          },
         });
       });
     </script>

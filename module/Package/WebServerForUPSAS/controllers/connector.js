@@ -28,7 +28,12 @@ module.exports = function (app) {
     // 접속반에 물려있는 모듈 seq 정의
     let moduleSeqList = _.sortBy(_.pluck(connectorList[connector_seq], 'photovoltaic_seq'), 'connector_ch');
     // 모듈 현황
-    let moduleStatusList = await biModule.getTable('v_module_status', 'photovoltaic_seq', moduleSeqList, true);
+    let moduleStatusList = await biModule.getTable('v_module_status', 'photovoltaic_seq', moduleSeqList);
+    moduleStatusList = _.map(moduleStatusList, moduleStatus => {
+      let findObj = _.findWhere(upsasProfile, {photovoltaic_seq: moduleStatus.photovoltaic_seq})
+      moduleStatus.modulePlace = findObj.sb_target_name ? findObj.sb_target_name : '외부';
+      return moduleStatus;
+    })
     // 금일 접속반 발전량 현황
     let todayModuleReport = await biModule.getModuleReportForConnector(moduleSeqList);
     todayModuleReport = _.groupBy(todayModuleReport, 'photovoltaic_seq');
@@ -41,13 +46,13 @@ module.exports = function (app) {
         data: []
       };
       let upsasInfo = _.findWhere(upsasProfile, {
-        photovoltaic_seq: moduleKey
+        photovoltaic_seq: Number(moduleKey) 
       });
       if (_.isEmpty(upsasInfo)) {
         return addObj;
       }
       addObj.name = `CH_${upsasInfo.connector_ch} ${upsasInfo.pv_target_name}`
-      addObj.data = _.pluck(moduleDataObj, 'wh');
+      addObj.data = _.pluck(moduleDataObj, 'amp');
       chartRange = _.pluck(moduleDataObj, 'hour_time');
       return addObj;
     })
@@ -57,14 +62,17 @@ module.exports = function (app) {
       series: reportSeries
     }
 
+    let totalAmp = _.reduce(_.pluck(moduleStatusList, 'amp'), (accumulator, currentValue) => accumulator + currentValue).scale(1, 1);
+    let vol = (_.reduce(_.pluck(moduleStatusList, 'vol'), (accumulator, currentValue) => (accumulator + currentValue) / 2)).scale(1, 1);
 
-    // return;
-    let ampList = _.pluck(moduleStatusList, 'amp');
-    let volList = _.pluck(moduleStatusList, 'vol');
-
-    let totalAmp = _.reduce(ampList, (accumulator, currentValue) => accumulator + currentValue);
-    let vol = _.reduce(volList, (accumulator, currentValue) => accumulator + currentValue) / volList.length;
-
+    connectorList = _.map(connectorList, (moduleStatusList, cntSeq) => {
+      let findObj = _.findWhere(upsasProfile, {connector_seq: Number(cntSeq)})
+      
+      return {
+        connector_seq: Number(cntSeq),
+        cntName: findObj.cnt_target_name
+      };
+    });
     // 접속반 리스트
     req.locals.connectorList = connectorList;
     req.locals.connector_seq = connector_seq;
@@ -82,7 +90,6 @@ module.exports = function (app) {
 
     return res.render('./connector/connect.html', req.locals);
   }));
-
 
   router.use(wrap(async(err, req, res, next) => {
     console.trace(err);

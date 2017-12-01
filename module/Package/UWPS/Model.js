@@ -53,6 +53,15 @@ class Model {
       if (_.isEmpty(refineData)) {
         return;
       }
+
+      let measureHour = measureTime.getHours();
+      let measureMin = measureTime.getMinutes();
+
+      // 자정일 경우에는 d_wh를 강제로 초기화 한다
+      if(measureHour === 0 && measureMin === 0){
+        refineData.d_wh = 0;
+      }
+
       // BU.CLI(measureTime)
       refineData.writedate = BU.convertDateToText(measureTime);
       measureInverterDataList.push(refineData);

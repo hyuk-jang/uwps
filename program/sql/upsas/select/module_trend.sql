@@ -3,7 +3,7 @@ SELECT
 	DATE_FORMAT(writedate,"%Y-%m-%d") AS group_date,
 	ROUND(SUM(avg_amp), 1) AS total_amp,
 	ROUND(AVG(avg_vol), 1) AS avg_vol,
-	ROUND(SUM(avg_amp) * AVG(avg_vol), 1) AS wh
+	ROUND(SUM(avg_amp) * AVG(avg_vol), 1) AS total_wh
 	FROM
 	(
 	SELECT

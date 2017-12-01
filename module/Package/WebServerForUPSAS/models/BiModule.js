@@ -114,7 +114,7 @@ class BiModule extends bmjh.BM {
    * 접속반에서 쓸 데이터 
    * @param {} moduleSeq null, String, Array
    */
-  getModuleReportForConnector(moduleSeq) {
+  getTodayConnectorReport(moduleSeq) {
     let sql = `
       SELECT
         md.photovoltaic_seq,
@@ -135,38 +135,36 @@ class BiModule extends bmjh.BM {
     return this.db.single(sql);
   }
 
-  getModuleTrendByConnector(moduleSeq, searchRange) {
-    let searchType = searchRange.searchType;
-    let strStartDate = searchRange.strStartDate;
-    let strEndDate = searchRange.strEndDate;
-
-    let startDate = new Date(strStartDate);
-    let endDate = new Date(strEndDate);
-
-    // TEST
-    // endtDate = new Date('2017-11-16');
-    // strEndDate = BU.convertDateToText(endtDate)
-    // TEST
-
-    // BU.CLI(searchRange)
 
 
-    // 기간 검색일 경우 시작일과 종료일의 날짜 차 계산하여 searchType 정의
-    if (searchType === 'range') {
-      let gapDate = BU.calcDateInterval(strEndDate, strStartDate);
-      // remainDay + remainHour + remainMin + remainSec
-      let sumValues = Object.values(gapDate).sum();
-      if (gapDate.remainDay >= 365) {
-        searchRange.searchType = searchType = 'year';
-      } else if (gapDate.remainDay > 29) {
-        searchRange.searchType = searchType = 'month';
-      } else if (gapDate.remainDay > 0 && sumValues > 1) {
-        searchRange.searchType = searchType = 'day';
-      } else {
-        searchRange.searchType = searchType = 'hour';
-      }
+  /**
+   * 종료일과 시작일 사이의 간격을 기준으로 조회 Interval Text 구함
+   * @param {String} strEndDate 
+   * @param {String} strStartDate 
+   * @return {String} searchType
+   */
+  convertSearchTypeWithCompareDate(strEndDate, strStartDate) {
+    let searchType = '';
+    let gapDate = BU.calcDateInterval(strEndDate, strStartDate);
+    let sumValues = Object.values(gapDate).sum();
+    if (gapDate.remainDay >= 365) {
+      searchType = 'year';
+    } else if (gapDate.remainDay > 29) {
+      searchType = 'month';
+    } else if (gapDate.remainDay > 0 && sumValues > 1) {
+      searchType = 'day';
+    } else {
+      searchType = 'hour';
     }
+    return searchType;
+  }
 
+  /**
+   * searchType을 받아 dateFormat String 변환하여 반환
+   * @param {String} searchType 
+   * @return {String} dateFormat
+   */
+  convertSearchType2DateFormat(searchType) {
     let dateFormat = '';
     switch (searchType) {
       case 'year':
@@ -185,6 +183,38 @@ class BiModule extends bmjh.BM {
         dateFormat = '%Y-%m';
         break;
     }
+    return dateFormat;
+  }
+
+
+  /**
+   * 모듈 Seq List와 SearchRange 객체를 받아 Report 생성 및 반환
+   * @param {Array} moduleSeqList [photovoltaic_seq]
+   * @param {Object} searchRange getSearchRange() Return 객체
+   * @return {Object} {betweenDatePointObj, gridPowerInfo}
+   */
+  getModuleReport(moduleSeqList, searchRange) {
+    let searchType = searchRange.searchType;
+    let strStartDate = searchRange.strStartDate;
+    let strEndDate = searchRange.strEndDate;
+
+    let startDate = new Date(strStartDate);
+    let endDate = new Date(strEndDate);
+
+    // TEST
+    // endtDate = new Date('2017-11-16');
+    // strEndDate = BU.convertDateToText(endtDate)
+    // TEST
+
+    // BU.CLI(searchRange)
+
+
+    // 기간 검색일 경우 시작일과 종료일의 날짜 차 계산하여 searchType 정의
+    if (searchType === 'range') {
+      searchRange.searchType = searchType = this.convertSearchTypeWithCompareDate(strEndDate, strStartDate);
+    }
+
+    let dateFormat = this.convertSearchType2DateFormat(searchType);
 
     let sql = `
       SELECT
@@ -204,8 +234,8 @@ class BiModule extends bmjh.BM {
           FROM module_data md
         WHERE writedate>= "${strStartDate}" and writedate<"${strEndDate}"
     `;
-    if (moduleSeq.length) {
-      sql += `AND photovoltaic_seq IN (${moduleSeq})`
+    if (moduleSeqList.length) {
+      sql += `AND photovoltaic_seq IN (${moduleSeqList})`
     }
     sql += `
         GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), photovoltaic_seq
@@ -216,9 +246,9 @@ class BiModule extends bmjh.BM {
 
     let betweenDatePointObj = BU.getBetweenDatePoint(strEndDate, strStartDate, searchType);
     // BU.CLI(betweenDatePointObj)
-
     // return this.db.single(sql, '', true)
-      return this.db.single(sql)
+
+    return this.db.single(sql)
       .then(result => {
         let groupByResult = _.groupBy(result, 'photovoltaic_seq')
 
@@ -230,12 +260,83 @@ class BiModule extends bmjh.BM {
   }
 
   /**
+   * 인버터 Report
+   * @param {Array} inverter_seq [inverter_seq]
+   * @param {Object} searchRange getSearchRange() Return 객체
+   * @return {Object} {betweenDatePointObj, gridPowerInfo}
+   */
+  async getInverterReport(inverter_seq, searchRange) {
+
+    let dateFormat = this.convertSearchType2DateFormat(searchRange.searchType);
+    
+    let sql = `
+      SELECT *,
+      ROUND(SUM(c_wh), 1) AS total_c_wh
+  FROM
+    (SELECT inverter_seq
+        ,DATE_FORMAT(writedate,"${dateFormat}") AS group_date
+        ,ROUND(AVG(avg_in_a), 1) AS avg_in_a
+        ,ROUND(AVG(avg_in_v), 1) AS avg_in_v
+        ,ROUND(AVG(in_wh), 1) AS avg_in_wh
+        ,ROUND(AVG(avg_out_a), 1) AS avg_out_a
+        ,ROUND(AVG(avg_out_v), 1) AS avg_out_v
+        ,ROUND(AVG(out_wh), 1) AS avg_out_wh
+        ,ROUND(AVG(avg_p_f), 1) AS avg_p_f
+        ,ROUND(SUM(d_wh), 1) AS sum_d_wh
+        ,ROUND(MAX(c_wh), 1) AS c_wh
+    FROM
+      (SELECT id.inverter_seq,
+          writedate,
+          AVG(in_a / 10) AS avg_in_a,
+          AVG(in_v / 10) AS avg_in_v,
+          AVG(in_w / 10) AS in_wh,
+          AVG(out_a / 10) AS avg_out_a,
+          AVG(out_v / 10) AS avg_out_v,
+          AVG(out_w / 10) AS out_wh,
+          AVG(p_f / 10) AS avg_p_f,
+          AVG(out_a) * AVG(out_v) AS d_wh,
+          MAX(c_wh / 10) AS c_wh,
+          DATE_FORMAT(writedate,"%H") AS hour_time
+      FROM inverter_data id
+            WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
+
+    `;
+    if (inverter_seq !== 'all') {
+      sql += `AND inverter_seq = ${inverter_seq}`
+    }
+    sql += `            
+    GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), inverter_seq
+    ORDER BY inverter_seq, writedate) AS id_group
+  GROUP BY inverter_seq, DATE_FORMAT(writedate,"${dateFormat}")
+  ) AS id_report
+      GROUP BY DATE_FORMAT(group_date,"${dateFormat}")
+      ORDER BY group_date DESC
+    `;
+
+    // 총 갯수 구하는 Query 생성
+    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`
+    // Report 가져오는 Query 생성
+    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * 10}, ${(searchRange.page) * 10}`
+
+    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
+    let totalCount = resTotalCountQuery[0].total_count;
+
+    let resMainQuery = await this.db.single(mainQuery, '', false)
+
+    return {
+      totalCount: totalCountQuery[0].total_count,
+      report: resMainQuery
+    }
+  }
+
+
+  /**
    * 접속반, Relation, trend를 융합하여 chart data 를 뽑아냄
    * @param {Object} connectorInfo 
    * @param {Array} upsasProfile 
    * @param {Array} moduleReportList 
    */
-  processTrendByConnector(upsasProfile, moduleReportList, searchRange) {
+  processModuleReport(upsasProfile, moduleReportList, searchRange) {
     // BU.CLI('processTrendByConnector', searchRange)
     // 트렌드를 구할 모듈 정보 초기화
     let trendReportList = [];
@@ -277,6 +378,8 @@ class BiModule extends bmjh.BM {
       series: trendReportList
     };
   }
+
+
 
 
   /**

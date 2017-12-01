@@ -33,9 +33,9 @@ module.exports = function (app) {
     })
     moduleSeqList = _.union(moduleSeqList);
 
-    let moduleReportList = await biModule.getModuleTrendByConnector(moduleSeqList, searchRange)
+    let moduleReportList = await biModule.getModuleReport(moduleSeqList, searchRange)
 
-    let trendReportList = await biModule.processTrendByConnector(upsasProfile, moduleReportList, searchRange);
+    let trendReportList = await biModule.processModuleReport(upsasProfile, moduleReportList, searchRange);
     connectorList.unshift({
       connector_seq: 'all',
       target_name: '모두'

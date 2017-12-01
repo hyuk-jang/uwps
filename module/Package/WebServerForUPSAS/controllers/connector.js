@@ -35,7 +35,7 @@ module.exports = function (app) {
       return moduleStatus;
     })
     // 금일 접속반 발전량 현황
-    let todayModuleReport = await biModule.getModuleReportForConnector(moduleSeqList);
+    let todayModuleReport = await biModule.getTodayConnectorReport(moduleSeqList);
     todayModuleReport = _.groupBy(todayModuleReport, 'photovoltaic_seq');
 
     // 차트 데이터로 변환

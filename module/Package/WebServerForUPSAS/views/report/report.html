@@ -39,26 +39,40 @@
       <div class="row row_st_line">
         <div class="row row_width" style="margin-bottom:20px;">
           <div class="col-xs-2">
-            <select class="form-control form-control_st" id="sel1" name="connector_seq">
-              <option value="모두" class="">모두</option>
-              <option value="인버터1" class="">인버터 1</option>
-              <option value="인버터2" class="">인버터 2</option>
+            <select class="form-control form-control_st" id="ivt_list_sel" name="connector_seq">
+              <%
+                        for(var i = 0 ; i < inverterList.length ; i++){
+                            var inverterInfo = inverterList[i];
+                            var ivtSeq = inverterInfo.inverter_seq;
+                            var ivtName = inverterInfo.target_name;
+                            var selected = '';
+                            if(ivtSeq === inverter_seq){
+                              selected = 'selected';
+                            }
+                          %>
+                <option <%=selected %> value='
+                  <%= ivtSeq %>'>
+                    <%= ivtName %>
+                </option>
+                <%
+                        }
+                        %>
             </select>
           </div>
           <div class="col-xs-5">
 
             <div class="input_st" style="display:inline-block; width:230px; padding-left:28px; padding-right:15px; margin-left:30px;">
               <span style="float:left; line-height:2; margin-right:10px; ">조회간격</span>
-              <select class="form-control" id="sel1" style="width:100px; margin-top:-2px; height:30px; padding: 4px 12px;">
-                <option>1시간</option>
-                <option>1일</option>
-                <option>1달</option>
-                <option>1년</option>
+              <select class="form-control" id="search_interval_sel" style="width:100px; margin-top:-2px; height:30px; padding: 4px 12px;">
+                <option value="hour">1시간</option>
+                <option value="day">1일</option>
+                <option value="month">1달</option>
+                <option value="year">1년</option>
               </select>
             </div>
 
 
-            <div class="input_st col-xs-5" id="selectTypeArea">
+            <div id="sel_type_div_area" class="input_st">
               <label class="radio-inline">
                 <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="hour">일일</label>
               <label class="radio-inline">
@@ -69,441 +83,87 @@
                 <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="range">기간선택</label>
             </div>
           </div>
-
-
           <div class="col-xs-5 serch_st">
             날짜 &nbsp;
-            <input class="input_tre" name="kW" type="text" value="2017-03-14"> ~
-            <input class="input_tre" name="kW" type="text" value="2017-03-14">
-            <button type="button" class="btn btn-primary" style="margin-bottom:3px; height:28px;">검색</button>
+            <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
+            <input class="input_tre" name="end" id="end_date_input" type="text" readonly hidden="hidden">
+            <button type="button" class="btn btn-primary" onclick="searchReport()" style="margin-bottom:3px; height:28px;" id="search">검색</button>
+
           </div>
 
 
         </div>
 
         <div class="table-responsive row_width">
-          <table class="table table-hover" style="border-bottom:1px solid #ddd;">
+
+          <table class="tbl_va_middle table table-hover" style="border-bottom:1px solid #ddd;">
+            <colgroup>
+              <col style="width:6%">
+              <col style="width:14%">
+              <col style="width:8%">
+              <col style="width:8%">
+              <col style="width:8%">
+              <col style="width:8%">
+              <col style="width:8%">
+              <col style="width:8%">
+              <col style="width:8%">
+              <col style="width:8%">
+              <col style="width:8%">
+              <col style="width:8%">
+            </colgroup>
             <thead>
               <tr class="report_table">
-                <th rowspan="2" style="width:5%; vertical-align:middle">번호</th>
-                <th rowspan="2" style="width:12%; vertical-align:middle">일시</th>
-                <th colspan="2" style="width:6%;">수중모듈1 (1CH)</th>
-                <th colspan="2" style="width:6%;">수중모듈2 (2CH)</th>
-                <th colspan="2" style="width:6%;">수중모듈3 (3CH)</th>
-                <th colspan="2" style="width:6%;">수중모듈4 (4CH)</th>
-                <th rowspan="2" style="width:7%; vertical-align:middle">발전량(kWh)</th>
-                <th rowspan="2" style="width:7%; vertical-align:middle">변환효율(%)</th>
-                <th rowspan="2" style="width:7%; vertical-align:middle">대기온도(℃)</th>
-                <th rowspan="2" style="width:7%; vertical-align:middle">대기습도(%)</th>
-                <th rowspan="2" style="width:7%; vertical-align:middle">풍속(m/s)</th>
+                <th rowspan="2">번호</th>
+                <th rowspan="2">일시</th>
+                <th colspan="3">AC</th>
+                <th colspan="5">DC</th>
+                <th colspan="2">온도</th>
               </tr>
 
+
               <tr class="report_table">
-                <th style="width:6%;">전력량(wh)</th>
-                <th style="width:6%;">온도(℃)</th>
-                <th style="width:6%;">전력량(wh)</th>
-                <th style="width:6%;">온도(℃)</th>
-                <th style="width:6%;">전력량(wh)</th>
-                <th style="width:6%;">온도(℃)</th>
-                <th style="width:6%;">전력량(wh)</th>
-                <th style="width:6%;">온도(℃)</th>
+                <th>전압(V)</th>
+                <th>전류(A)</th>
+                <th>출력(wh)</th>
+                <th>전압(V)</th>
+                <th>전류(A)</th>
+                <th>전력(wh)</th>
+                <th>기간발전량(wh)</th>
+                <th>누적발전량(wh)</th>
+                <th>역률(%)</th>
+                <th>모듈(℃)</th>
+                <th>외기(℃)</th>
               </tr>
 
 
 
             </thead>
             <tbody id="myTable">
-              <tr class="sel">
-                <td class="td1 td1_num">1</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">2</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">3</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">4</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">5</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">6</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">7</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">8</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">9</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">10</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">11</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">12</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">13</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">14</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">15</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">16</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">17</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">18</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">19</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">20</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">21</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">22</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
-              <tr class="sel">
-                <td class="td1 td1_num">23</td>
-                <td>17-03-14 11:00</td>
-                <td>675</td>
-                <td>8.2</td>
-                <td>653</td>
-                <td>8.2</td>
-                <td>676</td>
-                <td>8.2</td>
-                <td>702</td>
-                <td>8.2</td>
-                <td>11.6</td>
-                <td>97.3</td>
-                <td>8.2</td>
-                <td>78.3</td>
-                <td>5.5</td>
-              </tr>
+              <%  
+                for(let index = 0; index < reportList; index ++){
+                  
+                  let reportInfo = reportList[index];
+                  let count = index + 1;
+              %>
+                <tr class="sel">
+                  <td class="td1 td1_num"><%= count %></td>
+                  <td><%= reportInfo.group_date %></td>
+                  <td><%= reportInfo.avg_in_v %></td>
+                  <td><%= reportInfo.avg_in_a %></td>
+                  <td><%= reportInfo.avg_in_wh %></td>
+                  <td><%= reportInfo.avg_out_v %></td>
+                  <td><%= reportInfo.avg_out_a %></td>
+                  <td><%= reportInfo.avg_out_wh %></td>
+                  <td><%= reportInfo.sum_d_wh %></td>
+                  <td><%= reportInfo.total_c_wh %></td>
+                  <td><%= reportInfo.avg_p_f %></td>
+                  <td>11</td>
+                  <td>11</td>
+                </tr>
+
+                <%
+            }
+            %>
 
             </tbody>
           </table>
@@ -517,28 +177,92 @@
 
 
       </div>
+      <%- include("../master/footer.html") %>
+        </div>
 
-      <div style="margin:0 auto; margin-top:70px; text-align: center;">
+        <!-- 기본 데이터 세팅 -->
+        <script>
+          // 초기 시작시 라디오 체크버튼 클릭처리
+          let searchRange = <%- JSON.stringify(searchRange)  %>;
+          let trendReportList = '';
 
-        <p style="font-size: 13px;"> COPYRIGHT 2005. 에스엠소프트웨어(주) ALL RIGHTS RESERVED.</p>
-      </div>
+          $(document).ready(() => {
+            console.log('searchRange', searchRange, trendReportList)
+            let selectedObj = document.querySelector(`#sel_type_div_area input[value=${searchRange.searchType}]`)
+            $(selectedObj).trigger('click');
+          })
 
-    </div>
+
+          /**
+           * 검색 기간 Radio 클릭 시 날짜 영역 설정
+           * @param {Dom} input[name='searchType']
+           * @return {void} 
+           */
+          function setterSelectType(target) {
+            let checkedSearchType = target.value;
+            let startDateDom = document.querySelector('#start_date_input');
+            let endDateDom = document.querySelector('#end_date_input');
+
+            let startDate = new Date(searchRange.strStartDateInputValue);
+            let endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
+              'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
+
+            let viewMode = 0;
+            let sliceEndIndex = 10;
+
+            checkedSearchType === 'range' ? $('#end_date_input').show() : $('#end_date_input').hide();
+
+            if (checkedSearchType == 'month') {
+              viewMode = 2;
+              sliceEndIndex = 4;
+            } else if (checkedSearchType == 'day') {
+              viewMode = 1;
+              sliceEndIndex = 7;
+            } else if (checkedSearchType == 'range') {
+              makeDatePicker(endDateDom, 0);
+              endDateDom.value = endDate.toISOString().substring(0, sliceEndIndex);
+            } else {
+              viewMode = 0;
+              sliceEndIndex = 10;
+            }
+            startDateDom.value = startDate.toISOString().substring(0, sliceEndIndex);
+            makeDatePicker(startDateDom, 0);
+          }
+
+          // 검색 클릭 시
+          function searchReport() {
+            let inverter_seq = document.querySelector('#ivt_list_sel option:checked').value;
+            let searchInterval = document.querySelector('#search_interval_sel option:checked').value;
+            let searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
+            let startDate = document.getElementById('start_date_input').value;
+            let endDate = '';
+
+            if (searchType === 'range') {
+              endDate = document.getElementById('end_date_input').value;
+              if (startDate > endDate) {
+                return alert('종료일이 시작일보다 빠를 수 없습니다.');
+              }
+            }
+
+            return location.href =
+              `/report?inverter_seq=${inverter_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}&search_interval=${searchInterval}&page=${searchRange.page}`;
+          }
+        </script>
 
 
 
 
-    <script type="text/javascript">
-      $(document).ready(function () {
-        $(".sel").each(function () {
-          $(this).click(function () {
-            $(this).addClass("selected"); //클릭된 부분을 상단에 정의된 CCS인 selected클래스로 적용
-            $(this).siblings().removeClass("selected"); //siblings:형제요소들,    removeClass:선택된 클래스의 특성을 없앰
+        <script type="text/javascript">
+          $(document).ready(function () {
+            $(".sel").each(function () {
+              $(this).click(function () {
+                $(this).addClass("selected"); //클릭된 부분을 상단에 정의된 CCS인 selected클래스로 적용
+                $(this).siblings().removeClass("selected"); //siblings:형제요소들,    removeClass:선택된 클래스의 특성을 없앰
+              });
+            });
           });
-        });
-      });
-    </script>
-    <script src="js/pager.js"></script>
+        </script>
+        <script src="js/pager.js"></script>
 </body>
 
 </html>

@@ -222,3 +222,6 @@ table>tbody>tr:last-child{border-bottom:1px solid #ddd;}
   
 
 .zoom_st_in>p{color:#fff; width:50px; font-size:14px; float:left; padding-top:5px; margin-bottom:0; margin-left:10px;}
+
+
+.tbl_va_middle > thead > tr > th {vertical-align: middle}

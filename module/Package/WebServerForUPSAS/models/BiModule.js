@@ -268,10 +268,10 @@ class BiModule extends bmjh.BM {
   async getInverterReport(inverter_seq, searchRange) {
 
     let dateFormat = this.convertSearchType2DateFormat(searchRange.searchType);
-    
+
     let sql = `
       SELECT *,
-      ROUND(SUM(c_wh), 1) AS total_c_wh
+      ROUND(SUM(c_wh) / 1000 / 1000, 3) AS total_c_wh
   FROM
     (SELECT inverter_seq
         ,DATE_FORMAT(writedate,"${dateFormat}") AS group_date
@@ -282,7 +282,7 @@ class BiModule extends bmjh.BM {
         ,ROUND(AVG(avg_out_v), 1) AS avg_out_v
         ,ROUND(AVG(out_wh), 1) AS avg_out_wh
         ,ROUND(AVG(avg_p_f), 1) AS avg_p_f
-        ,ROUND(SUM(d_wh), 1) AS sum_d_wh
+        ,ROUND(SUM(d_wh) / 1000, 2) AS sum_d_kwh
         ,ROUND(MAX(c_wh), 1) AS c_wh
     FROM
       (SELECT id.inverter_seq,
@@ -301,6 +301,7 @@ class BiModule extends bmjh.BM {
             WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
 
     `;
+    BU.CLI(inverter_seq)
     if (inverter_seq !== 'all') {
       sql += `AND inverter_seq = ${inverter_seq}`
     }
@@ -318,13 +319,12 @@ class BiModule extends bmjh.BM {
     // Report 가져오는 Query 생성
     let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * 10}, ${(searchRange.page) * 10}`
 
-    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
+    let resTotalCountQuery = await this.db.single(totalCountQuery, '', true);
     let totalCount = resTotalCountQuery[0].total_count;
-
     let resMainQuery = await this.db.single(mainQuery, '', false)
 
     return {
-      totalCount: totalCountQuery[0].total_count,
+      totalCount,
       report: resMainQuery
     }
   }

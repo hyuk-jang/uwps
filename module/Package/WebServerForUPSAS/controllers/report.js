@@ -18,14 +18,15 @@ module.exports = function (app) {
 
   // Get
   router.get('/', wrap(async(req, res) => {
-    BU.CLI('report', req.locals);
-    let param_inverter_seq = req.query.inverter_seq == null ? 'all' : Number(req.query.inverter_seq);
+    BU.CLI('report', req.locals, req.query);
+    let param_inverter_seq = req.query.inverter_seq == null || req.query.inverter_seq === 'all' ? 'all' : Number(req.query.inverter_seq);
     let param_page = req.query.page || 1;
     // 조회 간격
     let searchInterval = req.query.search_interval ? req.query.search_interval : 'hour';
     // 조회 범위
     let searchType = req.query.search_type ? req.query.search_type : 'hour';
     // 조회 객체 정의
+    BU.CLIS(searchType, req.query.start_date, req.query.end_date)
     let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
     searchRange.searchInterval = searchInterval;
     searchRange.searchType = searchType;

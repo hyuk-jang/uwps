@@ -15,6 +15,7 @@
   <link href="css/StyleSheet.css" rel="stylesheet" />
 
   <script src="js/jquery-3.1.1.min.js"></script>
+  <script src="js/common-html/date-picker.js"></script>
 
 </head>
 
@@ -98,8 +99,8 @@
 
           <table class="tbl_va_middle table table-hover" style="border-bottom:1px solid #ddd;">
             <colgroup>
-              <col style="width:6%">
-              <col style="width:14%">
+              <col style="width:4%">
+              <col style="width:10%">
               <col style="width:8%">
               <col style="width:8%">
               <col style="width:8%">
@@ -109,14 +110,15 @@
               <col style="width:8%">
               <col style="width:8%">
               <col style="width:8%">
-              <col style="width:8%">
+              <col style="width:7%">
+              <col style="width:7%">
             </colgroup>
             <thead>
               <tr class="report_table">
                 <th rowspan="2">번호</th>
                 <th rowspan="2">일시</th>
                 <th colspan="3">AC</th>
-                <th colspan="5">DC</th>
+                <th colspan="6">DC</th>
                 <th colspan="2">온도</th>
               </tr>
 
@@ -128,8 +130,8 @@
                 <th>전압(V)</th>
                 <th>전류(A)</th>
                 <th>전력(wh)</th>
-                <th>기간발전량(wh)</th>
-                <th>누적발전량(wh)</th>
+                <th>기간발전량(kWh)</th>
+                <th>누적발전량(MWh)</th>
                 <th>역률(%)</th>
                 <th>모듈(℃)</th>
                 <th>외기(℃)</th>
@@ -140,9 +142,9 @@
             </thead>
             <tbody id="myTable">
               <%  
-                for(let index = 0; index < reportList; index ++){
+                for(let index = 0; index < reportList.report.length; index++){
                   
-                  let reportInfo = reportList[index];
+                  let reportInfo = reportList.report[index];
                   let count = index + 1;
               %>
                 <tr class="sel">
@@ -154,7 +156,7 @@
                   <td><%= reportInfo.avg_out_v %></td>
                   <td><%= reportInfo.avg_out_a %></td>
                   <td><%= reportInfo.avg_out_wh %></td>
-                  <td><%= reportInfo.sum_d_wh %></td>
+                  <td><%= reportInfo.sum_d_kwh %></td>
                   <td><%= reportInfo.total_c_wh %></td>
                   <td><%= reportInfo.avg_p_f %></td>
                   <td>11</td>
@@ -226,12 +228,13 @@
               sliceEndIndex = 10;
             }
             startDateDom.value = startDate.toISOString().substring(0, sliceEndIndex);
-            makeDatePicker(startDateDom, 0);
+            makeDatePicker(startDateDom, viewMode);
           }
 
           // 검색 클릭 시
           function searchReport() {
             let inverter_seq = document.querySelector('#ivt_list_sel option:checked').value;
+            inverter_seq = inverter_seq.trim();
             let searchInterval = document.querySelector('#search_interval_sel option:checked').value;
             let searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
             let startDate = document.getElementById('start_date_input').value;
@@ -244,6 +247,9 @@
               }
             }
 
+            console.log(`/report?inverter_seq=${inverter_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}&search_interval=${searchInterval}&page=${searchRange.page}`)
+
+            // return;
             return location.href =
               `/report?inverter_seq=${inverter_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}&search_interval=${searchInterval}&page=${searchRange.page}`;
           }

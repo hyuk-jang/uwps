@@ -99,19 +99,19 @@
 
           <table class="tbl_va_middle table table-hover" style="border-bottom:1px solid #ddd;">
             <colgroup>
-              <col style="width:4%">
+              <col style="width:6%">
               <col style="width:10%">
-              <col style="width:8%">
-              <col style="width:8%">
-              <col style="width:8%">
-              <col style="width:8%">
-              <col style="width:8%">
-              <col style="width:8%">
-              <col style="width:8%">
-              <col style="width:8%">
-              <col style="width:8%">
               <col style="width:7%">
               <col style="width:7%">
+              <col style="width:7%">
+              <col style="width:7%">
+              <col style="width:7%">
+              <col style="width:7%">
+              <col style="width:10%">
+              <col style="width:10%">
+              <col style="width:7%">
+              <!-- <col style="width:7%">
+              <col style="width:7%"> -->
             </colgroup>
             <thead>
               <tr class="report_table">
@@ -119,7 +119,7 @@
                 <th rowspan="2">일시</th>
                 <th colspan="3">AC</th>
                 <th colspan="6">DC</th>
-                <th colspan="2">온도</th>
+                <!-- <th colspan="2">온도</th> -->
               </tr>
 
 
@@ -133,8 +133,8 @@
                 <th>기간발전량(kWh)</th>
                 <th>누적발전량(MWh)</th>
                 <th>역률(%)</th>
-                <th>모듈(℃)</th>
-                <th>외기(℃)</th>
+                <!-- <th>모듈(℃)</th>
+                <th>외기(℃)</th> -->
               </tr>
 
 
@@ -142,13 +142,14 @@
             </thead>
             <tbody id="myTable">
               <%  
-                for(let index = 0; index < reportList.report.length; index++){
+                var startListNum = (paginationInfo.page - 1) * paginationInfo.pageListCount;
+                for(let index = 0; index < reportList.length; index++){
                   
-                  let reportInfo = reportList.report[index];
+                  let reportInfo = reportList[index];
                   let count = index + 1;
               %>
                 <tr class="sel">
-                  <td class="td1 td1_num"><%= count %></td>
+                  <td class="td1 td1_num"><%= startListNum + count %></td>
                   <td><%= reportInfo.group_date %></td>
                   <td><%= reportInfo.avg_in_v %></td>
                   <td><%= reportInfo.avg_in_a %></td>
@@ -156,11 +157,11 @@
                   <td><%= reportInfo.avg_out_v %></td>
                   <td><%= reportInfo.avg_out_a %></td>
                   <td><%= reportInfo.avg_out_wh %></td>
-                  <td><%= reportInfo.sum_d_kwh %></td>
-                  <td><%= reportInfo.total_c_wh %></td>
+                  <td><%= reportInfo.total_s_kwh %></td>
+                  <td><%= reportInfo.total_c_mwh %></td>
                   <td><%= reportInfo.avg_p_f %></td>
-                  <td>11</td>
-                  <td>11</td>
+                  <!-- <td>11</td>
+                  <td>11</td> -->
                 </tr>
 
                 <%
@@ -170,9 +171,14 @@
             </tbody>
           </table>
 
-          <ul class="pagination pagination-lg pager" id="myPager">
+          <nav aria-label="...">
+            총 <%- paginationInfo.totalCount %> 건
+            page: <%- paginationInfo.page %> / <%- paginationInfo.maxPage %>
+            <%- paginationInfo.paginationDom %>
+          </nav>
+          <!-- <ul class="pagination pagination-lg pager" id="myPager">
 
-          </ul>
+          </ul> -->
 
         </div>
 
@@ -187,6 +193,15 @@
           // 초기 시작시 라디오 체크버튼 클릭처리
           let searchRange = <%- JSON.stringify(searchRange)  %>;
           let trendReportList = '';
+
+          let is = document.querySelectorAll('#search_interval_sel option');
+          is.forEach(dom => {
+            if(dom.getAttribute('value') === searchRange.searchInterval){
+              dom.selected = true;
+            } else {
+              dom.selected = false;
+            }
+          })
 
           $(document).ready(() => {
             console.log('searchRange', searchRange, trendReportList)
@@ -251,7 +266,7 @@
 
             // return;
             return location.href =
-              `/report?inverter_seq=${inverter_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}&search_interval=${searchInterval}&page=${searchRange.page}`;
+              `/report?inverter_seq=${inverter_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}&search_interval=${searchInterval}`;
           }
         </script>
 
@@ -268,7 +283,7 @@
             });
           });
         </script>
-        <script src="js/pager.js"></script>
+        <!-- <script src="js/pager.js"></script> -->
 </body>
 
 </html>

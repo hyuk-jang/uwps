@@ -2,39 +2,16 @@
 <html>
 
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>수중 태양광 발전 시스템</title>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
-  <!-- 위 3개의 메타 태그는 *반드시* head 태그의 처음에 와야합니다; 어떤 다른 콘텐츠들은 반드시 이 태그들 *다음에* 와야 합니다 -->
-
-  <!-- 부트스트랩 -->
-  <link href="css/bootstrap.min.css" rel="stylesheet" />
-
-  <script src="js/jquery-3.1.1.min.js"></script>
-  <!-- <script src="js/justgage.js"></script> -->
-  <!-- <script src="js/raphael-2.1.4.min.js"></script> -->
-
-  <link href="css/StyleSheet.css" rel="stylesheet" />
+  <%- include("../master/head.html") %>
+    <script src="https://code.highcharts.com/highcharts.src.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+    <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
 </head>
 
 <body>
-  <!-- jQuery (부트스트랩의 자바스크립트 플러그인을 위해 필요합니다) -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-  <!-- 모든 컴파일된 플러그인을 포함합니다 (아래), 원하지 않는다면 필요한 각각의 파일을 포함하세요 -->
-  <script src="js/bootstrap.min.js"></script>
-
-  <script src="https://code.highcharts.com/highcharts.js"></script>
-  <script src="https://code.highcharts.com/highcharts-more.js"></script>
-
-  <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
-  <link href="fonts/font-awesome.min.css" rel="stylesheet" />
 
   <!--네비-->
   <%- include("../master/header.html") %>
-
-
     <!--메인-->
     <div class="jumbotron text-center jumbotron_st">
       <div class="row row_st">
@@ -218,10 +195,8 @@
                 </li> -->
             </ul>
           </div>
-
         </template>
         <div id="moduleStatus">
-
         </div>
         <div class="col-xs-3 con_b_2">
           <b style="position: absolute; top:22px; left:16px">
@@ -231,7 +206,6 @@
               <%=  Math.ceil(moduleStatus.length / 4) %>
             </span>
           </b>
-
           <i class="fa fa-sort-asc arrow " aria-hidden="true" onclick=changeModuleInfo(-1); id="up"></i>
           <i class="fa"></i>
           <i class="fa fa-sort-desc arrow" aria-hidden="true" onclick=changeModuleInfo(1); id="down"></i>
@@ -239,11 +213,8 @@
       </div>
 
     </div>
-
-
-
-
     <%- include("../master/footer.html") %>
+
 
       <script>
         $(document).ready(() => {
@@ -320,9 +291,7 @@
             type: 'solidgauge',
             backgroundColor: 'none'
           },
-
           title: null,
-
           pane: {
             center: ['50%', '85%'],
             size: '140%',
@@ -335,11 +304,9 @@
               shape: 'arc'
             }
           },
-
           tooltip: {
             enabled: false
           },
-
           // the value axis
           yAxis: {
             stops: [
@@ -357,7 +324,6 @@
               y: 16
             }
           },
-
           plotOptions: {
             solidgauge: {
               dataLabels: {
@@ -381,11 +347,9 @@
               text: '현재 출력'
             }
           },
-
           credits: {
             enabled: false
           },
-
           series: [{
             name: '현재 출력',
             data: [Number(powerGenerationInfo.currKw.toFixed(2))],
@@ -398,7 +362,6 @@
               valueSuffix: 'kWh'
             }
           }]
-
         }));
 
         var dailyPowerChart = Highcharts.chart('chart_div_2', Highcharts.merge(gaugeOptions, {
@@ -412,11 +375,9 @@
               text: ''
             }
           },
-
           credits: {
             enabled: false
           },
-
           series: [{
             name: '금일 발전량',
             data: [Number(powerGenerationInfo.dailyPower.toFixed(2))],
@@ -429,14 +390,12 @@
               valueSuffix: 'kWh'
             }
           }]
-
         }));
       </script>
 
       <!-- Main 하이차트 -->
       <script type="text/javascript">
         $(function () {
-
           var data = <%- JSON.stringify(dailyPowerReport.chartList) %>;
           // console.log('data', data[0])
           $('#dailyPowerChart').highcharts({

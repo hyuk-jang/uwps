@@ -2,44 +2,18 @@
 <html>
 
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>SM부트스트랩 테마디자인</title>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
-  <!-- 위 3개의 메타 태그는 *반드시* head 태그의 처음에 와야합니다; 어떤 다른 콘텐츠들은 반드시 이 태그들 *다음에* 와야 합니다 -->
-
-  <!-- 부트스트랩 -->
-  <link href="css/bootstrap.min.css" rel="stylesheet" />
-
-  <script src="js/jquery-3.1.1.min.js"></script>
-  <link href="css/StyleSheet.css" rel="stylesheet" />
+  <%- include("../master/head.html") %>
+    <script src="https://code.highcharts.com/highcharts.src.js"></script>
 </head>
 
 <body>
-  <!-- jQuery (부트스트랩의 자바스크립트 플러그인을 위해 필요합니다) -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-  <!-- 모든 컴파일된 플러그인을 포함합니다 (아래), 원하지 않는다면 필요한 각각의 파일을 포함하세요 -->
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/underscore-min.js"></script>
-  <!-- 구글 차트 -->
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-  <script src="https://code.highcharts.com/highcharts.src.js"></script>
-  <link href="fonts/font-awesome.min.css" rel="stylesheet" />
-
-  <!-- connector Script -->
   <!--네비-->
   <%- include("../master/header.html") %>
-
-
     <!--메인-->
     <div class="jumbotron text-center jumbotron_line">
       <div class="row row_st_line">
         <div class="row row_width">
-
           <div class="col-xs-3 connect_3" style="padding:0;">
-
-
             <select class="form-control form-control_st" id="sel1" name="connector_seq" onchange="changeConnector(this.value)">
               <%
               for(var i = 0 ; i < connectorList.length ; i++){
@@ -66,41 +40,29 @@
                 <%- gridInfo.measureTime %>
               </span>
             </div>
-
           </div>
-
-
           <div class="col-xs-9" style="padding:0; width:820px;">
             <div class="conne">
               <div class="form-group conne_1">
                 <label class="inputlg_1" for="inputlg">전압(V)</label>
                 <input class="form-control input-lg" id="inputlg" type="text" value=<%- gridInfo.vol %>>
               </div>
-
-
               <div class="form-group conne_1">
                 <label class="inputlg_1" for="inputlg">총 전류(A)</label>
                 <input class="form-control input-lg" id="inputlg" type="text" value=<%- gridInfo.totalAmp %>>
               </div>
-
             </div>
           </div>
-
         </div>
-
         <div class="row_width">
-
           <div class="table-responsive">
             <table class="table table-hover ">
               <thead>
                 <tr>
                   <th style="width:12%;"></th>
-
                   <%
                     for(let i = 0; i < gridInfo.maxModuleViewNum; i++){
-
                       let chName = 'CH ' + Number(i + 1);
-                    
                   %>
                     <th style="width:11%;">
                       <%= chName %>
@@ -124,7 +86,6 @@
                     <%
                   }
                   %>
-
                 </tr>
                 <tr class="sel">
                   <td class="td1">모듈 타입</td>
@@ -197,22 +158,17 @@
                   }
                   %>
                 </tr>
-
-
               </tbody>
             </table>
           </div>
           <div class="row row_title">
             <div class="title" style="margin-top:10px; float:left;"> 금일 시간 별 전류 값</div>
           </div>
-
           <div class="title_box" id="chart_div" style="height :300px"></div>
-
         </div>
-
       </div>
-      <%- include("../master/footer.html") %>
     </div>
+    <%- include("../master/footer.html") %>
 
     <script>
       function changeConnector(target) {
@@ -224,7 +180,7 @@
     <!-- 접속반 하이차트-->
     <script type="text/javascript">
       var chartDataObj = <%- JSON.stringify (chartDataObj) %>;
-      
+
       $(function () {
         $('#chart_div').highcharts({
           title: {

@@ -31,20 +31,20 @@ module.exports = function (app) {
     let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
     searchRange.searchInterval = searchInterval;
     searchRange.searchType = searchType;
-    searchRange.page = Number(param_page) ;
+    searchRange.page = Number(param_page);
     searchRange.pageListCount = 20;
-    
+
     let inverterList = await biModule.getTable('inverter');
-    let reportList =  await biModule.getInverterReport(param_inverter_seq, searchRange);
+    let reportList = await biModule.getInverterReport(param_inverter_seq, searchRange);
 
     // BU.CLI(reportList)
 
     let queryString = {
-      inverter_seq:param_inverter_seq,
+      inverter_seq: param_inverter_seq,
       start_date: searchRange.strStartDateInputValue,
-      end_date:searchRange.strEndDateInputValue,
-      search_type:searchType,
-      search_interval:searchInterval
+      end_date: searchRange.strEndDateInputValue,
+      search_type: searchType,
+      search_interval: searchInterval
     }
 
     let paginationInfo = DU.makeBsPagination(searchRange.page, reportList.totalCount, '/report', queryString, searchRange.pageListCount);

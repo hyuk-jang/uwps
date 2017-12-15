@@ -13,7 +13,7 @@
       <div class="row  row_st_line">
         <div class="row row_width" style="margin-bottom:30px;">
 
-          <div class="col-xs-5 serch_st" style="float:right;">
+          <div class="pad serch_st">
             날짜 &nbsp;
             <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
             <input class="input_tre" name="end" id="end_date_input" type="text" readonly>
@@ -22,7 +22,9 @@
 
 
         </div>
-
+        <div class="row_width search_area">
+          <b>검색결과 (총 <%- paginationInfo.totalCount %> 건)</b>
+        </div>
         <div class="table-responsive row_width">
           <table class="table table-hover" style="border-bottom:1px solid #ddd;">
             <colgroup>
@@ -51,15 +53,23 @@
                   let eleInfo = alarmList[index];
                   let count = index + 1;
               %>
-                <tr class="sel">
+                <tr class="sel tex">
                   <td class="td1 td1_num">
                     <%= startListNum + count %>
                   </td>
                   <td>인버터</td>
-                  <td><%= eleInfo.target_name %></td>
-                  <td><%= eleInfo.trouble_msg %></td>
-                  <td><%= BU.convertDateToText(eleInfo.occur_date)  %></td>
-                  <td><%= BU.convertDateToText(eleInfo.fix_date) %></td>
+                  <td>
+                    <%= eleInfo.target_name %>
+                  </td>
+                  <td>
+                    <%= eleInfo.trouble_msg %>
+                  </td>
+                  <td>
+                    <%= BU.convertDateToText(eleInfo.occur_date)  %>
+                  </td>
+                  <td>
+                    <%= BU.convertDateToText(eleInfo.fix_date) %>
+                  </td>
 
                 </tr>
                 <%
@@ -68,12 +78,8 @@
             </tbody>
           </table>
           <nav aria-label="...">
-              총
-              <%- paginationInfo.totalCount %> 건 page:
-                <%- paginationInfo.page %> /
-                  <%- paginationInfo.maxPage %>
-                    <%- paginationInfo.paginationDom %>
-            </nav>
+            <%- paginationInfo.paginationDom %>
+          </nav>
         </div>
       </div>
 
@@ -86,7 +92,7 @@
         // 검색 클릭 시
         function searchReport() {
           let startDate = document.getElementById('start_date_input').value;
-          let endDate =  document.getElementById('end_date_input').value;
+          let endDate = document.getElementById('end_date_input').value;
           if (startDate > endDate) {
             return alert('종료일이 시작일보다 빠를 수 없습니다.');
           }
@@ -106,7 +112,6 @@
           makeDatePicker(endDateDom, 0);
           makeDatePicker(startDateDom, 0);
         })
-
       </script>
 
 </body>

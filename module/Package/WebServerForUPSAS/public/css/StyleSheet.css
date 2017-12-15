@@ -24,7 +24,7 @@ ul li{list-style:none;}
 .wrap{position: relative;
   overflow: hidden;
   min-width: 1170px;
-  background: #eee;}
+  background: #fff;  border-top:1px solid #eee;}
 
   
 
@@ -37,7 +37,7 @@ ul li{list-style:none;}
 }
 .navbar-inverse_st{border-radius:0px; background:linear-gradient(#FBFBFB, #E7E7E7); border:0; margin: 0 auto}
 .navbar-brand_st{padding: 10px 15px 15px;}
-.navbar-brand_st>img{float:left; margin-top:3px;}
+.navbar-brand_st>img{float:left; margin-top:2px;}
 .navbar-brand_st>h4{font-size:17px!important;float:left; color:#333; font-weight:bold;}
 .navbar-nav_st{float:right;}
 
@@ -71,7 +71,7 @@ ul li{list-style:none;}
 .row_st{width:1170px; margin:0 auto;}
 
 /*써브페이지콘텐츠*/
-.jumbotron_line {margin:0 auto; background-color:#eee;}
+.jumbotron_line {margin:0 auto; background-color:#eee; border-bottom: 2px solid #eee;}
 .row_st_line{width:1170px; margin:0 auto; background:#fff; padding:30px 0;}
 
 
@@ -132,7 +132,7 @@ ul li{list-style:none;}
 .con_b_d{margin:0; padding:0;}
 .con_b_d_f{background:linear-gradient(#659E2F,#44771A); height:40px; margin:0; margin-bottom:10px; color:#Fff;}
 .con_b_d_f>p{font-size:18px; text-align:left; margin-left:20px;  margin-top:8px; float:left;}
-.con_b_d_f>img{float:right; margin-top:8px; margin-right:20px;  }
+.con_b_d_f>img{float:right; margin-top:8px; margin-right:10px;  }
 
 
 .con_b_d_la{text-align:left; margin-left:20px; height:35px; line-height:2; float:left;}
@@ -173,6 +173,11 @@ table>tbody>tr:last-child{border-bottom:1px solid #ddd;}
 /*테이블이벤트*/
  .selected{background-color:#D9EDF7;}
 
+ .tex>td:nth-child(2){ text-align: left;}
+ .tex>td:nth-child(3){ text-align: left;}
+ .tex>td:nth-child(4){text-align: left;}
+
+
 
  /*보고서*/
 .report_t
@@ -182,13 +187,62 @@ table>tbody>tr:last-child{border-bottom:1px solid #ddd;}
 .report_table>th{ text-align: center;}
 
 
+.search_area {
+  text-align: left;
+  margin-top: 5px;
+  margin-bottom: 5px;
+
+}
+
+.serch_st button {
+  height: 30px;
+  line-height: 30px;
+  padding: 0 12px;
+  vertical-align: baseline;
+}
+
+.footer_div {
+  text-align: center;
+  padding-top:20px;
+}
+
+.footer_div .logo {
+  float: left;
+  background-position: 0 0;
+  width: 194px;
+  height: 29px;
+  margin-top: 3px;
+}
+
+.footer_div .footer_dsc {
+  position: relative;
+  float: right;
+  width: 900px;
+  z-index: 35;
+}
+
+.footer_div .footer_dsc address {
+  display: inline;
+  margin-right: 15px;
+  letter-spacing: -1px;
+}
+
+.footer_div .footer_dsc span {
+  display: inline;
+  line-height: 23px;
+  color: #676767;
+  font-size: 11px;
+}
+
+
+
 /*트랜드*/
 .right_check{margin-left: 35px!important;}
 .right_check_2{margin-left: 63px!important;}
 
 .input_tre{width:120px; height:30px; border-radius:3px; border: 1px solid #bcbcbc; padding: 0 5px 0 0; text-align:center;}
 .input_st{width:320px; height:38px; float:right; padding-right:35px; padding-top:5px; border:1px solid #ddd; border-radius:20px;}
-.serch_st{padding-left:80px; margin-top: 5px;}
+.serch_st{ margin-top: 5px; float:right; }
 .title_trend{margin-top:30px; float:left;}
 .title_p{font-size:14px!important;display: inline-block; margin-top:38px; margin-bottom:0px!important; margin-left:-635px; color:#0C7B30;}
 
@@ -225,3 +279,7 @@ table>tbody>tr:last-child{border-bottom:1px solid #ddd;}
 
 
 .tbl_va_middle > thead > tr > th {vertical-align: middle}
+
+.pad{padding:0px;}
+
+.highcharts-background{height:125px;}

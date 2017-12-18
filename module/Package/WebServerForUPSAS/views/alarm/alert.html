@@ -15,7 +15,7 @@
 
           <div class="pad serch_st">
             날짜 &nbsp;
-            <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
+            <input class="input_tre" name="start" id="start_date_input" type="text" readonly> ~
             <input class="input_tre" name="end" id="end_date_input" type="text" readonly>
             <button type="button" class="btn btn-primary" onclick="searchReport()" style="margin-bottom:3px; height:28px;" id="search">검색</button>
           </div>
@@ -98,8 +98,7 @@
           }
 
           // return;
-          return location.href =
-            `/alarm?start_date=${startDate}&end_date=${endDate}`;
+          return location.href = `/alarm?start_date=${startDate}&end_date=${endDate}`;
         }
 
         $(document).ready(() => {

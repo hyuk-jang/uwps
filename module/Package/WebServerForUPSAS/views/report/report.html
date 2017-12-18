@@ -58,10 +58,16 @@
             </div>
           </div>
           <div class="pad serch_st">
-          <!-- <div class="col-xs-3 pad serch_st" style="width:350px;"> -->
-            날짜 &nbsp;
+            <span>날짜</span>
             <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
-            <input class="input_tre" name="end" id="end_date_input" type="text" readonly hidden="hidden">
+            <%
+              var hiddenValue = '';
+              if(searchRange.searchType !== 'range'){
+                hiddenValue = 'hidden';
+              }
+            %>
+            <span id="between-start-end" <%= hiddenValue %>>~</span>
+            <input class="input_tre" name="end"  id="end_date_input" type="text" readonly <%= hiddenValue %>>
             <button type="button" class="btn btn-primary" onclick="searchReport()" style="" id="search">검색</button>
 
           </div>
@@ -193,7 +199,6 @@
         })
 
         $(document).ready(() => {
-          console.log('searchRange', searchRange, trendReportList)
           let selectedObj = document.querySelector(`#sel_type_div_area input[value=${searchRange.searchType}]`)
           $(selectedObj).trigger('click');
         })
@@ -216,7 +221,13 @@
           let viewMode = 0;
           let sliceEndIndex = 10;
 
-          checkedSearchType === 'range' ? $('#end_date_input').show() : $('#end_date_input').hide();
+          if(checkedSearchType === 'range'){
+            $('#end_date_input').show()
+            $('#between-start-end').show()
+          } else {
+            $('#end_date_input').hide();
+            $('#between-start-end').hide()
+          }
 
           if (checkedSearchType == 'month') {
             viewMode = 2;

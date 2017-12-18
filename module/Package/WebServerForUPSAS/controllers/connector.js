@@ -52,7 +52,7 @@ module.exports = function (app) {
         return addObj;
       }
       addObj.name = `CH_${upsasInfo.connector_ch} ${upsasInfo.pv_target_name}`
-      addObj.data = _.pluck(moduleDataObj, 'amp');
+      addObj.data = _.pluck(moduleDataObj, 'wh');
       chartRange = _.pluck(moduleDataObj, 'hour_time');
       return addObj;
     })

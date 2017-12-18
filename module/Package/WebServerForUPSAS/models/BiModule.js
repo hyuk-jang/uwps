@@ -82,15 +82,15 @@ class BiModule extends bmjh.BM {
     }
   }
 
-  getDailyPowerReport() {
+  getDailyPowerReport(searchRange) {
     // date = date ? date : new Date();
 
-    let sql = `select DATE_FORMAT(writedate,"%H:%i")as writedate,round(sum(out_w)/count(writedate)/10,1) as out_w` +
-      ` from inverter_data ` +
-      ` where writedate>= CURDATE() and writedate<CURDATE() + 1` +
-      ` group by DATE_FORMAT(writedate,'%Y-%m-%d %H')`;
+    let sql = `select DATE_FORMAT(writedate,"%H:%i")as writedate,round(sum(out_w)/count(writedate)/10,1) as out_w
+       from inverter_data
+       WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
+       group by DATE_FORMAT(writedate,'%Y-%m-%d %H')`;
 
-    return this.db.single(sql)
+    return this.db.single(sql, '', false)
       .then(result => {
         // BU.CLI(result)
         let dateList = _.pluck(result, 'writedate');
@@ -100,11 +100,14 @@ class BiModule extends bmjh.BM {
           whList,
         ];
 
+        let dateOffset = _.isEmpty(dateList) ? '23:00' : _.last(dateList);
+        
+
         return {
           chartList,
           dailyPowerRange: {
             start: BU.convertDateToText(new Date(), '', 2, 0) + ' ' + '00:00:00',
-            end: BU.convertDateToText(new Date(), '', 2, 0) + ' ' + _.last(dateList) + ':00',
+            end: BU.convertDateToText(new Date(), '', 2, 0) + ' ' + dateOffset + ':00',
           }
         }
       });

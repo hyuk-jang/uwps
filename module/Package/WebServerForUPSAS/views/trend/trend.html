@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <%- include("../master/head.html") %>
+  <%- include("../master/head.html") %>
     <script src="https://code.highcharts.com/highcharts.src.js"></script>
 </head>
 
@@ -74,121 +74,124 @@
 
           </div>
 
-          <div class="row row_title">
+          <!-- <div class="row row_title">
             <div class="title title_trend">기상 장치 정보</div>
-          </div>
+          </div> -->
 
-          <div class="title_box" id="moduleChart_2"></div>
+          <!-- <div class="title_box" id="moduleChart_2"></div> -->
 
         </div>
       </div>
     </div>
     <%- include("../master/footer.html") %>
 
-    <!-- 기본 데이터 세팅 -->
-    <script>
-      // 초기 시작시 라디오 체크버튼 클릭처리
-      let searchRange = <%- JSON.stringify(searchRange)  %>;
-      let trendReportList = <%- JSON.stringify (trendReportList) %>;
+      <!-- 기본 데이터 세팅 -->
+      <script>
+        // 초기 시작시 라디오 체크버튼 클릭처리
+        let searchRange = <%- JSON.stringify(searchRange)  %>;
+        let trendReportList = <%- JSON.stringify (trendReportList) %>;
 
-      $(document).ready(() => {
-        console.log('searchRange', searchRange, trendReportList)
-        let searchType = '<%-searchType%>';
-        if (!trendReportList.hasData) {
-          alert('조회 내역이 없습니다.');
-        }
-        let selectedObj = document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
-
-        $(selectedObj).trigger('click');
-      })
-
-
-      /**
-       * 검색 기간 Radio 클릭 시 날짜 영역 설정
-       * @param {Dom} input[name='searchType']
-       * @return {void} 
-       */
-      function setterSelectType(target) {
-        let checkedSearchType = target.value;
-        let startDateDom = document.querySelector('#start_date_input');
-        let endDateDom = document.querySelector('#end_date_input');
-
-        let startDate = new Date(searchRange.strStartDateInputValue);
-        let endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
-          'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
-
-        let viewMode = 0;
-        let sliceEndIndex = 10;
-
-        checkedSearchType === 'range' ? $('#end_date_input').show() : $('#end_date_input').hide();
-
-        if (checkedSearchType == 'month') {
-          viewMode = 2;
-          sliceEndIndex = 4;
-        } else if (checkedSearchType == 'day') {
-          viewMode = 1;
-          sliceEndIndex = 7;
-        } else if (checkedSearchType == 'range') {
-          makeDatePicker(endDateDom, 0);
-          endDateDom.value = endDate.toISOString().substring(0, sliceEndIndex);
-        } else {
-          viewMode = 0;
-          sliceEndIndex = 10;
-        }
-        startDateDom.value = startDate.toISOString().substring(0, sliceEndIndex);
-        makeDatePicker(startDateDom, viewMode);
-      }
-
-      // 검색 클릭 시
-      function searchTrend() {
-        let connector_seq = document.querySelector('#cnt_list_sel option:checked').value;
-        let searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
-        let startDate = document.getElementById('start_date_input').value;
-        let endDate = '';
-
-        if (searchType === 'range') {
-          endDate = document.getElementById('end_date_input').value;
-          if (startDate > endDate) {
-            return alert('종료일이 시작일보다 빠를 수 없습니다.');
+        $(document).ready(() => {
+          console.log('searchRange', searchRange, trendReportList)
+          let searchType = '<%-searchType%>';
+          if (!trendReportList.hasData) {
+            alert('조회 내역이 없습니다.');
           }
+          let selectedObj = document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
+
+          $(selectedObj).trigger('click');
+        })
+
+
+        /**
+         * 검색 기간 Radio 클릭 시 날짜 영역 설정
+         * @param {Dom} input[name='searchType']
+         * @return {void} 
+         */
+        function setterSelectType(target) {
+          let checkedSearchType = target.value;
+          let startDateDom = document.querySelector('#start_date_input');
+          let endDateDom = document.querySelector('#end_date_input');
+
+          let startDate = new Date(searchRange.strStartDateInputValue);
+          let endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
+            'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
+
+          let viewMode = 0;
+          let sliceEndIndex = 10;
+
+          checkedSearchType === 'range' ? $('#end_date_input').show() : $('#end_date_input').hide();
+
+          if (checkedSearchType == 'month') {
+            viewMode = 2;
+            sliceEndIndex = 4;
+          } else if (checkedSearchType == 'day') {
+            viewMode = 1;
+            sliceEndIndex = 7;
+          } else if (checkedSearchType == 'range') {
+            makeDatePicker(endDateDom, 0);
+            endDateDom.value = endDate.toISOString().substring(0, sliceEndIndex);
+          } else {
+            viewMode = 0;
+            sliceEndIndex = 10;
+          }
+          startDateDom.value = startDate.toISOString().substring(0, sliceEndIndex);
+          makeDatePicker(startDateDom, viewMode);
         }
 
-        return location.href =
-          `/trend?connector_seq=${connector_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}`;
-      }
-    </script>
+        // 검색 클릭 시
+        function searchTrend() {
+          let connector_seq = document.querySelector('#cnt_list_sel option:checked').value;
+          let searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
+          let startDate = document.getElementById('start_date_input').value;
+          let endDate = '';
 
-    <!-- 모듈 차트 -->
-    <script type="text/javascript">
-      // console.log('trendReportList.shortTxtPoint', trendReportList.shortTxtPoint)
-      $('#moduleChart_1').highcharts({
-        title: {
-          text: trendReportList.chartOptionInfo.mainTitle
-        },
-        xAxis: {
+          if (searchType === 'range') {
+            endDate = document.getElementById('end_date_input').value;
+            if (startDate > endDate) {
+              return alert('종료일이 시작일보다 빠를 수 없습니다.');
+            }
+          }
+
+          return location.href =
+            `/trend?connector_seq=${connector_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}`;
+        }
+      </script>
+
+      <!-- 모듈 차트 -->
+      <script type="text/javascript">
+        // console.log('trendReportList.shortTxtPoint', trendReportList.shortTxtPoint)
+        $('#moduleChart_1').highcharts({
           title: {
-            text: trendReportList.chartOptionInfo.xAxisTitle
+            text: trendReportList.chartOptionInfo.mainTitle
           },
-          tickInterval: 1,
-          categories: trendReportList.columnList
-        },
-        yAxis: {
-          title: {
-            text: trendReportList.chartOptionInfo.yAxisTitle
-          }
-        },
-        legend: { //범례
-          layout: 'vertical',
-          align: 'right',
-          verticalAlign: 'middle',
-          borderWidth: 0
-        },
-        series: trendReportList.series
-      });
-    </script>
+          xAxis: {
+            title: {
+              text: trendReportList.chartOptionInfo.xAxisTitle
+            },
+            tickInterval: 1,
+            categories: trendReportList.columnList
+          },
+          yAxis: {
+            title: {
+              text: trendReportList.chartOptionInfo.yAxisTitle
+            }
+          },
+          legend: { //범례
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+          },
+          series: trendReportList.series,
+          credits: {
+            enabled: false
+          },
+        });
+      </script>
 
-    <!-- 날씨 차트 -->
-    <script>
+      <!-- 날씨 차트 -->
+      <!-- <script>
       Highcharts.chart('moduleChart_2', {
         chart: {
           type: 'column'
@@ -257,7 +260,7 @@
           yAxis: 1
         }]
       });
-    </script>
+    </script> -->
 
 
 </body>

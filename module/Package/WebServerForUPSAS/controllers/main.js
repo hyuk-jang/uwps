@@ -20,11 +20,14 @@ module.exports = function (app) {
   // Get
   router.get('/', wrap(async (req, res) => {
     // let workers = app.get('workers');
+    // let startDate = req.query.start_date ? req.query.start_date : '2017-12-14';
+    let searchRange = biModule.getSearchRange();
+    // BU.CLI(searchRange)
 
     let moduleStatus = await biModule.getModuleStatus();
     let v_upsas_profile = await biModule.getTable('v_upsas_profile');
     let monthPower = await biModule.getMonthPower();
-    let dailyPowerReport = await biModule.getDailyPowerReport();
+    let dailyPowerReport = await biModule.getDailyPowerReport(searchRange);
     let inverterDataList = await biModule.getTable('v_inverter_status');
     
     let pv_amount = _.reduce(_.pluck(v_upsas_profile, 'pv_amount'), (accumulator, currentValue) => accumulator + currentValue);

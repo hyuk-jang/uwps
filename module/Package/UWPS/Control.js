@@ -103,19 +103,14 @@ class Control extends EventEmitter {
   /**
    * UnterWater Photovoltaic Controller Initialize 
    * EventHandler 등록, 인버터 컨트롤러 객체 및 접속반 컨트롤러 객체 생성
-   * @return {Promise} true or exceptino
+   * @return {Promise} true or exception
    */
   async init() {
-    console.time('init')
-    
     this.eventHandler();
-    
     await Promise.all([
       this.createInverterController(this.config.inverterList),
       this.createConnectorController(this.config.connectorList)
     ])
-    console.timeEnd('init')
-    // BU.CLI('??????????')
     return true;
   }
 
@@ -125,9 +120,6 @@ class Control extends EventEmitter {
    * @returns {Promise} 인버터 계측 컨트롤러 생성 결과 Promise
    */
   async createInverterController(inverterConfigList) {
-    // BU.CLI('createInverterController, configList)
-
-    console.time('createInverterController')
     let inverterControllerList = await Promise.map(inverterConfigList, ivtConfig => {
       const inverterObj = new InverterController(ivtConfig);
       return inverterObj.init()
@@ -136,7 +128,6 @@ class Control extends EventEmitter {
     this.model.inverterControllerList = inverterControllerList;
     this.p_Scheduler.runCronForMeasureInverter(inverterControllerList);
     
-    console.timeEnd('createInverterController')
     return true;
   }
 

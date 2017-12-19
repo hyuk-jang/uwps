@@ -16,5 +16,8 @@
     "modbus-serial": "^7.0.1",
     "serialport": "^5.0.0",
     "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "crc": "^3.5.0"
   }
 }

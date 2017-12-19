@@ -5,7 +5,7 @@ module.exports = {
     "cntSavedInfo": {
       "connector_seq": 1,
       "target_id": "CNT1",
-      "target_category": "modbus_tcp",
+      "target_category": "dm_v1",
       "target_name": "접속반 1",
       "dialing": {
         "type": "Buffer",
@@ -15,11 +15,13 @@ module.exports = {
       "ip": "localhost",
       "port": null,
       "baud_rate": 9600,
-      "addr_v": 0,
-      "addr_a": 4,
+      "address": {
+        "type": "Buffer",
+        "data": [0, 0, 1]
+      },
       "director_name": "에스엠관리자",
       "director_tel": "01012345678",
-      "ch_number": 4
+      "ch_number": 4  // 동적 생성해서 내려줌
     },
     moduleList: [
       {

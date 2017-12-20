@@ -26,7 +26,7 @@ class Encoder extends Converter {
       }
       let body = this.makeMsg2Buffer(Object.values(msg));
       let returnValue = [
-        this.ENQ,
+        this.STX,
         body,
         this.getCheckSum(body), 
         this.EOT

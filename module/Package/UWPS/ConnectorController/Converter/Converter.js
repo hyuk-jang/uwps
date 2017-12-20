@@ -10,21 +10,23 @@ class Converter extends EventEmitter {
     this.resultMakeMsg2Buffer = [];
   }
 
-  getBaseInverterValue() {
+  getBaseValue() {
     return {
-      // Pv Info
-      ampList: null, // Ampere
+      amp: null, // Ampere
       vol: null, // voltage
-      // System Info
-      productYear: null, // 제작년도 월 일 yyyymmdd,
-      sn: null, // Serial Number,
-      // Operation Info
-      isRun: null, // 접속반 동작 유무
-      isError: null, // 접속반 에러 발생 유무
-      temperature: null, // 접속반 온도
-      errorList: null, // 에러 리스트 Array
-      warningList: null // 경고 리스트 Array
     }
+  }
+
+  get STX() {
+    return Buffer.from([0x02]);
+  }
+  
+  get ETX() {
+    return Buffer.from([0x03]);
+  }
+
+  get EOT() {
+    return Buffer.from([0x04]);
   }
 
   get ENQ() {
@@ -35,9 +37,7 @@ class Converter extends EventEmitter {
     return Buffer.from([0x06]);
   }
 
-  get EOT() {
-    return Buffer.from([0x04]);
-  }
+  
 
   pad(n, width) {
     n = n + '';
@@ -199,29 +199,6 @@ class Converter extends EventEmitter {
     return obj;
   }
 
-  operation() {
-
-  }
-
-  pv() {
-
-  }
-
-  grid() {
-
-  }
-
-  power() {
-
-  }
-
-  system() {
-
-  }
-
-  weather() {
-
-  }
 
   converter() {
     function ConvertBase(num) {

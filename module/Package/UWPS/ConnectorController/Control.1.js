@@ -61,13 +61,6 @@ class Control extends EventEmitter {
    */
   async init() {
     // BU.CLI('init ConnectorController', this.config.devPort)
-
-    this.eventHandler();
-
-    let dialing = this.config.ivtSavedInfo.dialing;
-    dialing = dialing.type === 'Buffer' ? Buffer.from(dialing) : dialing;
-    let socketPort = await this.p_Setter.settingConverter(dialing);
-
     
     try {
       if (this.config.hasDev) {

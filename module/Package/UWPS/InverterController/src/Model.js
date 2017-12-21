@@ -8,14 +8,9 @@ class Model {
     this.hasConnectedInverter = false;
     this.retryConnectInverterCount = 0;
 
-    this.cmdList = {
-      getOperation: 'operation',
-      getPv: 'pv',
-      getGrid: 'grid',
-      getPower: 'power',
-      getSystem: 'system',
-      // getWeather: 'weather'
-    }
+    this.cmdList = [
+      'operation', 'pv', 'grid', 'power', 'system', // getWeather: 'weather'
+    ]
 
     this.controlStatus = {
       reserveCmdList: [],
@@ -27,7 +22,7 @@ class Model {
     }
 
     // Converter에 정의한 getBaseInverterValue를 가져옴
-    this.inverterData = this.controller.encoder.getBaseInverterValue();
+    this.inverterData = this.controller.decoder.getBaseValue();
     // Dummy Data
     this.ivtDummyData = this.controller.config.ivtDummyData;
     // Socket에 접속 중인 사용자 리스트
@@ -41,7 +36,7 @@ class Model {
     this.operationInfo = {};
     this.weather = {};
 
-    Object.values(this.cmdList).forEach(element => this.onInitInverterData(element));
+    this.cmdList.forEach(element => this.onInitInverterData(element));
 
     this.ivtDataGroup = [
       this.sysInfo, this.pv, this.grid, this.power, this.operationInfo, this.weather

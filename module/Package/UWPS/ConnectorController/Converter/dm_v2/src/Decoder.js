@@ -1,12 +1,15 @@
-const Converter = require('../Converter.js');
+const BU = require('base-util-jh').baseUtil;
+const _ = require('underscore');
+
+const {Converter} = require('base-class-jh');
 const protocol = require('./protocol');
 
 class Decoder extends Converter {
-  constructor(dialing) {
+  constructor() {
     super();
-    this.protocolTable = protocol.encodingProtocolTable(dialing);
 
     this.returnValue = [];
+    this.splitModuleDataCount = 4;
   }
 
   /**
@@ -41,7 +44,7 @@ class Decoder extends Converter {
         let binaryCode = binaryValue.charAt(operationObj.number);
 
         // 인버터 동작 유무
-        if(operationObj.code === 'inverter run'){
+        if (operationObj.code === 'inverter run') {
           this.returnValue.isRun = Number(binaryCode);
         } else if (binaryCode === operationObj.errorValue.toString()) {
           this.returnValue.errorList.push(operationObj);
@@ -50,7 +53,7 @@ class Decoder extends Converter {
     })
 
     // 배열에 에러 데이터가 있다면 현재 에러 검출여부 반영
-    if(this.returnValue.errorList.length){
+    if (this.returnValue.errorList.length) {
       this.returnValue.isError = 1;
     } else {
       this.returnValue.isError = 0;
@@ -101,79 +104,64 @@ class Decoder extends Converter {
 
   }
 
-  getCheckSum(buf) {
-    let returnValue = this.getSumBuffer(buf);
-    return Buffer.from(this.pad(returnValue.toString(16), 4));
-  }
+  checkCrc(buf) {
+    const crc = require('crc')
+    let indexETX = buf.indexOf(0x03)
+    let indexEOT = buf.indexOf(0x04)
+    let crcValue = buf.slice(indexETX + 1, indexEOT)
+    let bufBody = buf.slice(0, indexETX + 1)
 
-  _receiveData(buffer) {
-    // BU.CLI('_receiveData', buffer)
-    this.returnValue = this.getBaseInverterValue();
+    BU.CLI(bufBody.toString())
 
-    try {
-      // Start, dialing, Cmd, Addr
-      let bufArray = [
-        0, 1, 2, 1, 4
-      ]
-      // Start, dialing, Cmd, Addr, Data, Ck_Sum, End
-      let resBufArray = [];
+    let baseCrcValue = crc.crc16xmodem(bufBody.toString())
 
-      let lastIndex = bufArray.reduce((accmulator, currentValue, index) => {
-        resBufArray.push(buffer.slice(accmulator, accmulator + currentValue));
-        return accmulator + currentValue;
-      })
-      resBufArray.push(buffer.slice(lastIndex, buffer.length - 5))
-      resBufArray.push(buffer.slice(buffer.length - 5, buffer.length - 1))
-      resBufArray.push(buffer.slice(buffer.length - 1))
-
-      if (Buffer.compare(resBufArray[0], this.ACK)) {
-        throw Error('ACK Error');
-      } else if (Buffer.compare(resBufArray[resBufArray.length - 1], this.EOT)) {
-        throw Error('EOT Error');
-      } else if (Buffer.compare(this.getBufferCheckSum(Buffer.concat(resBufArray.slice(1, 5))), resBufArray[5])) {
-        throw Error('CkSum Error');
-      }
-
-      // set Address
-      let addr = resBufArray[3].toString();
-      
-      let cmd = '';
-      let value = '';
-      _.find(this.protocolTable, (obj, key) => {
-        if (typeof obj.address === 'number') {
-          value = Buffer.from(this.converter().dec2hex(obj.address), 'hex').toString();
-        } else if (typeof obj.address === 'object') {
-          if (Buffer.isBuffer(obj.address)) {
-            value = obj.address.toString();
-          } else {
-            value = Buffer.from(obj.address).toString();
-          }
-        } else if (typeof obj.address === 'string') {
-          value = obj.address;
-        }
-
-        if (value === addr) {
-          cmd = key
-          return true;
-        }
-      });
-
-      if (cmd === '') {
-        BU.CLI(value)
-        return false;
-      }
-      // returnValue Set
-      this[cmd](resBufArray[4]);
-
-      return this.returnValue;
-    } catch (error) {
-      // BU.CLI(error)
-      throw Error(error);
+    if (crcValue.toString() === baseCrcValue.toString(16)) {
+      return buf.slice(0, indexETX)
+    } else {
+      throw 'Crc Error'
     }
-
   }
 
+  /**
+   * 
+   * @param {Buffer} buffer 접속반으로 받은 Buffer
+   */
+  _receiveData(buffer) {
+    try {
+      let bufBody = this.checkCrc(buffer)
 
+      // 모듈 단위로 나눔
+      const realBody = bufBody.toString().split(',').slice(2)
+
+      let returnValue = []
+
+      // 0: 명령 코드, 1: 접속반 ID, 2~ 모듈 데이터
+      for (let indexHeader = 0; indexHeader < realBody.length; indexHeader++) {
+        let moduleData = realBody[indexHeader];
+        // 채널 별로 그루핑
+        let channelGroup = _.groupBy(moduleData, (char, index) => {
+          return parseInt(index / this.splitModuleDataCount, 0)
+        })
+        // 전류, 전압 단위로 그루핑
+        let powerGroup = _.groupBy(channelGroup, (storage, index) => {
+          return Number(index) % this.splitModuleDataCount
+        })
+
+        _.each(powerGroup, (powerObj, index) => {
+          let amp = Number(powerObj[0].reduce((prev, next) => prev + next)) / 10;
+          let vol = Number(powerObj[1].reduce((prev, next) => prev + next)) / 10;
+          returnValue.push({
+            ch: (Number(index) + 1) + this.splitModuleDataCount * indexHeader,
+            amp,
+            vol
+          })
+        })
+      }
+      return returnValue;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 module.exports = Decoder;

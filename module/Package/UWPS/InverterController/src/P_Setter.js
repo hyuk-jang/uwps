@@ -1,5 +1,6 @@
 const Promise = require('bluebird');
 const EventEmitter = require('events');
+const Converter = require('../Converter')
 
 class P_Setter extends EventEmitter {
   constructor(controller) {
@@ -24,20 +25,13 @@ class P_Setter extends EventEmitter {
 
         // 개발용 버전이고 실제 인버터 프로토콜을 따른다면 Test Stub 장착
         if(this.config.ivtSavedInfo.target_category !== 'dev') {
-          let testStubDataPath = `./Converter/${this.config.ivtSavedInfo.target_category}/t_Decoder`;
+          let testStubDataPath = `../Converter/${this.config.ivtSavedInfo.target_category}/t_Decoder`;
           this.controller.testStubData = require(testStubDataPath);
         }
       } 
       
-      
-
-      // 컨버터를 붙임
-      let encoderPath = `./Converter/${this.config.ivtSavedInfo.target_category}/Encoder`;
-      let decoderPath = `./Converter/${this.config.ivtSavedInfo.target_category}/Decoder`;
-
-
-      Encoder = require(encoderPath);
-      Decoder = require(decoderPath);
+      Encoder = Converter[this.config.ivtSavedInfo.target_category].Encoder;
+      Decoder = Converter[this.config.ivtSavedInfo.target_category].Decoder;
 
       this.controller.encoder = new Encoder(dialing);
       this.controller.decoder = new Decoder(dialing);

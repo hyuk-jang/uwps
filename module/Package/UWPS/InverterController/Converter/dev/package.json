@@ -1,23 +1,20 @@
 {
-  "name": "dummy_inverter",
+  "name": "dev",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
     "test": "node_modules/.bin/mocha -w",
     "start": "node index.js"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "base-class-jh": "^1.0.5",
-    "base-model-jh": "^1.0.6",
-    "base-util-jh": "^1.0.7",
-    "cron": "^1.3.0",
-    "mysql": "^2.15.0",
-    "underscore": "^1.8.3"
-  },
-  "devDependencies": {
     "chai": "^4.1.2",
     "mocha": "^4.0.1"
   }

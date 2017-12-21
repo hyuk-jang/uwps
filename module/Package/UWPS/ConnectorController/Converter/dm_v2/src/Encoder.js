@@ -1,13 +1,20 @@
 const crc = require('crc')
 const BU = require('base-util-jh').baseUtil;
 
-const Converter = require('../Converter.js');
+const {Converter} = require('base-class-jh');
 const protocol = require('./protocol');
 
 class Encoder extends Converter {
   constructor(dialing) {
     super();
     this.protocolTable = protocol.encodingProtocolTable(dialing);
+  }
+
+  getBaseValue() {
+    return {
+      amp: null, // Ampere
+      vol: null, // voltage
+    }
   }
 
 

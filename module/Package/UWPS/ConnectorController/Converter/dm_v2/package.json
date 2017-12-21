@@ -2,14 +2,16 @@
   "name": "dm_v2",
   "version": "1.0.0",
   "description": "",
-  "main": "Decoder.js",
+  "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "base-class-jh": "^1.0.4",
     "chai": "^4.1.2",
     "mocha": "^4.0.1"
   }

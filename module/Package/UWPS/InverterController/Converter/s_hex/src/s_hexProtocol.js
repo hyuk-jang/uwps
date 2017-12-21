@@ -31,7 +31,7 @@ exports.operationInfo = (groupIndex) => {
     }, {
       msg: '인버터 과 전류 시간 초과',
       code: 'Inverter O.C. overtime fault',
-      number: 0,
+      number: 1,
       errorValue: 1
     }, {
       msg: '계통-인버터 위상 이상',
@@ -90,44 +90,39 @@ exports.operationInfo = (groupIndex) => {
   return returnValue;
 }
 
+
 exports.encodingProtocolTable = (dialing) => {
   return {
-    // fault: {
-    //   dialing,
-    //   code: 'R',
-    //   address: '0004',
-    //   length: '04'
-    // },
-    // pv: {
-    //   dialing,
-    //   code: 0x54,
-    //   address: 0x18,
-    //   length: 0x05
-    // },
+    operation: {
+      dialing,
+      code: 0x52,
+      address: [0x30, 0x30, 0x30, 0x34],
+      length: [0x30, 0x34]
+    },
     pv: {
       dialing,
-      code: [0x54],
-      address: [0x18],
-      length: []
+      code: 0x52,
+      address: '0020',
+      length: '02'
     },
-    // grid: {
-    //   dialing,
-    //   code: 'R',
-    //   address: '0050',
-    //   length: '07'
-    // },
-    // power: {
-    //   dialing,
-    //   code: 'R',
-    //   address: '0060',
-    //   length: '08'
-    // },
-    // sysInfo: {
-    //   dialing,
-    //   code: 'R',
-    //   address: '01e0',
-    //   length: '03'
-    // },
+    grid: {
+      dialing,
+      code: 'R',
+      address: '0050',
+      length: '07'
+    },
+    power: {
+      dialing,
+      code: 'R',
+      address: '0060',
+      length: '08'
+    },
+    system: {
+      dialing,
+      code: 'R',
+      address: '01e0',
+      length: '03'
+    },
     // weather: {
 
     // }

@@ -1,13 +1,14 @@
+'use strict';
 const _ = require('underscore');
 const Promise = require('bluebird');
 const EventEmitter = require('events');
 const eventToPromise = require('event-to-promise');
 
 const Model = require('./Model.js');
-const DummyInverter = require('./DummyInverter/Control.js');
+const DummyInverter = require('../DummyInverter');
+const {Converter} = require('base-class-jh');
 
 const P_Setter = require('./P_Setter.js');
-const Converter = require('./Converter/Converter.js');
 
 const P_SocketClient = require('./P_SocketClient');
 const P_SerialClient = require('./P_SerialClient');
@@ -81,7 +82,7 @@ class Control extends EventEmitter {
    */
   getInverterData(cmd) {
     BU.CLI('getInverterData')
-    return _.contains(this.cmdList, cmd) ? this.model.getInverterData(cmd) : {};
+    return this.cmdList.includes(cmd) ? this.model.getInverterData(cmd) : {};
   }
 
   /**
@@ -95,7 +96,7 @@ class Control extends EventEmitter {
 
   // 배율 적용된 값 요청
   getScaleInverterData(cmd) {
-    return _.contains(this.cmdList, cmd) ? this.model.getScaleInverterData(cmd) : {};
+    return this.cmdList.includes(cmd) ? this.model.getScaleInverterData(cmd) : {};
   }
 
   /**

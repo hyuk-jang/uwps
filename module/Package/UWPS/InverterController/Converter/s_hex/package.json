@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "node_modules/.bin/mocha -w",
-    "start": "node index.js"
+    "start": "nodemon index.js"
   },
   "keywords": [],
   "author": "",

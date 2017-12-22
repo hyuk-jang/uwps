@@ -45,7 +45,8 @@ class Control extends EventEmitter {
         }
       }
     }
-
+    
+    // BU.CLI(this.config)
 
     let arrMonthData = [];
     this.config.dummyValue.powerRangeByYear.forEach((monthData, yIndex) => {

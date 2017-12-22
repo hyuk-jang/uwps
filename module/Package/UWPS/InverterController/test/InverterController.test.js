@@ -1,3 +1,5 @@
+const _ = require('underscore');
+
 const {expect} = require('chai')
 const Decoder = require('../src/Control')
 
@@ -6,48 +8,45 @@ const BU = require('base-util-jh').baseUtil;
 const Control = require('../src/Control.js');
 const config = require('../src/config.js');
 
+global._ = _;
+global.BU = BU;
+
 describe('Inverter Controller Test', () => {
-  let control
+  describe('ConnectType: Socket', () => {
+    before(() => {
+      config.current.ivtSavedInfo.connect_type = 'socket'
+    })
+    it('Category: s_hex', done => {
+      config.current.ivtSavedInfo.target_category = 's_hex'
+      const control = new Control(config)
+      control.init()
+        .then(result => {
+          return control.measureInverter();
+        })
+        .then(result => {
+          BU.CLI(result)
+          done();
+        })
+        .catch(error => {
+          done(error)
+        })
+    })
 
-  before(() => {
-    control = new Control(config)
+    it('Category: dev', done => {
+      config.current.ivtSavedInfo.target_category = 'dev'
+      const control = new Control(config)
+      control.init()
+        .then(result => {
+          return control.measureInverter();
+        })
+        .then(result => {
+          BU.CLI(result)
+          done();
+        })
+        .catch(error => {
+          done(error)
+        })
+    })
   })
-
-  it('normal course', done => {
-    control.init()
-    .then(result => {
-      BU.CLI('result')
-      return control.measureInverter();
-    })
-    .then(result => {
-      done();
-    })
-    .catch(error => {
-      BU.CLI(error)
-    })
-  })
-
-  after(() => {
-
-    
-
-    it('get Data', done => {
-      for (let ele in control.cmdList) {
-        setTimeout(() => {
-          control.send2Cmd(control.cmdList[ele])
-          .then()
-          .catch(error => {
-            setTimeout(() => {
-              control.send2Cmd(control.cmdList[ele])
-            }, 1000);
-          });
-        }, 1000)
-      }
-    })
-  
-  })
-
-
-
 
 })

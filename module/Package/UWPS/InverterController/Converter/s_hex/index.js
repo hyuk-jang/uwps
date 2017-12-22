@@ -2,8 +2,9 @@
 
 const Encoder = require('./src/Encoder')
 const Decoder = require('./src/Decoder')
+const dummyDataGenerator = require('./src/dummyDataGenerator')
 module.exports = {
-  Encoder, Decoder
+  Encoder, Decoder, dummyDataGenerator
 }
 
 

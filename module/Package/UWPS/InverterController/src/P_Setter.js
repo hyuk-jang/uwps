@@ -11,8 +11,12 @@ class P_Setter extends EventEmitter {
 
   async settingConverter(dialing) {
     try {
-      let Encoder = null;
-      let Decoder = null;
+      const Encoder = Converter[this.config.ivtSavedInfo.target_category].Encoder;
+      const Decoder = Converter[this.config.ivtSavedInfo.target_category].Decoder;
+
+      // 실제 Converter 객체 생성 및 덮어씌움
+      this.controller.encoder = new Encoder(dialing);
+      this.controller.decoder = new Decoder(dialing);
 
       // 개발용 버전일 경우 더미 인버터프로그램 구동
       if (this.config.hasDev) {
@@ -25,17 +29,9 @@ class P_Setter extends EventEmitter {
 
         // 개발용 버전이고 실제 인버터 프로토콜을 따른다면 Test Stub 장착
         if(this.config.ivtSavedInfo.target_category !== 'dev') {
-          let testStubDataPath = `../Converter/${this.config.ivtSavedInfo.target_category}/t_Decoder`;
-          this.controller.testStubData = require(testStubDataPath);
+          this.controller.testStubData = Converter[this.config.ivtSavedInfo.target_category].dummyDataGenerator;
         }
       } 
-      
-      Encoder = Converter[this.config.ivtSavedInfo.target_category].Encoder;
-      Decoder = Converter[this.config.ivtSavedInfo.target_category].Decoder;
-
-      this.controller.encoder = new Encoder(dialing);
-      this.controller.decoder = new Decoder(dialing);
-
 
       return true;
     } catch (error) {

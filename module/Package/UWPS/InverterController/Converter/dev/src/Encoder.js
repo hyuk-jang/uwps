@@ -1,11 +1,9 @@
 'use strict';
 
 const BU = require('base-util-jh').baseUtil;
-
-
 const {Converter} = require('base-class-jh');
 
-class EncodingMsgSocket extends Converter {
+class EncoderForDev extends Converter {
   constructor() {
     super();
 
@@ -16,8 +14,7 @@ class EncodingMsgSocket extends Converter {
 
   makeMsg(){
     let returnValue = [];
-    this.cmdList.forEach(ele => {
-      let cmd = this.cmdList[ele];
+    this.cmdList.forEach(cmd => {
       returnValue.push(BU.makeMessage({cmd}));
     })
     // BU.CLI(returnValue);
@@ -25,4 +22,4 @@ class EncodingMsgSocket extends Converter {
   }
 }
 
-module.exports = EncodingMsgSocket;
+module.exports = EncoderForDev;

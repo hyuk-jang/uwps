@@ -78,6 +78,8 @@ class Model {
       pf: 0,  // 역률 Power Factor %
     }
 
+    BU.CLI(this.power)
+
     this.operationInfo = {
       isRun: 0, // 인버터 동작 유무
       isError: 0, // 인버터 에러 발생 유무
@@ -108,7 +110,7 @@ class Model {
     let out_w = 0;
     if (this.config.isSingle) {
       out_w = this.grid.rAmp * this.grid.rsVol;
-    } else {
+    } else {  // 3상일때 배율 1.732 적용
       out_w = this.grid.rAmp * this.grid.rsVol * 1.732;
     }
 
@@ -124,6 +126,7 @@ class Model {
       c_wh: this.power.cpKwh * 1000
     };
 
+    BU.CLIS(returnvalue, this.power)
 
     // Scale 10 배수 처리
     return NU.multiplyScale2Obj(returnvalue, 10, 0);

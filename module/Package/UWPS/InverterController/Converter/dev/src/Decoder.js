@@ -5,7 +5,7 @@ const BU = require('base-util-jh').baseUtil;
 
 const {Converter} = require('base-class-jh');
 
-class DecodingMsgSocket extends Converter {
+class DecoderForDev extends Converter {
   constructor(controller) {
     super();
     this.controller = controller;
@@ -80,4 +80,4 @@ class DecodingMsgSocket extends Converter {
   }
 }
 
-module.exports = DecodingMsgSocket;
+module.exports = DecoderForDev;

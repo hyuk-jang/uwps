@@ -1,11 +1,6 @@
 const BU = require('base-util-jh').baseUtil;
 
-const NU = require('base-util-jh').newUtil;
-
 const _ = require('underscore');
-
-global.BU = BU;
-global._ = _;
 
 let arr = [];
 let obj = {};
@@ -19,9 +14,6 @@ function init() {
 const Decoder = require('./Decoder');
 const decoder = new Decoder();
 
-const DecodingMsgSocket = require('../dev/Decoder');
-const decodingMsgSocket = new DecodingMsgSocket();
-
 const protocol = require('./s_hexProtocol');
 const protocolTable = protocol.encodingProtocolTable('01');
 
@@ -33,17 +25,6 @@ function makeSingleMsg(cmd, obj) {
 
   return returnValue;
 }
-
-
-const cmdList = {
-  getOperation: 'operation',
-  getPv: 'pv',
-  getGrid: 'grid',
-  getPower: 'power',
-  getSystem: 'system',
-  getWeather: 'weather'
-}
-
 
 function makeBufferMsg(cmd, arr) {
   // BU.CLI(cmd, arr)
@@ -128,16 +109,10 @@ function makeReceiveData(cmd, hasBinary, bufferWidth) {
   return buffer;
 
   returnValue = decoder._receiveData(buffer)
-  BU.CLI(cmd, buffer, returnValue);
+  // BU.CLI(cmd, buffer, returnValue);
 
   return returnValue;
 }
-
-// makeReceiveData('system')
-// makeReceiveData('power')
-// makeReceiveData('grid')
-// makeReceiveData('pv')
-// makeReceiveData('operation', true)
 
 function makeFaultMsg() {
   let returnValue = [];
@@ -150,6 +125,14 @@ function makeFaultMsg() {
   // BU.CLI(returnValue)
   return Buffer.concat(returnValue);
 }
+
+// module.exports = {
+//   operation: makeReceiveData('operation', true),
+//   pv: makeReceiveData('pv'),
+//   grid: makeReceiveData('grid'),
+//   power: makeReceiveData('power'),
+//   system: makeReceiveData('system'),
+// };
 
 module.exports = [
   makeReceiveData('operation', true),

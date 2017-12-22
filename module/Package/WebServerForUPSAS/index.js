@@ -1,3 +1,8 @@
+
+process.env.NODE_ENV = 'production';
+process.env.NODE_ENV = 'development';
+
+
 const Promise = require('bluebird')
 
 const InitSetter = require('./config/InitSetter.js');
@@ -31,9 +36,11 @@ exchangeInfo()
     return operationController();
   })
   .catch(error => {
-    BU.CLI('????')
+    BU.CLI('????', error)
+    setTimeout(() => {
+      process.exit();
+    }, 10000);
     BU.errorLog('init', 'init() 실패', error);
-    process.exit();
   })
 
 process.on('unhandledRejection', r => console.log(BU.CLI(r)));

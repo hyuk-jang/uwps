@@ -26,7 +26,7 @@ module.exports = function (dbInfo) {
 
   app.use(flash());
 
-  app.use(express.static(path.join(__dirname, '../', 'public')));
+  app.use(express.static(path.join(process.cwd(), '/', 'public')));
   app.use(session({
     key: 'sid',
     secret: BU.GUID(),
@@ -36,11 +36,11 @@ module.exports = function (dbInfo) {
   }));
 
 
-  app.use('/upload', serveStatic(path.join(__dirname, '../', 'uploads')));
+  app.use('/upload', serveStatic(path.join(process.cwd(), '/', 'uploads')));
 
   app.engine('html', require('ejs').renderFile);
   app.set('view engine', 'html');
-  app.set('views', path.join(__dirname, '../', 'views'));
+  app.set('views', path.join(process.cwd(), '/', 'views'));
 
   // 배포 Ver 일 경우 사용자 권한 체크
   if (app.get('env') === 'production') {
@@ -58,6 +58,10 @@ module.exports = function (dbInfo) {
     //     next();
     // })
   }
+
+  // Pkg 를 위한 path 추가
+  path.join(process.cwd(), '/controllers/**/*')
+  path.join(process.cwd(), '/models/**/*')
 
 
   // Error-handling middleware

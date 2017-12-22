@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "build-dev": "pkg -t latest-win-x64 -o . ./index.js",
+    "build-prod": "pkg -t latest-win-x64 -o . ./.prod/app.js"
   },
   "dependencies": {
     "base-class-jh": "^1.0.2",
@@ -38,5 +40,9 @@
   "main": "index.js",
   "devDependencies": {},
   "author": "smsoft",
-  "license": "ISC"
+  "license": "ISC",
+  "pkg": {
+    "scripts": "public/**/*.js",
+    "assets": "views/**/*"
+  }
 }

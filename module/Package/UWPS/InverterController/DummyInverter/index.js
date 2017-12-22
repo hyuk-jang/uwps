@@ -6,6 +6,13 @@ module.exports = Control;
 
 // if __main process
 if (require !== undefined && require.main === module) {
+  process.on('uncaughtException', (err) => {
+    console.log(`Caught exception: ${err}\n`);
+    setTimeout(() => {
+      process.exit()
+    }, 1000 * 60);
+  });
+  
   const Promise = require('bluebird');
   const _ = require('underscore');
   const BU = require('base-util-jh').baseUtil;

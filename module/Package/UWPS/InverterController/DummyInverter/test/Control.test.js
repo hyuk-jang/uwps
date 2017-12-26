@@ -56,7 +56,7 @@ describe('dummy Inverter Test', () => {
         allDummyDataList.push(dummyData);
       })
       finalDummyDataList = _.flatten(allDummyDataList);
-      BU.CLI(finalDummyDataList)
+      BU.CLI(finalDummyDataList.length)
     })
 
 

@@ -1,38 +1,35 @@
-const _ = require('underscore');
-const Control = require('./Control.js');
-const config = require('./config.js');
-const BU = require('base-util-jh').baseUtil;
+'use strict';
 
-global.BU = BU;
+const Control = require('./src/Control.js');
+module.exports = Control;
 
 
-let control = new Control(config);
-let result = 0;
-let test = control.init()
-  .then(hasRun => {
-    if (hasRun) {
-      BU.CLI('hasRun', hasRun)
-      return control.p_SocketServer.cmdProcessor('operation');
-      // return control.p_SocketServer.cmdProcessor('weather');
-    }
-  })
-  .then(result => {
-    // result = control.cmdProcessor('pv');
+// if __main process
+if (require !== undefined && require.main === module) {
+  process.on('uncaughtException', (err) => {
+    console.log(`Caught exception: ${err}\n`);
+    setTimeout(() => {
+      process.exit()
+    }, 1000 * 60);
+  });
+  
+  const Promise = require('bluebird');
+  const _ = require('underscore');
+  const BU = require('base-util-jh').baseUtil;
+  const bmjh = require('base-model-jh');
+  global.BU = BU;
 
-    BU.CLIS(result)
-    return control.p_SocketServer.cmdProcessor('ampList');
-  }).catch(err => {
-    BU.CLI(err)
-  })
-  .then(result => {
-    BU.CLI(result)
+  const control = new Control({
+    dailyKwh: 10,
+    cpKwh: 30
   });
 
+  control.init()
+  .then(r => {
+    console.trace(r)
+  })
+  .catch(e => {
+    console.trace(e)
+  })
 
-
-// let control2 = new Control(config);
-// control2.init((err, port) => {
-//   BU.CLI(err, port)
-// });
-
-// BU.CLI(control)
+}

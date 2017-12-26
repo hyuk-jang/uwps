@@ -2,7 +2,6 @@ const {expect} = require('chai')
 const Encoder = require('../src/Encoder')
 
 const BU = require('base-util-jh').baseUtil;
-const NU = require('base-util-jh').newUtil;
 const _ = require('underscore');
 
 describe('Encoder Test', () => {
@@ -13,7 +12,7 @@ describe('Encoder Test', () => {
 
   it('makeMsg Test', done => {
     let result = encoder.makeMsg()
-    // console.trace(result)
+    console.trace(result)
     expect(result).to.be.ok
     done()
   })

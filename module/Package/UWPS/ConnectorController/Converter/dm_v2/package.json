@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "start": "node index.js"
+    "test": "node_modules/.bin/mocha -w",
+    "start": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "base-class-jh": "^1.0.4",
+    "base-class-jh": "^1.0.6",
     "chai": "^4.1.2",
     "mocha": "^4.0.1"
   }

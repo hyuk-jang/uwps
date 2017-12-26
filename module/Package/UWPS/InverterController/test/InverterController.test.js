@@ -1,7 +1,6 @@
 const _ = require('underscore');
 
 const {expect} = require('chai')
-const Decoder = require('../src/Control')
 
 const BU = require('base-util-jh').baseUtil;
 

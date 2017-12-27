@@ -49,15 +49,15 @@
               </thead>
               <tbody id="myTable">
                 <%
-                let total_in_w = _.pluck(inverterStatus, 'in_w').sum().scale(0.001, 3)
-                let total_out_w = _.pluck(inverterStatus, 'out_w').sum().scale(0.001, 3)
-                let total_d_wh = _.pluck(inverterStatus, 'd_wh').sum().scale(0.001, 3)
-                let total_c_wh = _.pluck(inverterStatus, 'c_wh').sum().scale(0.000001, 4);
+                var total_in_w = _.pluck(inverterStatus, 'in_w').sum().scale(0.001, 3)
+                var total_out_w = _.pluck(inverterStatus, 'out_w').sum().scale(0.001, 3)
+                var total_d_wh = _.pluck(inverterStatus, 'd_wh').sum().scale(0.001, 3)
+                var total_c_wh = _.pluck(inverterStatus, 'c_wh').sum().scale(0.000001, 4);
 
 
-                for(let i = 0 ;i < inverterStatus.length ; i++)
+                for(var i = 0 ;i < inverterStatus.length ; i++)
                 {
-                  let inverterData = inverterStatus[i];
+                  var inverterData = inverterStatus[i];
                 %>
 
                   <tr class="sel">
@@ -141,7 +141,7 @@
       });
       $(function () {
         var chartDataObj = <%- JSON.stringify (chartDataObj) %>;
-        let yMax = 1500;
+        var yMax = 1500;
 
         $('#chart_div').highcharts({
           title: {

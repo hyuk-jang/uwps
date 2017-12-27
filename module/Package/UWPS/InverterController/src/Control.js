@@ -126,7 +126,10 @@ class Control extends EventEmitter {
     return this;
   }
 
-  // 인버터 접속 클라이언트 설정
+  /**
+   * 인버터 장치 접속
+   * @return {Object} Socket or Serial Object Client
+   */
   async connectInverter() {
     // BU.CLI('connectInverter')
     try {

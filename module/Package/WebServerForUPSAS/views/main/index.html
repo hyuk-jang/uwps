@@ -217,40 +217,47 @@
 
 
       <script>
-        $(document).ready(() => {
+        $(document).ready(function () {
           changeModuleInfo();
         })
 
 
-        const moduleStatus = <%- JSON.stringify(moduleStatus) %>;
-        const moduleViewSizeCount = 4;
+        var moduleStatus = <%- JSON.stringify(moduleStatus) %>;
+        var moduleViewSizeCount = 4;
 
         function changeModuleInfo(changeValue) {
-          // console.log('changeModuleInfo',changeValue)
-          changeValue = Number.isInteger(changeValue) ? changeValue : 0;
-          let pCount = document.querySelector('#pageNumCount').dataset.count;
-          let pLimit = document.querySelector('#pageNumLimit').dataset.count;
+          $("#moduleStatus").html("");
+          changeValue = $.isNumeric(changeValue) ? changeValue : 0;
+          var pCount = $("#pageNumCount").data("count");
+          var pLimit = $("#pageNumLimit").data("count");
 
-          let changeCount = Number(pCount) + changeValue;
-          // console.log('changeCount',changeCount, 'pLimit', pLimit)
+          var changeCount = Number(pCount) + changeValue;
+          console.log('changeCount',changeCount, 'pLimit', pLimit)
           if (changeCount <= 0) {
             changeCount = pLimit;
           } else if (changeCount > pLimit) {
             changeCount = 1;
           }
 
-          // console.log('changeCount',changeCount)
+          $("#pageNumCount").data("count", changeCount);
+          $("#pageNumCount").html(changeCount)
 
-          document.querySelector('#pageNumCount').dataset.count = changeCount;
+          var startIndex = (changeCount - 1) * moduleViewSizeCount;
+          for (var i = 0; i < 4; i++) {
+            var currIndex = startIndex + i;
+            var template = null;
+            var clone = null;
 
-          let startIndex = (changeCount - 1) * moduleViewSizeCount;
-          let drawPagingList = [];
+            // IE
+            if (navigator.appName === 'Netscape' || navigator.appName === 'Microsoft Internet Explorer') {
+              template = document.querySelector('#moduleStatusTemplate').innerHTML;
+              clone = $.parseHTML(template)
+            } else {  // FireFox, Chrome
+              template = document.querySelector('#moduleStatusTemplate');
+              clone = document.importNode(template.content, true);
+            }
 
-          for (let i = 0; i < 4; i++) {
-            let currIndex = startIndex + i;
-            var template = document.querySelector('#moduleStatusTemplate');
-            var clone = document.importNode(template.content, true);
-            let $findIt = null;
+            var $findIt = null;
             if (moduleStatus[currIndex]) {
               var moduleInfo = moduleStatus[currIndex];
 
@@ -270,21 +277,17 @@
               $findIt = $(clone).find('[data-type=kw]');
               $findIt.val(kw)
               // TODO 작동 유무 이미지 변경 필요
-
             } else {
               $findIt = $(clone).find('[data-type=operation]');
               $findIt.remove();
             }
-            drawPagingList.push(clone)
+            $('#moduleStatus').append(clone)
           }
-
-          document.querySelector('#pageNumCount').innerHTML = changeCount;
-          $('#moduleStatus').html(drawPagingList)
         }
       </script>
 
       <script type="text/javascript">
-        let powerGenerationInfo = <%- JSON.stringify(powerGenerationInfo) %>;
+        var powerGenerationInfo = <%- JSON.stringify(powerGenerationInfo) %>;
         var gaugeOptions = {
 
           chart: {

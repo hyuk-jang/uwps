@@ -48,10 +48,10 @@
             <tbody>
               <%  
                 var startListNum = (paginationInfo.page - 1) * paginationInfo.pageListCount;
-                for(let index = 0; index < alarmList.length; index++){
+                for(var index = 0; index < alarmList.length; index++){
                   
-                  let eleInfo = alarmList[index];
-                  let count = index + 1;
+                  var eleInfo = alarmList[index];
+                  var count = index + 1;
               %>
                 <tr class="sel tex">
                   <td class="td1 td1_num">
@@ -88,22 +88,23 @@
 
 
       <script>
-        let searchRange = <%- JSON.stringify(searchRange)  %>;
+        var searchRange = <%- JSON.stringify(searchRange)  %>;
         // 검색 클릭 시
         function searchReport() {
-          let startDate = document.getElementById('start_date_input').value;
-          let endDate = document.getElementById('end_date_input').value;
+          var startDate = document.getElementById('start_date_input').value;
+          var endDate = document.getElementById('end_date_input').value;
           if (startDate > endDate) {
             return alert('종료일이 시작일보다 빠를 수 없습니다.');
           }
 
           // return;
-          return location.href = `/alarm?start_date=${startDate}&end_date=${endDate}`;
+          return location.href = "/alarm?start_date=" + startDate + "&end_date=" + endDate;
+          // return location.href = `/alarm?start_date=${startDate}&end_date=${endDate}`;
         }
 
-        $(document).ready(() => {
-          let startDateDom = document.querySelector('#start_date_input');
-          let endDateDom = document.querySelector('#end_date_input');
+        $(document).ready(function(){
+          var startDateDom = document.querySelector('#start_date_input');
+          var endDateDom = document.querySelector('#end_date_input');
 
           startDateDom.value = searchRange.strStartDateInputValue;
           endDateDom.value = searchRange.strEndDateInputValue;

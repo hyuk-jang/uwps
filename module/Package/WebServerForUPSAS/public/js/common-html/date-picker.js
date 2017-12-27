@@ -1,7 +1,7 @@
 function makeDatePicker(dom, viewMode) {
-  viewMode = Number.isInteger(viewMode) ? viewMode : 0
+  viewMode = $.isNumeric(viewMode) ? viewMode : 0;
 
-  let dateFormat = '';
+  var dateFormat = '';
   switch (viewMode) {
     case 0:
       dateFormat = 'yyyy-mm-dd'

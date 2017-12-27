@@ -39,15 +39,25 @@ class Control extends EventEmitter {
     return this.model.cntSavedInfo.target_id;
   }
 
+  /**
+   * DB 에 입력할 데이터 형태 반환
+   */
   get refineConnectorData() {
     return this.model.refineConnectorData;
   }
 
+  /**
+   * Connector 원본 데이터
+   * @return {Object} Connector Data Object
+   */
   get connectorData() {
     return this.model.connectorData;
   }
 
-  // DB 정보를 넣어둔 데이터 호출
+  /**
+   * DB 데이터 정제 결과물
+   * @return {Object} config info
+   */
   getConnectorInfo() {
     // BU.CLI(this.model.cntSavedInfo)
     return this.model.cntSavedInfo;
@@ -98,7 +108,18 @@ class Control extends EventEmitter {
     }
   }
 
-  // 접속반 modbus 프로토콜로 접속하여 데이터 추출
+  /**
+   * 접속반 장치 접속
+   * @return {Object} Socket or Serial Object Client
+   */
+  async connectDevice(){
+
+  }
+
+  /**
+   * 접속반 계측 데이터 요청 리스트 전송 및 응답 시 결과 데이터 반환
+   * @returns {Promise} 정제된 Connector 계측 데이터 전송(DB 입력 용)
+   */
   async measureConnector() {
     try {
       let moduleDat = await this.p_ModbusClient.measure();
@@ -109,6 +130,33 @@ class Control extends EventEmitter {
       console.error(error)
       return {};
     }
+  }
+
+  /**
+   * 접속반에 데이터 요청명령 발송. 주어진 시간안에 명령에 대한 응답을 못 받을 경우 에러 처리
+   * @param  cmd 요청할 명령
+   */
+  async send2Cmd(cmd) {
+
+  }
+
+  async msgSendController(cmd) {
+
+  }
+
+  /**
+   * 메시지 이벤트 종료 이벤트 핸들러
+   */
+  async _receiveMsgHandler() {
+
+  }
+
+  /**
+   * 
+   * @param {Object} msg 접속반 객체(Serial or Socket)에서 수신받은 데이터
+   */
+  _onReceiveInverterMsg(msg) {
+
   }
 
   eventHandler() {

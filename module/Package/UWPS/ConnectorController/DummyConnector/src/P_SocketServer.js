@@ -34,9 +34,18 @@ class P_SocketServer extends SmSocketServer {
       // CMD에 따라
       if (receiveObj.cmd !== '') {
         // BU.CLI(responseObj)
-        returnValue = this.cmdProcessor(receiveObj.cmd);
+
+        let ch_number = this.controller.config.ch_number;
+        returnValue = [];
+        // ch 숫자에 맞춰서 TEST 데이터 생성
+        for (let cnt = 1; cnt <= ch_number; cnt++) {
+          returnValue.push({
+            amp: 15.3,
+            vol: 223.3,
+            ch: cnt
+          })
+        }
       } else {
-        // BU.CLI('알수없는 App 메시지', socketData);
         returnValue = {
           'cmd': 'UndefinedCMD',
           'isError': '1',
@@ -46,61 +55,5 @@ class P_SocketServer extends SmSocketServer {
       return socket.write(BU.makeMessage(returnValue))
     })
   }
-
-  cmdProcessor(cmd) {
-    // BU.CLI('cmdProcessor', cmd)
-    let returnValue = this.controller.getBaseInverterValue();
-    let isTrue = _.random(0, 1);
-    switch (cmd) {
-      case 'operation':
-        returnValue.isError = _.random(0, 1);
-        returnValue.isRun = _.random(0, 1);
-        returnValue.errorList = returnValue.isError ? [{
-          msg: '태양전지 저전압 (변압기 type Only)',
-          code: 'Solar Cell UV fault',
-          number: 2,
-          errorValue: 1
-        }] : [];
-        break;
-      case 'pv':
-        _.each(this.controller.model.pv, (value, key) => {
-          returnValue[key] = value;
-        });
-        break;
-      case 'grid':
-        _.each(this.controller.model.grid, (value, key) => {
-          returnValue[key] = value;
-        });
-        break;
-      case 'power':
-        _.each(this.controller.model.power, (value, key) => {
-          returnValue[key] = value;
-        });
-        break;
-      case 'system':
-        _.each(this.controller.model.sysInfo, (value, key) => {
-          returnValue[key] = value;
-        });
-        break;
-      // case 'operation':
-      //   returnValue = this.controller.model.operationInfo;
-      //   break;
-      case 'weather':
-        _.each(this.controller.model.weather, (value, key) => {
-          returnValue[key] = value;
-        });
-        break;
-      default:
-        break;
-    }
-
-    // BU.CLI(returnValue)
-    return returnValue;
-  }
-
-  // createServer(){
-  //   return super.createServer();
-  // }
-
 }
 module.exports = P_SocketServer;

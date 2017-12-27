@@ -19,10 +19,7 @@ if (require !== undefined && require.main === module) {
   const bmjh = require('base-model-jh');
   global.BU = BU;
 
-  const control = new Control({
-    dailyKwh: 10,
-    cpKwh: 30
-  });
+  const control = new Control();
 
   control.init()
   .then(r => {

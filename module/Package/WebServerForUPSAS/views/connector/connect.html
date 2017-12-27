@@ -61,8 +61,8 @@
                 <tr>
                   <th style="width:12%;"></th>
                   <%
-                    for(let i = 0; i < gridInfo.maxModuleViewNum; i++){
-                      let chName = 'CH ' + Number(i + 1);
+                    for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
+                      var chName = 'CH ' + Number(i + 1);
                   %>
                     <th style="width:11%;">
                       <%= chName %>
@@ -76,9 +76,9 @@
                 <tr class="sel">
                   <td class="td1">설치장소</td>
                   <%
-                  for(let i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    let moduleStatus = moduleStatusList[i];
-                    let modulePlace = moduleStatus ? moduleStatus.modulePlace ? moduleStatus.modulePlace : '외부' : '';
+                  for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
+                    var moduleStatus = moduleStatusList[i];
+                    var modulePlace = moduleStatus ? moduleStatus.modulePlace ? moduleStatus.modulePlace : '외부' : '';
                   %>
                     <td>
                       <%= modulePlace %>
@@ -90,9 +90,9 @@
                 <tr class="sel">
                   <td class="td1">모듈 타입</td>
                   <%
-                  for(let i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    let moduleStatus = moduleStatusList[i];
-                    let moduleType = moduleStatus ? moduleStatus.target_name : '';
+                  for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
+                    var moduleStatus = moduleStatusList[i];
+                    var moduleType = moduleStatus ? moduleStatus.target_name : '';
                   %>
                     <td>
                       <%= moduleType %>
@@ -104,9 +104,9 @@
                 <tr class="sel">
                   <td class="td1">제조사</td>
                   <%
-                  for(let i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    let moduleStatus = moduleStatusList[i];
-                    let manufacturer = moduleStatus ? moduleStatus.manufacturer : '';
+                  for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
+                    var moduleStatus = moduleStatusList[i];
+                    var manufacturer = moduleStatus ? moduleStatus.manufacturer : '';
                   %>
                     <td>
                       <%= manufacturer %>
@@ -118,9 +118,9 @@
                 <tr class="sel">
                   <td class="td1">전류 (A)</td>
                   <%
-                  for(let i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    let moduleStatus = moduleStatusList[i];
-                    let amp = moduleStatus ? moduleStatus.amp : '';
+                  for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
+                    var moduleStatus = moduleStatusList[i];
+                    var amp = moduleStatus ? moduleStatus.amp : '';
                   %>
                     <td>
                       <%= amp %>
@@ -132,9 +132,9 @@
                 <tr class="sel">
                   <td class="td1">전압 (V)</td>
                   <%
-                  for(let i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    let moduleStatus = moduleStatusList[i];
-                    let vol = moduleStatus ? moduleStatus.vol : '';
+                  for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
+                    var moduleStatus = moduleStatusList[i];
+                    var vol = moduleStatus ? moduleStatus.vol : '';
                   %>
                     <td>
                       <%= vol %>
@@ -146,9 +146,9 @@
                 <tr class="sel">
                   <td class="td1">모듈온도(℃)</td>
                   <%
-                  for(let i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    let moduleStatus = moduleStatusList[i];
-                    let moduleTemperature = '';
+                  for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
+                    var moduleStatus = moduleStatusList[i];
+                    var moduleTemperature = '';
                   %>
                     <td>
                       <%= moduleTemperature %>
@@ -160,9 +160,9 @@
                 <tr class="sel">
                   <td class="td1">장치상태</td>
                   <%
-                  for(let i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    let moduleStatus = moduleStatusList[i];
-                    let moduleOperation = moduleStatus ? 'image/green.png' : '';
+                  for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
+                    var moduleStatus = moduleStatusList[i];
+                    var moduleOperation = moduleStatus ? 'image/green.png' : '';
                   %>
                     <td class="center_ball">
                       <img src="<%= moduleOperation %>" />

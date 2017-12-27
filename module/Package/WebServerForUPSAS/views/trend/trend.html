@@ -88,16 +88,17 @@
       <!-- 기본 데이터 세팅 -->
       <script>
         // 초기 시작시 라디오 체크버튼 클릭처리
-        let searchRange = <%- JSON.stringify(searchRange)  %>;
-        let trendReportList = <%- JSON.stringify (trendReportList) %>;
+        var searchRange = <%- JSON.stringify(searchRange)  %>;
+        var trendReportList = <%- JSON.stringify (trendReportList) %>;
 
-        $(document).ready(() => {
+        $(document).ready(function() {
           console.log('searchRange', searchRange, trendReportList)
-          let searchType = '<%-searchType%>';
+          var searchType = '<%-searchType%>';
           if (!trendReportList.hasData) {
             alert('조회 내역이 없습니다.');
           }
-          let selectedObj = document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
+          var selectedObj = $("#sel_type_div_area").find("input[value=" + searchType + "]") ;
+          // document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
 
           $(selectedObj).trigger('click');
         })
@@ -109,16 +110,16 @@
          * @return {void} 
          */
         function setterSelectType(target) {
-          let checkedSearchType = target.value;
-          let startDateDom = document.querySelector('#start_date_input');
-          let endDateDom = document.querySelector('#end_date_input');
+          var checkedSearchType = target.value;
+          var startDateDom = document.querySelector('#start_date_input');
+          var endDateDom = document.querySelector('#end_date_input');
 
-          let startDate = new Date(searchRange.strStartDateInputValue);
-          let endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
+          var startDate = new Date(searchRange.strStartDateInputValue);
+          var endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
             'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
 
-          let viewMode = 0;
-          let sliceEndIndex = 10;
+          var viewMode = 0;
+          var sliceEndIndex = 10;
 
           checkedSearchType === 'range' ? $('#end_date_input').show() : $('#end_date_input').hide();
 
@@ -141,10 +142,10 @@
 
         // 검색 클릭 시
         function searchTrend() {
-          let connector_seq = document.querySelector('#cnt_list_sel option:checked').value;
-          let searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
-          let startDate = document.getElementById('start_date_input').value;
-          let endDate = '';
+          var connector_seq = document.querySelector('#cnt_list_sel option:checked').value;
+          var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
+          var startDate = document.getElementById('start_date_input').value;
+          var endDate = '';
 
           if (searchType === 'range') {
             endDate = document.getElementById('end_date_input').value;
@@ -153,8 +154,8 @@
             }
           }
 
-          return location.href =
-            `/trend?connector_seq=${connector_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}`;
+          return location.href ="/trend?connector_seq=" + connector_seq + "&start_date=" + startDate + "&end_date=" + endDate + "&search_type=" + searchType;
+          // `/trend?connector_seq=${connector_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}`;
         }
       </script>
 

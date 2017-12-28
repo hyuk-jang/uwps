@@ -1,5 +1,5 @@
 {
-  "name": "dummy-connector",
+  "name": "dev",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,9 +7,11 @@
     "test": "node_modules/.bin/mocha -w",
     "start": "nodemon index.js"
   },
-  "author": "j.hyuk",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
   "dependencies": {
-    "base-class-jh": "^1.0.10"
+    "base-class-jh": "^1.0.10",
+    "base-util-jh": "^1.0.7"
   }
 }

@@ -1,30 +1,30 @@
 const net = require('net');
 const _ = require('underscore');
 
-const SmSocketClient = require('base-class-jh').SmSocketClient;
+const bcjh = require('base-class-jh');
 
 const BU = require('base-util-jh').baseUtil;
 
 
-class P_SocketServer extends SmSocketClient {
+class P_SocketServer extends bcjh.socket.SocketClient {
   constructor(controller) {
-    super(controller.config.ivtSavedInfo.port, controller.config.ivtSavedInfo.ip);
+    super(controller.config.cntSavedInfo.port, controller.config.cntSavedInfo.ip);
     this.controller = controller;
 
-    // this.port = this.controller.ivtSavedInfo.port;
-    // this.ip = this.controller.ivtSavedInfo.ip;
+    // this.port = this.controller.cntSavedInfo.port;
+    // this.ip = this.controller.cntSavedInfo.ip;
 
     this._eventHandler();
     
   }
 
   _eventHandler() {
-    super.on('dataBySocketClient', (err, data) => {
+    super.on('data', (err, data) => {
       // BU.CLI(err, data)
       return this.controller.emit('receiveConnectorData',err, data)
     });
 
-    super.on('disconnectedSocketClient', (err) => {
+    super.on('close', (err) => {
       // BU.CLI(err, data)
       return this.controller.emit('disconnectedConnector',err)
     })

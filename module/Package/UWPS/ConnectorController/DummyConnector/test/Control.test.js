@@ -4,7 +4,6 @@ const {
 const Promise = require('bluebird');
 const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
-const bmjh = require('base-model-jh');
 const bcjh = require('base-class-jh');
 
 
@@ -33,27 +32,24 @@ describe('dummy Connector Test', () => {
 
 
   it('client connect', done => {
-    const SmSocketClient = bcjh.SmSocketClient;    
-    const smSocketClient = new SmSocketClient(port)
-    smSocketClient.connect(port)
-    .then(socket => {
+    const SocketClient = bcjh.socket.SocketClient;    
+    const socketClient = new SocketClient(port)
+    socketClient.connect()
+    .then(client => {
       BU.CLI('New Connector Client Connected');
-      let msg = BU.makeMessage('test');
-      BU.CLI(msg)
-      socket.write(msg);
+      // 보내는  msg는 'pv' 하나만
+      let msg = bcjh.classModule.makeRequestMsgForTransfer('pv')
+      // BU.CLIS(msg, msg.toString())
+      client.write(msg);
     })
     .catch(err => {
       done(err)
     })
 
-    smSocketClient.on('dataBySocketClient', (err, data) => {
-      BU.CLI(err, data)
+    // 받는 데이터는 str JSON 형식으로
+    socketClient.on('data', (err, data) => {
+      BU.CLIS(err, data, JSON.parse(data.toString()) )
       done();
     })
   })
-
-
-
-  
-
 })

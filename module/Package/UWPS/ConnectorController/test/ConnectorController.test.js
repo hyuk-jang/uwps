@@ -37,7 +37,7 @@ describe('Connector Controller Test', () => {
       }]
       let result = control.model.onData(connectorDataList);
       
-      // BU.CLI(result)
+      BU.CLI(result)
       expect(result.length).to.be.equal(config.current.cntSavedInfo.ch_number)
       // BU.CLI(control.refineConnectorData)
 
@@ -62,6 +62,7 @@ describe('Connector Controller Test', () => {
           done();
         })
         .catch(error => {
+          BU.CLI(error)
           done(error)
         })
     })

@@ -32,13 +32,13 @@ class Control extends EventEmitter {
     this.testStubData = [];
     this.connectedInverter = null;
 
-    this.p_SocketClient = new P_SocketClient(this);
-
+    
     // Model
     this.model = new Model(this);
-
+    
     // Process
     this.p_Setter = new P_Setter(this);
+    this.p_SocketClient = new P_SocketClient(this);
     this.p_SerialClient = new P_SerialClient(this);
 
     // Child
@@ -119,7 +119,7 @@ class Control extends EventEmitter {
     // 인버터 타입에 맞는 프로토콜을 바인딩
     let dialing = this.config.ivtSavedInfo.dialing;
     dialing = dialing.type === 'Buffer' ? Buffer.from(dialing) : dialing;
-    let socketPort = await this.p_Setter.settingConverter(dialing);
+    await this.p_Setter.settingConverter(dialing);
     // NOTE 인텔리전스를 위해 P_Setter에서 재정의함
     let connectedInverter = await this.connectInverter();
 

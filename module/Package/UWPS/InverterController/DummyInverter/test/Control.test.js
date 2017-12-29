@@ -29,14 +29,15 @@ describe('dummy Inverter Test', () => {
       .then(result => {
         // result = control.cmdProcessor('pv');
         BU.CLIS(result, control.model.power)
-        return control.p_SocketServer.cmdProcessor('power');
-      }).catch(err => {
-        BU.CLI(err)
+        return control.p_SocketServer.cmdProcessor('grid');
       })
       .then(r => {
         BU.CLI(r)
         done()
-      });
+      })
+      .catch(err => {
+        BU.CLI(err)
+      })
   })
 
   // DB 입력 테스트

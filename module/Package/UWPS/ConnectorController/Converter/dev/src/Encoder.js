@@ -13,8 +13,7 @@ class EncodingMsgSocket extends Converter {
    */
   makeMsg(){
     let returnValue = bcjh.classModule.makeRequestMsgForTransfer('pv')
-    // BU.CLI(returnValue);
-    return returnValue;
+    return [returnValue];
   }
 }
 

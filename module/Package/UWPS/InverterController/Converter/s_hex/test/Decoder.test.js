@@ -18,8 +18,9 @@ describe('Decoder Test', () => {
   let result
 
   beforeEach(() => {
-    let = cmd = cmdList.shift()
+    let cmd = cmdList.shift()
     let hasBinary = cmd === 'operation' ? true : false;
+    BU.CLI(cmd, hasBinary)
     dummyBuffer = makeReceiveData(cmd, hasBinary)
     BU.CLI('dummyBuffer',dummyBuffer)
   })
@@ -119,14 +120,14 @@ function makeReceiveData(cmd, hasBinary, bufferWidth) {
     });
   }
 
-  // BU.CLI(convertBufferBody)
+  BU.CLI(convertBufferBody)
   buffer = makeBufferMsg(cmd, convertBufferBody);
-  // BU.CLI(buffer)
+  BU.CLI(buffer)
   return buffer;
 }
 
 function makeBufferMsg(cmd, arr) {
-  // BU.CLI(cmd, arr)
+  BU.CLI(cmd, arr)
   let ACK = converter.ACK;
   let EOT = converter.EOT;
 
@@ -135,9 +136,12 @@ function makeBufferMsg(cmd, arr) {
   let code = protocolTable[cmd].code;
   let address = protocolTable[cmd].address;
 
+  BU.CLIS(dialing, code, address)
+
   let body = converter.makeMsg2Buffer([dialing, code, address], arr);
 
   // let realBuffer = Buffer.concat(arr);
+  BU.CLI(body)
   let checkSum = converter.getBufferCheckSum(body, 4);
   return Buffer.concat([ACK, body, checkSum, EOT])
 }

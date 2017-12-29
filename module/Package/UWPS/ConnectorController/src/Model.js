@@ -21,6 +21,17 @@ class Model {
       sendMsgTimeOutSec: 1000 * 1   // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
     }
 
+    // TEST DATA
+    this.testData = _.map(this.moduleList, (obj, index) => {
+      return  {
+        photovoltaic_seq: obj.photovoltaic_seq,
+        ch: index + 1,
+        amp: 0,
+        vol: 0,
+      }
+    })
+
+
   }
 
   initControlStatus() {
@@ -88,7 +99,7 @@ class Model {
    * @returns {Void} 
    */
   onData(connectorDataList) {
-    // BU.CLI('ondata', data)
+    // BU.CLI('ondata', connectorDataList)
 
     this.initModule();
     connectorDataList.forEach(dataInfo => {

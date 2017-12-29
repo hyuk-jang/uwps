@@ -33,8 +33,7 @@
     </thead>
     <tbody>
 
-
-      <template id='mytemplate'>
+<script type="text/html" id="mytemplate">
         <tr data-method='' data-location='' data-bank='' data-tel='' data-option='' data-checked=''>
           <td><input type='checkbox' name='mycheck' value=''></td>
           <td></td>
@@ -50,7 +49,9 @@
             </select>
           </td>
         </tr>
-      </template>
+
+</script>
+
 
       <tr data-seq='1' data-method='' data-num='1' data-location='NongGong' data-bank='12' data-tel='0102345223' data-checked='0'>
         <td><input type='checkbox' name='mycheck' value=''></td>
@@ -104,62 +105,44 @@
 
   </div>
 
-  <script>
-    function checkAjax() {
-      let trList = document.querySelectorAll('#test_table tbody tr');
-      let test = {};
-      trList.forEach((trElement) => {
-        let trEle = trElement.dataset;
-        test = Object.assign({}, trEle)
-        console.log(test);
-      })
-
-    }
-  </script>
-
-  <script>
-    let trList = document.querySelectorAll('#test_table tbody tr');
-    // console.log(trList)
-    trList.forEach((trElement) => {
-      console.log(trElement.dataset)
-    })
-  </script>
-
-  <script>
-    let testList = [];
-    document.querySelectorAll('#test_table tbody tr').forEach(function (trEle) {
-      if (trEle.dataset.bank === '12') {
-        return testList.push(Object.assign({}, trEle.dataset)) ;
+  <!-- <script>
+    var testList = [];
+    var tbodyTr = document.querySelectorAll('#test_table tbody tr');
+    // console.log(tbodyTr)
+    $.each(tbodyTr, function (index, value) {
+      // console.log('value',value, $(value).data)
+      if (value.dataset.bank === '12') {
+        return testList.push(Object.assign({}, value.dataset)) ;
       } else {
         return false;
       }
     });
     console.log(testList)
-  </script>
+  </script> -->
 
 
   <script>
     // checked rows를 가져옴
     function getCheckedRows() {
-      var rows = document.querySelectorAll('#test_table tbody tr[data-checked="1"]');
-      console.log(rows);
+      var rows = $("#test_table").find("tr[data-checked='1']");
       return rows;
     }
 
     function addRows() {
-      var template = document.querySelector('#mytemplate');
-      var clone = document.importNode(template.content, true);
-      document.querySelector('#test_table tbody').prepend(clone);
+      var template = document.querySelector('#mytemplate').innerHTML;
+      var clone = $.parseHTML(template)
+
+      $('#test_table tbody').prepend(clone);
     }
 
     function deleteRows() {
       var checkedList = getCheckedRows();
-      checkedList.forEach(function (row) {
-        var dataSet = row.dataset;
+      $.each(checkedList, function(index, row) {
+        var dataSet = $(row).data();
         if (dataSet.seq === null || dataSet.seq === undefined || dataSet.seq === '') {
-          row.remove();
+          $(row).remove();
         } else {
-          document.getElementById('deleteRows').prepend(row);
+          $("#deleteRows").prepend(row);
         }
       })
     }
@@ -168,35 +151,49 @@
       var hasChecked = document.getElementById('checkAll').checked;
       var rows = document.querySelectorAll('#test_table tbody input[type="checkbox"]');
 
-      rows.forEach(function (row) {
+      $.each(rows, function(index, row){
         row.checked = !hasChecked;
         $(row).trigger('click');
-      })
+      }) 
     }
   </script>
 
 
   <!--binding 관련-->
   <script>
-    // 체크 박스를 클릭했을 경우 값에 따라 http method attribute 적용
-    $('#test_table tbody').on('change', 'input[type="checkbox"]', function (event) {
-      var parent = this.closest('tr');
-      if (this.checked) {
-        parent.dataset.checked = '1';
-        if (parent.dataset.seq) {
-          parent.dataset.method = 'update';
-        } else {
-          parent.dataset.method = 'insert';
-        }
-      } else {
-        parent.dataset.checked = '0';
-        parent.dataset.method = '';
-      }
-    });
 
-    $('#test_table').on('change', '[data-type]', function (event) {
-      var parent = this.closest('tr');
-      parent.dataset[this.dataset.type] = this.value;
+    function applyDatasetDom($dom){
+      var dataSetList = $dom.data();
+      $.each(dataSetList, function(key, value){
+        $dom.attr("data-" + key, value)
+      })
+      return true;
+    }
+
+    // 체크 박스를 클릭했을 경우 값에 따라 http method attribute 적용
+
+  $("#test_table tbody").on("change", "input[type='checkbox']", function () {
+    var hasChecked = $(this).prop("checked");
+    var $parent = $(this).closest('tr');
+    if (hasChecked) {
+      $parent.data("checked", "1");
+      if ($parent.data("seq")) {
+        $parent.data("method", "update");
+      } else {
+        $parent.data("method", "insert");
+      }
+    } else {
+      $parent.data("checked", "0");
+      $parent.data("method", "");
+    }
+
+    applyDatasetDom($parent)
+  })
+
+    $("#test_table [data-type]").change(function(){
+      var $parent = $(this).closest('tr');
+      $parent.data("type", this.value)
+      applyDatasetDom($parent)
     });
   </script>
 

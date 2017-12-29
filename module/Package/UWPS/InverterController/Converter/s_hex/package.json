@@ -15,8 +15,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "base-class-jh": "^1.0.4",
+    "base-class-jh": "^1.0.12",
     "chai": "^4.1.2",
-    "mocha": "^4.0.1"
+    "mocha": "^4.1.0"
   }
 }

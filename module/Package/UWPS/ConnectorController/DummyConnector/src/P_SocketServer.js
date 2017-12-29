@@ -28,6 +28,7 @@ class P_SocketServer extends bcjh.socket.SocketServer {
       let cmd = '';
       try {
         let resolveBuffer = bcjh.classModule.resolveResponseMsgForTransfer(bufferData);
+        // BU.CLI(resolveBuffer)
         cmd = resolveBuffer.toString();
       } catch (ex) {
         // BU.CLI(ex);
@@ -35,6 +36,7 @@ class P_SocketServer extends bcjh.socket.SocketServer {
         returnValue.contents = ex;
         return connectedClient.write(bcjh.classModule.makeRequestMsgForTransfer(returnValue))
       }
+      // BU.CLI('cmd', cmd)
       // CMD에 따라
       if (cmd === 'pv') {
         let gridList = [];
@@ -50,6 +52,7 @@ class P_SocketServer extends bcjh.socket.SocketServer {
         returnValue.cmd = cmd;
         returnValue.contents = gridList;
       } else {
+        // BU.CLI('여기')
         returnValue = {
           cmd: 'undefinedCMD',
           isError: '1',
@@ -58,7 +61,7 @@ class P_SocketServer extends bcjh.socket.SocketServer {
       }
 
       let result = connectedClient.write(bcjh.classModule.makeRequestMsgForTransfer(returnValue));
-      BU.CLI(result)
+      // BU.CLI(result)
       return result
     })
   }

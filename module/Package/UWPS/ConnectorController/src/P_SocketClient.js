@@ -19,14 +19,14 @@ class P_SocketServer extends bcjh.socket.SocketClient {
   }
 
   _eventHandler() {
-    super.on('data', (err, data) => {
-      // BU.CLI(err, data)
-      return this.controller.emit('receiveConnectorData',err, data)
+    super.on('data', data => {
+      BU.CLI(data)
+      return this.controller.emit('data', null, data)
     });
 
     super.on('close', (err) => {
       // BU.CLI(err, data)
-      return this.controller.emit('disconnectedConnector',err)
+      return this.controller.emit('disconnected',err)
     })
 
   }

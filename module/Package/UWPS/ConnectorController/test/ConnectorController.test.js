@@ -55,7 +55,7 @@ describe('Connector Controller Test', () => {
       const control = new Control(config)
       control.init()
         .then(result => {
-          return control.measureConnector();
+          return control.measureDevice();
         })
         .then(result => {
           BU.CLI(result)
@@ -67,21 +67,21 @@ describe('Connector Controller Test', () => {
         })
     })
 
-    // it('Category: dev', done => {
-    //   config.current.ivtSavedInfo.target_category = 'dev'
-    //   const control = new Control(config)
-    //   control.init()
-    //     .then(result => {
-    //       return control.measureConnector();
-    //     })
-    //     .then(result => {
-    //       BU.CLI(result)
-    //       done();
-    //     })
-    //     .catch(error => {
-    //       done(error)
-    //     })
-    // })
+    it('Category: dev', done => {
+      config.current.cntSavedInfo.target_category = 'dev'
+      const control = new Control(config)
+      control.init()
+        .then(result => {
+          return control.measureDevice();
+        })
+        .then(result => {
+          BU.CLI(result)
+          done();
+        })
+        .catch(error => {
+          done(error)
+        })
+    })
   })
 
 })

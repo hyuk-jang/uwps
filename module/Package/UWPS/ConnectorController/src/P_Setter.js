@@ -13,8 +13,7 @@ class P_Setter extends EventEmitter {
 
   async settingConverter(dialing) {
     try {
-      BU.CLI(this.config)
-      console.log('T_T')
+      BU.CLI(this.config.cntSavedInfo.target_category)
       const Encoder = Converter[this.config.cntSavedInfo.target_category].Encoder;
       const Decoder = Converter[this.config.cntSavedInfo.target_category].Decoder;
 
@@ -30,11 +29,6 @@ class P_Setter extends EventEmitter {
         if (this.config.cntSavedInfo.connect_type === 'socket') {
           this.controller.model.cntSavedInfo.port = port;
         }
-
-        // // 개발용 버전이고 실제 인버터 프로토콜을 따른다면 Test Stub 장착
-        // if(this.config.cntSavedInfo.target_category !== 'dev') {
-        //   this.controller.testStubData = Converter[this.config.cntSavedInfo.target_category].dummyDataGenerator;
-        // }
       } 
 
       return true;
@@ -48,7 +42,7 @@ class P_Setter extends EventEmitter {
   async writeMsg(msg) {
     // BU.CLI(msg)
     if (this.config.cntSavedInfo.connect_type === 'socket' && this.controller.p_SocketClient.client === {}) {
-      BU.CLI('Socket Client 연결이되지 않았습니다.');
+      // BU.CLI('Socket Client 연결이되지 않았습니다.');
       this.controller.connectedConnector = {};
       throw Error('Socket Client 연결이 되지 않았습니다.');
     } else if (this.controller.p_SerialClient.serialClient === {}) {
@@ -58,7 +52,7 @@ class P_Setter extends EventEmitter {
     }
 
     // BU.CLI('Msg 발송', msg);
-    await this.controller.connectedConnector.write(msg);
+    await this.controller.connectedDevice.write(msg);
     return true;
   }
 }

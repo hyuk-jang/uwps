@@ -1,10 +1,11 @@
 'use strict'
 
 
+const dev = require('./dev')
 const dm_v2 = require('./dm_v2')
 
 module.exports = {
-  dm_v2
+  dev, dm_v2
 }
 
 

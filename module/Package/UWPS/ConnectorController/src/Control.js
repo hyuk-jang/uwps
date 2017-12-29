@@ -2,6 +2,7 @@
 const _ = require('underscore');
 const Promise = require('bluebird');
 const EventEmitter = require('events');
+const eventToPromise = require('event-to-promise');
 
 const {Converter} = require('base-class-jh');
 
@@ -31,6 +32,12 @@ class Control extends EventEmitter {
       moduleList: []
     };
     Object.assign(this.config, config.current);
+
+    // 추상 클래스 정의 --> Intellicense Support
+    this.encoder = new Converter();
+    this.decoder = new Converter();
+    // this.testStubData = [];
+    this.connectedDevice = null;
 
     // Model
     this.model = new Model(this);
@@ -111,7 +118,7 @@ class Control extends EventEmitter {
     try {
       // 개발 버전일경우 자체 더미 인버터 소켓에 접속
       let cntSavedInfo = this.model.cntSavedInfo;
-      BU.CLI(cntSavedInfo)
+      // BU.CLI(cntSavedInfo)
       if (cntSavedInfo.connect_type === 'socket') { // TODO Serial Port에 접속하는 기능
         // NOTE Dev모드에서는 Socket Port를 재설정하므로 지정 경로로 접속기능 필요
         this.connectedDevice = await this.p_SocketClient.connect(cntSavedInfo.port, cntSavedInfo.ip);
@@ -119,7 +126,7 @@ class Control extends EventEmitter {
       } else {
         this.connectedDevice = await this.p_SerialClient.connect();
       }
-      BU.log('Sucess Connected to Inverter ', cntSavedInfo.target_id);
+      BU.log('Sucess Connected to Connector ', cntSavedInfo.target_id);
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
@@ -137,7 +144,7 @@ class Control extends EventEmitter {
    * 접속반 계측 데이터 요청 리스트 전송 및 응답 시 결과 데이터 반환
    * @returns {Promise} 정제된 Connector 계측 데이터 전송(DB 입력 용)
    */
-  async measureConnector() {
+  async measureDevice() {
     return new Promise((resolve, reject) => {
       if (!BU.isEmpty(this.model.processCmd)) {
         reject('현재 진행중인 명령이 존재합니다.\n' + this.model.processCmd)
@@ -148,7 +155,7 @@ class Control extends EventEmitter {
       // BU.CLI(this.encoder)
       this.model.controlStatus.reserveCmdList = this.encoder.makeMsg();
 
-      BU.CLI(this.model.controlStatus.reserveCmdList)
+      // BU.CLI(this.model.controlStatus.reserveCmdList)
       Promise.each(this.model.controlStatus.reserveCmdList, cmd => {
           this.model.controlStatus.reserveCmdList.shift();
           this.model.controlStatus.processCmd = cmd;
@@ -157,7 +164,7 @@ class Control extends EventEmitter {
         })
         // .bind({})
         .then((result) => {
-          BU.CLI(`${this.connectorId}의 명령 수행이 모두 완료되었습니다.`);
+          // BU.CLI(`${this.connectorId}의 명령 수행이 모두 완료되었습니다.`);
           resolve(this.model.refineConnectorData)
         })
         .catch(err => {
@@ -167,9 +174,11 @@ class Control extends EventEmitter {
           // 컨트롤 상태 초기화
           this.model.initControlStatus();
 
+          reject(err)
+
           // TODO 에러시 어떻게 처리할 지 고민 필요
           //에러가 발생할 경우 빈 객체 반환
-          resolve({})
+          // resolve({})
         })
     })
   }
@@ -198,7 +207,7 @@ class Control extends EventEmitter {
   }
 
   async msgSendController(cmd) {
-    // BU.CLI(this.model.controlStatus)
+    // BU.CLI('msgSendController', this.model.controlStatus)
     if (BU.isEmpty(cmd)) {
       return new Error('수행할 명령이 없습니다.');
     }
@@ -224,8 +233,8 @@ class Control extends EventEmitter {
    * 
    * @param {Object} msg 접속반 객체(Serial or Socket)에서 수신받은 데이터
    */
-  _onReceiveInverterMsg(msg) {
-    // BU.CLI('_onReceiveInverterMsg', msg)
+  _onReceiveMsg(msg) {
+    // BU.CLI('_onReceiveMsg', msg)
     // 명령 내리고 있는 경우에만 수신 메시지 유효
     if (!BU.isEmpty(this.model.processCmd)) {
       try {
@@ -235,14 +244,15 @@ class Control extends EventEmitter {
         // 인버터 데이터 송수신 종료 이벤트 발생
         return this.emit('completeSend2Msg', result);
       } catch (error) {
+        // BU.CLI(error)
         // 개발 버전이고, 일반 인버터 프로토콜을 사용, 테스트용 데이터가 있다면 
-        if (this.config.hasDev && this.config.cntSavedInfo.target_category !== 'dev' && !BU.isEmpty(this.testStubData[this.model.controlStatus.sendIndex])) {
-          // BU.CLI(this.testStubData[this.model.controlStatus.sendIndex])
-          return this._onReceiveInverterMsg(this.testStubData[this.model.controlStatus.sendIndex])
+        if (this.config.hasDev && this.config.cntSavedInfo.target_category !== 'dev') {
+          this.model.onData(this.model.testData);
+          return this.emit('completeSend2Msg', this.model.testData);
         }
         // 데이터가 깨질 경우를 대비해 기회를 더 줌
         if (this.model.controlStatus.retryChance--) {
-          BU.CLI('기회 줌', this.model.controlStatus.retryChance)
+          //  BU.CLI('기회 줌', this.model.controlStatus.retryChance)
           return Promise.delay(30).then(() => {
             return this.p_Setter.writeMsg(this.model.processCmd).catch(err => {
               BU.CLI(err)
@@ -265,6 +275,15 @@ class Control extends EventEmitter {
 
     this.on('connected', () => {
       this.model.hasConnectedDevice = true;
+    })
+
+    // 데이터 수신 핸들러
+    this.on('data', (err, result) => {
+      // BU.CLI(err, result)
+      if (err) {
+        return BU.errorLog('receiveDataError', err)
+      }
+      return this._onReceiveMsg(result);
     })
 
   }

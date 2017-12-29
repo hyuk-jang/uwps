@@ -17,15 +17,16 @@ describe('Encoder Test', () => {
 
   it('makeMsg Test', done => {
     let result = encoder.makeMsg()
-    // console.trace(result)
+    console.trace(result)
     expect(result).to.be.ok
     done()
   })
 
   it('makeMsg single Test', done => {
+    BU.CLI(cmdList)
     cmdList.forEach(ele => {
-      let result = encoder.makeSingleMsg(cmdList[ele]);
-      BU.CLI(cmdList[ele], result)
+      let result = encoder.makeSingleMsg(ele);
+      BU.CLI(ele, result)
       expect(result).to.be.ok
     })
     done()

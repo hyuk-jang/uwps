@@ -1,9 +1,9 @@
 'use strict';
 
 const BU = require('base-util-jh').baseUtil;
-const {Converter} = require('base-class-jh');
+const bcjh = require('base-class-jh');
 
-class EncoderForDev extends Converter {
+class EncoderForDev extends bcjh.Converter {
   constructor() {
     super();
 
@@ -15,7 +15,8 @@ class EncoderForDev extends Converter {
   makeMsg(){
     let returnValue = [];
     this.cmdList.forEach(cmd => {
-      returnValue.push(BU.makeMessage({cmd}));
+      let bufferMsg = bcjh.classModule.makeRequestMsgForTransfer(cmd)
+      returnValue.push(bufferMsg);
     })
     // BU.CLI(returnValue);
     return returnValue;

@@ -5,7 +5,7 @@ const NU = require('base-util-jh').newUtil;
 class Model {
   constructor(controller) {
     this.controller = controller;
-    this.hasConnectedInverter = false;
+    this.hasConnectedDevice = false;
     this.retryConnectInverterCount = 0;
 
     this.cmdList = [
@@ -17,7 +17,7 @@ class Model {
       processCmd: {}, // 일반적으로 Buffer
       sendIndex: -1,  // Dev Test Stub 데이터 가져오는 index 용
       retryChance: 3, // 데이터 유효성 검사가 실패, 데이터 수신 에러가 있을 경우 3회까지 ProcessCmd 재전송
-      reconnectInverterInterval: 1000 * 60,  // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
+      reconnectDeviceInterval: 1000 * 60,  // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
       sendMsgTimeOutSec: 1000 * 1   // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
     }
 
@@ -51,7 +51,7 @@ class Model {
       processCmd: {},
       sendIndex: -1,
       retryChance: 3,
-      reconnectInverterInterval: 1000 * 60,  // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
+      reconnectDeviceInterval: 1000 * 60,  // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
       sendMsgTimeOutSec: 1000 * 1   // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
     }
   }

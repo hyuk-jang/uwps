@@ -74,7 +74,7 @@ class Model {
   }
 
 
-  // 데이터 정제한 데이터 테이블
+  // 데이터 정제한 데이터 테이블 (10배수 하여 반환)
   get refineConnectorData() {
     const returnValue = this.moduleDataList.map(ele => {
       return {

@@ -2,81 +2,20 @@
 
 const BU = require('base-util-jh').baseUtil;
 
+const bcjh = require('base-class-jh');
 
-const {Converter} = require('base-class-jh');
-
-class DecoderForDev extends Converter {
+class DecoderForDev extends bcjh.Converter {
   constructor(controller) {
     super();
     this.controller = controller;
 
   }
-  
-  operation(resObj) {
-    let storage = [];
-    if(_.isArray(resObj.contents)){
-      storage = resObj.contents;
-    } else {
-      storage.push(resObj.contents);
-    }
 
-    let returnValue = {
-      cmd: resObj.cmd,
-      contents: storage
-    }
+  _receiveData(buffer) {
+    let bufferBody = bcjh.classModule.resolveResponseMsgForTransfer(buffer);
+    let result = JSON.parse(bufferBody.toString());
 
-    return returnValue;
-  }
-
-  pv(resObj) {
-    let returnValue = {
-      cmd: resObj.cmd,
-      contents: this.applyObjCalculateScale(resObj.contents, 1)
-    }
-
-    return returnValue;
-  }
-
-  grid(resObj) {
-    let returnValue = {
-      cmd: resObj.cmd,
-      contents: this.applyObjCalculateScale(resObj.contents, 1)
-    }
-
-    return returnValue;
-  }
-
-  power(resObj) {
-    let returnValue = {
-      cmd: resObj.cmd,
-      contents: this.applyObjCalculateScale(resObj.contents, 1, 4)
-    }
-
-    return returnValue;
-  }
-
-  system(resObj) {
-    let returnValue = {
-      cmd: resObj.cmd,
-      contents: resObj.contents
-    }
-    return returnValue;
-  }
-
-  weather(resObj) {
-    let returnValue = {
-      cmd: resObj.cmd,
-      contents: this.applyObjCalculateScale(resObj.contents, 1)
-    }
-
-    return returnValue;
-  }
-
-  _receiveData(socketData) {
-    return JSON.parse(socketData);
-
-    socketData = typeof socketData === 'string' ? JSON.parse(socketData) : socketData;
-    return this[socketData.cmd](socketData);
+    return result;
   }
 }
 

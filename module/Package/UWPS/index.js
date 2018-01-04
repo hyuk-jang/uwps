@@ -1,3 +1,29 @@
+'use strict';
+
+const Control = require('./src/Control');
+
+module.exports = Control;
+
+// if __main process
+if (require !== undefined && require.main === module) {
+  process.env.NODE_ENV = 'production'
+
+  const _ = require('underscore');
+  const config = require('./src/config.js');
+  const BU = require('base-util-jh').baseUtil;
+
+  global._ = _;
+  global.BU = BU;
+
+
+  process.on('unhandledRejection', function (reason, p) {
+    console.log("Possibly Unhandled Rejection at: Promise ", p, " reason: ", reason);
+    // application specific logging here
+  });
+
+
+}
+
 const Control = require('./Control.js');
 const config = require('./config.js');
 const BU = require('base-util-jh').baseUtil;
@@ -70,7 +96,7 @@ async function setter() {
     config.current.connectorList = await connectorSetter();
   }
 
-  if (config.current.devOption.hasSaveConnectorConfig || config.current.devOption.hasSaveInverterConfig) {
+  if (config.current.devOption.hasSaveConfig) {
     BU.writeFile('./config.json', `${JSON.stringify(config)}`, 'w', (err, res) => {
       BU.CLI(err, res)
       process.exit();
@@ -120,7 +146,7 @@ async function connectorSetter() {
   connectorList.forEach((element, index) => {
     let addObj = {
       hasDev: true,
-      devPort: basePort + index,
+      // devPort: basePort + index,
       cntSavedInfo: element,
       moduleList: _.where(relation_upms, {
         connector_seq: element.connector_seq

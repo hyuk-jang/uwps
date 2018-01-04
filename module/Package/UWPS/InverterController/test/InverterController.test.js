@@ -15,36 +15,37 @@ describe('Inverter Controller Test', () => {
     before(() => {
       config.current.ivtSavedInfo.connect_type = 'socket'
     })
-    it('Category: s_hex', done => {
+    it('Category: s_hex', async() => {
       config.current.ivtSavedInfo.target_category = 's_hex'
       const control = new Control(config)
-      control.init()
-        .then(result => {
-          return control.measureInverter();
-        })
-        .then(result => {
-          BU.CLI(result)
-          done();
-        })
-        .catch(error => {
-          done(error)
-        })
+      await control.init()
+      control.on('completeSend2Msg', res => {
+        BU.CLI(res)
+      })
+      control.on('errorSend2Msg', err => {
+        BU.CLI(err)
+      })
+      let result = await control.measureDevice();
+      BU.CLI(result)
+      expect(result).to.not.deep.equal({})
     })
 
-    it('Category: dev', done => {
+    it('Category: dev', async() => {
       config.current.ivtSavedInfo.target_category = 'dev'
-      const control = new Control(config)
-      control.init()
-        .then(result => {
-          return control.measureInverter();
-        })
-        .then(result => {
-          BU.CLI(result)
-          done();
-        })
-        .catch(error => {
-          done(error)
-        })
+      const control = new Control(config);
+      let obj = await control.init()
+      control.on('completeSend2Msg', res => {
+        BU.CLI(res)
+      })
+      control.on('errorSend2Msg', err => {
+        BU.CLI(err)
+      })
+
+      let result = await control.measureDevice();
+
+
+      BU.CLI(result)
+      expect(result).to.not.deep.equal({})
     })
   })
 

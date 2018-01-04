@@ -19,25 +19,15 @@ describe('dummy Inverter Test', () => {
     });
   })
 
-  it('normal course', done => {
-    control.init()
-      .then(hasRun => {
-        BU.CLI('hasRun', hasRun)
-        // return control.p_GenerateData.dummyRangeDataMaker('2017-11-11', '2017-11-12');
-        return control.p_SocketServer.cmdProcessor('weather');
-      })
-      .then(result => {
-        // result = control.cmdProcessor('pv');
-        BU.CLIS(result, control.model.power)
-        return control.p_SocketServer.cmdProcessor('grid');
-      })
-      .then(r => {
-        BU.CLI(r)
-        done()
-      })
-      .catch(err => {
-        BU.CLI(err)
-      })
+  it('normal course', async() => {
+    let hasRun = await control.init();
+    let operation = control.p_SocketServer.cmdProcessor('operation');
+    BU.CLI(operation)
+    let grid = control.p_SocketServer.cmdProcessor('grid');
+    BU.CLI(grid)
+
+    expect(operation).to.be.ok;
+
   })
 
   // DB 입력 테스트

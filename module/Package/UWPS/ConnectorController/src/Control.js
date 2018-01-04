@@ -9,17 +9,10 @@ const {Converter} = require('base-class-jh');
 const P_Setter = require('./P_Setter.js');
 const Model = require('./Model.js');
 
-
-const P_ModbusClient = require('./P_ModbusClient');
-
 const DummyConnector = require('../DummyConnector');
 
 const P_SocketClient = require('./P_SocketClient');
 const P_SerialClient = require('./P_SerialClient');
-
-// const t_Server = require('./t_server')
-// const modbusTcpServer = require('./modbusTcpServer')
-
 
 class Control extends EventEmitter {
   constructor(config) {
@@ -36,7 +29,8 @@ class Control extends EventEmitter {
     // 추상 클래스 정의 --> Intellicense Support
     this.encoder = new Converter();
     this.decoder = new Converter();
-    // this.testStubData = [];
+    
+    // NOTE 연결된 장치 객체 -> P_Setter 에서 사용됨.
     this.connectedDevice = null;
 
     // Model
@@ -46,7 +40,6 @@ class Control extends EventEmitter {
     this.p_Setter = new P_Setter(this);
     this.p_SocketClient = new P_SocketClient(this);
     this.p_SerialClient = new P_SerialClient(this);
-    // this.p_ModbusClient = new P_ModbusClient(this);
 
     // Child
     this.dummyConnector = new DummyConnector();
@@ -154,16 +147,14 @@ class Control extends EventEmitter {
       this.model.initControlStatus();
       // BU.CLI(this.encoder)
       this.model.controlStatus.reserveCmdList = this.encoder.makeMsg();
-
       // BU.CLI(this.model.controlStatus.reserveCmdList)
+
       Promise.each(this.model.controlStatus.reserveCmdList, cmd => {
           this.model.controlStatus.reserveCmdList.shift();
           this.model.controlStatus.processCmd = cmd;
-          this.model.controlStatus.sendIndex++;
           return this.send2Cmd(cmd);
         })
-        // .bind({})
-        .then((result) => {
+        .then(() => {
           // BU.CLI(`${this.connectorId}의 명령 수행이 모두 완료되었습니다.`);
           resolve(this.model.refineConnectorData)
         })
@@ -206,6 +197,10 @@ class Control extends EventEmitter {
 
   }
 
+  /**
+   * 장치로 명령 발송 --> 명령 수행 후 응답 결과 timeout 처리를 위함
+   * @param {Buffer} cmd 
+   */
   async msgSendController(cmd) {
     // BU.CLI('msgSendController', this.model.controlStatus)
     if (BU.isEmpty(cmd)) {
@@ -219,7 +214,8 @@ class Control extends EventEmitter {
   }
 
   /**
-   * 메시지 이벤트 종료 이벤트 핸들러
+   * _onReceiveMsg Method 에서의 Event를 기다림
+   * Event 결과에 따라 Resolve or Reject. Resolve 일 경우 processCmd 초기화
    */
   async _receiveMsgHandler() {
     // BU.CLI('_receiveMsgHandler')
@@ -230,8 +226,8 @@ class Control extends EventEmitter {
   }
 
   /**
-   * 
-   * @param {Object} msg 접속반 객체(Serial or Socket)에서 수신받은 데이터
+   * eventHandler로 부터 넘겨받은 data 처리
+   * @param {Buffer} buffer 
    */
   _onReceiveMsg(msg) {
     // BU.CLI('_onReceiveMsg', msg)
@@ -267,17 +263,19 @@ class Control extends EventEmitter {
   }
 
   eventHandler() {
+    // 장치 접속 끊김
     this.on('disconnected', error => {
       // BU.CLI('disconnectedInverter', error)
       this.connectedDevice = {};
       this.model.hasConnectedDevice = false;
     })
 
+    // 장치 접속 성공
     this.on('connected', () => {
       this.model.hasConnectedDevice = true;
     })
 
-    // 데이터 수신 핸들러
+    // 접속반 데이터 수신 핸들러
     this.on('data', (err, result) => {
       // BU.CLI(err, result)
       if (err) {

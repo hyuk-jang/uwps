@@ -6,7 +6,9 @@ const eventToPromise = require('event-to-promise');
 
 const Model = require('./Model.js');
 const DummyInverter = require('../DummyInverter');
-const {Converter} = require('base-class-jh');
+const {
+  Converter
+} = require('base-class-jh');
 
 const P_Setter = require('./P_Setter.js');
 
@@ -30,12 +32,12 @@ class Control extends EventEmitter {
     this.encoder = new Converter();
     this.decoder = new Converter();
     this.testStubData = [];
-    this.connectedInverter = null;
+    this.connectedDevice = null;
 
-    
+
     // Model
     this.model = new Model(this);
-    
+
     // Process
     this.p_Setter = new P_Setter(this);
     this.p_SocketClient = new P_SocketClient(this);
@@ -106,7 +108,7 @@ class Control extends EventEmitter {
    * @return {Boolean}
    */
   getHasOperation() {
-    return this.model.hasConnectedInverter;
+    return this.model.hasConnectedDevice;
   }
 
   /**
@@ -119,9 +121,9 @@ class Control extends EventEmitter {
     // 인버터 타입에 맞는 프로토콜을 바인딩
     let dialing = this.config.ivtSavedInfo.dialing;
     dialing = dialing.type === 'Buffer' ? Buffer.from(dialing) : dialing;
-    await this.p_Setter.settingConverter(dialing);
     // NOTE 인텔리전스를 위해 P_Setter에서 재정의함
-    let connectedInverter = await this.connectInverter();
+    await this.p_Setter.settingConverter(dialing);
+    await this.connectDevice();
 
     return this;
   }
@@ -130,29 +132,29 @@ class Control extends EventEmitter {
    * 인버터 장치 접속
    * @return {Object} Socket or Serial Object Client
    */
-  async connectInverter() {
-    // BU.CLI('connectInverter')
+  async connectDevice() {
+    // BU.CLI('connectDevice')
     try {
       // 개발 버전일경우 자체 더미 인버터 소켓에 접속
       let ivtSavedInfo = this.config.ivtSavedInfo;
       if (ivtSavedInfo.connect_type === 'socket') { // TODO Serial Port에 접속하는 기능
         // NOTE Dev모드에서는 Socket Port를 재설정하므로 지정 경로로 접속기능 필요
-        this.connectedInverter = await this.p_SocketClient.connect(ivtSavedInfo.port, ivtSavedInfo.ip);
+        this.connectedDevice = await this.p_SocketClient.connect(ivtSavedInfo.port, ivtSavedInfo.ip);
         // BU.CLI('Socket에 접속하였습니다.  ' + ivtSavedInfo.port)
       } else {
-        this.connectedInverter = await this.p_SerialClient.connect();
+        this.connectedDevice = await this.p_SerialClient.connect();
       }
       BU.log('Sucess Connected to Inverter ', ivtSavedInfo.target_id);
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
-      this.model.hasConnectedInverter = true;
+      this.model.hasConnectedDevice = true;
       this.retryConnectInverterCount = 0;
 
-      return this.connectedInverter;
+      return this.connectedDevice;
     } catch (error) {
       BU.CLI(error)
-      this.emit('disconnectedInverter', error);
+      this.emit('disconnected', error);
     }
   }
 
@@ -160,8 +162,8 @@ class Control extends EventEmitter {
    * 인버터 계측 데이터 요청 리스트 전송 및 응답 시 결과 데이터 반환
    * @returns {Promise} 정제된 Inverter 계측 데이터 전송(DB 입력 용)
    */
-  measureInverter() {
-    // BU.CLI('measureInverter')
+  measureDevice() {
+    BU.CLI('measureDevice')
     return new Promise((resolve, reject) => {
       if (!BU.isEmpty(this.model.processCmd)) {
         reject('현재 진행중인 명령이 존재합니다.\n' + this.model.processCmd)
@@ -179,14 +181,13 @@ class Control extends EventEmitter {
           this.model.controlStatus.sendIndex++;
           return this.send2Cmd(cmd);
         })
-        // .bind({})
-        .then((result) => {
+        .then(() => {
           // BU.CLI(`${this.inverterId}의 명령 수행이 모두 완료되었습니다.`);
           resolve(this.model.refineInverterData)
         })
         .catch(err => {
           let msg = `${this.inverterId}의 ${this.model.processCmd}명령 수행 도중 ${err.message}오류가 발생하였습니다.`;
-          BU.errorLog('measureInverter', msg);
+          BU.errorLog('measureDevice', msg);
 
           // 컨트롤 상태 초기화
           this.model.initControlStatus();
@@ -217,24 +218,29 @@ class Control extends EventEmitter {
         })
       ]
     )
+    // BU.CLI(resRace)
     clearTimeout(timeout);
     return this.model.refineInverterData;
 
   }
 
   async msgSendController(cmd) {
-    // BU.CLI(this.model.controlStatus)
+    // BU.CLI('msgSendController', cmd)
     if (BU.isEmpty(cmd)) {
       return new Error('수행할 명령이 없습니다.');
     }
 
     await this.p_Setter.writeMsg(cmd);
-    await this._receiveMsgHandler();
+    let result = await this._receiveMsgHandler();
+    // BU.CLI(result)
 
-    return true;
+    return result;
   }
 
-  // 메시지 이벤트 종료 이벤트 핸들러
+  /**
+   * _onReceiveMsg Method 에서의 Event를 기다림
+   * Event 결과에 따라 Resolve or Reject. Resolve 일 경우 processCmd 초기화
+   */
   async _receiveMsgHandler() {
     // BU.CLI('_receiveMsgHandler')
     let result = await eventToPromise.multi(this, ['completeSend2Msg'], ['errorSend2Msg']);
@@ -243,21 +249,25 @@ class Control extends EventEmitter {
     return result;
   }
 
-  _onReceiveInverterMsg(msg) {
-    // BU.CLI('_onReceiveInverterMsg', msg)
+  /**
+   * eventHandler로 부터 넘겨받은 data 처리
+   * @param {Buffer} buffer 
+   */
+  _onReceiveMsg(buffer) {
+    // BU.CLI('_onReceiveMsg', msg)
     // 명령 내리고 있는 경우에만 수신 메시지 유효
     if (!BU.isEmpty(this.model.processCmd)) {
       try {
-        let result = this.decoder._receiveData(msg);
-        // BU.CLI('_onReceiveInverterMsg result', result);
+        let result = this.decoder._receiveData(buffer);
+        // BU.CLI('_onReceiveMsg result', result);
         this.model.onInverterData(result);
-        // 인버터 데이터 송수신 종료 이벤트 발생
+        // _receiveMsgHandler Method 에게 알려줄 Event 발생
         return this.emit('completeSend2Msg', result);
       } catch (error) {
-        // 개발 버전이고, 일반 인버터 프로토콜을 사용, 테스트용 데이터가 있다면 
+        // TEST 개발 버전이고, 일반 인버터 프로토콜을 사용, 테스트용 데이터가 있다면 
         if (this.config.hasDev && this.config.ivtSavedInfo.target_category !== 'dev' && !BU.isEmpty(this.testStubData[this.model.controlStatus.sendIndex])) {
           // BU.CLI(this.testStubData[this.model.controlStatus.sendIndex])
-          return this._onReceiveInverterMsg(this.testStubData[this.model.controlStatus.sendIndex])
+          return this._onReceiveMsg(this.testStubData[this.model.controlStatus.sendIndex])
         }
         // 데이터가 깨질 경우를 대비해 기회를 더 줌
         if (this.model.controlStatus.retryChance--) {
@@ -269,6 +279,7 @@ class Control extends EventEmitter {
           });
         } else {
           // BU.CLI(error)
+          // _receiveMsgHandler Method 에게 알려줄 Event 발생
           return this.emit('errorSend2Msg', error);
         }
       }
@@ -278,53 +289,35 @@ class Control extends EventEmitter {
   // 이벤트 핸들러
   eventHandler() {
     // 인버터 접속 에러
-    this.on('disconnectedInverter', error => {
+    this.on('disconnected', error => {
       // BU.CLI('disconnectedInverter', error)
-      this.connectedInverter = {};
+      this.connectedDevice = {};
       // 인버터 문제 발생
-      if (this.model.hasConnectedInverter) {
-        this.model.hasConnectedInverter = false;
+      if (this.model.hasConnectedDevice) {
+        this.model.hasConnectedDevice = false;
         // TODO 현재 객체에 이벤트 발생 이벤트 핸들링 필요
-        this.emit('errorDisconnectedInverter');
       }
 
       if (this.model.retryConnectInverterCount++ > 2) {
         // 장치 접속에 문제가 있다면 Interval을 10배로 함. (현재 10분에 한번 시도)
         this.setTimer = setTimeout(() => {
-          this.connectInverter();
-        }, this.model.controlStatus.reconnectInverterInterval * 10);
+          this.connectDevice();
+        }, this.model.controlStatus.reconnectDeviceInterval * 10);
       } else {
         // 인터벌에 따라 한번 접속 시도
         this.setTimer = setTimeout(() => {
-          this.connectInverter();
-        }, this.model.controlStatus.reconnectInverterInterval * 10);
+          this.connectDevice();
+        }, this.model.controlStatus.reconnectDeviceInterval * 10);
       }
     })
 
-    // 스케줄러 실행
-    this.p_Setter.on('startGetter', reserveList => {
-      BU.log('startGetter')
-      this.model.controlStatus.reserveCmdList = reserveList;
-      this.model.controlStatus.sendIndex = 0;
-      this.commander();
-    });
-
     // 인버터 소켓 장치 데이터 수신 핸들러
-    this.on('receiveSocketData', (err, result) => {
+    this.on('data', (err, result) => {
       // BU.CLI(err, result)
       if (err) {
         return BU.errorLog('receiveDataError', err)
       }
-      return this._onReceiveInverterMsg(result);
-    })
-
-    // 인버터 시리얼 장치 데이터 수신 핸들러
-    this.on('receiveInverterData', (err, result) => {
-      // BU.CLI('receiveInverterData',err, result)
-      if (err) {
-        return BU.errorLog('receiveDataError', err)
-      }
-      return this._onReceiveInverterMsg(result);
+      return this._onReceiveMsg(result);
     })
   }
 

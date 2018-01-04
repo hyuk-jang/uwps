@@ -13,7 +13,7 @@ class P_Setter extends EventEmitter {
 
   async settingConverter(dialing) {
     try {
-      BU.CLI(this.config.cntSavedInfo.target_category)
+      // BU.CLI(this.config.cntSavedInfo.target_category)
       const Encoder = Converter[this.config.cntSavedInfo.target_category].Encoder;
       const Decoder = Converter[this.config.cntSavedInfo.target_category].Decoder;
 

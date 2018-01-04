@@ -27,7 +27,7 @@ if (require !== undefined && require.main === module) {
   control.init()
     .then(result => {
       BU.CLI('result')
-      return control.measureInverter();
+      return control.measureDevice();
     })
     .then(result => {
       BU.CLI(result)

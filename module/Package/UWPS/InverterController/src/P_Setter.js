@@ -45,16 +45,16 @@ class P_Setter extends EventEmitter {
     // BU.CLI(msg)
     if (this.config.ivtSavedInfo.connect_type === 'socket' && this.controller.p_SocketClient.client === {}) {
       BU.CLI('Socket Client 연결이되지 않았습니다.');
-      this.controller.connectedInverter = {};
+      this.controller.connectedDevice = {};
       throw Error('Socket Client 연결이 되지 않았습니다.');
     } else if (this.controller.p_SerialClient.serialClient === {}) {
       // BU.CLI('Serial Client 연결이되지 않았습니다.');
-      this.controller.connectedInverter = {};
+      this.controller.connectedDevice = {};
       throw Error('Serial Client 연결이 되지 않았습니다.');
     }
 
     // BU.CLI('Msg 발송', msg);
-    await this.controller.connectedInverter.write(msg);
+    await this.controller.connectedDevice.write(msg);
     return true;
   }
 }

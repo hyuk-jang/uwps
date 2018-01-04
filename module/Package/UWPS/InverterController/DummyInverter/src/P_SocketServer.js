@@ -2,11 +2,9 @@ const net = require('net');
 const _ = require('underscore');
 
 const BU = require('base-util-jh').baseUtil;
+const bcjh = require('base-class-jh');
 
-
-const SmSocketServer = require('base-class-jh').SmSocketServer;
-
-class P_SocketServer extends SmSocketServer {
+class P_SocketServer extends bcjh.socket.SocketServer {
   constructor(controller) {
     super(controller.config.port)
     this.controller = controller;
@@ -15,7 +13,7 @@ class P_SocketServer extends SmSocketServer {
   }
 
   _eventHandler() {
-    super.on('dataBySocketServer', (err, socketData, socket) => {
+    super.on('data', (err, bufferData, connectedClient) => {
       let receiveObj = {};
       let returnValue = {};
       let responseObj = {
@@ -24,26 +22,33 @@ class P_SocketServer extends SmSocketServer {
         contents: ''
       };
 
+      let dataObj = {};
+      let cmd = '';
       try {
-        receiveObj = JSON.parse(socketData);
-        responseObj.cmd = receiveObj.cmd;
+        let resolveBuffer = bcjh.classModule.resolveResponseMsgForTransfer(bufferData);
+        // BU.CLI(resolveBuffer)
+        cmd = resolveBuffer.toString();
       } catch (ex) {
         // BU.CLI(ex);
-        return socket.write(BU.makeMessage(responseObj))
+        returnValue.isError = '1';
+        returnValue.contents = ex;
+        return connectedClient.write(bcjh.classModule.makeRequestMsgForTransfer(returnValue))
       }
       // CMD에 따라
-      if (receiveObj.cmd !== '') {
-        // BU.CLI(responseObj)
-        returnValue = this.cmdProcessor(receiveObj.cmd);
+      if (cmd !== '') {
+        returnValue.cmd = cmd;
+        returnValue.contents = this.cmdProcessor(cmd);
       } else {
         // BU.CLI('알수없는 App 메시지', socketData);
         returnValue = {
-          'cmd': 'UndefinedCMD',
-          'isError': '1',
-          'contents': '알수없는 명령입니다.'
+          cmd: 'undefinedCMD',
+          isError: '1',
+          contents: '알수없는 명령입니다.'
         };
       }
-      return socket.write(BU.makeMessage(returnValue))
+      let result = connectedClient.write(bcjh.classModule.makeRequestMsgForTransfer(returnValue));
+      // BU.CLI(result)
+      return result;
     })
   }
 

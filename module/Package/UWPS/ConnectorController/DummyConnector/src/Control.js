@@ -15,7 +15,7 @@ class Control extends EventEmitter {
       port: 39000,
       renewalCycle: 10, // sec  데이터 갱신 주기,
       connector_seq: 1, // inverter seq
-      ch_number: 4
+      ch_number: 6
     }
 
     // Model

@@ -142,11 +142,11 @@ class Decoder extends Converter {
   }
 
   _receiveData(buffer) {
-    BU.CLI('_receiveData', buffer)
+    // BU.CLI('_receiveData', buffer)
     this.returnValue = this.getBaseValue();
 
     try {
-      // Start, dialing, Cmd, Addr
+      // Start, dialing, Cmd, Addr (Byte Number)
       let bufArray = [
         0, 1, 2, 1, 4
       ]
@@ -199,7 +199,7 @@ class Decoder extends Converter {
       }
       // returnValue Set
       this[cmd](resBufArray[4]);
-
+      // BU.CLI(this.returnValue)
       return this.returnValue;
     } catch (error) {
       // BU.CLI(error)

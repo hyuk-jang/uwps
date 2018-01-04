@@ -34,11 +34,19 @@ describe('Connector Controller Test', () => {
         ch: 3,
         amp: 3.1,
         vol: 212.9
+      },{
+        ch: 5,
+        amp: 3.5,
+        vol: 212.9
+      },{
+        ch: 6,
+        amp: 3.6,
+        vol: 212.9
       }]
       let result = control.model.onData(connectorDataList);
       
       BU.CLI(result)
-      expect(result.length).to.be.equal(config.current.cntSavedInfo.ch_number)
+      expect(result.length).to.be.equal(config.current.moduleList.length)
       // BU.CLI(control.refineConnectorData)
 
       done()

@@ -13,7 +13,16 @@ const config = require('../src/config.js');
 global._ = _;
 global.BU = BU;
 
+// Step 테스트 유무(개발용 일경우 다수의 Socket Port가 열리고 Reload발생시 Socket Max Count 제한이 100이라서 중간에 정지될 수 있ㅇ므)
+let hasStep1 = true;
+let hasStep2 = false;
+let hasInsertInverterSql = false;   // 실제 DB 삽입
+let hasInsertConnectorSql = false;  // 실제 DB 삽입
+
 describe('UPSAS Test', () => {
+  let inverterData
+  let connectorData
+  let control = new Control(config);
   describe('Setter', () => {
     const BM = new bmjh.BM(config.current.dbInfo);
     // 인버터 데이터 DB 갱신 처리
@@ -103,45 +112,134 @@ describe('UPSAS Test', () => {
     after(() => {
       // Device 접속 방법 --> Socket Test
       describe('ConnectType: Socket', () => {
-        let control = new Control(config);
+
         // 인버터: 단상, 개발 Ver Test
         // 접속반: 
-        before('init - single_ivt dev', async() => {
-          setInverterConfig(true, 'single_ivt', 'dev', 'socket')
-          setConnectorConfig(true, 'dev', 'socket')
+        if (hasStep1) {
+          describe('Step 1', () => {
+            before('init - single dev', async() => {
+              setInverterConfig(true, 'single', 'dev', 'socket')
+              setConnectorConfig(true, 'dev', 'socket')
 
-          control = new Control(config);
-          console.time('UPSAS Init')
-          await control.init();
-          console.timeEnd('UPSAS Init')
-        })
+              control = new Control(config);
+              console.time('UPSAS Init')
+              await control.init();
+              console.timeEnd('UPSAS Init')
+            })
 
-        it('measure Inverter', async() => {
-          let result = await control.p_Scheduler._measureInverter(new Date(), control.model.inverterControllerList)
-          BU.CLI(result)
-          expect(result.length).to.be.equal(control.model.inverterControllerList.length)
-        })
+            // 인버터 계측 테스트
+            it('measure Inverter(single, dev, socket)', async() => {
+              // 인버터 리스트 계측 명령
+              let result = await control.p_Scheduler._measureInverter(new Date(), control.model.inverterControllerList)
+              inverterData = result;
+              // BU.CLI(result)
+              // 수신받은 데이터 갯수와 명령 요청한 리스트 갯수 비교
+              expect(result.length).to.be.equal(control.model.inverterControllerList.length)
+            })
 
-        it('measure Connector', async() => {
-          let result = await control.p_Scheduler._measureConnector(new Date(), control.model.connectorControllerList)
-          
-          BU.CLI(result)
-          let moduleLength = 0;
-          let measureLength = 0;
-
-          config.current.connectorList.forEach(element => {
-            moduleLength += element.current.moduleList.length;
+            // 접속반 계측 테스트
+            it('measure Connector(dev, socket)', async() => {
+              // 접속반 리스트 계측 명령
+              let moduleLength = 0;
+              let result = connectorData = await control.p_Scheduler._measureConnector(new Date(), control.model.connectorControllerList)
+              // BU.CLI(result)
+              // 각각 접속반이 포함하는 모듈 총 갯수를 구함
+              config.current.connectorList.forEach(element => {
+                moduleLength += element.current.moduleList.length;
+              })
+              // 모듈 갯수 비교
+              expect(result.length).to.be.equal(moduleLength)
+            })
           })
+        }
 
-          result.forEach(element => {
-            measureLength += element.length;
+
+        if (hasStep2) {
+          describe('Step 2', () => {
+            before('init - single dev', async() => {
+              setInverterConfig(true, 'single', 's_hex', 'socket')
+              setConnectorConfig(true, 'dm_v2', 'socket')
+
+              control = new Control(config);
+              await control.init();
+            })
+
+            // 인버터 계측 테스트
+            it('measure Inverter(single, s_hex, socket)', async() => {
+              // 인버터 리스트 계측 명령
+              let result = await control.p_Scheduler._measureInverter(new Date(), control.model.inverterControllerList)
+              // BU.CLI(result)
+              inverterData = result;
+              // 수신받은 데이터 갯수와 명령 요청한 리스트 갯수 비교
+              expect(result.length).to.be.equal(control.model.inverterControllerList.length)
+            })
+
+            // 접속반 계측 테스트
+            it('measure Connector(single, dm_v2, socket)', async() => {
+              // 접속반 리스트 계측 명령
+              let result = connectorData = await control.p_Scheduler._measureConnector(new Date(), control.model.connectorControllerList)
+              // BU.CLI(result)
+              let moduleLength = 0;
+              // 각각 접속반이 포함하는 모듈 총 갯수를 구함
+              config.current.connectorList.forEach(element => {
+                moduleLength += element.current.moduleList.length;
+              })
+              // 모듈 갯수 비교
+              expect(result.length).to.be.equal(moduleLength)
+            })
           })
-
-          expect(measureLength).to.be.equal(moduleLength)
-        })
+        }
       })
     })
   })
+
+  after(() => {
+    describe('CheckModel', () => {
+      let insertInverterData
+      let insertConnectorData
+      it('onInverterDataList', done => {
+        // 데이터가 있어야 함
+        expect(inverterData.length).to.not.equal(0)
+        insertInverterData = control.model.onInverterDataList(new Date(), inverterData)
+        // BU.CLI(insertInverterData)
+        expect(insertInverterData).to.be.an('array')
+        done();
+      })
+      it('onConnectorDataList', done => {
+        // 데이터가 있어야 함
+        expect(connectorData.length).to.not.equal(0)
+        insertConnectorData = control.model.onConnectorDataList(new Date(), connectorData)
+        // BU.CLI(insertConnectorData)
+        expect(insertConnectorData).to.be.an('array');
+        done();
+      })
+
+      if(hasInsertInverterSql){
+        it('insertInverter', async() => {
+          expect(insertInverterData.length).to.not.equal(0)
+          control.model.hasInsertQuery = true;
+          let result = await control.model.insertQuery('inverter_data', insertInverterData)
+          BU.CLI(result)
+          expect(result).to.not.deep.equal({});
+        })
+      }
+
+      if(hasInsertConnectorSql){
+        it('insertConnector', async() => {
+          expect(insertConnectorData.length).to.not.equal(0)
+          control.model.hasInsertQuery = true;
+          let result = await control.model.insertQuery('module_data', insertConnectorData)
+          BU.CLI(result)
+          expect(result).to.not.deep.equal({});
+        })
+      }
+
+
+
+    })
+  })
+
+
 })
 
 

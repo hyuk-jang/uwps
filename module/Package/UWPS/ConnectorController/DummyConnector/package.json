@@ -10,6 +10,6 @@
   "author": "j.hyuk",
   "license": "ISC",
   "dependencies": {
-    "base-class-jh": "^1.0.10"
+    "base-class-jh": "^1.0.14"
   }
 }

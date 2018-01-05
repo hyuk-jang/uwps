@@ -4,6 +4,9 @@ const s_hexProtocol = require('./s_hexProtocol');
 const _ = require('underscore')
 const BU = require('base-util-jh').baseUtil;
 
+const {baseFormat} = require('../../')
+
+
 class Decoder extends Converter {
   constructor(dialing) {
     super();
@@ -13,35 +16,7 @@ class Decoder extends Converter {
   }
 
   getBaseValue() {
-    return {
-      // Pv Info
-      amp: null, // Ampere
-      vol: null, // voltage
-      // Power Info
-      gridKw: null, // 출력 전력
-      dailyKwh: null, // 하루 발전량 kWh
-      cpKwh: null, // 인버터 누적 발전량 mWh  Cumulative Power Generation
-      pf: null, // 역률 Power Factor %
-      // Grid Info
-      rsVol: null, // rs 선간 전압
-      stVol: null, // st 선간 전압
-      trVol: null, // tr 선간 전압
-      rAmp: null, // r상 전류
-      sAmp: null, // s상 전류
-      tAmp: null, // t상 전류
-      lf: null, // 라인 주파수 Line Frequency, 단위: Hz
-      // System Info
-      isSingle: null, // 단상 or 삼상
-      capa: null, // 인버터 용량 kW
-      productYear: null, // 제작년도 월 일 yyyymmdd,
-      sn: null, // Serial Number,
-      // Operation Info
-      isRun: null, // 인버터 동작 유무
-      isError: null, // 인버터 에러 발생 유무
-      temperature: null, // 인버터 온도
-      errorList: null, // 에러 리스트 Array
-      warningList: null // 경고 리스트 Array
-    }
+    return Object.assign({}, baseFormat);
   }
 
   /**
@@ -102,7 +77,6 @@ class Decoder extends Converter {
   grid(msg) {
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
 
-    let hi = this.getBaseValue();
     this.returnValue.rsVol = this.convertBuffer2Char2Dec(arrSpliceBuffer[0]); // rs 선간 전압
     this.returnValue.stVol = this.convertBuffer2Char2Dec(arrSpliceBuffer[1]); // st 선간 전압
     this.returnValue.trVol = this.convertBuffer2Char2Dec(arrSpliceBuffer[2]); // tr 선간 전압

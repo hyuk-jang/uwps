@@ -15,7 +15,7 @@ class DecoderForDev extends bcjh.Converter {
     let bufferBody = bcjh.classModule.resolveResponseMsgForTransfer(buffer);
     let result = JSON.parse(bufferBody.toString());
 
-    return result;
+    return result.contents;
   }
 }
 

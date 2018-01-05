@@ -6,7 +6,7 @@ class Model {
   constructor(controller) {
     this.controller = controller;
     this.hasConnectedDevice = false;
-    this.retryConnectInverterCount = 0;
+    this.retryConnectDeviceCount = 0;
 
     this.cmdList = [
       'operation', 'pv', 'grid', 'power', 'system', // getWeather: 'weather'
@@ -21,7 +21,7 @@ class Model {
       sendMsgTimeOutSec: 1000 * 1   // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
     }
 
-    // Converter에 정의한 getBaseInverterValue를 가져옴
+    // Converter에 정의한 baseFormat 가져옴
     this.inverterData = this.controller.config.baseFormat;
     // Dummy Data
     this.ivtDummyData = this.controller.config.ivtDummyData;
@@ -88,7 +88,7 @@ class Model {
         break;
       case 'system':
         this.sysInfo = {
-          isSingle: this.ivtSavedInfo.target_type === 'single_ivt' ? 1 : 0, // 단상 or 삼상
+          isSingle: this.ivtSavedInfo.target_type === 'single' ? 1 : 0, // 단상 or 삼상
           capa: typeof this.ivtSavedInfo.amount === 'number' ? this.ivtSavedInfo.amount / 10 : 0, // 인버터 용량 kW
           productYear: '00000000', // 제작년도 월 일 yyyymmdd,
           sn: this.ivtSavedInfo.code // Serial Number
@@ -139,9 +139,10 @@ class Model {
 
   // 데이터 정제한 데이터 테이블
   get refineInverterData() {
+    // BU.CLI('refineInverterData', this.inverterData)
     let in_w = this.pv.amp * this.pv.vol;
     let out_w = 0;
-    if (this.ivtSavedInfo.target_type === 'single_ivt') {
+    if (this.ivtSavedInfo.target_type === 'single') {
       out_w = this.grid.rAmp * this.grid.rsVol;
     } else {
       out_w = this.grid.rAmp * this.grid.rsVol * 1.732;
@@ -161,7 +162,7 @@ class Model {
 
     returnvalue = NU.multiplyScale2Obj(returnvalue, 10, 0);
     returnvalue.inverter_seq = this.ivtSavedInfo.inverter_seq;
-
+    // BU.CLI(returnvalue)
     // Scale 10 배수 처리
     return returnvalue;
   }
@@ -215,7 +216,7 @@ class Model {
       }
     })
     // BU.CLI(this.inverterData)
-    return true;
+    return this.inverterData;
   }
 }
 

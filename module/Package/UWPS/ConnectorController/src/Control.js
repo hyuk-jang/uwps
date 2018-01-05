@@ -20,7 +20,7 @@ class Control extends EventEmitter {
     // 현재 Control 설정 변수
     this.config = {
       hasDev: false,
-      devPort: 0,
+      troubleCodeList: [],
       cntSavedInfo: {},
       moduleList: []
     };
@@ -87,8 +87,6 @@ class Control extends EventEmitter {
    * @return {Promise} true, exception
    */
   async init() {
-    // BU.CLI('init ConnectorController', this.config.devPort)
-
     // this에 Event Emitter Binding
     this.eventHandler();
     // 국번 정의
@@ -129,7 +127,7 @@ class Control extends EventEmitter {
       return this.connectedDevice;
     } catch (error) {
       BU.CLI(error)
-      this.emit('disconnectedDevice', error);
+      this.emit('disconnected', error);
     }
   }
 
@@ -265,15 +263,24 @@ class Control extends EventEmitter {
   eventHandler() {
     // 장치 접속 끊김
     this.on('disconnected', error => {
-      // BU.CLI('disconnectedInverter', error)
+      // BU.CLI('disconnected', error)
       this.connectedDevice = {};
-      this.model.hasConnectedDevice = false;
+
+      let reconnectInterval = this.model.controlStatus.reconnectDeviceInterval;
+      // 장치 접속을 2회 시도했는데도 안된다면  Interval을 10배로 함. (현재 10분에 한번 시도)
+      if (this.model.retryConnectDeviceCount++ > 2) {
+        reconnectInterval *= 10;
+      }
+      // setTimeout 걸어둠. 해당 시점에서 접속이 되면 timeout을 해제하고 아니라면 수행
+      this.setTimer = setTimeout(() => {
+        if (_.isEmpty(this.connectedDevice)) {
+          this.connectDevice();
+        } else {
+          clearTimeout(this.setTimer)
+        }
+      }, reconnectInterval);
     })
 
-    // 장치 접속 성공
-    this.on('connected', () => {
-      this.model.hasConnectedDevice = true;
-    })
 
     // 접속반 데이터 수신 핸들러
     this.on('data', (err, result) => {

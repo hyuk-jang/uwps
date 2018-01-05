@@ -77,9 +77,11 @@ class P_Scheduler extends EventEmitter {
     let connectorListData = await Promise.map(connectorControllerList, connectorController => {
       return connectorController.measureDevice();
     })
+    // 접속반 리스트 모듈 단위 2차원 배열을 1차원 배열로 바꿈
+    let flatList = _.flatten(connectorListData);
 
-    this.emit('completeMeasureConnector', measureTime, connectorListData);
-    return connectorListData;
+    this.emit('completeMeasureConnector', measureTime, flatList);
+    return flatList;
   }
 
 

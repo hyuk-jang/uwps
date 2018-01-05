@@ -1,12 +1,16 @@
 module.exports = {
   current: {
     hasDev: true,
-    devPort: 5555,
-    baseFormat: {
-      ch: 0,
-      amp: null, // Ampere
-      vol: null, // voltage
-    },
+    troubleCodeList: [
+      {
+        trouble_code: 'Write Msg TimeOut Fault',
+        trouble_msg: '명령 전송 시간 초과'
+      },
+      {
+        trouble_code: 'Protocol Parsing Fault',
+        trouble_msg: '접속반 응답 데이터 파싱 오류'
+      },
+    ],
     "cntSavedInfo": {
       "connector_seq": 1,
       "target_id": "CNT1",

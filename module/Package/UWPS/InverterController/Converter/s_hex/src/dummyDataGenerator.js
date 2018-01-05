@@ -60,31 +60,31 @@ function makeReceiveData(cmd, hasBinary, bufferWidth) {
       break;
     case 'power':
       body = [
-        2724, // currPvKw
-        57, // ivtHighAddr // currIvtKva
-        230, // ivtLowAddr 
-        2518, // currIvtKw
-        298, // ivtMaxKw
-        998, // ivtPf
-        1134, // ivtDailyKwh
+        2222, // currPvKw
+        55, // ivtHighAddr // currIvtKva
+        222, // ivtLowAddr 
+        2222, // currIvtKw
+        222, // ivtMaxKw
+        999, // ivtPf
+        1111, // ivtDailyKwh
         0 // x
       ];
       break;
     case 'grid':
       body = [
-        217, // R 상 I
+        222, // R 상 I
         0, // S 상 I
         0, // T 상 I
-        65, // RS 상 V
+        66, // RS 상 V
         0, // ST 상 V
         0, // TR 상 V
-        601 // HZ
+        666 // HZ
       ];
       break;
     case 'pv':
       body = [
-        266,
-        57
+        222,
+        55
       ];
       break;
     case 'operation':

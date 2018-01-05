@@ -145,14 +145,14 @@ class Control extends EventEmitter {
    */
   async createConnectorController(connectorConfigList) {
     // BU.CLI('createConnectorController', connectorConfigList.length)
-    console.time('createConnectorController')
+    // console.time('createConnectorController')
     let connectorControllerList = await Promise.map(connectorConfigList, cntConfig => {
       const connectorObj = new ConectorController(cntConfig);
       return connectorObj.init();
     })
     
     this.model.connectorControllerList = connectorControllerList;
-    console.timeEnd('createConnectorController')
+    // console.timeEnd('createConnectorController')
     return connectorControllerList;
   }
 
@@ -163,18 +163,27 @@ class Control extends EventEmitter {
     // 스케줄러 실행
     this.p_Scheduler.on('completeMeasureInverter', (measureTime, inverterListData) => {
       // BU.CLI(measureTime, inverterListData)
-      this.model.completeMeasureInverter(measureTime, inverterListData)
+      let dataList = this.model.onInverterDataList(measureTime, inverterListData)
+      this.model.insertQuery('inverter_data', dataList)
+      .then(resQuery => {})
+      .catch(err => {
+        BU.errorLog('insertErrorDB', err)
+      })
     });
     // 스케줄러 실행
     this.p_Scheduler.on('completeMeasureConnector', (measureTime, connectorListData) => {
       // BU.CLI(measureTime, connectorListData)
-      // TEST 접속반 더미 프로그램이 없는 관계로 
+      // TEST 인버터 계측 데이터에 기반하여 수행함
       if (this.config.devOption.hasCopyInverterData) {
         return false;
       }
-      this.model.completeMeasureConnector(measureTime, connectorListData)
+      let dataList = this.model.onConnectorDataList(measureTime, connectorListData)
+      this.model.insertQuery('module_data', dataList)
+      .then(resQuery => {})
+      .catch(err => {
+        BU.errorLog('insertErrorDB', err)
+      })
     });
-
   }
 
 }

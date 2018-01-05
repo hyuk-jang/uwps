@@ -26,7 +26,7 @@ module.exports = {
           "inverter_seq": 1,
           "target_id": "IVT1",
           "target_name": "인버터 1",
-          "target_type": "single_ivt",
+          "target_type": "single",
           "target_category": "dev",
           "connect_type": "socket",
           "dialing": {
@@ -53,7 +53,7 @@ module.exports = {
           "inverter_seq": 2,
           "target_id": "IVT2",
           "target_name": "인버터 2",
-          "target_type": "single_ivt",
+          "target_type": "single",
           "target_category": "dev",
           "connect_type": "socket",
           "dialing": {
@@ -80,7 +80,7 @@ module.exports = {
           "inverter_seq": 3,
           "target_id": "IVT3",
           "target_name": "인버터 3",
-          "target_type": "single_ivt",
+          "target_type": "single",
           "target_category": "dev",
           "connect_type": "socket",
           "dialing": {
@@ -107,7 +107,7 @@ module.exports = {
           "inverter_seq": 4,
           "target_id": "IVT4",
           "target_name": "인버터 4",
-          "target_type": "single_ivt",
+          "target_type": "single",
           "target_category": "dev",
           "connect_type": "socket",
           "dialing": {
@@ -134,7 +134,7 @@ module.exports = {
           "inverter_seq": 5,
           "target_id": "IVT5",
           "target_name": "인버터 5",
-          "target_type": "single_ivt",
+          "target_type": "single",
           "target_category": "dev",
           "connect_type": "socket",
           "dialing": {
@@ -161,7 +161,7 @@ module.exports = {
           "inverter_seq": 6,
           "target_id": "IVT6",
           "target_name": "인버터 6",
-          "target_type": "single_ivt",
+          "target_type": "single",
           "target_category": "dev",
           "connect_type": "socket",
           "dialing": {

@@ -21,6 +21,11 @@ class Model {
       sendMsgTimeOutSec: 1000 * 1   // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
     }
 
+    // 현재 발생되고 있는 에러 리스트
+    this.currTroubleList = [];
+    this.troubleCodeList = controller.config.troubleCodeList; 
+
+
     // TEST DATA
     this.testData = _.map(this.moduleList, (obj, index) => {
       return  {
@@ -30,9 +35,53 @@ class Model {
         vol: 0,
       }
     })
+  }
+
+
+  /**
+   * 
+   * @param {String} troubleCode 발생한 에러 Code
+   * @param {Boolean} hasOccur 발생 or 삭제
+   */
+  onTroubleData(troubleCode, hasOccur) {
+    let troubleObj = _.findWhere(this.troubleCodeList, {trouble_code: troubleCode})
+    if(_.isEmpty(troubleObj)){
+      throw ReferenceError('해당 Trouble Msg는 없습니다' + troubleCode)
+    }
+    let findObj = _.findWhere(this.currTroubleList, {trouble_code: troubleCode})
+    let addObj = {
+      connector_seq: this.cntSavedInfo.connector_seq,
+      is_error: 1,
+      trouble_code: '',
+      trouble_msg: '',
+      occur_date: null,
+      fix_msg: null,
+      fix_date: null
+    }
+    // 발생할 경우
+    if(hasOccur){
+      // 신규 등록일 경우 발생 날짜 기록
+      if(_.isEmpty(findObj) || findObj.fix_date !== null){
+        addObj.trouble_code = troubleObj.trouble_code;
+        addObj.trouble_msg = troubleObj.trouble_msg;
+        addObj.occur_date = BU.convertDateToText(new Date());
+        this.currTroubleList.push(addObj);
+      } else {
+        
+        findObj.occur_date = new Date();
+      }
+    } else {  // 에러 삭제일 경우
+      // 해당 에러가 없을 경우
+      if(_.isEmpty(findObj)){
+        throw Error('해당 Trouble Msg는 없기 때문에 삭제가 불가능합니다.' + troubleCode)
+      } else {  // 신규 에러라면 발생 날짜 기록
+        findObj.occur_date = new Date();
+      }
+    }
 
 
   }
+
 
   initControlStatus() {
     this.controlStatus = {

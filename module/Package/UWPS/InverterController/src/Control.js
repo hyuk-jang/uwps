@@ -6,9 +6,7 @@ const eventToPromise = require('event-to-promise');
 
 const Model = require('./Model.js');
 const DummyInverter = require('../DummyInverter');
-const {
-  Converter
-} = require('base-class-jh');
+const Converter = require('../Converter')
 
 const P_Setter = require('./P_Setter.js');
 
@@ -26,11 +24,13 @@ class Control extends EventEmitter {
       ivtSavedInfo: {},
     };
     Object.assign(this.config, config.current);
+    // Converter 에서 공통 Format 불러옴
+    this.config.baseFormat = Converter.baseFormat;
 
 
     // 추상 클래스 정의 --> Intellicense Support
-    this.encoder = new Converter();
-    this.decoder = new Converter();
+    this.encoder = null;
+    this.decoder = null;
     this.testStubData = [];
     this.connectedDevice = null;
 
@@ -144,12 +144,12 @@ class Control extends EventEmitter {
       } else {
         this.connectedDevice = await this.p_SerialClient.connect();
       }
-      BU.log('Sucess Connected to Inverter ', ivtSavedInfo.target_id);
+      // BU.log('Sucess Connected to Inverter ', ivtSavedInfo.target_id);
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
       this.model.hasConnectedDevice = true;
-      this.retryConnectInverterCount = 0;
+      this.retryConnectDeviceCount = 0;
 
       return this.connectedDevice;
     } catch (error) {
@@ -163,7 +163,7 @@ class Control extends EventEmitter {
    * @returns {Promise} 정제된 Inverter 계측 데이터 전송(DB 입력 용)
    */
   measureDevice() {
-    BU.CLI('measureDevice')
+    // BU.CLI('measureDevice')
     return new Promise((resolve, reject) => {
       if (!BU.isEmpty(this.model.processCmd)) {
         reject('현재 진행중인 명령이 존재합니다.\n' + this.model.processCmd)
@@ -292,23 +292,20 @@ class Control extends EventEmitter {
     this.on('disconnected', error => {
       // BU.CLI('disconnectedInverter', error)
       this.connectedDevice = {};
-      // 인버터 문제 발생
-      if (this.model.hasConnectedDevice) {
-        this.model.hasConnectedDevice = false;
-        // TODO 현재 객체에 이벤트 발생 이벤트 핸들링 필요
-      }
 
-      if (this.model.retryConnectInverterCount++ > 2) {
-        // 장치 접속에 문제가 있다면 Interval을 10배로 함. (현재 10분에 한번 시도)
-        this.setTimer = setTimeout(() => {
-          this.connectDevice();
-        }, this.model.controlStatus.reconnectDeviceInterval * 10);
-      } else {
-        // 인터벌에 따라 한번 접속 시도
-        this.setTimer = setTimeout(() => {
-          this.connectDevice();
-        }, this.model.controlStatus.reconnectDeviceInterval * 10);
+      let reconnectInterval = this.model.controlStatus.reconnectDeviceInterval;
+      // 장치 접속을 2회 시도했는데도 안된다면  Interval을 10배로 함. (현재 10분에 한번 시도)
+      if (this.model.retryConnectDeviceCount++ > 2) {
+        reconnectInterval *= 10;
       }
+      // setTimeout 걸어둠. 해당 시점에서 접속이 되면 timeout을 해제하고 아니라면 수행
+      this.setTimer = setTimeout(() => {
+        if (_.isEmpty(this.connectedDevice)) {
+          this.connectDevice();
+        } else {
+          clearTimeout(this.setTimer)
+        }
+      }, reconnectInterval);
     })
 
     // 인버터 소켓 장치 데이터 수신 핸들러

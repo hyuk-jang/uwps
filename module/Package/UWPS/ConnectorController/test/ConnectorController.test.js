@@ -10,9 +10,9 @@ const config = require('../src/config.js');
 global._ = _;
 global.BU = BU;
 
-let hasTestModel = false;
-let hasTestSocket = false;
-let hasTestSerial = true;
+let hasTestModel = true;
+let hasTestSocket = true;
+let hasTestSerial = false;
 
 describe('Connector Controller Test', () => {
   if(hasTestModel){
@@ -21,7 +21,7 @@ describe('Connector Controller Test', () => {
       // before(() => {
       //   control = new Control(config)
       // })
-  
+      
       it('parsing Data', done => {
         let connectorDataList = [{
           ch: 1,
@@ -56,16 +56,29 @@ describe('Connector Controller Test', () => {
   
         done()
       })
+
+      // 에러 계산되는지 체크
+      it('error Test', done => {
+        let result = {};
+        result = control.model.onTroubleData('Disconnected Connector', true)
+        expect(result.obj.fix_date).to.be.equal(null);
+        result = control.model.onTroubleData('Disconnected Connector', true)
+        result = control.model.onTroubleData('Disconnected Connector', false)
+        result = control.model.onTroubleData('Disconnected Connector', false)
+        result = control.model.onTroubleData('Disconnected Connector', true)
+        expect(result.obj.fix_date).to.be.equal(null);
+        done();
+      })
     })
   }
 
   if(hasTestSocket){
     describe('ConnectType: Socket', () => {
       before(() => {
-        config.current.cntSavedInfo.connect_type = 'socket'
+        config.current.deviceSavedInfo.connect_type = 'socket'
       })
       it('Category: dm_v2', done => {
-        config.current.cntSavedInfo.target_category = 'dm_v2'
+        config.current.deviceSavedInfo.target_category = 'dm_v2'
         const control = new Control(config)
         control.init()
           .then(result => {
@@ -82,7 +95,7 @@ describe('Connector Controller Test', () => {
       })
   
       it('Category: dev', done => {
-        config.current.cntSavedInfo.target_category = 'dev'
+        config.current.deviceSavedInfo.target_category = 'dev'
         const control = new Control(config)
         control.init()
           .then(result => {
@@ -102,12 +115,12 @@ describe('Connector Controller Test', () => {
   if(hasTestSerial){
     describe('ConnectType: Serial', () => {
       before(() => {
-        config.current.cntSavedInfo.connect_type = 'serial'
+        config.current.deviceSavedInfo.connect_type = 'serial'
       })
   
       it('Category: (dm_v2, serial)', done => {
-        config.current.cntSavedInfo.target_category = 'dm_v2'
-        config.current.cntSavedInfo.port = 'COM11'
+        config.current.deviceSavedInfo.target_category = 'dm_v2'
+        config.current.deviceSavedInfo.port = 'COM11'
         const control = new Control(config)
         control.init()
           .then(result => {

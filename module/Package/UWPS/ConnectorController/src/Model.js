@@ -5,7 +5,7 @@ const NU = require('base-util-jh').newUtil;
 class Model {
   constructor(controller) {
     this.controller = controller;
-    this.cntSavedInfo = controller.config.cntSavedInfo;
+    this.deviceSavedInfo = controller.config.deviceSavedInfo;
     this.moduleList = controller.config.moduleList;
 
     this.moduleDataList = [];
@@ -15,20 +15,20 @@ class Model {
     this.controlStatus = {
       reserveCmdList: [], // Buffer List
       processCmd: {}, // 일반적으로 Buffer
-      sendIndex: -1,  // Dev Test Stub 데이터 가져오는 index 용
+      sendIndex: -1, // Dev Test Stub 데이터 가져오는 index 용
       retryChance: 3, // 데이터 유효성 검사가 실패, 데이터 수신 에러가 있을 경우 3회까지 ProcessCmd 재전송
-      reconnectDeviceInterval: 1000 * 60,  // 장치 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
-      sendMsgTimeOutSec: 1000 * 1   // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
+      reconnectDeviceInterval: 1000 * 60, // 장치 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
+      sendMsgTimeOutSec: 1000 * 1 // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
     }
 
     // 현재 발생되고 있는 에러 리스트
-    this.currTroubleList = [];
-    this.troubleCodeList = controller.config.troubleCodeList; 
+    this.troubleCodeList = controller.config.troubleCodeList;
+    this.currTroubleList = this.initTroubleMsg();
 
 
     // TEST DATA
     this.testData = _.map(this.moduleList, (obj, index) => {
-      return  {
+      return {
         photovoltaic_seq: obj.photovoltaic_seq,
         ch: index + 1,
         amp: 0,
@@ -37,51 +37,76 @@ class Model {
     })
   }
 
+  /**
+   * Trouble List를 저장할 초기 리스트 설정
+   */
+  initTroubleMsg() {
+    BU.CLI(this.troubleCodeList)
+    const returnValue = [];
+    this.troubleCodeList.forEach(ele => {
+      let addObj = {
+        connector_seq: this.deviceSavedInfo.connector_seq,
+        is_error: ele.is_error,
+        code: ele.code,
+        msg: ele.msg,
+        occur_date: null,
+        fix_date: null
+      }
+      returnValue.push(addObj)
+    })
+    return returnValue;
+  }
+
 
   /**
    * 
-   * @param {String} troubleCode 발생한 에러 Code
-   * @param {Boolean} hasOccur 발생 or 삭제
+   * @param {String} troubleCode Trouble Code
+   * @param {Boolean} hasOccur 발생 or 해결
    */
   onTroubleData(troubleCode, hasOccur) {
-    let troubleObj = _.findWhere(this.troubleCodeList, {trouble_code: troubleCode})
-    if(_.isEmpty(troubleObj)){
+    // BU.CLI('onTroubleData', troubleCode, this.troubleCodeList)
+    const returnValue = {
+      msg: '',
+      obj: {}
+    };
+    const troubleObj = _.findWhere(this.troubleCodeList, {
+      code: troubleCode
+    })
+    if (_.isEmpty(troubleObj)) {
       throw ReferenceError('해당 Trouble Msg는 없습니다' + troubleCode)
     }
-    let findObj = _.findWhere(this.currTroubleList, {trouble_code: troubleCode})
-    let addObj = {
-      connector_seq: this.cntSavedInfo.connector_seq,
-      is_error: 1,
-      trouble_code: '',
-      trouble_msg: '',
-      occur_date: null,
-      fix_msg: null,
-      fix_date: null
-    }
-    // 발생할 경우
-    if(hasOccur){
-      // 신규 등록일 경우 발생 날짜 기록
-      if(_.isEmpty(findObj) || findObj.fix_date !== null){
-        addObj.trouble_code = troubleObj.trouble_code;
-        addObj.trouble_msg = troubleObj.trouble_msg;
-        addObj.occur_date = BU.convertDateToText(new Date());
-        this.currTroubleList.push(addObj);
+    const findObj = _.findWhere(this.currTroubleList, {
+      code: troubleCode
+    })
+
+    // 발생
+    if (hasOccur) {
+      // 완료된 내역이 있다면 초기화
+      if (findObj.occur_date !== null && findObj.fix_date !== null) {
+        findObj.occur_date = null;
+        findObj.fix_date = null;
+      }
+      // 최초 발생시에만 발생 날짜 기록.
+      if (findObj.occur_date === null) {
+        returnValue.msg = `Trouble 발생 : ${troubleCode}`;
+        findObj.occur_date = BU.convertDateToText(new Date());
       } else {
-        
-        findObj.occur_date = new Date();
+        returnValue.msg = `Trouble 이미 모니터링 중 : ${troubleCode}`;
       }
-    } else {  // 에러 삭제일 경우
-      // 해당 에러가 없을 경우
-      if(_.isEmpty(findObj)){
-        throw Error('해당 Trouble Msg는 없기 때문에 삭제가 불가능합니다.' + troubleCode)
-      } else {  // 신규 에러라면 발생 날짜 기록
-        findObj.occur_date = new Date();
+    } else { // 해결 시
+      // 발생 시각이 존재 할 경우
+      if (findObj.occur_date === null) {
+        returnValue.msg = `Trouble 내역 존재하지 않음 : ${troubleCode}`;
+      } else if (findObj.fix_date === null) {
+        returnValue.msg = `Trouble 해제 완료 : ${troubleCode}`;
+        findObj.fix_date = BU.convertDateToText(new Date());
+      } else {
+        returnValue.msg = `이미 완료된 Trouble : ${troubleCode}`;
       }
     }
-
-
+    returnValue.obj = findObj;
+    return returnValue;
   }
-
 
   initControlStatus() {
     this.controlStatus = {
@@ -89,8 +114,8 @@ class Model {
       processCmd: {},
       sendIndex: -1,
       retryChance: 3,
-      reconnectInverterInterval: 1000 * 60,  // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
-      sendMsgTimeOutSec: 1000 * 1   // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
+      reconnectInverterInterval: 1000 * 60, // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
+      sendMsgTimeOutSec: 1000 * 1 // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
     }
   }
 
@@ -154,7 +179,7 @@ class Model {
     connectorDataList.forEach(dataInfo => {
       let findObj = _.findWhere(this.moduleList, {
         connector_ch: dataInfo.ch,
-        connector_seq: this.cntSavedInfo.connector_seq
+        connector_seq: this.deviceSavedInfo.connector_seq
       });
       dataInfo.photovoltaic_seq = _.isEmpty(findObj) ? null : findObj.photovoltaic_seq;
     })

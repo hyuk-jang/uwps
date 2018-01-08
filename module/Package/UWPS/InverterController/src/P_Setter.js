@@ -11,8 +11,8 @@ class P_Setter extends EventEmitter {
 
   async settingConverter(dialing) {
     try {
-      const Encoder = Converter[this.config.ivtSavedInfo.target_category].Encoder;
-      const Decoder = Converter[this.config.ivtSavedInfo.target_category].Decoder;
+      const Encoder = Converter[this.config.deviceSavedInfo.target_category].Encoder;
+      const Decoder = Converter[this.config.deviceSavedInfo.target_category].Decoder;
 
       // 실제 Converter 객체 생성 및 덮어씌움
       this.controller.encoder = new Encoder(dialing);
@@ -23,13 +23,13 @@ class P_Setter extends EventEmitter {
         let port = await this.controller.dummyInverter.init();
         this.controller.dummyInverter.runCronForMeasureInverter();
         // 개발용 버전이면서 접속 타입이 socket일 경우에는 서로 연결시킬 port 지정
-        if (this.config.ivtSavedInfo.connect_type === 'socket') {
-          this.controller.model.ivtSavedInfo.port = port;
+        if (this.config.deviceSavedInfo.connect_type === 'socket') {
+          this.controller.model.deviceSavedInfo.port = port;
         }
 
         // 개발용 버전이고 실제 인버터 프로토콜을 따른다면 Test Stub 장착
-        if(this.config.ivtSavedInfo.target_category !== 'dev') {
-          this.controller.testStubData = Converter[this.config.ivtSavedInfo.target_category].dummyDataGenerator;
+        if(this.config.deviceSavedInfo.target_category !== 'dev') {
+          this.controller.testStubData = Converter[this.config.deviceSavedInfo.target_category].dummyDataGenerator;
         }
       } 
 
@@ -43,7 +43,7 @@ class P_Setter extends EventEmitter {
   // 인버터로 메시지 발송
   async writeMsg(msg) {
     // BU.CLI(msg)
-    if (this.config.ivtSavedInfo.connect_type === 'socket' && this.controller.p_SocketClient.client === {}) {
+    if (this.config.deviceSavedInfo.connect_type === 'socket' && this.controller.p_SocketClient.client === {}) {
       BU.CLI('Socket Client 연결이되지 않았습니다.');
       this.controller.connectedDevice = {};
       throw Error('Socket Client 연결이 되지 않았습니다.');

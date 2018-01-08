@@ -1,11 +1,16 @@
 module.exports = {
   current: {
     hasDev: true, // 테스트모드 여부 -> 테스트 소켓 서버 및 테스트 데이터 생성 여부
+    troubleCodeList: [{
+      is_error: 1,
+      code: 'Disconnected Inverter',
+      msg: '인버터 연결 해제'
+    }],
     ivtDummyData: {
       dailyKwh: 4.5147,
       cpKwh: 111.3691
     },
-    "ivtSavedInfo": {
+    "deviceSavedInfo": {
       "inverter_seq": 1,
       "target_id": "IVT1",
       "target_name": "인버터 1",

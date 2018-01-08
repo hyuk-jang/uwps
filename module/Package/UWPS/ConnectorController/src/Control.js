@@ -17,11 +17,12 @@ const P_SerialClient = require('./P_SerialClient');
 class Control extends EventEmitter {
   constructor(config) {
     super();
+    // BU.CLI(config)
     // 현재 Control 설정 변수
     this.config = {
       hasDev: false,
       troubleCodeList: [],
-      cntSavedInfo: {},
+      deviceSavedInfo: {},
       moduleList: []
     };
     Object.assign(this.config, config.current);
@@ -46,7 +47,7 @@ class Control extends EventEmitter {
   }
 
   get connectorId() {
-    return this.model.cntSavedInfo.target_id;
+    return this.model.deviceSavedInfo.target_id;
   }
 
   /**
@@ -69,8 +70,8 @@ class Control extends EventEmitter {
    * @return {Object} config info
    */
   getConnectorInfo() {
-    // BU.CLI(this.model.cntSavedInfo)
-    return this.model.cntSavedInfo;
+    // BU.CLI(this.model.deviceSavedInfo)
+    return this.model.deviceSavedInfo;
   }
 
   /**
@@ -82,6 +83,13 @@ class Control extends EventEmitter {
   }
 
   /**
+   * 현재 진행중인 Trouble List를 가져옴
+   */
+  getTroubleList() {
+    return this.model.currTroubleList;
+  }
+
+  /**
    * 접속반 계측 컨트롤러 초기화.
    * 개발 모드일 경우 modbus tcp server 구동
    * @return {Promise} true, exception
@@ -90,7 +98,7 @@ class Control extends EventEmitter {
     // this에 Event Emitter Binding
     this.eventHandler();
     // 국번 정의
-    let dialing = this.config.cntSavedInfo.dialing;
+    let dialing = this.config.deviceSavedInfo.dialing;
     dialing = dialing.type === 'Buffer' ? Buffer.from(dialing) : dialing;
     // 접속반 종류별 프로토콜 장착
     // NOTE 인텔리전스를 위해 P_Setter에서 재정의함
@@ -108,19 +116,20 @@ class Control extends EventEmitter {
   async connectDevice() {
     try {
       // 개발 버전일경우 자체 더미 인버터 소켓에 접속
-      let cntSavedInfo = this.model.cntSavedInfo;
-      // BU.CLI(cntSavedInfo)
-      if (cntSavedInfo.connect_type === 'socket') { // TODO Serial Port에 접속하는 기능
+      let deviceSavedInfo = this.model.deviceSavedInfo;
+      // BU.CLI(deviceSavedInfo)
+      if (deviceSavedInfo.connect_type === 'socket') { // TODO Serial Port에 접속하는 기능
         // NOTE Dev모드에서는 Socket Port를 재설정하므로 지정 경로로 접속기능 필요
-        this.connectedDevice = await this.p_SocketClient.connect(cntSavedInfo.port, cntSavedInfo.ip);
-        // BU.CLI('Socket에 접속하였습니다.  ' + cntSavedInfo.port)
+        this.connectedDevice = await this.p_SocketClient.connect(deviceSavedInfo.port, deviceSavedInfo.ip);
+        // BU.CLI('Socket에 접속하였습니다.  ' + deviceSavedInfo.port)
       } else {
         this.connectedDevice = await this.p_SerialClient.connect();
       }
-      BU.log('Sucess Connected to Connector ', cntSavedInfo.target_id);
+      BU.log('Sucess Connected to Connector ', deviceSavedInfo.target_id);
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
+      this.model.onTroubleData('Disconnected Connector', false)
       this.model.hasConnectedDevice = true;
       this.retryConnectDeviceCount = 0;
 
@@ -185,6 +194,7 @@ class Control extends EventEmitter {
         new Promise((_, reject) => {
           timeout = setTimeout(() => {
             // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
+            // 명전 전송 후 제한시간안에 응답이 안올 경우 에러 
             reject(new Error('timeout'))
           }, this.model.controlStatus.sendMsgTimeOutSec)
         })
@@ -240,7 +250,7 @@ class Control extends EventEmitter {
       } catch (error) {
         // BU.CLI(error)
         // 개발 버전이고, 일반 인버터 프로토콜을 사용, 테스트용 데이터가 있다면 
-        if (this.config.hasDev && this.config.cntSavedInfo.target_category !== 'dev') {
+        if (this.config.hasDev && this.config.deviceSavedInfo.target_category !== 'dev') {
           this.model.onData(this.model.testData);
           return this.emit('completeSend2Msg', this.model.testData);
         }
@@ -263,6 +273,7 @@ class Control extends EventEmitter {
   eventHandler() {
     // 장치 접속 끊김
     this.on('disconnected', error => {
+      this.model.onTroubleData('Disconnected Connector', true)
       // BU.CLI('disconnected', error)
       this.connectedDevice = {};
 

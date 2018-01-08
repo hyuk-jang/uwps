@@ -14,10 +14,16 @@ global._ = _;
 global.BU = BU;
 
 // Step 테스트 유무(개발용 일경우 다수의 Socket Port가 열리고 Reload발생시 Socket Max Count 제한이 100이라서 중간에 정지될 수 있ㅇ므)
-let hasStep1 = true;
-let hasStep2 = false;
-let hasInsertInverterSql = false;   // 실제 DB 삽입
-let hasInsertConnectorSql = false;  // 실제 DB 삽입
+let hasStep1 = false;
+let hasStep2 = true;
+let hasInsertInverterSql = false; // 실제 DB 삽입
+let hasInsertConnectorSql = false; // 실제 DB 삽입
+
+/**
+ * NOTE: src/config.js current.devOption, current.dbInfo 만 수정.
+ * inverterList, connectorList는 devOption 설정을 맞추고 json 파일을 생성한 후 생선된 json의 inverterList와 connectorList를 붙여넣는다.
+ * 그 후 hasStep1 ~ 진행을 하면 됨.
+ */
 
 describe('UPSAS Test', () => {
   let inverterData
@@ -28,7 +34,7 @@ describe('UPSAS Test', () => {
     // 인버터 데이터 DB 갱신 처리
     it('inverterSetter', async() => {
       // 인버터 정보 DB에서 불러오지 않을 경우 
-      if (!config.current.devOption.hasLoadSqlInverter) {
+      if (!config.current.devOption.hasReloadInverterConfig) {
         BU.CLI('인버터 config DB 갱신 X ')
         return true;
       }
@@ -45,8 +51,13 @@ describe('UPSAS Test', () => {
       inverterList.forEach((element, index) => {
         let addObj = {
           hasDev: true,
+          troubleCodeList: [{
+            is_error: 1,
+            code: 'Disconnected Inverter',
+            msg: '인버터 연결 해제'
+          }],
           ivtDummyData: {},
-          ivtSavedInfo: element
+          deviceSavedInfo: element
         }
 
         addObj.ivtDummyData.dailyKwh = ivtDataList[index].d_wh / 10000;
@@ -64,7 +75,7 @@ describe('UPSAS Test', () => {
     // 접속반 데이터 DB 갱신 처리
     it('connectorSetter', async() => {
       // 접속반 정보 DB에서 불러오지 않을 경우 
-      if (!config.current.devOption.hasLoadSqlConnector) {
+      if (!config.current.devOption.hasReloadConnectorConfig) {
         BU.CLI('접속반 config DB 갱신 X ')
         return true;
       }
@@ -75,8 +86,13 @@ describe('UPSAS Test', () => {
       connectorList.forEach((element, index) => {
         let addObj = {
           hasDev: true,
+          troubleCodeList: [{
+            is_error: 1,
+            code: 'Disconnected Connector',
+            msg: '접속반 연결 해제'
+          }],
           // devPort: basePort + index,
-          cntSavedInfo: element,
+          deviceSavedInfo: element,
           moduleList: _.where(relation_upms, {
             connector_seq: element.connector_seq
           })
@@ -102,7 +118,8 @@ describe('UPSAS Test', () => {
 
       let wf = Promise.promisify(BU.writeFile);
 
-      let result = await wf('./src/config.json', `${JSON.stringify(config)}`, 'w')
+      BU.CLI(config)
+      let result = await wf('./test/config.json', `${JSON.stringify(config)}`, 'w')
       BU.CLI(result)
 
       expect(result).to.equal(undefined);
@@ -120,7 +137,7 @@ describe('UPSAS Test', () => {
             before('init - single dev', async() => {
               setInverterConfig(true, 'single', 'dev', 'socket')
               setConnectorConfig(true, 'dev', 'socket')
-
+              // BU.CLI(config)
               control = new Control(config);
               console.time('UPSAS Init')
               await control.init();
@@ -194,49 +211,51 @@ describe('UPSAS Test', () => {
   })
 
   after(() => {
-    describe('CheckModel', () => {
-      let insertInverterData
-      let insertConnectorData
-      it('onInverterDataList', done => {
-        // 데이터가 있어야 함
-        expect(inverterData.length).to.not.equal(0)
-        insertInverterData = control.model.onInverterDataList(new Date(), inverterData)
-        // BU.CLI(insertInverterData)
-        expect(insertInverterData).to.be.an('array')
-        done();
-      })
-      it('onConnectorDataList', done => {
-        // 데이터가 있어야 함
-        expect(connectorData.length).to.not.equal(0)
-        insertConnectorData = control.model.onConnectorDataList(new Date(), connectorData)
-        // BU.CLI(insertConnectorData)
-        expect(insertConnectorData).to.be.an('array');
-        done();
-      })
-
-      if(hasInsertInverterSql){
-        it('insertInverter', async() => {
-          expect(insertInverterData.length).to.not.equal(0)
-          control.model.hasInsertQuery = true;
-          let result = await control.model.insertQuery('inverter_data', insertInverterData)
-          BU.CLI(result)
-          expect(result).to.not.deep.equal({});
+    if (hasStep1 || hasStep2)
+      describe('CheckModel', () => {
+        let insertInverterData
+        let insertConnectorData
+        it('onInverterDataList', done => {
+          // 데이터가 있어야 함
+          expect(inverterData.length).to.not.equal(0)
+          insertInverterData = control.model.onInverterDataList(new Date(), inverterData)
+          // BU.CLI(insertInverterData)
+          expect(insertInverterData).to.be.an('array')
+          done();
         })
-      }
-
-      if(hasInsertConnectorSql){
-        it('insertConnector', async() => {
-          expect(insertConnectorData.length).to.not.equal(0)
-          control.model.hasInsertQuery = true;
-          let result = await control.model.insertQuery('module_data', insertConnectorData)
-          BU.CLI(result)
-          expect(result).to.not.deep.equal({});
+        it('onConnectorDataList', done => {
+          // 데이터가 있어야 함
+          // BU.CLI(connectorData)
+          expect(connectorData.length).to.not.equal(0)
+          insertConnectorData = control.model.onConnectorDataList(new Date(), connectorData)
+          // BU.CLI(insertConnectorData)
+          expect(insertConnectorData).to.be.an('array');
+          done();
         })
-      }
+
+        if (hasInsertInverterSql) {
+          it('insertInverter', async() => {
+            expect(insertInverterData.length).to.not.equal(0)
+            control.model.hasInsertQuery = true;
+            let result = await control.model.insertQuery('inverter_data', insertInverterData)
+            BU.CLI(result)
+            expect(result).to.not.deep.equal({});
+          })
+        }
+
+        if (hasInsertConnectorSql) {
+          it('insertConnector', async() => {
+            expect(insertConnectorData.length).to.not.equal(0)
+            control.model.hasInsertQuery = true;
+            let result = await control.model.insertQuery('module_data', insertConnectorData)
+            BU.CLI(result)
+            expect(result).to.not.deep.equal({});
+          })
+        }
 
 
 
-    })
+      })
   })
 
 
@@ -246,16 +265,16 @@ describe('UPSAS Test', () => {
 function setInverterConfig(hasDev, target_type, target_category, connect_type) {
   config.current.inverterList.forEach(element => {
     element.current.hasDev = hasDev;
-    element.current.ivtSavedInfo.target_type = target_type;
-    element.current.ivtSavedInfo.target_category = target_category;
-    element.current.ivtSavedInfo.connect_type = connect_type;
+    element.current.deviceSavedInfo.target_type = target_type;
+    element.current.deviceSavedInfo.target_category = target_category;
+    element.current.deviceSavedInfo.connect_type = connect_type;
   });
 }
 
 function setConnectorConfig(hasDev, target_category, connect_type) {
   config.current.connectorList.forEach(element => {
     element.current.hasDev = hasDev;
-    element.current.cntSavedInfo.target_category = target_category;
-    element.current.cntSavedInfo.connect_type = connect_type;
+    element.current.deviceSavedInfo.target_category = target_category;
+    element.current.deviceSavedInfo.connect_type = connect_type;
   });
 }

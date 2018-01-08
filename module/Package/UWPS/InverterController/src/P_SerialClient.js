@@ -2,7 +2,7 @@ const SerialClient = require('base-class-jh').SerialClient;
 
 class P_SerialClient extends SerialClient {
   constructor(controller) {
-    super(controller.config.ivtSavedInfo);
+    super(controller.config.deviceSavedInfo);
 
     // control 객체
     this.controller = controller;

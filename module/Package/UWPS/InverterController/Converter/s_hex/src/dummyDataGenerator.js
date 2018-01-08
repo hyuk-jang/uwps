@@ -126,18 +126,10 @@ function makeFaultMsg() {
   return Buffer.concat(returnValue);
 }
 
-// module.exports = {
-//   operation: makeReceiveData('operation', true),
-//   pv: makeReceiveData('pv'),
-//   grid: makeReceiveData('grid'),
-//   power: makeReceiveData('power'),
-//   system: makeReceiveData('system'),
-// };
-
 module.exports = [
-  makeReceiveData('operation', true),
-  makeReceiveData('pv'),
-  makeReceiveData('grid'),
-  makeReceiveData('power'),
-  makeReceiveData('system'),
+  ()=> makeReceiveData('operation', true),
+  ()=> makeReceiveData('pv'),
+  ()=> makeReceiveData('grid'),
+  ()=> makeReceiveData('power'),
+  ()=> makeReceiveData('system'),
 ];

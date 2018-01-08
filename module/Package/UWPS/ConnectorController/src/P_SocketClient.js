@@ -5,7 +5,7 @@ const bcjh = require('base-class-jh');
 
 class P_SocketClient extends bcjh.socket.SocketClient {
   constructor(controller) {
-    super(controller.config.cntSavedInfo.port, controller.config.cntSavedInfo.ip);
+    super(controller.config.deviceSavedInfo.port, controller.config.deviceSavedInfo.ip);
     this.controller = controller;
     this._eventHandler();
   }

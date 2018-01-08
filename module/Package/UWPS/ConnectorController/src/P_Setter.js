@@ -13,9 +13,9 @@ class P_Setter extends EventEmitter {
 
   async settingConverter(dialing) {
     try {
-      // BU.CLI(this.config.cntSavedInfo.target_category)
-      const Encoder = Converter[this.config.cntSavedInfo.target_category].Encoder;
-      const Decoder = Converter[this.config.cntSavedInfo.target_category].Decoder;
+      // BU.CLI(this.config.deviceSavedInfo.target_category)
+      const Encoder = Converter[this.config.deviceSavedInfo.target_category].Encoder;
+      const Decoder = Converter[this.config.deviceSavedInfo.target_category].Decoder;
 
       // 실제 Converter 객체 생성 및 덮어씌움
       this.controller.encoder = new Encoder(dialing);
@@ -26,8 +26,8 @@ class P_Setter extends EventEmitter {
       if (this.config.hasDev) {
         let port = await this.controller.dummyConnector.init();
         // 개발용 버전이면서 접속 타입이 socket일 경우에는 서로 연결시킬 port 지정
-        if (this.config.cntSavedInfo.connect_type === 'socket') {
-          this.controller.model.cntSavedInfo.port = port;
+        if (this.config.deviceSavedInfo.connect_type === 'socket') {
+          this.controller.model.deviceSavedInfo.port = port;
         }
       } 
 

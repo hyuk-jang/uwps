@@ -1,8 +1,8 @@
 module.exports = {
   current: {
     devOption: {
-      hasLoadSqlInverter: false, // db `inverter` 에서 읽어올 것인가
-      hasLoadSqlConnector: false, // db `connector` 에서 읽어올 것인가
+      hasReloadInverterConfig: false, // db `inverter` 에서 읽어오고 새로이 데이터를 정립할 것인가
+      hasReloadConnectorConfig: false, // db `connector` 에서 읽어오고 새로이 데이터를 정립할 것인가
       hasSaveConfig: false, // db에서 읽어온 내용을 새로이 file에 저장할 것인가
       hasCopyInverterData: true,  // inverter를 기초로 접속반 데이터를 세팅할 것인가
       hasInsertQuery: false, // db에 정기적으로 데이터를 저장할 것인가
@@ -18,11 +18,16 @@ module.exports = {
     "inverterList": [{
       "current": {
         "hasDev": true,
+        "troubleCodeList": [{
+          "is_error": 1,
+          "code": "Disconnected Inverter",
+          "msg": "인버터 연결 해제"
+        }],
         "ivtDummyData": {
-          "dailyKwh": 4.9981,
-          "cpKwh": 1041.6097
+          "dailyKwh": 5.705,
+          "cpKwh": 1068.1091
         },
-        "ivtSavedInfo": {
+        "deviceSavedInfo": {
           "inverter_seq": 1,
           "target_id": "IVT1",
           "target_name": "인버터 1",
@@ -45,11 +50,16 @@ module.exports = {
     }, {
       "current": {
         "hasDev": true,
+        "troubleCodeList": [{
+          "is_error": 1,
+          "code": "Disconnected Inverter",
+          "msg": "인버터 연결 해제"
+        }],
         "ivtDummyData": {
-          "dailyKwh": 5.2744,
-          "cpKwh": 1054.1619
+          "dailyKwh": 5.9483,
+          "cpKwh": 1080.5029
         },
-        "ivtSavedInfo": {
+        "deviceSavedInfo": {
           "inverter_seq": 2,
           "target_id": "IVT2",
           "target_name": "인버터 2",
@@ -72,11 +82,16 @@ module.exports = {
     }, {
       "current": {
         "hasDev": true,
+        "troubleCodeList": [{
+          "is_error": 1,
+          "code": "Disconnected Inverter",
+          "msg": "인버터 연결 해제"
+        }],
         "ivtDummyData": {
-          "dailyKwh": 5.3953,
-          "cpKwh": 1053.5488
+          "dailyKwh": 5.5366,
+          "cpKwh": 1079.2092
         },
-        "ivtSavedInfo": {
+        "deviceSavedInfo": {
           "inverter_seq": 3,
           "target_id": "IVT3",
           "target_name": "인버터 3",
@@ -99,11 +114,16 @@ module.exports = {
     }, {
       "current": {
         "hasDev": true,
+        "troubleCodeList": [{
+          "is_error": 1,
+          "code": "Disconnected Inverter",
+          "msg": "인버터 연결 해제"
+        }],
         "ivtDummyData": {
-          "dailyKwh": 5.3207,
-          "cpKwh": 1041.93
+          "dailyKwh": 5.4623,
+          "cpKwh": 1066.9801
         },
-        "ivtSavedInfo": {
+        "deviceSavedInfo": {
           "inverter_seq": 4,
           "target_id": "IVT4",
           "target_name": "인버터 4",
@@ -126,11 +146,16 @@ module.exports = {
     }, {
       "current": {
         "hasDev": true,
+        "troubleCodeList": [{
+          "is_error": 1,
+          "code": "Disconnected Inverter",
+          "msg": "인버터 연결 해제"
+        }],
         "ivtDummyData": {
-          "dailyKwh": 5.0777,
-          "cpKwh": 1052.7094
+          "dailyKwh": 5.7822,
+          "cpKwh": 1078.7641
         },
-        "ivtSavedInfo": {
+        "deviceSavedInfo": {
           "inverter_seq": 5,
           "target_id": "IVT5",
           "target_name": "인버터 5",
@@ -153,11 +178,16 @@ module.exports = {
     }, {
       "current": {
         "hasDev": true,
+        "troubleCodeList": [{
+          "is_error": 1,
+          "code": "Disconnected Inverter",
+          "msg": "인버터 연결 해제"
+        }],
         "ivtDummyData": {
-          "dailyKwh": 5.4627,
-          "cpKwh": 1062.7008
+          "dailyKwh": 5.4926,
+          "cpKwh": 1088.85
         },
-        "ivtSavedInfo": {
+        "deviceSavedInfo": {
           "inverter_seq": 6,
           "target_id": "IVT6",
           "target_name": "인버터 6",
@@ -181,7 +211,12 @@ module.exports = {
     "connectorList": [{
       "current": {
         "hasDev": true,
-        "cntSavedInfo": {
+        "troubleCodeList": [{
+          "is_error": 1,
+          "code": "Disconnected Connector",
+          "msg": "접속반 연결 해제"
+        }],
+        "deviceSavedInfo": {
           "connector_seq": 1,
           "target_id": "CNT1",
           "target_category": "dm_v2",

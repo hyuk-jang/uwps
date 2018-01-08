@@ -21,7 +21,7 @@ class Control extends EventEmitter {
       hasDev: true,
       baseFormat: {},
       ivtDummyData: {},
-      ivtSavedInfo: {},
+      deviceSavedInfo: {},
     };
     Object.assign(this.config, config.current);
     // Converter 에서 공통 Format 불러옴
@@ -50,7 +50,7 @@ class Control extends EventEmitter {
   }
 
   get inverterId() {
-    return this.model.ivtSavedInfo.target_id;
+    return this.model.deviceSavedInfo.target_id;
   }
 
   get cmdList() {
@@ -75,7 +75,7 @@ class Control extends EventEmitter {
 
   // DB 정보를 넣어둔 데이터 호출
   getInverterInfo() {
-    return this.model.ivtSavedInfo;
+    return this.model.deviceSavedInfo;
   }
 
   /**
@@ -119,7 +119,7 @@ class Control extends EventEmitter {
     // BU.CLI('init InverterController')
     this.eventHandler();
     // 인버터 타입에 맞는 프로토콜을 바인딩
-    let dialing = this.config.ivtSavedInfo.dialing;
+    let dialing = this.config.deviceSavedInfo.dialing;
     dialing = dialing.type === 'Buffer' ? Buffer.from(dialing) : dialing;
     // NOTE 인텔리전스를 위해 P_Setter에서 재정의함
     await this.p_Setter.settingConverter(dialing);
@@ -136,16 +136,17 @@ class Control extends EventEmitter {
     // BU.CLI('connectDevice')
     try {
       // 개발 버전일경우 자체 더미 인버터 소켓에 접속
-      let ivtSavedInfo = this.config.ivtSavedInfo;
-      if (ivtSavedInfo.connect_type === 'socket') { // TODO Serial Port에 접속하는 기능
+      let deviceSavedInfo = this.config.deviceSavedInfo;
+      if (deviceSavedInfo.connect_type === 'socket') { // TODO Serial Port에 접속하는 기능
         // NOTE Dev모드에서는 Socket Port를 재설정하므로 지정 경로로 접속기능 필요
-        this.connectedDevice = await this.p_SocketClient.connect(ivtSavedInfo.port, ivtSavedInfo.ip);
-        // BU.CLI('Socket에 접속하였습니다.  ' + ivtSavedInfo.port)
+        this.connectedDevice = await this.p_SocketClient.connect(deviceSavedInfo.port, deviceSavedInfo.ip);
+        // BU.CLI('Socket에 접속하였습니다.  ' + deviceSavedInfo.port)
       } else {
         this.connectedDevice = await this.p_SerialClient.connect();
       }
-      // BU.log('Sucess Connected to Inverter ', ivtSavedInfo.target_id);
+      // BU.log('Sucess Connected to Inverter ', deviceSavedInfo.target_id);
 
+      this.model.onTroubleData('Disconnected Inverter', false)
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
       this.model.hasConnectedDevice = true;
@@ -205,7 +206,8 @@ class Control extends EventEmitter {
    */
   async send2Cmd(cmd) {
     // BU.CLI('send2Cmd', cmd)
-    // console.time(this.config.ivtSavedInfo.target_id + cmd)
+    // console.time(this.config.deviceSavedInfo.target_id + cmd)
+    this.model.controlStatus.retryChance = 3;
     let timeout = {};
     let resRace = await Promise.race(
       [
@@ -254,24 +256,25 @@ class Control extends EventEmitter {
    * @param {Buffer} buffer 
    */
   _onReceiveMsg(buffer) {
-    // BU.CLI('_onReceiveMsg', msg)
+    // BU.CLI('_onReceiveMsg', buffer)
     // 명령 내리고 있는 경우에만 수신 메시지 유효
     if (!BU.isEmpty(this.model.processCmd)) {
       try {
         let result = this.decoder._receiveData(buffer);
         // BU.CLI('_onReceiveMsg result', result);
-        this.model.onInverterData(result);
+        this.model.onData(result);
         // _receiveMsgHandler Method 에게 알려줄 Event 발생
         return this.emit('completeSend2Msg', result);
       } catch (error) {
         // TEST 개발 버전이고, 일반 인버터 프로토콜을 사용, 테스트용 데이터가 있다면 
-        if (this.config.hasDev && this.config.ivtSavedInfo.target_category !== 'dev' && !BU.isEmpty(this.testStubData[this.model.controlStatus.sendIndex])) {
-          // BU.CLI(this.testStubData[this.model.controlStatus.sendIndex])
-          return this._onReceiveMsg(this.testStubData[this.model.controlStatus.sendIndex])
+        if (this.model.controlStatus.retryChance-- && this.config.hasDev && this.config.deviceSavedInfo.target_category !== 'dev' && !BU.isEmpty(this.testStubData[this.model.controlStatus.sendIndex]())) {
+          // BU.CLI('TEST Data Send')
+          // BU.CLI(this.testStubData[this.model.controlStatus.sendIndex]())
+          return this._onReceiveMsg(this.testStubData[this.model.controlStatus.sendIndex]())
         }
         // 데이터가 깨질 경우를 대비해 기회를 더 줌
         if (this.model.controlStatus.retryChance--) {
-          BU.CLI('기회 줌', this.model.controlStatus.retryChance)
+          // BU.CLI('기회 줌', this.model.controlStatus.retryChance)
           return Promise.delay(30).then(() => {
             return this.p_Setter.writeMsg(this.model.processCmd).catch(err => {
               BU.CLI(err)
@@ -291,6 +294,7 @@ class Control extends EventEmitter {
     // 인버터 접속 에러
     this.on('disconnected', error => {
       // BU.CLI('disconnectedInverter', error)
+      this.model.onTroubleData('Disconnected Inverter', true)
       this.connectedDevice = {};
 
       let reconnectInterval = this.model.controlStatus.reconnectDeviceInterval;

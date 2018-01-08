@@ -2,7 +2,7 @@ const bcjh = require('base-class-jh');
 
 class P_SerialClient extends bcjh.serial.SerialClient {
   constructor(controller) {
-    super(controller.config.cntSavedInfo);
+    super(controller.config.deviceSavedInfo);
 
     // control 객체
     this.controller = controller;

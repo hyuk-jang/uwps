@@ -122,7 +122,7 @@ async function inverterSetter() {
     let addObj = {
       hasDev: true,
       ivtDummyData: {},
-      ivtSavedInfo: element
+      deviceSavedInfo: element
     }
 
     addObj.ivtDummyData.dailyKwh = ivtDataList[index].d_wh / 10000;
@@ -147,7 +147,7 @@ async function connectorSetter() {
     let addObj = {
       hasDev: true,
       // devPort: basePort + index,
-      cntSavedInfo: element,
+      deviceSavedInfo: element,
       moduleList: _.where(relation_upms, {
         connector_seq: element.connector_seq
       })

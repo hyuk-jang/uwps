@@ -1,17 +1,12 @@
 module.exports = {
   current: {
     hasDev: true,
-    troubleCodeList: [
-      {
-        trouble_code: 'Write Msg TimeOut Fault',
-        trouble_msg: '명령 전송 시간 초과'
-      },
-      {
-        trouble_code: 'Protocol Parsing Fault',
-        trouble_msg: '접속반 응답 데이터 파싱 오류'
-      },
-    ],
-    "cntSavedInfo": {
+    troubleCodeList: [{
+      is_error: 1,
+      code: 'Disconnected Connector',
+      msg: '접속반 연결 해제'
+    }],
+    "deviceSavedInfo": {
       "connector_seq": 1,
       "target_id": "CNT1",
       "target_category": "dm_v2",

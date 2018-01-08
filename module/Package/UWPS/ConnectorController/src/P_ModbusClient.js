@@ -6,7 +6,7 @@ const ModbusRTU = require('modbus-serial');
 class P_ModbusClient {
   constructor(controller) {
     this.controller = controller;
-    this.config = controller.config.cntSavedInfo;
+    this.config = controller.config.deviceSavedInfo;
 
     this.connectionInfo = {};
     this.connectionType = '';

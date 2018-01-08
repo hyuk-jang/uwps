@@ -11,9 +11,9 @@ if (require !== undefined && require.main === module) {
   global._ = _;
   global.BU = BU;
 
-  config.current.cntSavedInfo.target_category = 'dm_v2'
-  config.current.cntSavedInfo.connect_type = 'serial'
-  config.current.cntSavedInfo.port = 'COM11'
+  config.current.deviceSavedInfo.target_category = 'dm_v2'
+  config.current.deviceSavedInfo.connect_type = 'serial'
+  config.current.deviceSavedInfo.port = 'COM11'
 
   const control = new Control(config)
   control.init()

@@ -25,6 +25,24 @@ let hasInsertConnectorSql = false; // 실제 DB 삽입
  * 그 후 hasStep1 ~ 진행을 하면 됨.
  */
 
+ 
+const setInverterConfig = (hasDev, target_type, target_category, connect_type) =>{
+  config.current.inverterList.forEach(element => {
+    element.current.hasDev = hasDev;
+    element.current.deviceSavedInfo.target_type = target_type;
+    element.current.deviceSavedInfo.target_category = target_category;
+    element.current.deviceSavedInfo.connect_type = connect_type;
+  });
+}
+
+const setConnectorConfig = (hasDev, target_category, connect_type) => {
+  config.current.connectorList.forEach(element => {
+    element.current.hasDev = hasDev;
+    element.current.deviceSavedInfo.target_category = target_category;
+    element.current.deviceSavedInfo.connect_type = connect_type;
+  });
+}
+
 describe('UPSAS Test', () => {
   let inverterData
   let connectorData
@@ -261,20 +279,3 @@ describe('UPSAS Test', () => {
 
 })
 
-
-function setInverterConfig(hasDev, target_type, target_category, connect_type) {
-  config.current.inverterList.forEach(element => {
-    element.current.hasDev = hasDev;
-    element.current.deviceSavedInfo.target_type = target_type;
-    element.current.deviceSavedInfo.target_category = target_category;
-    element.current.deviceSavedInfo.connect_type = connect_type;
-  });
-}
-
-function setConnectorConfig(hasDev, target_category, connect_type) {
-  config.current.connectorList.forEach(element => {
-    element.current.hasDev = hasDev;
-    element.current.deviceSavedInfo.target_category = target_category;
-    element.current.deviceSavedInfo.connect_type = connect_type;
-  });
-}

@@ -10,8 +10,6 @@ class Model {
 
     this.moduleDataList = [];
 
-    this.hasConnectedDevice = false;
-
     this.controlStatus = {
       reserveCmdList: [], // Buffer List
       processCmd: {}, // 일반적으로 Buffer

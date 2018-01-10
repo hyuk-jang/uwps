@@ -79,7 +79,6 @@ class Control extends EventEmitter {
    * FIXME 접속반의 이상유무를 어떻게 체크해야할지 논의 필요(모듈 이상 검출 장치?)
    */
   getHasOperation() {
-    return this.model.hasConnectedDevice;
   }
 
   /**
@@ -130,7 +129,6 @@ class Control extends EventEmitter {
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
       this.model.onTroubleData('Disconnected Connector', false)
-      this.model.hasConnectedDevice = true;
       this.retryConnectDeviceCount = 0;
 
       return this.connectedDevice;

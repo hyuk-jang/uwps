@@ -6,6 +6,7 @@
 **/node_modules/
 **/log/
 **/.vscode/
+**/out/
 
 # 와일드카드도 사용가능
 # ignore-file*

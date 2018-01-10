@@ -13,7 +13,25 @@ const P_Setter = require('./P_Setter.js');
 const P_SocketClient = require('./P_SocketClient');
 const P_SerialClient = require('./P_SerialClient');
 
+/**
+ * @class Control
+ * @classdesc 인버터에 맞는 프로토콜 변환모듈 장착 및 접속 방법 수립, 장치 접속, 상태 요청 및 데이터 적재
+ * @extends EventEmitter
+ */
 class Control extends EventEmitter {
+  /**
+   * Control Class 생성자
+   * @param {Object} config 해당 컨트롤러 설정 객체
+   * @example 
+   * ` `` json
+   * config: {
+   * hasDev: true,
+   * baseFormat: {},
+   * ivtDummyData: {},
+   * deviceSavedInfo: {},
+   * }
+   * ` ``
+   */
   constructor(config) {
     super();
     // 현재 Control 설정 변수
@@ -35,7 +53,10 @@ class Control extends EventEmitter {
     this.connectedDevice = null;
 
 
-    // Model
+    /**
+     * Data 저장
+     * @member {Object} Control.Model
+     */
     this.model = new Model(this);
 
     // Process
@@ -49,10 +70,18 @@ class Control extends EventEmitter {
     this.setTimer = null;
   }
 
+  /**
+   * 인버터명
+   * @return {String} ID
+   */
   get inverterId() {
     return this.model.deviceSavedInfo.target_id;
   }
 
+  /**
+   * 명령 종류
+   * @return {Array} 명령 리스트
+   */
   get cmdList() {
     return this.model.cmdList;
   }
@@ -107,9 +136,7 @@ class Control extends EventEmitter {
    * Socket or Serial 연결이 되어있는 상태면 동작 중인걸로 판단
    * @return {Boolean}
    */
-  getHasOperation() {
-    return this.model.hasConnectedDevice;
-  }
+  getHasOperation() {}
 
   /**
    * Controller 을 설정하고 해당 객체를 반환
@@ -149,7 +176,6 @@ class Control extends EventEmitter {
       this.model.onTroubleData('Disconnected Inverter', false)
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
-      this.model.hasConnectedDevice = true;
       this.retryConnectDeviceCount = 0;
 
       return this.connectedDevice;

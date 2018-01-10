@@ -1,3 +1,4 @@
+'use strict';
 const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
 const NU = require('base-util-jh').newUtil;
@@ -5,7 +6,6 @@ const NU = require('base-util-jh').newUtil;
 class Model {
   constructor(controller) {
     this.controller = controller;
-    this.hasConnectedDevice = false;
     this.retryConnectDeviceCount = 0;
 
     this.cmdList = [

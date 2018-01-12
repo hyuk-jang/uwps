@@ -144,6 +144,23 @@
                   %>
                 </tr>
                 <tr class="sel">
+                  <td class="td1">전력(wh)</td>
+                  <%
+                  for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
+                    var moduleStatus = moduleStatusList[i];
+                    var amp = moduleStatus ? moduleStatus.amp : 'x';
+                    var vol = moduleStatus ? moduleStatus.vol : 'x';
+                    var hasWh = isNaN(amp) || isNaN(vol);
+                    var wh = hasWh ? '' : (amp * vol).toFixed(1);
+                  %>
+                    <td>
+                      <%= wh %>
+                    </td>
+                    <%
+                  }
+                  %>
+                </tr>
+                <tr class="sel">
                   <td class="td1">모듈온도(℃)</td>
                   <%
                   for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
@@ -157,6 +174,7 @@
                   }
                   %>
                 </tr>
+                
                 <tr class="sel">
                   <td class="td1">장치상태</td>
                   <%

@@ -6,5 +6,5 @@ exports.encodingProtocolTable = (dialing) => {
       code: [0x52],
       dialing,
     },
-  }
-}
+  };
+};

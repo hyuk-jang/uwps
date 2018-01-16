@@ -1,3 +1,4 @@
+const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
 
 const NU = require('base-util-jh').newUtil;
@@ -17,7 +18,7 @@ class Model {
       retryChance: 3, // 데이터 유효성 검사가 실패, 데이터 수신 에러가 있을 경우 3회까지 ProcessCmd 재전송
       reconnectDeviceInterval: 1000 * 60, // 장치 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
       sendMsgTimeOutSec: 1000 * 1 // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
-    }
+    };
 
     // 현재 발생되고 있는 에러 리스트
     this.troubleCodeList = controller.config.troubleCodeList;
@@ -31,15 +32,15 @@ class Model {
         ch: index + 1,
         amp: 0,
         vol: 0,
-      }
-    })
+      };
+    });
   }
 
   /**
    * Trouble List를 저장할 초기 리스트 설정
    */
   initTroubleMsg() {
-    BU.CLI(this.troubleCodeList)
+    BU.CLI(this.troubleCodeList);
     const returnValue = [];
     this.troubleCodeList.forEach(ele => {
       let addObj = {
@@ -49,9 +50,9 @@ class Model {
         msg: ele.msg,
         occur_date: null,
         fix_date: null
-      }
-      returnValue.push(addObj)
-    })
+      };
+      returnValue.push(addObj);
+    });
     return returnValue;
   }
 
@@ -69,13 +70,13 @@ class Model {
     };
     const troubleObj = _.findWhere(this.troubleCodeList, {
       code: troubleCode
-    })
+    });
     if (_.isEmpty(troubleObj)) {
-      throw ReferenceError('해당 Trouble Msg는 없습니다' + troubleCode)
+      throw ReferenceError('해당 Trouble Msg는 없습니다' + troubleCode);
     }
     const findObj = _.findWhere(this.currTroubleList, {
       code: troubleCode
-    })
+    });
 
     // 발생
     if (hasOccur) {
@@ -114,7 +115,7 @@ class Model {
       retryChance: 3,
       reconnectInverterInterval: 1000 * 60, // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
       sendMsgTimeOutSec: 1000 * 1 // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
-    }
+    };
   }
 
   /**
@@ -139,9 +140,9 @@ class Model {
         ch: 0,
         amp: 0,
         vol: 0,
-      }
+      };
       this.moduleDataList.push(addObj);
-    })
+    });
 
   }
 
@@ -153,8 +154,8 @@ class Model {
         photovoltaic_seq: ele.photovoltaic_seq,
         amp: NU.multiplyScale2Value(ele.amp, 10, 1),
         vol: NU.multiplyScale2Value(ele.vol, 10, 1),
-      }
-    })
+      };
+    });
 
     // BU.CLI(returnValue)
     return returnValue;
@@ -180,7 +181,7 @@ class Model {
         connector_seq: this.deviceSavedInfo.connector_seq
       });
       dataInfo.photovoltaic_seq = _.isEmpty(findObj) ? null : findObj.photovoltaic_seq;
-    })
+    });
 
     this.moduleDataList = connectorDataList;
 

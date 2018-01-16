@@ -4,21 +4,34 @@ const Promise = require('bluebird');
 const EventEmitter = require('events');
 const eventToPromise = require('event-to-promise');
 
-const {Converter} = require('base-class-jh');
+// const {Converter} = require('base-class-jh');
+const BU = require('base-util-jh').baseUtil;
 
 const P_Setter = require('./P_Setter.js');
 const Model = require('./Model.js');
 
 const DummyConnector = require('../DummyConnector');
 
+/** Class Socket Client Manager */
 const P_SocketClient = require('./P_SocketClient');
 const P_SerialClient = require('./P_SerialClient');
 
+/** Class 접속반을 계측하는 프로그램 */
 class Control extends EventEmitter {
+  /**
+   * 계측 프로그램을 구동하기 위해서 필요한 설정 정보 
+   * @param {object} config {hasDev, troubleCodeList, deviceSavedInfo, moduleList}
+   */
   constructor(config) {
     super();
-    // BU.CLI(config)
-    // 현재 Control 설정 변수
+    /**
+     * config 객체
+     * @property {object} config 설정 옵션
+     * @property {boolean} config.hasDev 개발용인지 여부. 개발용일 경우 Dummy Socket Server를 구동함.
+     * @property {object[]} config.troubleCodeList 해당 장치에 대한 자체 Trouble 추적을 할 경우 사용. {is_error: number, code: string, msg: string}
+     * @property {object} config.deviceSavedInfo 컨트롤러 객체를 생성하기 위한 설정 정보로 DB를 참조하여 내려줌. {connector_seq, target_id, target_category, dialing, ip, port, baud_rate, address, ...etc}
+     * @property {object[]} config.moduleList 접속반 ch별 module seq를 설정하기 위한 관계 정보 {photovoltaic_seq, connector_ch, ...etc}
+     */
     this.config = {
       hasDev: false,
       troubleCodeList: [],
@@ -27,9 +40,10 @@ class Control extends EventEmitter {
     };
     Object.assign(this.config, config.current);
 
-    // 추상 클래스 정의 --> Intellicense Support
-    this.encoder = new Converter();
-    this.decoder = new Converter();
+    /** Converter Encoder Binding 객체  */
+    this.encoder;
+    /** Converter Decoder Binding 객체  */
+    this.decoder;
     
     // NOTE 연결된 장치 객체 -> P_Setter 에서 사용됨.
     this.connectedDevice = null;
@@ -128,12 +142,12 @@ class Control extends EventEmitter {
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
-      this.model.onTroubleData('Disconnected Connector', false)
+      this.model.onTroubleData('Disconnected Connector', false);
       this.retryConnectDeviceCount = 0;
 
       return this.connectedDevice;
     } catch (error) {
-      BU.CLI(error)
+      BU.CLI(error);
       this.emit('disconnected', error);
     }
   }
@@ -145,7 +159,7 @@ class Control extends EventEmitter {
   async measureDevice() {
     return new Promise((resolve, reject) => {
       if (!BU.isEmpty(this.model.processCmd)) {
-        reject('현재 진행중인 명령이 존재합니다.\n' + this.model.processCmd)
+        reject('현재 진행중인 명령이 존재합니다.\n' + this.model.processCmd);
         // return new Error('현재 진행중인 명령이 존재합니다.\n' + this.model.processCmd);
       }
 
@@ -155,13 +169,13 @@ class Control extends EventEmitter {
       // BU.CLI(this.model.controlStatus.reserveCmdList)
 
       Promise.each(this.model.controlStatus.reserveCmdList, cmd => {
-          this.model.controlStatus.reserveCmdList.shift();
-          this.model.controlStatus.processCmd = cmd;
-          return this.send2Cmd(cmd);
-        })
+        this.model.controlStatus.reserveCmdList.shift();
+        this.model.controlStatus.processCmd = cmd;
+        return this.send2Cmd(cmd);
+      })
         .then(() => {
           // BU.CLI(`${this.connectorId}의 명령 수행이 모두 완료되었습니다.`);
-          resolve(this.model.refineConnectorData)
+          resolve(this.model.refineConnectorData);
         })
         .catch(err => {
           let msg = `${this.connectorId}의 ${this.model.processCmd}명령 수행 도중 ${err.message}오류가 발생하였습니다.`;
@@ -170,13 +184,13 @@ class Control extends EventEmitter {
           // 컨트롤 상태 초기화
           this.model.initControlStatus();
 
-          reject(err)
+          reject(err);
 
           // TODO 에러시 어떻게 처리할 지 고민 필요
           //에러가 발생할 경우 빈 객체 반환
           // resolve({})
-        })
-    })
+        });
+    });
   }
 
   /**
@@ -186,18 +200,18 @@ class Control extends EventEmitter {
   async send2Cmd(cmd) {
     // BU.CLI('send2Cmd', cmd)
     let timeout = {};
-    let resRace = await Promise.race(
+    await Promise.race(
       [
         this.msgSendController(cmd),
         new Promise((_, reject) => {
           timeout = setTimeout(() => {
             // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
             // 명전 전송 후 제한시간안에 응답이 안올 경우 에러 
-            reject(new Error('timeout'))
-          }, this.model.controlStatus.sendMsgTimeOutSec)
+            reject(new Error('timeout'));
+          }, this.model.controlStatus.sendMsgTimeOutSec);
         })
       ]
-    )
+    );
     clearTimeout(timeout);
     return this.model.refineConnectorData;
 
@@ -257,7 +271,7 @@ class Control extends EventEmitter {
           //  BU.CLI('기회 줌', this.model.controlStatus.retryChance)
           return Promise.delay(30).then(() => {
             return this.p_Setter.writeMsg(this.model.processCmd).catch(err => {
-              BU.CLI(err)
+              BU.CLI(err);
             });
           });
         } else {
@@ -270,8 +284,8 @@ class Control extends EventEmitter {
 
   eventHandler() {
     // 장치 접속 끊김
-    this.on('disconnected', error => {
-      this.model.onTroubleData('Disconnected Connector', true)
+    this.on('disconnected', () => {
+      this.model.onTroubleData('Disconnected Connector', true);
       // BU.CLI('disconnected', error)
       this.connectedDevice = {};
 
@@ -285,20 +299,20 @@ class Control extends EventEmitter {
         if (_.isEmpty(this.connectedDevice)) {
           this.connectDevice();
         } else {
-          clearTimeout(this.setTimer)
+          clearTimeout(this.setTimer);
         }
       }, reconnectInterval);
-    })
+    });
 
 
     // 접속반 데이터 수신 핸들러
     this.on('data', (err, result) => {
       // BU.CLI(err, result)
       if (err) {
-        return BU.errorLog('receiveDataError', err)
+        return BU.errorLog('receiveDataError', err);
       }
       return this._onReceiveMsg(result);
-    })
+    });
 
   }
 

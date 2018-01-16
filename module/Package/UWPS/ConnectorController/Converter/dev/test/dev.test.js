@@ -1,13 +1,11 @@
 const {
   expect
-} = require('chai')
-const Promise = require('bluebird');
-const _ = require('underscore');
+} = require('chai');
 const BU = require('base-util-jh').baseUtil;
 const bcjh = require('base-class-jh');
 
-const Encoder = require('../src/Encoder')
-const Decoder = require('../src/Decoder')
+const Encoder = require('../src/Encoder');
+const Decoder = require('../src/Decoder');
 
 global.BU = BU;
 
@@ -17,11 +15,13 @@ describe('dummy Connector Test', () => {
 
   it('Encoding Test', done => {
     // 보내는  msg는 'pv' 하나만
-    let result = encoder.makeMsg()
-    console.trace(result)
-    expect(result).to.be.ok
-    done()
-  })
+    let result = encoder.makeMsg();
+    console.trace(result);
+    result = encoder.makeSingleMsg('pv');
+    console.trace(result);
+    expect(result).to.be.ok;
+    done();
+  });
 
   it('Decoding Test', done => {
     const sendObj = {
@@ -36,20 +36,20 @@ describe('dummy Connector Test', () => {
         amp: 15.3,
         vol: 223.3,
         ch: cnt
-      })
+      });
     }
 
     sendObj.cmd = 'pv';
     sendObj.contents = gridList;
 
-    let bufferMsg = bcjh.classModule.makeRequestMsgForTransfer(sendObj)
-    BU.CLI(bufferMsg)
+    let bufferMsg = bcjh.classModule.makeRequestMsgForTransfer(sendObj);
+    BU.CLI(bufferMsg);
 
-    let result = decoder._receiveData(bufferMsg)
-    BU.CLI(result)
+    let result = decoder._receiveData(bufferMsg);
+    BU.CLI(result);
 
-    done()
-  })
+    done();
+  });
 
 
-})
+});

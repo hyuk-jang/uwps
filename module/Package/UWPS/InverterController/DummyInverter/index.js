@@ -9,7 +9,7 @@ if (require !== undefined && require.main === module) {
   process.on('uncaughtException', (err) => {
     console.log(`Caught exception: ${err}\n`);
     setTimeout(() => {
-      process.exit()
+      process.exit();
     }, 1000 * 60);
   });
   
@@ -25,11 +25,11 @@ if (require !== undefined && require.main === module) {
   });
 
   control.init()
-  .then(r => {
-    console.trace(r)
-  })
-  .catch(e => {
-    console.trace(e)
-  })
+    .then(r => {
+      console.trace(r);
+    })
+    .catch(e => {
+      console.trace(e);
+    });
 
 }

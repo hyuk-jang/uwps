@@ -1,6 +1,6 @@
 const Promise = require('bluebird');
 const EventEmitter = require('events');
-const Converter = require('../Converter')
+const Converter = require('../Converter');
 
 
 class P_Setter extends EventEmitter {

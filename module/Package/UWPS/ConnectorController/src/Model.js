@@ -1,9 +1,20 @@
+/** Array, Object 등 간편한 처리를 위한 Library */
 const _ = require('underscore');
+/** 자주쓰는 Util 모음 */
 const BU = require('base-util-jh').baseUtil;
-
+/** 수중태양광 관련 새로이 만들고 있는 util */
 const NU = require('base-util-jh').newUtil;
 
+/** Class Controller 데이터 관리 */
 class Model {
+  /**
+   * 계측 프로그램을 구동하기 위해서 필요한 설정 정보 
+   * @param {Object} controller Controller 구동 객체
+   * @param {Object} controller.config Controller 객체 생성 구동 정보
+   * @param {Object} controller.config.deviceSavedInfo 장치 설정 정보로 DB를 기초로 도출
+   * @param {Object} controller.config.moduleList 태양광 모듈의 접속반, 인버터 등등의 table relation info
+   * @param {Array.<{is_error: number, code: string, msg: string}>} controller.config.troubleCodeList 장치 고장 정보리스트
+   */
   constructor(controller) {
     this.controller = controller;
     this.deviceSavedInfo = controller.config.deviceSavedInfo;
@@ -37,7 +48,8 @@ class Model {
   }
 
   /**
-   * Trouble List를 저장할 초기 리스트 설정
+   * Custom Trouble을 공통 관리할 Trouble Case Model List로 변환 
+   * @return {Array.<{connector_seq: number, is_error: number, code: string, msg: string, occur_date: Date, fix_date: Date}>} 실제적으로관리할 TroubleList List 생성. Date는 초기화를 null로 함
    */
   initTroubleMsg() {
     BU.CLI(this.troubleCodeList);
@@ -58,9 +70,10 @@ class Model {
 
 
   /**
-   * 
+   * 실제 장치에서 보내온 Error 처리. Trouble Case Model List로 공통 처리
    * @param {String} troubleCode Trouble Code
    * @param {Boolean} hasOccur 발생 or 해결
+   * @return {{msg: string, obj: {}}}
    */
   onTroubleData(troubleCode, hasOccur) {
     // BU.CLI('onTroubleData', troubleCode, this.troubleCodeList)

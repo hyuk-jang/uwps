@@ -11,7 +11,8 @@
   "author": "j.hyuk",
   "license": "ISC",
   "dependencies": {
-    "base-class-jh": "^1.0.14"
+    "base-class-jh": "^1.0.15",
+    "device-connect-manager": "^0.1.1"
   },
   "devDependencies": {
     "chai": "^4.1.2",

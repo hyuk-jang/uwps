@@ -10,12 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "base-class-jh": "^1.0.14",
+    "base-class-jh": "^1.0.15",
     "base-util-jh": "^1.0.8",
     "bluebird": "^3.5.1",
     "crc": "^3.5.0",
+    "device-connect-manager": "^0.1.1",
     "event-to-promise": "^0.8.0",
-    "modbus-serial": "^7.0.1",
+    "modbus-serial": "^7.0.3",
     "serialport": "^6.0.4",
     "underscore": "^1.8.3"
   },

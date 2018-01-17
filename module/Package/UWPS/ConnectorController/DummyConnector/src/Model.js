@@ -2,7 +2,8 @@
 class Model {
   /**
    * Controller Method Chaning Pattern
-   * @param {Control} controller Control 객체
+   * @param {Object} controller Control 객체
+   * @param {Object} controller.config Control 설정 정보
    */
   constructor(controller) {
     this.controller = controller;
@@ -16,7 +17,7 @@ class Model {
       vol: null, // voltage
     };
 
-   
+
   }
 }
 

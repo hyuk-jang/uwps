@@ -6,13 +6,16 @@ const P_GenerateData = require('./P_GenerateData.js');
 const P_SocketServer = require('./P_SocketServer');
 const BU = require('base-util-jh').baseUtil;
 
+/** Inverter Data 가 공통으로 담길 Base Format Guide Line */
+const {baseFormat} = require('../../Converter');
 
-
+/** Class 인버터 가상 장치 임무를 수행할 Socket Server */
 class Control extends EventEmitter {
-  constructor(dummyData = {
-    dailyKwh,
-    cpKwh
-  }) {
+  /**
+   * 장치 객체 Binding. 최초 1회만 수행하면 됨
+   * @param {{dailyKwh: number, cpKwh: number}} dummyData 인버터 시작 데이터
+   */
+  constructor(dummyData) {
     super();
     // 현재 Control 설정 변수
     this.config = {
@@ -44,8 +47,8 @@ class Control extends EventEmitter {
           pfCritical: 4
         }
       }
-    }
-    
+    };
+
     // BU.CLI(this.config)
 
     let arrMonthData = [];
@@ -58,11 +61,11 @@ class Control extends EventEmitter {
         let dayScale = hasRain ? _.random(40, 50) : _.random(90, 100);
         this.config.dummyValue.powerRangeByDay.forEach((dayData, dIndex) => {
           arrMonthData[yIndex][cnt][dIndex] = new Array();
-          arrMonthData[yIndex][cnt][dIndex].push((monthData / 100) * dayData * dayScale / 100)
-        })
+          arrMonthData[yIndex][cnt][dIndex].push((monthData / 100) * dayData * dayScale / 100);
+        });
 
       }
-    })
+    });
 
     // BU.CLI(arrMonthData)
     this.config.dummyValue.dummyScale = arrMonthData;
@@ -85,7 +88,7 @@ class Control extends EventEmitter {
       this.model.socketServerPort = port;
       return port;
     } catch (error) {
-      console.log('error', error)
+      console.log('error', error);
       throw error;
     }
   }
@@ -99,40 +102,12 @@ class Control extends EventEmitter {
   }
 
   getBaseInverterValue() {
-    return {
-      // Pv Info
-      amp: null, // Ampere
-      vol: null, // voltage
-      // Power Info
-      gridKw: null, // 출력 전력
-      dailyKwh: null, // 하루 발전량 kWh
-      cpKwh: null, // 인버터 누적 발전량 mWh  Cumulative Power Generation
-      pf: null, // 역률 Power Factor %
-      // Grid Info
-      rsVol: null, // rs 선간 전압
-      stVol: null, // st 선간 전압
-      trVol: null, // tr 선간 전압
-      rAmp: null, // r상 전류
-      sAmp: null, // s상 전류
-      tAmp: null, // t상 전류
-      lf: null, // 라인 주파수 Line Frequency, 단위: Hz
-      // System Info
-      isSingle: null, // 단상 or 삼상
-      capa: null, // 인버터 용량 kW
-      productYear: null, // 제작년도 월 일 yyyymmdd,
-      sn: null, // Serial Number,
-      // Operation Info
-      isRun: null, // 인버터 동작 유무
-      isError: null, // 인버터 에러 발생 유무
-      temperature: null, // 인버터 온도
-      errorList: null, // 에러 리스트 Array
-      warningList: null // 경고 리스트 Array
-    }
+    return Object.assign({},baseFormat);
   }
 
   generateDummyData() {
     let res = this.p_GenerateData.dataMaker(new Date());
-    BU.CLI(res)
+    BU.CLI(res);
     this.model.onData(res.pv, res.ivt);
   }
 
@@ -160,33 +135,9 @@ class Control extends EventEmitter {
    * @param {Number} inverter_seq inverter_seq
    */
   dummyRangeDataMaker(startDate, endDate, generateIntervalMin, inverter_seq) {
-    return this.p_GenerateData.dummyRangeDataMaker(startDate, endDate, generateIntervalMin, inverter_seq)
-  }
-
-  /**
-   * Socket 처리 구간 Start
-   */
-
-  _eventHandler() {
-    this.p_SocketServer.on('dataBySocketServer', (err, result) => {
-      if (err) {
-
-      }
-      this.p_SocketServer.cmdProcessor(result)
-    })
-  }
-
-  _addSocket(socket) {
-
-  }
-
-  _destroySocket(socket) {
-
+    return this.p_GenerateData.dummyRangeDataMaker(startDate, endDate, generateIntervalMin, inverter_seq);
   }
 
 
-  /**
-   * Socket 처리 구간 End
-   */
 }
 module.exports = Control;

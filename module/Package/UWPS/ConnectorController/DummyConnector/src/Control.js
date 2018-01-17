@@ -9,7 +9,7 @@ class Control extends EventEmitter {
     super();
     // 현재 Control 설정 변수
     /**
-     * @property {object} config  - 설정을 담은 객체
+     * @property {Object} config  - 설정을 담은 객체
      * @property {number} config.port - 접속반 Socket Server 시작 Port
      * @property {number} config.renewalCycle -  // sec  데이터 갱신 주기,
      * @property {number} config.connector_seq - connector seq

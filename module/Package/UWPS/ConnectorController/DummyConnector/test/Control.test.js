@@ -3,6 +3,7 @@ const {
 } = require('chai');
 const BU = require('base-util-jh').baseUtil;
 const bcjh = require('base-class-jh');
+const dcm = require('device-connect-manager');
 
 
 const Control = require('../src/Control.js');
@@ -29,30 +30,51 @@ describe('dummy Connector Test', () => {
       });
   });
 
+  it('client 테스트', async () => {
+    const connectorObj = dcm.init({connect_type: 'socket', port});
+
+    // 데이터 수신 되는지 
+    connectorObj.on('dcData', data => {
+      BU.CLI(data.toString());
+      let result =  JSON.parse(bcjh.classModule.resolveResponseMsgForTransfer(data).toString());
+      BU.CLI(result);
+      expect(result).to.be.a('object');
+    });
+
+    console.time('connect');
+    await dcm.connect();
+    console.timeEnd('connect');
+    let msg = bcjh.classModule.makeRequestMsgForTransfer('pv');
+    console.time('write');
+    await dcm.write(msg);
+    console.timeEnd('write');
+
+  });
+
 
   // Socket Server 로 접속한 후 가상 데이터 전송 후 응답 데이터의 유효성을 체크
-  it('client connect', done => {
-    const SocketClient = bcjh.socket.SocketClient;    
-    const socketClient = new SocketClient(port);
-    socketClient.connect()
-      .then(client => {
-        BU.CLI('New Connector Client Connected');
-        // 보내는  msg는 'pv' 하나만
-        let msg = bcjh.classModule.makeRequestMsgForTransfer('pv');
-        BU.CLIS(msg, msg.toString());
-        client.write(msg);
-      })
-      .catch(err => {
-        done(err);
-      });
+  // it('client connect', done => {
+  //   const SocketClient = bcjh.socket.SocketClient;    
+  //   const socketClient = new SocketClient(port);
+  //   socketClient.connect()
+  //     .then(client => {
+  //       BU.CLI('New Connector Client Connected');
+  //       // 보내는  msg는 'pv' 하나만
+  //       let msg = bcjh.classModule.makeRequestMsgForTransfer('pv');
+  //       BU.CLIS(msg, msg.toString());
+  //       client.write(msg);
+  //     })
+  //     .catch(err => {
+  //       done(err);
+  //     });
 
-    // 받는 데이터는 str JSON 형식으로
-    socketClient.on('data', data => {
-      BU.CLIS(data, data.toString(), bcjh.classModule.resolveResponseMsgForTransfer(data).toString());
-      let result =  JSON.parse(bcjh.classModule.resolveResponseMsgForTransfer(data).toString());
-      expect(result).to.be.a('object');
-      // BU.CLIS(data, JSON.parse(data.toString()) );
-      done();
-    });
-  });
+  //   // 받는 데이터는 str JSON 형식으로
+  //   socketClient.on('data', data => {
+  //     BU.CLIS(data, data.toString(), bcjh.classModule.resolveResponseMsgForTransfer(data).toString());
+  //     let result =  JSON.parse(bcjh.classModule.resolveResponseMsgForTransfer(data).toString());
+  //     expect(result).to.be.a('object');
+  //     // BU.CLIS(data, JSON.parse(data.toString()) );
+  //     done();
+  //   });
+  // });
 });

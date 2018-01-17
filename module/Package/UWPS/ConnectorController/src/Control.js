@@ -1,37 +1,41 @@
 'use strict';
-const _ = require('underscore');
+
+/** Promise를 더욱 풍부하게 사용하기 위한 Library */
 const Promise = require('bluebird');
+/** Event 처리 Library */
 const EventEmitter = require('events');
+/** Event 처리 Listener --> Promise로 반환 */
 const eventToPromise = require('event-to-promise');
 
-// const {Converter} = require('base-class-jh');
+/** Device Connect, Write 처리 Middleware */
+const dcm = require('device-connect-manager');
+/** 자주쓰는 Util 모음 */
 const BU = require('base-util-jh').baseUtil;
 
+// Converter 매칭
 const P_Setter = require('./P_Setter.js');
+// Class Controller 데이터 관리
 const Model = require('./Model.js');
 
+/**
+ * @class
+ * 가상 Socket Server Listen 및 요청시 접속반 데이터 반환
+ */
 const DummyConnector = require('../DummyConnector');
 
-/** Class Socket Client Manager */
-const P_SocketClient = require('./P_SocketClient');
-const P_SerialClient = require('./P_SerialClient');
 
 /** Class 접속반을 계측하는 프로그램 */
 class Control extends EventEmitter {
   /**
    * 계측 프로그램을 구동하기 위해서 필요한 설정 정보 
-   * @param {object} config {hasDev, troubleCodeList, deviceSavedInfo, moduleList}
+   * @param {Object} config Controller 구동 설정 정보
+   * @param {boolean} config.hasDev 개발용인지 여부. 개발용일 경우 Dummy Socket Server를 구동함.
+   * @param {object[]} config.troubleCodeList 해당 장치에 대한 자체 Trouble 추적을 할 경우 사용. {is_error: number, code: string, msg: string}
+   * @param {object} config.deviceSavedInfo 컨트롤러 객체를 생성하기 위한 설정 정보로 DB를 참조하여 내려줌. {connector_seq, target_id, target_category, dialing, ip, port, baud_rate, address, ...etc}
+   * @param {object[]} config.moduleList 접속반 ch별 module seq를 설정하기 위한 관계 정보 {photovoltaic_seq, connector_ch, ...etc}
    */
   constructor(config) {
     super();
-    /**
-     * config 객체
-     * @property {object} config 설정 옵션
-     * @property {boolean} config.hasDev 개발용인지 여부. 개발용일 경우 Dummy Socket Server를 구동함.
-     * @property {object[]} config.troubleCodeList 해당 장치에 대한 자체 Trouble 추적을 할 경우 사용. {is_error: number, code: string, msg: string}
-     * @property {object} config.deviceSavedInfo 컨트롤러 객체를 생성하기 위한 설정 정보로 DB를 참조하여 내려줌. {connector_seq, target_id, target_category, dialing, ip, port, baud_rate, address, ...etc}
-     * @property {object[]} config.moduleList 접속반 ch별 module seq를 설정하기 위한 관계 정보 {photovoltaic_seq, connector_ch, ...etc}
-     */
     this.config = {
       hasDev: false,
       troubleCodeList: [],
@@ -44,19 +48,17 @@ class Control extends EventEmitter {
     this.encoder;
     /** Converter Decoder Binding 객체  */
     this.decoder;
-    
-    // NOTE 연결된 장치 객체 -> P_Setter 에서 사용됨.
-    this.connectedDevice = null;
 
-    // Model
+    // NOTE 연결된 장치 객체 -> P_Setter 에서 사용됨.
+    this.hasConnect = false;
+
+    /** Class Model 객체로 컨트롤러 데이터 관리(Chaining) */
     this.model = new Model(this);
 
-    // Process
+    /** Class P_Setter 객체로 Converter Binding 처리(Chaining) */
     this.p_Setter = new P_Setter(this);
-    this.p_SocketClient = new P_SocketClient(this);
-    this.p_SerialClient = new P_SerialClient(this);
 
-    // Child
+    /** Class DummyConnector 객체로 config.HasDev === true 일 경우 구동 (Chaining) */
     this.dummyConnector = new DummyConnector();
   }
 
@@ -83,7 +85,7 @@ class Control extends EventEmitter {
    * DB 데이터 정제 결과물
    * @return {Object} config info
    */
-  getConnectorInfo() {
+  getDeviceSavedInfo() {
     // BU.CLI(this.model.deviceSavedInfo)
     return this.model.deviceSavedInfo;
   }
@@ -92,8 +94,7 @@ class Control extends EventEmitter {
    * 현재 인버터 컨트롤러가 작동하는지 여부
    * FIXME 접속반의 이상유무를 어떻게 체크해야할지 논의 필요(모듈 이상 검출 장치?)
    */
-  getHasOperation() {
-  }
+  getHasOperation() {}
 
   /**
    * 현재 진행중인 Trouble List를 가져옴
@@ -108,14 +109,20 @@ class Control extends EventEmitter {
    * @return {Promise} true, exception
    */
   async init() {
-    // this에 Event Emitter Binding
-    this.eventHandler();
     // 국번 정의
     let dialing = this.config.deviceSavedInfo.dialing;
     dialing = dialing.type === 'Buffer' ? Buffer.from(dialing) : dialing;
-    // 접속반 종류별 프로토콜 장착
-    // NOTE 인텔리전스를 위해 P_Setter에서 재정의함
+
+
+    // 접속반 종류별 프로토콜 장착 (개발용이고 socket 일 경우 port 자동 변경)
     await this.p_Setter.settingConverter(dialing);
+
+    // device connector 객체 연결
+    BU.CLI(this.model.deviceSavedInfo);
+    dcm.init(this.model.deviceSavedInfo, this);
+
+    // this에 Event Emitter Binding
+    this.eventHandler();
 
     await this.connectDevice();
 
@@ -124,20 +131,15 @@ class Control extends EventEmitter {
 
   /**
    * 접속반 장치 접속
-   * @return {Object} Socket or Serial Object Client
+   * @return {object} Socket or Serial Object Client
    */
   async connectDevice() {
     try {
       // 개발 버전일경우 자체 더미 인버터 소켓에 접속
       let deviceSavedInfo = this.model.deviceSavedInfo;
-      // BU.CLI(deviceSavedInfo)
-      if (deviceSavedInfo.connect_type === 'socket') { // TODO Serial Port에 접속하는 기능
-        // NOTE Dev모드에서는 Socket Port를 재설정하므로 지정 경로로 접속기능 필요
-        this.connectedDevice = await this.p_SocketClient.connect(deviceSavedInfo.port, deviceSavedInfo.ip);
-        // BU.CLI('Socket에 접속하였습니다.  ' + deviceSavedInfo.port)
-      } else {
-        this.connectedDevice = await this.p_SerialClient.connect();
-      }
+      // 장치 접속 객체에 connect 요청
+      this.hasConnect = await dcm.connect();
+
       BU.log('Sucess Connected to Connector ', deviceSavedInfo.target_id);
 
       // 운영 중 상태로 변경
@@ -145,10 +147,10 @@ class Control extends EventEmitter {
       this.model.onTroubleData('Disconnected Connector', false);
       this.retryConnectDeviceCount = 0;
 
-      return this.connectedDevice;
+      return this.hasConnect;
     } catch (error) {
       BU.CLI(error);
-      this.emit('disconnected', error);
+      this.emit('dcDisconnected', error);
     }
   }
 
@@ -220,29 +222,21 @@ class Control extends EventEmitter {
   /**
    * 장치로 명령 발송 --> 명령 수행 후 응답 결과 timeout 처리를 위함
    * @param {Buffer} cmd 
+   * @param {Promise} 정상 처리라면 true, 아닐 경우 throw error
    */
   async msgSendController(cmd) {
     // BU.CLI('msgSendController', this.model.controlStatus)
     if (BU.isEmpty(cmd)) {
       return new Error('수행할 명령이 없습니다.');
     }
-
-    await this.p_Setter.writeMsg(cmd);
-    await this._receiveMsgHandler();
-
-    return true;
-  }
-
-  /**
-   * _onReceiveMsg Method 에서의 Event를 기다림
-   * Event 결과에 따라 Resolve or Reject. Resolve 일 경우 processCmd 초기화
-   */
-  async _receiveMsgHandler() {
-    // BU.CLI('_receiveMsgHandler')
-    let result = await eventToPromise.multi(this, ['completeSend2Msg'], ['errorSend2Msg']);
+    // 장치로 명령 전송
+    await dcm.write(cmd);
+    // 수신된 메시지의 유효성 검증
+    // TODO File Logging 하고싶다면 여기서 파일 저장
+    let originalMsg = await eventToPromise.multi(this, ['completeSend2Msg'], ['errorSend2Msg']);
     // 요청 메시지 리스트가 비어있다면 명령 리스트를 초기화하고 Resolve
     this.model.controlStatus.processCmd = {};
-    return result;
+    return true;
   }
 
   /**
@@ -255,39 +249,39 @@ class Control extends EventEmitter {
     if (!BU.isEmpty(this.model.processCmd)) {
       try {
         let result = this.decoder._receiveData(msg);
-        // BU.CLI('_onReceiveInverterMsg result', result);
         this.model.onData(result);
         // 인버터 데이터 송수신 종료 이벤트 발생
-        return this.emit('completeSend2Msg', result);
+        return this.emit('completeSend2Msg', msg);
       } catch (error) {
         // BU.CLI(error)
-        // 개발 버전이고, 일반 인버터 프로토콜을 사용, 테스트용 데이터가 있다면 
+        // 개발 버전이고, 개발용 Category가 아니라면 가상 데이터 반환하고 완료 처리함
         if (this.config.hasDev && this.config.deviceSavedInfo.target_category !== 'dev') {
           this.model.onData(this.model.testData);
           return this.emit('completeSend2Msg', this.model.testData);
         }
-        // 데이터가 깨질 경우를 대비해 기회를 더 줌
-        if (this.model.controlStatus.retryChance--) {
-          //  BU.CLI('기회 줌', this.model.controlStatus.retryChance)
+        // 데이터가 깨질 경우 현재 진행중인 명령 재 요청
+        else if (this.model.controlStatus.retryChance--) {
           return Promise.delay(30).then(() => {
-            return this.p_Setter.writeMsg(this.model.processCmd).catch(err => {
+            dcm.write(this.model.processCmd).catch(err => {
               BU.CLI(err);
             });
           });
         } else {
-          // BU.CLI(error)
           return this.emit('errorSend2Msg', error);
         }
       }
     }
   }
 
+  /**
+   * Controller 객체에 발생한 Event 처리
+   */
   eventHandler() {
-    // 장치 접속 끊김
-    this.on('disconnected', () => {
+    /** 장치의 연결이 끊겼을 경우 */
+    this.on('dcDisconnected', () => {
       this.model.onTroubleData('Disconnected Connector', true);
       // BU.CLI('disconnected', error)
-      this.connectedDevice = {};
+      this.hasConnect = false;
 
       let reconnectInterval = this.model.controlStatus.reconnectDeviceInterval;
       // 장치 접속을 2회 시도했는데도 안된다면  Interval을 10배로 함. (현재 10분에 한번 시도)
@@ -296,22 +290,24 @@ class Control extends EventEmitter {
       }
       // setTimeout 걸어둠. 해당 시점에서 접속이 되면 timeout을 해제하고 아니라면 수행
       this.setTimer = setTimeout(() => {
-        if (_.isEmpty(this.connectedDevice)) {
-          this.connectDevice();
-        } else {
+        if (this.hasConnect) {
           clearTimeout(this.setTimer);
+        } else {
+          this.connectDevice();
         }
       }, reconnectInterval);
     });
 
+    /** 장치에서 Error가 발생하였을 경우 */
+    this.on('dcError', err => {
+      return BU.errorLog('dcError', err);
+    });
 
-    // 접속반 데이터 수신 핸들러
-    this.on('data', (err, result) => {
-      // BU.CLI(err, result)
-      if (err) {
-        return BU.errorLog('receiveDataError', err);
-      }
-      return this._onReceiveMsg(result);
+
+    /** 장치에서 수신된 데이터 처리 */
+    this.on('dcData', data => {
+      // BU.CLI(data);
+      return this._onReceiveMsg(data);
     });
 
   }

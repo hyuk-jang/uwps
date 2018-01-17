@@ -1,50 +1,32 @@
 const _ = require('underscore');
-const BU = require('base-util-jh').baseUtil;
-
+/** Inverter Data 가 공통으로 담길 Base Format Guide Line */
+const {baseFormat} = require('../../Converter');
 const NU = require('base-util-jh').newUtil;
+/** Class DummyConnector 데이터 저장 */
 class Model {
+  /**
+   * Controller Method Chaning Pattern
+   * @param {Control} controller Control 객체
+   * @param {Object} controller.config Control 설정 정보
+   * @param {Object} controller.config.dummyValue 인버터 초기 시작 값이 담긴 객체
+   * @param {Object} controller.config.dummyValue.pv 모듈 초기값 객체
+   * @param {number} controller.config.dummyValue.pv.amp 전류 시작값
+   * @param {number} controller.config.dummyValue.pv.vol 전압 시작값
+   */
   constructor(controller) {
     this.controller = controller;
 
     this.config = controller.config;
     this.socketServerPort = 0;
 
-    this.inverterData = {
-      // Pv Info
-      amp: null, // Ampere
-      vol: null, // voltage
-      // Power Info
-      gridKw: null, // 출력 전력
-      dailyKwh: null, // 하루 발전량 kWh
-      cpKwh: null, // 인버터 누적 발전량 mWh  Cumulative Power Generation
-      pf: null, // 역률 Power Factor %
-      // Grid Info
-      rsVol: null, // rs 선간 전압
-      stVol: null, // st 선간 전압
-      trVol: null, // tr 선간 전압
-      rAmp: null, // r상 전류
-      sAmp: null, // s상 전류
-      tAmp: null, // t상 전류
-      lf: null, // 라인 주파수 Line Frequency, 단위: Hz
-      // System Info
-      isSingle: null, // 단상 or 삼상
-      capa: null, // 인버터 용량 kW
-      productYear: null, // 제작년도 월 일 yyyymmdd,
-      sn: null, // Serial Number,
-      // Operation Info
-      isRun: null, // 인버터 동작 유무
-      isError: null,  // 인버터 에러 발생 유무
-      temperature: null,  // 인버터 온도
-      errorList: null, // 에러 리스트 Array
-      warningList: null // 경고 리스트 Array
-    }
+    this.inverterData = baseFormat;
 
     this.dummy = {
       pointHour: 0,
       pointDate: 1,
       storageHourKwh: [],
       storageDailyKwh: []
-    }
+    };
 
 
     this.sysInfo = {
@@ -52,12 +34,12 @@ class Model {
       capa: 0, // 인버터 용량 kW
       productYear: '00000000', // 제작년도 월 일 yyyymmdd,
       sn: '' // Serial Number
-    }
+    };
 
     this.pv = {
       amp: this.config.dummyValue.pv.amp, // Ampere
       vol: this.config.dummyValue.pv.vol // voltage
-    }
+    };
 
     // Single Grid, Third Grid 둘다 커버하는 Grid
     this.grid = {
@@ -72,11 +54,11 @@ class Model {
 
     this.power = {
       // pvWh: 0, //  현재 태양 전지 출력 전력량, 단위: 
-      gridKw: 0,  // 출력 전력
-      dailyKwh: this.config.dummyValue.dailyKwh || 0,  // 하루 발전량 kWh
-      cpKwh: this.config.dummyValue.cpKwh ||0, // 인버터 누적 발전량 mWh  Cumulative Power Generation
-      pf: 0,  // 역률 Power Factor %
-    }
+      gridKw: 0, // 출력 전력
+      dailyKwh: this.config.dummyValue.dailyKwh || 0, // 하루 발전량 kWh
+      cpKwh: this.config.dummyValue.cpKwh || 0, // 인버터 누적 발전량 mWh  Cumulative Power Generation
+      pf: 0, // 역률 Power Factor %
+    };
 
     // BU.CLI(this.power)
 
@@ -86,7 +68,7 @@ class Model {
       temperature: 0, // 인버터 온도
       errorList: [], // 에러 리스트 Array
       warningList: [] // 경고 리스트 Array
-    }
+    };
   }
 
 
@@ -110,7 +92,7 @@ class Model {
     let out_w = 0;
     if (this.config.isSingle) {
       out_w = this.grid.rAmp * this.grid.rsVol;
-    } else {  // 3상일때 배율 1.732 적용
+    } else { // 3상일때 배율 1.732 적용
       out_w = this.grid.rAmp * this.grid.rsVol * 1.732;
     }
 
@@ -141,7 +123,7 @@ class Model {
   }
 
   get scalePower() {
-    return NU.multiplyScale2Obj(this.power, 10, 0)
+    return NU.multiplyScale2Obj(this.power, 10, 0);
   }
 
   get scaleSysInfo() {
@@ -184,7 +166,7 @@ class Model {
 
     }
 
-    this.power.pf = isNaN(out_w / in_w) ? 0 :  out_w / in_w * 100;
+    this.power.pf = isNaN(out_w / in_w) ? 0 : out_w / in_w * 100;
 
     // BU.CLIS(pv, ivt)
     let date = currDate.getDate();

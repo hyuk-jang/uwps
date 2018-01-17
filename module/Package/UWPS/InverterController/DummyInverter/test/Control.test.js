@@ -1,7 +1,6 @@
 const {
   expect
-} = require('chai')
-const Promise = require('bluebird');
+} = require('chai');
 const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
 const bmjh = require('base-model-jh');
@@ -11,28 +10,28 @@ const Control = require('../src/Control.js');
 global.BU = BU;
 
 describe('dummy Inverter Test', () => {
-  let control
+  let control;
   before(() => {
     control = new Control({
       dailyKwh: 10,
       cpKwh: 30
     });
-  })
+  });
 
   it('normal course', async() => {
     let hasRun = await control.init();
     let operation = control.p_SocketServer.cmdProcessor('operation');
-    BU.CLI(operation)
+    BU.CLI(operation);
     let grid = control.p_SocketServer.cmdProcessor('grid');
-    BU.CLI(grid)
+    BU.CLI(grid);
 
     expect(operation).to.be.ok;
 
-  })
+  });
 
   // DB 입력 테스트
   describe('insert DB Test', () => {
-    let finalDummyDataList
+    let finalDummyDataList;
     // 인버터 리스트 별로 가상 데이터 생성
     before(() => {
       const allDummyDataList = [];
@@ -43,12 +42,12 @@ describe('dummy Inverter Test', () => {
           cpKwh: 0
         });
 
-        let dummyData = control.dummyRangeDataMaker('2017-11-27', '2017-11-27 15:00:00', 30, inverter_seq)
+        let dummyData = control.dummyRangeDataMaker('2017-11-27', '2017-11-27 15:00:00', 30, inverter_seq);
         allDummyDataList.push(dummyData);
-      })
+      });
       finalDummyDataList = _.flatten(allDummyDataList);
-      BU.CLI(finalDummyDataList.length)
-    })
+      BU.CLI(finalDummyDataList.length);
+    });
 
 
 
@@ -59,8 +58,8 @@ describe('dummy Inverter Test', () => {
         user: 'upsas',
         password: process.env.SALTERN_PW ? process.env.SALTERN_PW : 'root',
         database: 'upsas'
-      }
-      done()
+      };
+      done();
 
       // let BM = new bmjh.BM(dbInfo);
       // BM.setTables('inverter_data', finalDummyDataList)
@@ -70,9 +69,9 @@ describe('dummy Inverter Test', () => {
       //   .catch(e => {
       //     console.error(e)
       //   })
-    })
+    });
 
-  })
+  });
 
 
-})
+});

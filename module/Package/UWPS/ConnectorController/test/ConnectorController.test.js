@@ -77,6 +77,7 @@ describe('Connector Controller Test', () => {
       });
       it('Category: dm_v2', done => {
         config.current.deviceSavedInfo.target_category = 'dm_v2';
+        BU.CLI(config);
         const control = new Control(config);
         control.init()
           .then(result => {

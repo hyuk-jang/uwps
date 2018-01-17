@@ -9,8 +9,8 @@ class DecodingMsgSocket extends Converter {
 
   /**
    * 개발용 Decoder. SM 기본 프로토콜을 사용하여 Parsing 후 contents 반환
-   * @param {buffer} bufferData 
-   * @return {array} object[] -> {ch:number, amp:number, vol:number}, 아니라면 throw Error
+   * @param {Buffer} bufferData 
+   * @return {Array.<{ch:number, amp:number, vol:number},>} object 아니라면 throw Error
    */
   _receiveData(bufferData) {
     // BU.CLI(bufferData)

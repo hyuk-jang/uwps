@@ -6,7 +6,7 @@ const NU = require('base-util-jh').newUtil;
 class Model {
   /**
    * Controller Method Chaning Pattern
-   * @param {Control} controller Control 객체
+   * @param {Object} controller Control 객체
    * @param {Object} controller.config Control 설정 정보
    * @param {Object} controller.config.dummyValue 인버터 초기 시작 값이 담긴 객체
    * @param {Object} controller.config.dummyValue.pv 모듈 초기값 객체

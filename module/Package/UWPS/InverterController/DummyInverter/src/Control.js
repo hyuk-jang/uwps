@@ -7,7 +7,9 @@ const P_SocketServer = require('./P_SocketServer');
 const BU = require('base-util-jh').baseUtil;
 
 /** Inverter Data 가 공통으로 담길 Base Format Guide Line */
-const {baseFormat} = require('../../Converter');
+const {
+  baseFormat
+} = require('../../Converter');
 
 /** Class 인버터 가상 장치 임무를 수행할 Socket Server */
 class Control extends EventEmitter {
@@ -71,11 +73,19 @@ class Control extends EventEmitter {
     this.config.dummyValue.dummyScale = arrMonthData;
 
     // BU.CLI(this.config.dummyValue.dailyScale)
-    // Model
+    /**
+     * @property {Model} 모델
+     */
     this.model = new Model(this);
 
     // Process
+    /**
+     * @property {P_GenerateData} P_GenerateData
+     */
     this.p_GenerateData = new P_GenerateData(this);
+    /**
+     * @property {P_SocketServer} P_SocketServer
+     */
     this.p_SocketServer = new P_SocketServer(this);
     // Child
   }
@@ -102,7 +112,7 @@ class Control extends EventEmitter {
   }
 
   getBaseInverterValue() {
-    return Object.assign({},baseFormat);
+    return Object.assign({}, baseFormat);
   }
 
   generateDummyData() {

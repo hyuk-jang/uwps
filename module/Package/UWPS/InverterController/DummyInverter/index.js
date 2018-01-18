@@ -1,5 +1,5 @@
 'use strict';
-
+/** Class Controller */
 const Control = require('./src/Control.js');
 module.exports = Control;
 

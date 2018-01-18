@@ -3,7 +3,7 @@ const {
 } = require('chai');
 const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
-const bmjh = require('base-model-jh');
+
 
 const Control = require('../src/Control.js');
 
@@ -61,6 +61,7 @@ describe('dummy Inverter Test', () => {
       };
       done();
 
+      // const bmjh = require('base-model-jh');
       // let BM = new bmjh.BM(dbInfo);
       // BM.setTables('inverter_data', finalDummyDataList)
       //   .then(r => {

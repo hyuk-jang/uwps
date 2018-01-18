@@ -2,12 +2,12 @@ const BU = require('base-util-jh').baseUtil;
 
 
 const {Converter} = require('base-class-jh');
-const s_hexProtocol = require('./s_hexProtocol');
+const protocol = require('./protocol');
 
 class Encoder extends Converter {
   constructor(dialing) {
     super();
-    this.protocolTable = s_hexProtocol.encodingProtocolTable(dialing);
+    this.protocolTable = protocol.encodingProtocolTable(dialing);
   }
 
   getCheckSum(buf) {
@@ -30,7 +30,7 @@ class Encoder extends Converter {
         this.EOT
       ];
 
-      return Buffer.concat(returnValue)
+      return Buffer.concat(returnValue);
     } catch (error) {
       throw error;
     }

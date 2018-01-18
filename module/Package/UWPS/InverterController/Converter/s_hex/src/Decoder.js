@@ -1,16 +1,16 @@
 const {Converter} = require('base-class-jh');
-const s_hexProtocol = require('./s_hexProtocol');
+const protocol = require('./protocol');
 
-const _ = require('underscore')
+const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
 
-const {baseFormat} = require('../../')
+const {baseFormat} = require('../../');
 
 
 class Decoder extends Converter {
   constructor(dialing) {
     super();
-    this.protocolTable = s_hexProtocol.encodingProtocolTable(dialing);
+    this.protocolTable = protocol.encodingProtocolTable(dialing);
 
     this.returnValue = [];
   }
@@ -46,7 +46,7 @@ class Decoder extends Converter {
     // BU.CLI(arrSpliceBuffer)
     arrSpliceBuffer.forEach((buffer, index) => {
       let binaryValue = this.convertChar2Binary(buffer.toString(), 4);
-      let operationTable = s_hexProtocol.operationInfo(index);
+      let operationTable = protocol.operationInfo(index);
       _.each(operationTable, operationObj => {
         let binaryCode = binaryValue.charAt(operationObj.number);
 
@@ -56,8 +56,8 @@ class Decoder extends Converter {
         } else if (binaryCode === operationObj.errorValue.toString()) {
           this.returnValue.errorList.push(operationObj);
         }
-      })
-    })
+      });
+    });
 
     // 배열에 에러 데이터가 있다면 현재 에러 검출여부 반영
     if(this.returnValue.errorList.length){
@@ -83,7 +83,7 @@ class Decoder extends Converter {
     this.returnValue.rAmp = this.convertBuffer2Char2Dec(arrSpliceBuffer[3]) / 10; // r상 전류
     this.returnValue.sAmp = this.convertBuffer2Char2Dec(arrSpliceBuffer[4]) / 10; // s상 전류
     this.returnValue.tAmp = this.convertBuffer2Char2Dec(arrSpliceBuffer[5]) / 10; // t상 전류
-    this.returnValue.lf = this.convertBuffer2Char2Dec(arrSpliceBuffer[6]) / 10 // 라인 주파수 Line Frequency; 단위 = Hz
+    this.returnValue.lf = this.convertBuffer2Char2Dec(arrSpliceBuffer[6]) / 10; // 라인 주파수 Line Frequency; 단위 = Hz
   }
 
   power(msg) {
@@ -123,17 +123,17 @@ class Decoder extends Converter {
       // Start, dialing, Cmd, Addr (Byte Number)
       let bufArray = [
         0, 1, 2, 1, 4
-      ]
+      ];
       // Start, dialing, Cmd, Addr, Data, Ck_Sum, End
       let resBufArray = [];
 
       let lastIndex = bufArray.reduce((accmulator, currentValue, index) => {
         resBufArray.push(buffer.slice(accmulator, accmulator + currentValue));
         return accmulator + currentValue;
-      })
-      resBufArray.push(buffer.slice(lastIndex, buffer.length - 5))
-      resBufArray.push(buffer.slice(buffer.length - 5, buffer.length - 1))
-      resBufArray.push(buffer.slice(buffer.length - 1))
+      });
+      resBufArray.push(buffer.slice(lastIndex, buffer.length - 5));
+      resBufArray.push(buffer.slice(buffer.length - 5, buffer.length - 1));
+      resBufArray.push(buffer.slice(buffer.length - 1));
 
       if (Buffer.compare(resBufArray[0], this.ACK)) {
         throw Error('ACK Error');
@@ -162,13 +162,13 @@ class Decoder extends Converter {
         }
 
         if (value === addr) {
-          cmd = key
+          cmd = key;
           return true;
         }
       });
 
       if (cmd === '') {
-        BU.CLI(value)
+        BU.CLI(value);
         return false;
       }
       // returnValue Set

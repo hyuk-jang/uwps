@@ -1,16 +1,16 @@
 const {
   expect
 } = require('chai');
-const eventToPromise = require('event-to-promise');
+
+const BU = require('base-util-jh').baseUtil;
+global.BU = BU;
 
 const Encoder = require('../src/Encoder');
 const Decoder = require('../src/Decoder');
 
-const BU = require('base-util-jh').baseUtil;
-global.BU = BU;
-const _ = require('underscore');
 
-const bcjh = require('base-class-jh');
+
+const dcm = require('device-connect-manager');
 
 describe('Test', () => {
   const cmdList = [
@@ -41,26 +41,30 @@ describe('Test', () => {
           console.log('DummyInverter Server Listen', port);
           expect(port).to.be.an('number');
         });
-    
-        it('connect DummyInverter Server', async() => {
-          let socketClient = new bcjh.socket.SocketClient(port);
-          client = await socketClient.connect();
-    
-          expect(client).is.not.equal({});
-        });
-    
-        it(`Decoder Test ${cmdList[0]}`, async() => {
-          client.write(reserveCmdList[0]);
-    
-          let resBuffer = await eventToPromise.multi(client, ['data'], ['close']);
 
-          const decoder = new Decoder();
+        it('Decoder test', async() => {
+          const connectorObj = dcm.init({
+            connect_type: 'socket',
+            port
+          });
 
-          let bufferBody = bcjh.classModule.resolveResponseMsgForTransfer(resBuffer[0]);
+          // 데이터 수신 되는지 
+          connectorObj.on('dcData', data => {
+            BU.CLI(data.toString());
+            const decoder = new Decoder();
+            // 짤린 데이터를 넣어봄
+            // data = data.slice(50);
+            let result = decoder._receiveData(data);
+            BU.CLI(result);
+            expect(result).to.be.a('object');
+          });
 
-          let result = decoder._receiveData(resBuffer[0]);
-          BU.CLI(result);
-          expect(result).to.be.an('object');
+          console.time('connect');
+          await dcm.connect();
+          console.timeEnd('connect');
+          console.time('write');
+          await dcm.write(reserveCmdList[1]);
+          console.timeEnd('write');
         });
       });
     });

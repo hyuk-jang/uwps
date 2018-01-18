@@ -1,8 +1,10 @@
 const BU = require('base-util-jh').baseUtil;
+const Decoder = require('./Decoder');
+const Encoder = require('./Encoder');
+BU.CLIS(Encoder, Decoder);
 
 const _ = require('underscore');
 
-const Decoder = require('./Decoder.js');
 BU.CLI(process.cwd());
 const decoder = new Decoder();
 

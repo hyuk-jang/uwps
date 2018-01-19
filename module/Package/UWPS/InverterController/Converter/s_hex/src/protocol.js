@@ -21,7 +21,7 @@ exports.operationInfo = (groupIndex) => {
       code: 'Solar Cell UV limit fault',
       number: 3,
       errorValue: 1
-    }]
+    }];
   } else if (groupIndex === 1) {
     returnValue = [{
       msg: '인버터 과 전류',
@@ -58,7 +58,7 @@ exports.operationInfo = (groupIndex) => {
       code: 'inverter run',
       number: 14,
       errorValue: 0
-    }]
+    }];
   } else if (groupIndex === 2) {
     returnValue = [{
       msg: '계통 과 전압',
@@ -85,10 +85,10 @@ exports.operationInfo = (groupIndex) => {
       code: 'Line under frequency fault',
       number: 5,
       errorValue: 1
-    }]
+    }];
   }
   return returnValue;
-}
+};
 
 
 exports.encodingProtocolTable = (dialing) => {
@@ -126,5 +126,5 @@ exports.encodingProtocolTable = (dialing) => {
     // weather: {
 
     // }
-  }
-}
+  };
+};

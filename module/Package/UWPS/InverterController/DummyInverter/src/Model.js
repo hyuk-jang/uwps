@@ -18,7 +18,6 @@ class Model {
 
     this.config = controller.config;
     this.socketServerPort = 0;
-
     this.inverterData = baseFormat;
 
     this.dummy = {

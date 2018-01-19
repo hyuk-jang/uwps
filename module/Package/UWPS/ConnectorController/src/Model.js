@@ -1,3 +1,4 @@
+'use strict';
 /** Array, Object 등 간편한 처리를 위한 Library */
 const _ = require('underscore');
 /** 자주쓰는 Util 모음 */
@@ -161,7 +162,7 @@ class Model {
 
 
   // 데이터 정제한 데이터 테이블 (10배수 하여 반환)
-  get refineConnectorData() {
+  get refineData() {
     const returnValue = this.moduleDataList.map(ele => {
       return {
         photovoltaic_seq: ele.photovoltaic_seq,

@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
 /**
- * @class
+ * @module
  * 장치별 Encoder, Decoder가 담겨 있는 Class
  */
 const Converter = require('../Converter');

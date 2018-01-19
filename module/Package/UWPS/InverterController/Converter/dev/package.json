@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "node_modules/.bin/mocha -w",
-    "start": "node index.js"
+    "start": "node index.js",
+    "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json"
   },
   "keywords": [],
   "author": "",
@@ -16,8 +17,11 @@
   "dependencies": {
     "base-class-jh": "^1.0.15",
     "base-util-jh": "^1.0.8",
+    "event-to-promise": "^0.8.0"
+  },
+  "devDependencies": {
+    "mocha": "^5.0.0",
     "chai": "^4.1.2",
-    "event-to-promise": "^0.8.0",
-    "mocha": "^4.1.0"
+    "device-connect-manager": "^0.1.1"
   }
 }

@@ -44,7 +44,7 @@ describe('Inverter Controller Test', () => {
 
 
             let result = await control.measureDevice();
-
+            BU.CLI(control.model.deviceData);
             expect(result).to.not.deep.equal({});
           });
         }
@@ -73,7 +73,7 @@ describe('Inverter Controller Test', () => {
             // BU.CLI(currTrouble)
             result = control.model.onTroubleData('Disconnected Device', true);
             // 프로그램 에러가 갱신될때 fix_date가 초기화 되는지 확인
-            BU.CLI(control.model.currentTroubleList);
+            BU.CLI(control.model.getCurrTroubleData());
             expect(result.obj.fix_date).to.be.equal(null);
           });
         }

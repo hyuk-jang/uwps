@@ -1,11 +1,6 @@
 module.exports = {
   current: {
     hasDev: true,
-    troubleCodeList: [{
-      is_error: 1,
-      code: 'Disconnected Connector',
-      msg: '접속반 연결 해제'
-    }],
     'deviceSavedInfo': {
       'connector_seq': 1,
       'target_id': 'CNT1',

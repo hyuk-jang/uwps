@@ -6,6 +6,11 @@ const BU = require('base-util-jh').baseUtil;
 /** 수중태양광 관련 새로이 만들고 있는 util */
 const NU = require('base-util-jh').newUtil;
 
+/**
+ * @module Array 고장정보 리스트
+ */
+const troubleCodeList = require('../config/trouble.config');
+
 /** Class Controller 데이터 관리 */
 class Model {
   /**
@@ -14,7 +19,6 @@ class Model {
    * @param {Object} controller.config Controller 객체 생성 구동 정보
    * @param {Object} controller.config.deviceSavedInfo 장치 설정 정보로 DB를 기초로 도출
    * @param {Object} controller.config.moduleList 태양광 모듈의 접속반, 인버터 등등의 table relation info
-   * @param {Array.<{is_error: number, code: string, msg: string}>} controller.config.troubleCodeList 장치 고장 정보리스트
    */
   constructor(controller) {
     this.controller = controller;
@@ -33,7 +37,7 @@ class Model {
     };
 
     // 현재 발생되고 있는 에러 리스트
-    this.troubleCodeList = controller.config.troubleCodeList;
+    this.troubleCodeList = troubleCodeList;
     this.currTroubleList = this.initTroubleMsg();
 
 
@@ -77,7 +81,7 @@ class Model {
    * @return {{msg: string, obj: {}}}
    */
   onTroubleData(troubleCode, hasOccur) {
-    // BU.CLI('onTroubleData', troubleCode, this.troubleCodeList)
+    // BU.CLI('onTroubleData', troubleCode, this.troubleCodeList);
     const returnValue = {
       msg: '',
       obj: {}

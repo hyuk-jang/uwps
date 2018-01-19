@@ -2,8 +2,6 @@ const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
 /** Class Common Converter */
 const {Converter} = require('base-class-jh');
-/** baseFormat Guide Line */
-const baseFormat = require('../../').baseFormat;
 
 /** 명령 리스트 및 에러 규약이 들어있는 객체 */
 const protocol = require('./protocol');
@@ -24,8 +22,9 @@ class Decoder extends Converter {
 
     this.returnValue = [];
     
-    this.baseFormat = baseFormat;
-    // this.baseFormat = require('../../').baseFormat;
+    /** baseFormat Guide Line */
+    this.baseFormat = require('../../').baseFormat;
+    BU.CLI(this.baseFormat);
   }
 
   /**
@@ -171,6 +170,7 @@ class Decoder extends Converter {
     // BU.CLI('_receiveData', buffer)
     // 표준 반환 가이드라인 불러옴
     let returnValue = this.getBaseValue();
+    // BU.CLI(returnValue);
 
     try {
       // startPoint, Start, dialing, Cmd, Addr (Byte Number)
@@ -222,6 +222,7 @@ class Decoder extends Converter {
       }
       // 정의된 메소드 실행 resBufArray[4] --> DATA
       returnValue = this[cmd](resBufArray[4], returnValue);
+      // BU.CLI(returnValue);
       return returnValue;
     } catch (error) {
       // BU.CLI(error)

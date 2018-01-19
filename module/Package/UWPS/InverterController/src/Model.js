@@ -6,6 +6,10 @@ const BU = require('base-util-jh').baseUtil;
 /** 수중태양광 관련 새로이 만들고 있는 util */
 const NU = require('base-util-jh').newUtil;
 
+/**
+ * @module Array 고장정보 리스트
+ */
+const troubleCodeList = require('../config/trouble.config');
 
 /** */
 const {baseFormat} = require('../Converter');
@@ -17,7 +21,6 @@ class Model {
    * @param {Object} controller Controller 구동 객체
    * @param {Object} controller.config Controller 객체 생성 구동 정보
    * @param {Object} controller.config.deviceSavedInfo 장치 설정 정보로 DB를 기초로 도출
-   * @param {Array.<{is_error: number, code: string, msg: string}>} controller.config.troubleCodeList 장치 고장 정보리스트
    */
   constructor(controller) {
     this.controller = controller;
@@ -38,8 +41,7 @@ class Model {
     };
 
     // Converter에 정의한 baseFormat 가져옴
-    this.inverterData = baseFormat;
-    BU.CLI(this.controller.deviceSavedInfo);
+    this.deviceData = Object.assign({}, baseFormat);
     this.deviceSavedInfo = this.controller.config.deviceSavedInfo;
 
     this.sysInfo = {};
@@ -57,7 +59,7 @@ class Model {
     ];
 
     // 현재 발생되고 있는 에러 리스트
-    this.troubleCodeList = controller.config.troubleCodeList;
+    this.troubleCodeList = troubleCodeList;
     this.currTroubleList = this.initTroubleMsg();
     // Trouble List로 들어올 경우 임시 저장소
     this.troubleArrayStorage = [];
@@ -107,7 +109,7 @@ class Model {
 
   // 인버터 데이터 초기화
   onInitInverterData(cmd) {
-    BU.CLI(this.deviceSavedInfo);
+    // BU.CLI(this.deviceSavedInfo);
     switch (cmd) {
     case 'pv':
       this.pv = {
@@ -263,7 +265,7 @@ class Model {
    * @return {{msg: string, obj: {}}}
    */
   onTroubleData(troubleCode, hasOccur) {
-    BU.CLI(troubleCode, hasOccur);
+    // BU.CLI(troubleCode, hasOccur);
     const returnValue = {
       msg: '',
       obj: {}
@@ -361,26 +363,29 @@ class Model {
 
   // Inverter Data 수신
   onData(inverterData) {
-    // BU.CLI(inverterData)
+    // BU.CLI(inverterData);
     _.each(inverterData, (value, key) => {
       // 정의한 Key 안에서 들어온 데이터일 경우
-      if (value !== null && _.has(this.inverterData, key)) {
+      if (value !== null && _.has(this.deviceData, key)) {
         // 실제 사용하는 영역일 경우 실제 대입
-        _.each(this.ivtDataGroup, (ivtObj) => {
-          if (_.has(ivtObj, key)) {
-            // 에러 내역이 있을 경우
-            if (key === 'errorList') {
-              this.onTroubleDataList(value);
-            }
-            ivtObj[key] = value;
-          }
-        });
+        // _.each(this.ivtDataGroup, (ivtObj) => {
+        //   if (_.has(ivtObj, key)) {
+        //     // 에러 내역이 있을 경우
+        //     if (key === 'errorList') {
+        //       this.onTroubleDataList(value);
+        //     }
+        //     ivtObj[key] = value;
+        //   }
+        // });
         // 정의한 key value 업데이트 (차후에 쓰일지도 몰라서)
-        this.inverterData[key] = value;
+        if (key === 'errorList') {
+          this.onTroubleDataList(value);
+        }
+        this.deviceData[key] = value;
       }
     });
     // BU.CLI(this.inverterData)
-    return this.inverterData;
+    return this.deviceData;
   }
 }
 

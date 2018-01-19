@@ -57,13 +57,13 @@ describe('Connector Controller Test', () => {
       // 에러 계산되는지 체크
       it('error Test', done => {
         let result = {};
-        result = control.model.onTroubleData('Disconnected Connector', true);
+        result = control.model.onTroubleData('Disconnected Device', true);
         BU.CLI(result);
         expect(result.obj.fix_date).to.be.equal(null);
-        result = control.model.onTroubleData('Disconnected Connector', true);
-        result = control.model.onTroubleData('Disconnected Connector', false);
-        result = control.model.onTroubleData('Disconnected Connector', false);
-        result = control.model.onTroubleData('Disconnected Connector', true);
+        result = control.model.onTroubleData('Disconnected Device', true);
+        result = control.model.onTroubleData('Disconnected Device', false);
+        result = control.model.onTroubleData('Disconnected Device', false);
+        result = control.model.onTroubleData('Disconnected Device', true);
         expect(result.obj.fix_date).to.be.equal(null);
         done();
       });

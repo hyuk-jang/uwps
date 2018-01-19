@@ -30,7 +30,6 @@ class Control extends EventEmitter {
    * 계측 프로그램을 구동하기 위해서 필요한 설정 정보 
    * @param {Object} config Controller 구동 설정 정보
    * @param {boolean} config.hasDev 개발용인지 여부. 개발용일 경우 Dummy Socket Server를 구동함.
-   * @param {Object[]} config.troubleCodeList 해당 장치에 대한 자체 Trouble 추적을 할 경우 사용. {is_error: number, code: string, msg: string}
    * @param {Object} config.deviceSavedInfo 컨트롤러 객체를 생성하기 위한 설정 정보로 DB를 참조하여 내려줌. {connector_seq, target_id, target_category, dialing, ip, port, baud_rate, address, ...etc}
    * @param {Object[]} config.moduleList 접속반 ch별 module seq를 설정하기 위한 관계 정보 {photovoltaic_seq, connector_ch, ...etc}
    */
@@ -38,7 +37,6 @@ class Control extends EventEmitter {
     super();
     this.config = {
       hasDev: false,
-      troubleCodeList: [],
       deviceSavedInfo: {},
       moduleList: []
     };

@@ -33,7 +33,6 @@ class Control extends EventEmitter {
    * 계측 프로그램을 구동하기 위해서 필요한 설정 정보 
    * @param {Object} config Controller 구동 설정 정보
    * @param {boolean} config.hasDev 개발용인지 여부. 개발용일 경우 Dummy Socket Server를 구동함.
-   * @param {Object[]} config.troubleCodeList 해당 장치에 대한 자체 Trouble 추적을 할 경우 사용. {is_error: number, code: string, msg: string}
    * @param {Object} config.ivtDummyData Dummy Program을 돌릴때 설정 초기 값
    * @param {Object} config.deviceSavedInfo 컨트롤러 객체를 생성하기 위한 설정 정보로 DB를 참조하여 내려줌. {connector_seq, target_id, target_category, dialing, ip, port, baud_rate, address, ...etc}
    */
@@ -102,18 +101,8 @@ class Control extends EventEmitter {
   }
 
   // DB 정보를 넣어둔 데이터 호출
-  getInverterInfo() {
+  getDeviceInfo() {
     return this.model.deviceSavedInfo;
-  }
-
-  /**
-   * cmd에 맞는 데이터 값 요청
-   * @param {String} cmd 얻고자 하는 key(operation, pv, grid, power). 키가 없을 경우 {}
-   * @return {Object} INverter Data Object
-   */
-  getInverterData(cmd) {
-    BU.CLI('getInverterData');
-    return this.cmdList.includes(cmd) ? this.model.getInverterData(cmd) : {};
   }
 
   /**
@@ -121,8 +110,8 @@ class Control extends EventEmitter {
    * @param {String} 원본 데이터
    * @return {Object} INverter Data Object
    */
-  get inverterData() {
-    return this.model.inverterData;
+  get deviceData() {
+    return this.model.deviceData;
   }
 
   // 배율 적용된 값 요청
@@ -152,7 +141,6 @@ class Control extends EventEmitter {
     await this.p_Setter.settingConverter(dialing);
 
     // device connector 객체 연결
-    BU.CLI(this.model.deviceSavedInfo);
     dcm.init(this.model.deviceSavedInfo, this);
 
     // this에 Event Emitter Binding
@@ -277,7 +265,7 @@ class Control extends EventEmitter {
    * @param {Buffer} msg 
    */
   _onReceiveMsg(msg) {
-    BU.CLI('_onReceiveMsg', msg);
+    // BU.CLI('_onReceiveMsg', msg);
     // 명령 내리고 있는 경우에만 수신 메시지 유효
     if (!BU.isEmpty(this.model.processCmd)) {
       try {

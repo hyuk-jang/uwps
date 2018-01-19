@@ -3,9 +3,9 @@
 
 const dev = require('./dev');
 const dm_v2 = require('./dm_v2');
-
+const baseFormat = require('./baseFormat');
 module.exports = {
-  dev, dm_v2
+  dev, dm_v2, baseFormat
 };
 
 

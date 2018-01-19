@@ -10,8 +10,6 @@ module.exports = {
 
 // if __main process
 if (require !== undefined && require.main === module) {
-  const BU = require('base-util-jh').baseUtil;
-  BU.CLI('what?');
   const decoder = new Decoder();
   console.dir(decoder);
 }

@@ -30,7 +30,6 @@ describe('Test', () => {
       describe('Decoder Test', () => {
         let dummyInverter;
         let port;
-        let client;
         it('DummyInverter Server Listen', async() => {
           const DummyInverter = require('../../../DummyInverter');
           dummyInverter = new DummyInverter({
@@ -42,7 +41,7 @@ describe('Test', () => {
           expect(port).to.be.an('number');
         });
 
-        it('Decoder test', async() => {
+        it('장치 접속 및 Decoder 유효성 검증', async() => {
           const connectorObj = dcm.init({
             connect_type: 'socket',
             port

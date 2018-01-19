@@ -1,7 +1,7 @@
 const BU = require('base-util-jh').baseUtil;
-const {
-  Converter
-} = require('base-class-jh');
+/** Class Common Converter */
+const {Converter} = require('base-class-jh');
+
 /** 명령 리스트 및 에러 규약이 들어있는 객체 */
 const protocol = require('./protocol');
 
@@ -11,9 +11,9 @@ class Encoder extends Converter {
    * 국번을 부여하여 Decoder 객체 생성
    * @param {Buffer} dialing 장치 ID
    * Buffer를 권장하나 [...0x], 유사 Buffer, string(ascii chr)도 변경 가능
-   * - [0x30, 0x31, 0x32] -> <Buffer 30 31 32>
-   * - 유사 Buffer : {type: Buffer, data: [0, 0, 1]} -> <Buffer 30 31 32>
-   * - string 012 -> <Buffer 30 31 32>
+   * - [0x30, 0x31, 0x32] -> Buffer 30 31 32
+   * - 유사 Buffer : {type: Buffer, data: [0, 0, 1]} -> Buffer 30 31 32
+   * - string 012 -> Buffer 30 31 32
    */
   constructor(dialing) {
     super();

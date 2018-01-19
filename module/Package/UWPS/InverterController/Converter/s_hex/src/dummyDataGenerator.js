@@ -1,57 +1,29 @@
-const BU = require('base-util-jh').baseUtil;
-const Decoder = require('./Decoder');
-const Encoder = require('./Encoder');
-BU.CLIS(Encoder, Decoder);
-
 const _ = require('underscore');
 
-BU.CLI(process.cwd());
-const decoder = new Decoder();
-
-let arr = [];
-let obj = {};
-
-function init() {
-  arr = [];
-  obj = {};
-}
-
-
-
+const {Converter} = require('base-class-jh');
+const converter = new Converter();
 
 const protocol = require('./protocol');
 const protocolTable = protocol.encodingProtocolTable('01');
 
-function makeSingleMsg(cmd, obj) {
-  let returnValue = {
-    cmd,
-    contents: obj
-  };
-
-  return returnValue;
-}
-
-function makeBufferMsg(cmd, arr) {
+const makeBufferMsg = (cmd, arr) => {
   // BU.CLI(cmd, arr)
-  let ACK = decoder.ACK;
-  let EOT = decoder.EOT;
+  let ACK = converter.ACK;
+  let EOT = converter.EOT;
 
   // BU.CLI(protocolTable)
   let dialing = protocolTable[cmd].dialing;
   let code = protocolTable[cmd].code;
   let address = protocolTable[cmd].address;
 
-  let body = decoder.makeMsg2Buffer([dialing, code, address], arr);
+  let body = converter.makeMsg2Buffer([dialing, code, address], arr);
 
   // let realBuffer = Buffer.concat(arr);
-  let checkSum = decoder.getBufferCheckSum(body, 4);
+  let checkSum = converter.getBufferCheckSum(body, 4);
   return Buffer.concat([ACK, body, checkSum, EOT]);
-}
+};
 
-
-function makeReceiveData(cmd, hasBinary, bufferWidth) {
-  init();
-  let returnValue = {};
+const makeReceiveData = (cmd, hasBinary, bufferWidth) => {
   let buffer = null;
   let body = [];
   let convertBufferBody = [];
@@ -104,7 +76,7 @@ function makeReceiveData(cmd, hasBinary, bufferWidth) {
     convertBufferBody = body;
   } else {
     body.forEach(element => {
-      convertBufferBody.push(decoder.convertNum2Hx2Buffer(element, bufferWidth));
+      convertBufferBody.push(converter.convertNum2Hx2Buffer(element, bufferWidth));
     });
   }
 
@@ -113,13 +85,9 @@ function makeReceiveData(cmd, hasBinary, bufferWidth) {
   // BU.CLI(buffer)
   return buffer;
 
-  returnValue = decoder._receiveData(buffer);
-  // BU.CLI(cmd, buffer, returnValue);
+};
 
-  return returnValue;
-}
-
-function makeFaultMsg() {
+const makeFaultMsg = () => {
   let returnValue = [];
   for (let count = 0; count < 16; count++) {
     let randomHex = _.random(0, 15).toString(16);
@@ -129,7 +97,7 @@ function makeFaultMsg() {
 
   // BU.CLI(returnValue)
   return Buffer.concat(returnValue);
-}
+};
 
 module.exports = [
   ()=> makeReceiveData('operation', true),

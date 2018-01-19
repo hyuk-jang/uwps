@@ -30,9 +30,9 @@ class Control extends EventEmitter {
    * 계측 프로그램을 구동하기 위해서 필요한 설정 정보 
    * @param {Object} config Controller 구동 설정 정보
    * @param {boolean} config.hasDev 개발용인지 여부. 개발용일 경우 Dummy Socket Server를 구동함.
-   * @param {object[]} config.troubleCodeList 해당 장치에 대한 자체 Trouble 추적을 할 경우 사용. {is_error: number, code: string, msg: string}
-   * @param {object} config.deviceSavedInfo 컨트롤러 객체를 생성하기 위한 설정 정보로 DB를 참조하여 내려줌. {connector_seq, target_id, target_category, dialing, ip, port, baud_rate, address, ...etc}
-   * @param {object[]} config.moduleList 접속반 ch별 module seq를 설정하기 위한 관계 정보 {photovoltaic_seq, connector_ch, ...etc}
+   * @param {Object[]} config.troubleCodeList 해당 장치에 대한 자체 Trouble 추적을 할 경우 사용. {is_error: number, code: string, msg: string}
+   * @param {Object} config.deviceSavedInfo 컨트롤러 객체를 생성하기 위한 설정 정보로 DB를 참조하여 내려줌. {connector_seq, target_id, target_category, dialing, ip, port, baud_rate, address, ...etc}
+   * @param {Object[]} config.moduleList 접속반 ch별 module seq를 설정하기 위한 관계 정보 {photovoltaic_seq, connector_ch, ...etc}
    */
   constructor(config) {
     super();
@@ -49,7 +49,7 @@ class Control extends EventEmitter {
     /** Converter Decoder Binding 객체  */
     this.decoder;
 
-    // NOTE 연결된 장치 객체 -> P_Setter 에서 사용됨.
+    /** 장치 연결 유무 */
     this.hasConnect = false;
 
     /** Class Model 객체로 컨트롤러 데이터 관리(Chaining) */
@@ -58,19 +58,25 @@ class Control extends EventEmitter {
     /** Class P_Setter 객체로 Converter Binding 처리(Chaining) */
     this.p_Setter = new P_Setter(this);
 
-    /** Class DummyConnector 객체로 config.HasDev === true 일 경우 구동 (Chaining) */
+    /** Class DummyConnector 객체로 config.hasDev === true 일 경우 구동 (Chaining) */
     this.dummyConnector = new DummyConnector();
+    /** 장치 연결을 기다리는 Timer. model.controlStatus.reconnectDeviceInterval 지정된 시간만큼 기다렸는데도 연결이 안됐다면 재시도. 연결되면 clearTimeout */
+    this.setTimer = null;
   }
 
-  get connectorId() {
+  /**
+   * 장치 고유 ID
+   * @return {string} device ID
+   */
+  get deviceId() {
     return this.model.deviceSavedInfo.target_id;
   }
 
   /**
    * DB 에 입력할 데이터 형태 반환
    */
-  get refineConnectorData() {
-    return this.model.refineConnectorData;
+  get refineData() {
+    return this.model.refineData;
   }
 
   /**
@@ -105,7 +111,7 @@ class Control extends EventEmitter {
 
   /**
    * 접속반 계측 컨트롤러 초기화.
-   * 개발 모드일 경우 modbus tcp server 구동
+   * 개발 모드일 경우 socket server 구동
    * @return {Promise} true, exception
    */
   async init() {
@@ -140,11 +146,11 @@ class Control extends EventEmitter {
       // 장치 접속 객체에 connect 요청
       this.hasConnect = await dcm.connect();
 
-      BU.log('Sucess Connected to Connector ', deviceSavedInfo.target_id);
+      BU.log('Sucess Connected to Device ', deviceSavedInfo.target_id);
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
-      this.model.onTroubleData('Disconnected Connector', false);
+      this.model.onTroubleData('Disconnected Device', false);
       this.retryConnectDeviceCount = 0;
 
       return this.hasConnect;
@@ -177,10 +183,10 @@ class Control extends EventEmitter {
       })
         .then(() => {
           // BU.CLI(`${this.connectorId}의 명령 수행이 모두 완료되었습니다.`);
-          resolve(this.model.refineConnectorData);
+          resolve(this.model.refineData);
         })
         .catch(err => {
-          let msg = `${this.connectorId}의 ${this.model.processCmd}명령 수행 도중 ${err.message}오류가 발생하였습니다.`;
+          let msg = `${this.deviceId}의 ${this.model.processCmd}명령 수행 도중 ${err.message}오류가 발생하였습니다.`;
           BU.errorLog('measureInverter', msg);
 
           // 컨트롤 상태 초기화
@@ -196,7 +202,7 @@ class Control extends EventEmitter {
   }
 
   /**
-   * 접속반에 데이터 요청명령 발송. 주어진 시간안에 명령에 대한 응답을 못 받을 경우 에러 처리
+   * 장치에 데이터 요청명령 발송. 주어진 시간안에 명령에 대한 응답을 못 받을 경우 에러 처리
    * @param  cmd 요청할 명령
    */
   async send2Cmd(cmd) {
@@ -215,8 +221,7 @@ class Control extends EventEmitter {
       ]
     );
     clearTimeout(timeout);
-    return this.model.refineConnectorData;
-
+    return this.model.refineData;
   }
 
   /**
@@ -241,7 +246,7 @@ class Control extends EventEmitter {
 
   /**
    * eventHandler로 부터 넘겨받은 data 처리
-   * @param {Buffer} buffer 
+   * @param {Buffer} msg 
    */
   _onReceiveMsg(msg) {
     // BU.CLI('_onReceiveMsg', msg)

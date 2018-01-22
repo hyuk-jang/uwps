@@ -60,10 +60,12 @@ class P_Scheduler extends EventEmitter {
 
   // 정기적인 인버터 데이터 요청 메시지 이벤트 발생 메소드
   async _measureInverter(measureTime, inverterControllerList) {
-    // BU.CLI('_measureInverter', measureTime, inverterControllerList.length)
+    // BU.CLI('_measureInverter', measureTime, inverterControllerList.length);
     let inverterListData = await Promise.map(inverterControllerList, inverterController => {
       return inverterController.measureDevice();
-    })
+    });
+
+    // BU.CLI(inverterListData);
 
     this.emit('completeMeasureInverter', measureTime, inverterListData);
 
@@ -76,7 +78,7 @@ class P_Scheduler extends EventEmitter {
 
     let connectorListData = await Promise.map(connectorControllerList, connectorController => {
       return connectorController.measureDevice();
-    })
+    });
     // 접속반 리스트 모듈 단위 2차원 배열을 1차원 배열로 바꿈
     let flatList = _.flatten(connectorListData);
 

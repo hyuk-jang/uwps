@@ -13,9 +13,9 @@ global._ = _;
 global.BU = BU;
 
 let hasSocketS_hex = true;
-let s_hex_initTest = true;
-let s_hex_errorTest = true;
-let hasSocketDev = false;
+let s_hex_initTest = false;
+let s_hex_errorTest = false;
+let hasSocketDev = true;
 
 
 describe('Inverter Controller Test', () => {

@@ -80,7 +80,7 @@ class Model {
    * @return {Array.<{inverter_seq: number, is_error: number, code: string, msg: string, occur_date: Date, fix_date: Date}>} 실제적으로관리할 TroubleList List 생성. Date는 초기화를 null로 함
    */
   initTroubleMsg() {
-    BU.CLI(this.troubleCodeList);
+    // BU.CLI(this.troubleCodeList);
     const returnValue = [];
     this.troubleCodeList.forEach(ele => {
       let addObj = {

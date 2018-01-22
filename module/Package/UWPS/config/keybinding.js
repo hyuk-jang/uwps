@@ -3,15 +3,13 @@ const connectorBaseFormat = require('../ConnectorController/Converter').baseForm
 module.exports = {
   binding: [{
     deviceType: 'inverter',
-    tableName: 'inverter_data',
+    dataTableName: 'inverter_data',
+    troubleTableName: 'iverter_trouble_data',
     addParamList: [{
       baseKey: 'inverter_seq',
       updateKey: 'inverter_seq',
-    },{
-      baseKey: 'writedate',
-      updateKey: 'writedate',
     }],
-    macthingList: [{
+    matchingList: [{
       baseKey: 'amp',
       updateKey: 'in_a',
       calculate: 10,

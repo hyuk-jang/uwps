@@ -15,7 +15,12 @@ global.BU = BU;
 
 // Step 테스트 유무(개발용 일경우 다수의 Socket Port가 열리고 Reload발생시 Socket Max Count 제한이 100이라서 중간에 정지될 수 있ㅇ므)
 let hasStep1 = false;
+let hasStep1_inverter = true;
+let hasStep1_connector = false;
 let hasStep2 = true;
+
+let hasAllStep = true;
+
 let hasInsertInverterSql = false; // 실제 DB 삽입
 let hasInsertConnectorSql = false; // 실제 DB 삽입
 
@@ -69,11 +74,6 @@ describe('UPSAS Test', () => {
       inverterList.forEach((element, index) => {
         let addObj = {
           hasDev: true,
-          troubleCodeList: [{
-            is_error: 1,
-            code: 'Disconnected Inverter',
-            msg: '인버터 연결 해제'
-          }],
           ivtDummyData: {},
           deviceSavedInfo: element
         };
@@ -104,11 +104,6 @@ describe('UPSAS Test', () => {
       connectorList.forEach((element, index) => {
         let addObj = {
           hasDev: true,
-          troubleCodeList: [{
-            is_error: 1,
-            code: 'Disconnected Connector',
-            msg: '접속반 연결 해제'
-          }],
           // devPort: basePort + index,
           deviceSavedInfo: element,
           moduleList: _.where(relation_upms, {
@@ -163,28 +158,35 @@ describe('UPSAS Test', () => {
             });
 
             // 인버터 계측 테스트
-            it('measure Inverter(single, dev, socket)', async() => {
-              // 인버터 리스트 계측 명령
-              let result = await control.p_Scheduler._measureInverter(new Date(), control.model.inverterControllerList);
-              inverterData = result;
-              // BU.CLI(result)
-              // 수신받은 데이터 갯수와 명령 요청한 리스트 갯수 비교
-              expect(result.length).to.be.equal(control.model.inverterControllerList.length);
-            });
+            if (hasStep1_inverter) {
+              it('measure Inverter(single, dev, socket)', async() => {
+                // 인버터 리스트 계측 명령
+                let result = await control.p_Scheduler._measureInverter(new Date(), control.model.inverterControllerList);
+                inverterData = result;
+                BU.CLI(result);
+                result.forEach(ele => {
+                  expect(ele.data).to.not.deep.equal({});
+                });
+                // 수신받은 데이터 갯수와 명령 요청한 리스트 갯수 비교
+                expect(result.length).to.be.equal(control.model.inverterControllerList.length);
+              });
+            }
 
             // 접속반 계측 테스트
-            it('measure Connector(dev, socket)', async() => {
-              // 접속반 리스트 계측 명령
-              let moduleLength = 0;
-              let result = connectorData = await control.p_Scheduler._measureConnector(new Date(), control.model.connectorControllerList);
-              // BU.CLI(result)
-              // 각각 접속반이 포함하는 모듈 총 갯수를 구함
-              config.current.connectorList.forEach(element => {
-                moduleLength += element.current.moduleList.length;
+            if (hasStep1_connector) {
+              it('measure Connector(dev, socket)', async() => {
+                // 접속반 리스트 계측 명령
+                let moduleLength = 0;
+                let result = connectorData = await control.p_Scheduler._measureConnector(new Date(), control.model.connectorControllerList);
+                // BU.CLI(result)
+                // 각각 접속반이 포함하는 모듈 총 갯수를 구함
+                config.current.connectorList.forEach(element => {
+                  moduleLength += element.current.moduleList.length;
+                });
+                // 모듈 갯수 비교
+                expect(result.length).to.be.equal(moduleLength);
               });
-              // 모듈 갯수 비교
-              expect(result.length).to.be.equal(moduleLength);
-            });
+            }
           });
         }
 
@@ -205,6 +207,7 @@ describe('UPSAS Test', () => {
               let result = await control.p_Scheduler._measureInverter(new Date(), control.model.inverterControllerList);
               // BU.CLI(result)
               inverterData = result;
+              
               // 수신받은 데이터 갯수와 명령 요청한 리스트 갯수 비교
               expect(result.length).to.be.equal(control.model.inverterControllerList.length);
             });
@@ -229,27 +232,34 @@ describe('UPSAS Test', () => {
   });
 
   after(() => {
-    if (hasStep1 || hasStep2)
+    // if (hasStep1 || hasStep2)
+    if (hasAllStep)
       describe('CheckModel', () => {
         let insertInverterData;
         let insertConnectorData;
-        it('onInverterDataList', done => {
-          // 데이터가 있어야 함
-          expect(inverterData.length).to.not.equal(0);
-          insertInverterData = control.model.onInverterDataList(new Date(), inverterData);
-          // BU.CLI(insertInverterData)
-          expect(insertInverterData).to.be.an('array');
-          done();
-        });
-        it('onConnectorDataList', done => {
-          // 데이터가 있어야 함
-          // BU.CLI(connectorData)
-          expect(connectorData.length).to.not.equal(0);
-          insertConnectorData = control.model.onConnectorDataList(new Date(), connectorData);
-          // BU.CLI(insertConnectorData)
-          expect(insertConnectorData).to.be.an('array');
-          done();
-        });
+        if(true){
+          it('onInverterDataList', done => {
+            // 데이터가 있어야 함
+            expect(inverterData.length).to.not.equal(0);
+            insertInverterData = control.model.onInverterDataList(new Date(), inverterData);
+            // BU.CLI(insertInverterData)
+            expect(insertInverterData).to.be.an('array');
+            done();
+          });
+        }
+        
+        if(false){
+          it('onConnectorDataList', done => {
+            // 데이터가 있어야 함
+            // BU.CLI(connectorData)
+            expect(connectorData.length).to.not.equal(0);
+            insertConnectorData = control.model.onConnectorDataList(new Date(), connectorData);
+            // BU.CLI(insertConnectorData)
+            expect(insertConnectorData).to.be.an('array');
+            done();
+          });
+        }
+        
 
         if (hasInsertInverterSql) {
           it('insertInverter', async() => {

@@ -7,10 +7,11 @@ const EventEmitter = require('events');
 /** Event 처리 Listener --> Promise로 반환 */
 const eventToPromise = require('event-to-promise');
 
-/** Device Connect, Write 처리 Middleware */
-const dcm = require('device-connect-manager');
 /** 자주쓰는 Util 모음 */
 const BU = require('base-util-jh').baseUtil;
+
+/** Device Connect, Write 처리 Middleware */
+const DCM = require('device-connect-manager');
 
 
 // Converter 매칭
@@ -56,6 +57,11 @@ class Control extends EventEmitter {
     /** 장치 연결 유무 */
     this.hasConnect = false;
 
+    /** Device Connect, Write 처리 Middleware */
+    this.dcm = new DCM();
+    this.dcmManager;
+
+
     /** Class Model 객체로 컨트롤러 데이터 관리(Chaining) */
     this.model = new Model(this, this.baseFormat);
 
@@ -74,6 +80,14 @@ class Control extends EventEmitter {
    */
   get deviceId() {
     return this.model.deviceSavedInfo.target_id;
+  }
+
+  /**
+   * 장치 고유 ID
+   * @return {string} device ID
+   */
+  get deviceSeq() {
+    return this.model.deviceSavedInfo.inverter_seq;
   }
 
   /**
@@ -114,6 +128,18 @@ class Control extends EventEmitter {
     return this.model.deviceData;
   }
 
+  /**
+   * 인버터의 현재 데이터 및 에러 내역을 가져옴
+   * @return {{data: Object, trouble: Object}} data: baseFormat 기초로 한 데이터, trouble: 에러 종합.
+   */
+  getDeviceStatus() {
+    return {
+      id: this.deviceId,
+      data: this.model.deviceData,
+      troubleList: this.model.getCurrTroubleData()
+    };
+  }
+
   // 배율 적용된 값 요청
   getScaleInverterData(cmd) {
     return this.cmdList.includes(cmd) ? this.model.getScaleInverterData(cmd) : {};
@@ -141,7 +167,7 @@ class Control extends EventEmitter {
     await this.p_Setter.settingConverter(dialing);
 
     // device connector 객체 연결
-    dcm.init(this.model.deviceSavedInfo, this);
+    this.dcm.init(this.model.deviceSavedInfo, this);
 
     // this에 Event Emitter Binding
     this.eventHandler();
@@ -160,7 +186,7 @@ class Control extends EventEmitter {
       // 개발 버전일경우 자체 더미 인버터 소켓에 접속
       let deviceSavedInfo = this.model.deviceSavedInfo;
       // 장치 접속 객체에 connect 요청
-      this.hasConnect = await dcm.connect();
+      this.hasConnect = await this.dcm.connect();
 
       BU.log('Sucess Connected to Device ', deviceSavedInfo.target_id);
 
@@ -201,18 +227,21 @@ class Control extends EventEmitter {
       })
         .then(() => {
           // BU.CLI(`${this.inverterId}의 명령 수행이 모두 완료되었습니다.`);
-          resolve(this.model.refineData);
+          // resolve(this.model.refineData);
+          this.model.onTroubleData('Communication Error', false);
+          resolve(this.getDeviceStatus());
         })
         .catch(err => {
           let msg = `${this.deviceId}의 ${this.model.processCmd}명령 수행 도중 ${err.message}오류가 발생하였습니다.`;
           BU.errorLog('measureDevice', msg);
 
+          this.model.onTroubleData('Communication Error', true);
           // 컨트롤 상태 초기화
           this.model.initControlStatus();
 
           // TODO 에러시 어떻게 처리할 지 고민 필요
-          //에러가 발생할 경우 빈 객체 반환
-          resolve({});
+          // Communication Error가 발생된 상태라면 data 쓰지 말 것.
+          resolve(this.getDeviceStatus());
         });
     });
   }
@@ -231,6 +260,7 @@ class Control extends EventEmitter {
           timeout = setTimeout(() => {
             // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
             // 명전 전송 후 제한시간안에 응답이 안올 경우 에러 
+            BU.CLI('time out? real?');
             reject(new Error('timeout'));
           }, this.model.controlStatus.sendMsgTimeOutSec);
         })
@@ -251,7 +281,8 @@ class Control extends EventEmitter {
       return new Error('수행할 명령이 없습니다.');
     }
     // 장치로 명령 전송
-    await dcm.write(cmd);
+    // BU.CLI(this.config.deviceSavedInfo);
+    await this.dcm.write(cmd);
     // 수신된 메시지의 유효성 검증
     // TODO File Logging 하고싶다면 여기서 파일 저장
     let originalMsg = await eventToPromise.multi(this, ['completeSend2Msg'], ['errorSend2Msg']);
@@ -283,7 +314,7 @@ class Control extends EventEmitter {
         if (this.model.controlStatus.retryChance--) {
           // BU.CLI('기회 줌', this.model.controlStatus.retryChance)
           return Promise.delay(30).then(() => {
-            dcm.write(this.model.processCmd).catch(err => {
+            this.dcm.write(this.model.processCmd).catch(err => {
               BU.CLI(err);
             });
           });

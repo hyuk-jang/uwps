@@ -18,6 +18,9 @@ class Control extends EventEmitter {
         hasCopyInverterData: false,
         hasInsertQuery: false,
       },
+      childInfo: {
+        typeList: []
+      },
       inverterList: [],
       connectorList: [],
       dbInfo: {},
@@ -110,7 +113,8 @@ class Control extends EventEmitter {
     let result = await Promise.all([
       this.createInverterController(this.config.inverterList),
       this.createConnectorController(this.config.connectorList)
-    ])
+    ]);
+
     return result;
   }
 
@@ -130,9 +134,13 @@ class Control extends EventEmitter {
   async createInverterController(inverterConfigList) {
     let inverterControllerList = await Promise.map(inverterConfigList, ivtConfig => {
       const inverterObj = new InverterController(ivtConfig);
-      return inverterObj.init()
-    })
+      return inverterObj.init();
+    });
+
+    // let troubleList = await this.model.getTroubleList('inverter');
+    // BU.CLI(troubleList);
     
+    this.model.setDeviceGroup('inverter', inverterControllerList);
     this.model.inverterControllerList = inverterControllerList;
     
     return inverterControllerList;
@@ -149,8 +157,11 @@ class Control extends EventEmitter {
     let connectorControllerList = await Promise.map(connectorConfigList, cntConfig => {
       const connectorObj = new ConectorController(cntConfig);
       return connectorObj.init();
-    })
-    
+    });
+
+    // let troubleList = await this.model.getTroubleList('inverter');
+
+    this.model.setDeviceGroup('connector', connectorControllerList);
     this.model.connectorControllerList = connectorControllerList;
     // console.timeEnd('createConnectorController')
     return connectorControllerList;
@@ -163,12 +174,20 @@ class Control extends EventEmitter {
     // 스케줄러 실행
     this.p_Scheduler.on('completeMeasureInverter', (measureTime, inverterListData) => {
       // BU.CLI(measureTime, inverterListData)
-      let dataList = this.model.onInverterDataList(measureTime, inverterListData)
+
+      let res = this.model.onDeviceData(measureTime, inverterListData, 'inverter');
+
+      this.model.updateUpsas2Db('inverter');
+      BU.CLI(res);
+
+      return;
+
+      let dataList = this.model.onInverterDataList(measureTime, inverterListData);
       this.model.insertQuery('inverter_data', dataList)
-      .then(resQuery => {})
-      .catch(err => {
-        BU.errorLog('insertErrorDB', err)
-      })
+        .then(resQuery => {})
+        .catch(err => {
+          BU.errorLog('insertErrorDB', err);
+        });
     });
     // 스케줄러 실행
     this.p_Scheduler.on('completeMeasureConnector', (measureTime, connectorListData) => {
@@ -177,12 +196,12 @@ class Control extends EventEmitter {
       if (this.config.devOption.hasCopyInverterData) {
         return false;
       }
-      let dataList = this.model.onConnectorDataList(measureTime, connectorListData)
+      let dataList = this.model.onConnectorDataList(measureTime, connectorListData);
       this.model.insertQuery('module_data', dataList)
-      .then(resQuery => {})
-      .catch(err => {
-        BU.errorLog('insertErrorDB', err)
-      })
+        .then(resQuery => {})
+        .catch(err => {
+          BU.errorLog('insertErrorDB', err);
+        });
     });
   }
 

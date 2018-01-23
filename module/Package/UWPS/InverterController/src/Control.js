@@ -63,7 +63,7 @@ class Control extends EventEmitter {
 
 
     /** Class Model 객체로 컨트롤러 데이터 관리(Chaining) */
-    this.model = new Model(this, this.baseFormat);
+    this.model = new Model(this);
 
     /** Class P_Setter 객체로 Converter Binding 처리(Chaining) */
     this.p_Setter = new P_Setter(this);
@@ -79,15 +79,7 @@ class Control extends EventEmitter {
    * @return {string} device ID
    */
   get deviceId() {
-    return this.model.deviceSavedInfo.target_id;
-  }
-
-  /**
-   * 장치 고유 ID
-   * @return {string} device ID
-   */
-  get deviceSeq() {
-    return this.model.deviceSavedInfo.inverter_seq;
+    return this.model.id;
   }
 
   /**
@@ -192,7 +184,7 @@ class Control extends EventEmitter {
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
-      this.model.onTroubleData('Disconnected Device', false);
+      this.model.onSystemError('Disconnected Device', false);
       this.retryConnectDeviceCount = 0;
 
       return this.hasConnect;
@@ -228,14 +220,14 @@ class Control extends EventEmitter {
         .then(() => {
           // BU.CLI(`${this.inverterId}의 명령 수행이 모두 완료되었습니다.`);
           // resolve(this.model.refineData);
-          this.model.onTroubleData('Communication Error', false);
+          this.model.onSystemError('Communication Error', false);
           resolve(this.getDeviceStatus());
         })
         .catch(err => {
           let msg = `${this.deviceId}의 ${this.model.processCmd}명령 수행 도중 ${err.message}오류가 발생하였습니다.`;
           BU.errorLog('measureDevice', msg);
 
-          this.model.onTroubleData('Communication Error', true);
+          this.model.onSystemError('Communication Error', true);
           // 컨트롤 상태 초기화
           this.model.initControlStatus();
 
@@ -332,7 +324,7 @@ class Control extends EventEmitter {
   eventHandler() {
     /** 장치의 연결이 끊겼을 경우 */
     this.on('dcDisconnected', () => {
-      this.model.onTroubleData('Disconnected Connector', true);
+      this.model.onSystemError('Disconnected Connector', true);
       // BU.CLI('disconnected', error)
       this.hasConnect = false;
 

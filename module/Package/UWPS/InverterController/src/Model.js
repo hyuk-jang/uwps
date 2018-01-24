@@ -12,7 +12,9 @@ const NU = require('base-util-jh').newUtil;
 const troubleCodeList = require('../config/trouble.config');
 
 /** */
-const {baseFormat} = require('../Converter');
+const {
+  baseFormat
+} = require('../Converter');
 
 /** Class Controller 데이터 관리 */
 class Model {
@@ -26,7 +28,7 @@ class Model {
     this.controller = controller;
 
     this.id = this.controller.config.deviceSavedInfo.target_id;
-    
+
     this.retryConnectDeviceCount = 0;
 
     this.controlStatus = {
@@ -43,7 +45,7 @@ class Model {
     this.deviceSavedInfo = this.controller.config.deviceSavedInfo;
 
     // 현재 발생되고 있는 에러 리스트
-    this.systemError = {};
+    this.systemErrorList = [];
     this.troubleList = [];
   }
 
@@ -51,29 +53,8 @@ class Model {
    * occur_date가 없거나, fix_date 날짜가 있다면 해결된 에러
    * occur_date가 있지만 fix_date 가 없다면 현재 에러가 있음
    */
-  get currentTroubleList(){
+  get currentTroubleList() {
     return _.flatten([this.troubleArrayStorage, this.currTroubleList]);
-  }
-
-  /**
-   * Custom Trouble을 공통 관리할 Trouble Case Model List로 변환 
-   * @return {Array.<{inverter_seq: number, is_error: number, code: string, msg: string, occur_date: Date, fix_date: Date}>} 실제적으로관리할 TroubleList List 생성. Date는 초기화를 null로 함
-   */
-  initTroubleMsg() {
-    // BU.CLI(this.troubleCodeList);
-    const returnValue = [];
-    this.troubleCodeList.forEach(ele => {
-      let addObj = {
-        inverter_seq: this.deviceSavedInfo.inverter_seq,
-        is_error: ele.is_error,
-        code: ele.code,
-        msg: ele.msg,
-        occur_date: null,
-        fix_date: null
-      };
-      returnValue.push(addObj);
-    });
-    return returnValue;
   }
 
   initControlStatus() {
@@ -87,11 +68,6 @@ class Model {
     };
   }
 
-
-  /**
-   * 인버터 컨트롤 관련 Getter
-   */
-
   get reserveCmdList() {
     return this.controlStatus.reserveCmdList;
   }
@@ -103,19 +79,38 @@ class Model {
   /**
    * 실제 장치에서 보내온 Error 처리. Trouble Case Model List로 공통 처리
    * @param {string} troubleCode Trouble Code
+   * @param {Boolean} hasOccur 발생 or 해결
+   * @param {Object|string} msg Error 상세 내용
    * @return {Object}
    */
-  onSystemError(troubleCode) {
+  onSystemError(troubleCode, hasOccur, msg) {
     // BU.CLI(troubleCode, hasOccur);
-    const troubleObj = _.findWhere(this.troubleCodeList, {
+    if (troubleCode === undefined) {
+      this.systemErrorList = [];
+      return this.systemErrorList;
+    }
+    const troubleObj = _.findWhere(troubleCodeList, {
       code: troubleCode
     });
     if (_.isEmpty(troubleObj)) {
       throw ReferenceError('해당 Trouble Msg는 없습니다' + troubleCode);
     }
 
-    this.systemError = troubleObj;
-    return this.systemError;
+    const findObj = _.findWhere(this.systemErrorList, {
+      code: troubleCode
+    });
+
+    // 에러가 발생하였고 systemErrorList에 없다면 삽입
+    if (hasOccur && _.isEmpty(findObj)) {
+      this.systemErrorList.push(troubleObj);
+      BU.errorLog('inverter', msg);
+    } else if (!hasOccur && !_.isEmpty(findObj)) {  // 에러 해제하였고 해당 에러가 존재한다면 삭제
+      this.systemErrorList = _.reject(this.systemErrorList, systemError => {
+        return systemError.code === troubleCode;
+      });
+    }
+
+    return this.systemErrorList;
   }
 
   /**
@@ -123,7 +118,8 @@ class Model {
    * @param {Array} troubleList {msg, code} 로 이루어진 리스트
    */
   onTroubleDataList(troubleList) {
-    return this.troubleList = Array.isEmpty(troubleList) ? troubleList.slice(0) : [];
+    // BU.CLI(troubleList);
+    return this.troubleList = _.isArray(troubleList) ? troubleList.slice(0) : [];
   }
 
   // Inverter Data 수신
@@ -134,8 +130,9 @@ class Model {
       if (value !== null && _.has(this.deviceData, key)) {
         if (key === 'errorList') {
           this.onTroubleDataList(value);
+        } else {
+          this.deviceData[key] = value;
         }
-        this.deviceData[key] = value;
       }
     });
     // BU.CLI(this.inverterData)

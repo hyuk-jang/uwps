@@ -14,12 +14,12 @@ global._ = _;
 global.BU = BU;
 
 // Step 테스트 유무(개발용 일경우 다수의 Socket Port가 열리고 Reload발생시 Socket Max Count 제한이 100이라서 중간에 정지될 수 있ㅇ므)
-let hasStep1 = false;
+let hasStep1 = true;
 let hasStep1_inverter = true;
 let hasStep1_connector = false;
-let hasStep2 = true;
+let hasStep2 = false;
 
-let hasAllStep = true;
+let hasAllStep = false;
 
 let hasInsertInverterSql = false; // 실제 DB 삽입
 let hasInsertConnectorSql = false; // 실제 DB 삽입
@@ -161,14 +161,14 @@ describe('UPSAS Test', () => {
             if (hasStep1_inverter) {
               it('measure Inverter(single, dev, socket)', async() => {
                 // 인버터 리스트 계측 명령
-                let result = await control.p_Scheduler._measureInverter(new Date(), control.model.inverterControllerList);
+                let result = await control.p_Scheduler._measureInverter(new Date(), control.model.getUpsasControllerGrouping('inverter'));
                 inverterData = result;
                 BU.CLI(result);
                 result.forEach(ele => {
                   expect(ele.data).to.not.deep.equal({});
                 });
                 // 수신받은 데이터 갯수와 명령 요청한 리스트 갯수 비교
-                expect(result.length).to.be.equal(control.model.inverterControllerList.length);
+                expect(result.length).to.be.equal(control.model.getUpsasControllerGrouping('inverter').length);
               });
             }
 
@@ -177,7 +177,7 @@ describe('UPSAS Test', () => {
               it('measure Connector(dev, socket)', async() => {
                 // 접속반 리스트 계측 명령
                 let moduleLength = 0;
-                let result = connectorData = await control.p_Scheduler._measureConnector(new Date(), control.model.connectorControllerList);
+                let result = connectorData = await control.p_Scheduler._measureConnector(new Date(), control.model.getUpsasControllerGrouping('connector'));
                 // BU.CLI(result)
                 // 각각 접속반이 포함하는 모듈 총 갯수를 구함
                 config.current.connectorList.forEach(element => {

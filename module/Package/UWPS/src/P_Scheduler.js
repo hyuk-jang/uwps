@@ -60,7 +60,7 @@ class P_Scheduler extends EventEmitter {
 
   // 정기적인 인버터 데이터 요청 메시지 이벤트 발생 메소드
   async _measureInverter(measureTime, inverterControllerList) {
-    // BU.CLI('_measureInverter', measureTime, inverterControllerList.length);
+    BU.CLI('_measureInverter', measureTime, inverterControllerList.length);
     let inverterListData = await Promise.map(inverterControllerList, inverterController => {
       return inverterController.measureDevice();
     });

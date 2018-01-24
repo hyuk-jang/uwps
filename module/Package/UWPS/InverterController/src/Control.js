@@ -59,8 +59,6 @@ class Control extends EventEmitter {
 
     /** Device Connect, Write 처리 Middleware */
     this.dcm = new DCM();
-    this.dcmManager;
-
 
     /** Class Model 객체로 컨트롤러 데이터 관리(Chaining) */
     this.model = new Model(this);
@@ -80,30 +78,6 @@ class Control extends EventEmitter {
    */
   get deviceId() {
     return this.model.id;
-  }
-
-  /**
-   * 명령 종류
-   * @return {Array} 명령 리스트
-   */
-  get cmdList() {
-    return this.model.cmdList;
-  }
-
-
-  /**
-   * DB 에 입력할 데이터 형태 반환
-   */
-  get refineData() {
-    return this.model.refineData;
-  }
-
-  /**
-   * 인버터 동작 상태
-   * @return {Object} {isRun, isError, temperature, errorList, warningList}
-   */
-  get operationInfo() {
-    return this.model.operationInfo;
   }
 
   // DB 정보를 넣어둔 데이터 호출
@@ -128,21 +102,10 @@ class Control extends EventEmitter {
     return {
       id: this.deviceId,
       data: this.model.deviceData,
-      troubleList: this.model.getCurrTroubleData()
+      systemErrorList: this.model.systemErrorList,
+      troubleList: this.model.troubleList
     };
   }
-
-  // 배율 적용된 값 요청
-  getScaleInverterData(cmd) {
-    return this.cmdList.includes(cmd) ? this.model.getScaleInverterData(cmd) : {};
-  }
-
-  /**
-   * 현재 인버터 컨트롤러가 작동하는지 여부
-   * Socket or Serial 연결이 되어있는 상태면 동작 중인걸로 판단
-   * @return {Boolean}
-   */
-  getHasOperation() {}
 
   /**
    * 인버터 계측 컨트롤러 초기화.
@@ -179,18 +142,19 @@ class Control extends EventEmitter {
       let deviceSavedInfo = this.model.deviceSavedInfo;
       // 장치 접속 객체에 connect 요청
       this.hasConnect = await this.dcm.connect();
-
+      this.model.onSystemError('Disconnected', false);
       BU.log('Sucess Connected to Device ', deviceSavedInfo.target_id);
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
-      this.model.onSystemError('Disconnected Device', false);
       this.retryConnectDeviceCount = 0;
 
       return this.hasConnect;
     } catch (error) {
-      BU.CLI(error);
+      // BU.CLI(error);
+      this.model.onSystemError('Disconnected', true, error);
       this.emit('dcDisconnected', error);
+      throw Error('Disconnected');
     }
   }
 
@@ -220,14 +184,12 @@ class Control extends EventEmitter {
         .then(() => {
           // BU.CLI(`${this.inverterId}의 명령 수행이 모두 완료되었습니다.`);
           // resolve(this.model.refineData);
-          this.model.onSystemError('Communication Error', false);
           resolve(this.getDeviceStatus());
         })
         .catch(err => {
           let msg = `${this.deviceId}의 ${this.model.processCmd}명령 수행 도중 ${err.message}오류가 발생하였습니다.`;
           BU.errorLog('measureDevice', msg);
 
-          this.model.onSystemError('Communication Error', true);
           // 컨트롤 상태 초기화
           this.model.initControlStatus();
 
@@ -252,12 +214,13 @@ class Control extends EventEmitter {
           timeout = setTimeout(() => {
             // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
             // 명전 전송 후 제한시간안에 응답이 안올 경우 에러 
-            BU.CLI('time out? real?');
+            this.model.onSystemError('Timeout Error', true);
             reject(new Error('timeout'));
           }, this.model.controlStatus.sendMsgTimeOutSec);
         })
       ]
     );
+    this.model.onSystemError('Timeout Error', false);
     clearTimeout(timeout);
     return this.model.refineData;
   }
@@ -293,6 +256,7 @@ class Control extends EventEmitter {
     if (!BU.isEmpty(this.model.processCmd)) {
       try {
         let result = this.decoder._receiveData(msg);
+        this.model.onSystemError('Protocol Error', false);
         // BU.CLI('_onReceiveMsg result', result);
         this.model.onData(result);
         // _receiveMsgHandler Method 에게 알려줄 Event 발생
@@ -302,6 +266,7 @@ class Control extends EventEmitter {
         if (this.model.controlStatus.retryChance-- && this.config.hasDev && this.config.deviceSavedInfo.target_category !== 'dev' && !BU.isEmpty(this.testStubData[this.model.controlStatus.sendIndex]())) {
           return this._onReceiveMsg(this.testStubData[this.model.controlStatus.sendIndex]());
         }
+        this.model.onSystemError('Protocol Error', true, error);
         // 데이터가 깨질 경우를 대비해 기회를 더 줌
         if (this.model.controlStatus.retryChance--) {
           // BU.CLI('기회 줌', this.model.controlStatus.retryChance)
@@ -324,7 +289,7 @@ class Control extends EventEmitter {
   eventHandler() {
     /** 장치의 연결이 끊겼을 경우 */
     this.on('dcDisconnected', () => {
-      this.model.onSystemError('Disconnected Connector', true);
+      this.model.onSystemError('Disconnected', true);
       // BU.CLI('disconnected', error)
       this.hasConnect = false;
 
@@ -338,7 +303,11 @@ class Control extends EventEmitter {
         if (this.hasConnect) {
           clearTimeout(this.setTimer);
         } else {
-          this.connectDevice();
+          try {
+            this.connectDevice();
+          } catch (error) {
+            BU.errorLog('inverter', error);
+          }
         }
       }, reconnectInterval);
     });

@@ -15,7 +15,7 @@ module.exports = {
       // database: process.env.SALTERN_DB ? process.env.SALTERN_DB : 'uwps'
       database: 'upsas'
     },
-    childInfo: {
+    deviceInfo: {
       typeList: ['inverter', 'connector']
     },
     'inverterList': [{

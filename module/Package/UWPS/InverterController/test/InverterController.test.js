@@ -12,13 +12,50 @@ const config = require('../src/config.js');
 global._ = _;
 global.BU = BU;
 
+let hasTestModel = false;
+
 let hasSocketS_hex = true;
-let s_hex_initTest = true;
-let s_hex_errorTest = false;
-let hasSocketDev = false;
+let s_hex_initTest = false;
+let hasSocketDev = true;
 
 
 describe('Inverter Controller Test', () => {
+  if(hasTestModel){
+    describe('Model Test', () => {
+      let control = new Control(config);
+
+      // 에러 계산되는지 체크
+      it('error Test', done => {
+        let result = {};
+        let resFindWhere = null;
+        result = control.model.onSystemError('Disconnected', true);
+        // BU.CLI(result);
+        resFindWhere = _.where(result, {code: 'Disconnected'});
+        expect(resFindWhere.length).to.be.equal(1);
+        expect(resFindWhere[0].occur_date instanceof Date).to.be.equal(true);
+        result = control.model.onSystemError('Disconnected', true);
+        resFindWhere = _.where(result, {code: 'Disconnected'});
+        expect(resFindWhere.length).to.be.equal(1);
+        result = control.model.onSystemError('Disconnected', false);
+        resFindWhere = _.where(result, {code: 'Disconnected'});
+        expect(resFindWhere.length).to.be.equal(0);
+        result = control.model.onSystemError('Disconnected', false);
+        resFindWhere = _.where(result, {code: 'Disconnected'});
+        expect(resFindWhere.length).to.be.equal(0);
+        result = control.model.onSystemError('Disconnected', true);
+        result = control.model.onSystemError('Timeout Error', true);
+        result = control.model.onSystemError('Protocol Error', true);
+        expect(result.length).to.be.equal(3);
+        BU.CLI(result);
+        resFindWhere = _.where(result, {code: 'Disconnected'});
+        expect(resFindWhere.length).to.be.equal(1);
+        BU.CLI(result);
+        // expect(result.obj.occur_date).to.be.equal(null);
+        done();
+      });
+    });
+  }
+
   // 접속방법 Socket 
   describe('ConnectType: Socket', () => {
     before(() => {
@@ -49,34 +86,6 @@ describe('Inverter Controller Test', () => {
           });
         }
 
-        if (s_hex_errorTest) {
-          it('errorList Test ', async() => {
-            control.on('completeSend2Msg', res => {
-              // 에러가 잘 표현되는지 체크. 명령 프롬프트를 보고 잘 판단하길... 
-              if (_.has(res, 'errorList')) {
-                BU.CLIS(res, control.model.troubleArrayStorage);
-              }
-            });
-            // random Device Error List 발생 3회 추가 발생
-            await control.measureDevice();
-            await control.measureDevice();
-            await control.measureDevice();
-
-            // 일반 프로그램 이상 발생 테스트
-            let result = control.model.onTroubleData('Disconnected Device', true);
-            BU.CLI(result);
-            expect(result.obj.fix_date).to.be.equal(null);
-            let currTrouble = control.model.getCurrTroubleData();
-            // BU.CLI(currTrouble)
-            result = control.model.onTroubleData('Disconnected Device', false);
-            currTrouble = control.model.getCurrTroubleData();
-            // BU.CLI(currTrouble)
-            result = control.model.onTroubleData('Disconnected Device', true);
-            // 프로그램 에러가 갱신될때 fix_date가 초기화 되는지 확인
-            BU.CLI(control.model.getCurrTroubleData());
-            expect(result.obj.fix_date).to.be.equal(null);
-          });
-        }
       });
     }
 

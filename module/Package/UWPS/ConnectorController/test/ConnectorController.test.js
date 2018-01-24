@@ -57,14 +57,30 @@ describe('Connector Controller Test', () => {
       // 에러 계산되는지 체크
       it('error Test', done => {
         let result = {};
-        result = control.model.onTroubleData('Disconnected Device', true);
+        let resFindWhere = null;
+        result = control.model.onSystemError('Disconnected', true);
+        // BU.CLI(result);
+        resFindWhere = _.where(result, {code: 'Disconnected'});
+        expect(resFindWhere.length).to.be.equal(1);
+        expect(resFindWhere[0].occur_date instanceof Date).to.be.equal(true);
+        result = control.model.onSystemError('Disconnected', true);
+        resFindWhere = _.where(result, {code: 'Disconnected'});
+        expect(resFindWhere.length).to.be.equal(1);
+        result = control.model.onSystemError('Disconnected', false);
+        resFindWhere = _.where(result, {code: 'Disconnected'});
+        expect(resFindWhere.length).to.be.equal(0);
+        result = control.model.onSystemError('Disconnected', false);
+        resFindWhere = _.where(result, {code: 'Disconnected'});
+        expect(resFindWhere.length).to.be.equal(0);
+        result = control.model.onSystemError('Disconnected', true);
+        result = control.model.onSystemError('Timeout Error', true);
+        result = control.model.onSystemError('Protocol Error', true);
+        expect(result.length).to.be.equal(3);
         BU.CLI(result);
-        expect(result.obj.fix_date).to.be.equal(null);
-        result = control.model.onTroubleData('Disconnected Device', true);
-        result = control.model.onTroubleData('Disconnected Device', false);
-        result = control.model.onTroubleData('Disconnected Device', false);
-        result = control.model.onTroubleData('Disconnected Device', true);
-        expect(result.obj.fix_date).to.be.equal(null);
+        resFindWhere = _.where(result, {code: 'Disconnected'});
+        expect(resFindWhere.length).to.be.equal(1);
+        BU.CLI(result);
+        // expect(result.obj.occur_date).to.be.equal(null);
         done();
       });
     });
@@ -81,6 +97,7 @@ describe('Connector Controller Test', () => {
         const control = new Control(config);
         control.init()
           .then(result => {
+            control.model.onSystemError('Disconnected', true);
             return control.measureDevice();
           })
           .then(result => {

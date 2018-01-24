@@ -3,8 +3,6 @@
 const _ = require('underscore');
 /** 자주쓰는 Util 모음 */
 const BU = require('base-util-jh').baseUtil;
-/** 수중태양광 관련 새로이 만들고 있는 util */
-const NU = require('base-util-jh').newUtil;
 
 /**
  * @module Array 고장정보 리스트
@@ -28,9 +26,12 @@ class Model {
     this.controller = controller;
 
     this.id = this.controller.config.deviceSavedInfo.target_id;
-
+    /** 장치 재접속 횟수(연속으로 3번해서 안되면 Interval 10배수 해서 시도) */
     this.retryConnectDeviceCount = 0;
 
+    this.deviceSavedInfo = this.controller.config.deviceSavedInfo;
+
+    /** 컨트롤러를 제어하기 위한 상태 값 및 옵션 정보 */
     this.controlStatus = {
       reserveCmdList: [], // Buffer List
       processCmd: {}, // 일반적으로 Buffer
@@ -40,23 +41,16 @@ class Model {
       sendMsgTimeOutSec: 1000 * 1 // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
     };
 
-    // Converter에 정의한 baseFormat 가져옴
-    this.deviceData = Object.assign({}, baseFormat);
-    this.deviceSavedInfo = this.controller.config.deviceSavedInfo;
-
-    // 현재 발생되고 있는 에러 리스트
+    /** 컨트롤러 구동 중 발생한 Error List */
     this.systemErrorList = [];
+    /** 장치에서 보내온 Error Info List */
     this.troubleList = [];
+
+    // Converter에 정의한 baseFormat으로 정의. 데이터가 들어올 경우 해당 key에 부합되는 데이터만 대입
+    this.deviceData = Object.assign({}, baseFormat);
   }
 
-  /** Trouble List 반환.
-   * occur_date가 없거나, fix_date 날짜가 있다면 해결된 에러
-   * occur_date가 있지만 fix_date 가 없다면 현재 에러가 있음
-   */
-  get currentTroubleList() {
-    return _.flatten([this.troubleArrayStorage, this.currTroubleList]);
-  }
-
+  /** 컨트롤러를 제어하기 위한 상태 값 및 옵션 정보 초기화 */
   initControlStatus() {
     this.controlStatus = {
       reserveCmdList: [],
@@ -68,10 +62,12 @@ class Model {
     };
   }
 
+  /** 장치로 요청할 명령 리스트 반환 */
   get reserveCmdList() {
     return this.controlStatus.reserveCmdList;
   }
 
+  /** 현재 장치에게 요청 중인 명령 반환 */
   get processCmd() {
     return this.controlStatus.processCmd;
   }
@@ -102,6 +98,7 @@ class Model {
 
     // 에러가 발생하였고 systemErrorList에 없다면 삽입
     if (hasOccur && _.isEmpty(findObj)) {
+      troubleObj.occur_date = new Date();
       this.systemErrorList.push(troubleObj);
       BU.errorLog('inverter', msg);
     } else if (!hasOccur && !_.isEmpty(findObj)) {  // 에러 해제하였고 해당 에러가 존재한다면 삭제

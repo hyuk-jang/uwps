@@ -18,15 +18,18 @@ class Model {
    * @param {Object} controller Controller 구동 객체
    * @param {Object} controller.config Controller 객체 생성 구동 정보
    * @param {Object} controller.config.deviceSavedInfo 장치 설정 정보로 DB를 기초로 도출
-   * @param {Object} controller.config.moduleList 태양광 모듈의 접속반, 인버터 등등의 table relation info
+   * @param {Array} controller.config.moduleList 태양광 모듈의 접속반, 인버터 등등의 table relation info
    */
   constructor(controller) {
     this.controller = controller;
-    this.deviceSavedInfo = controller.config.deviceSavedInfo;
-    this.moduleList = controller.config.moduleList;
 
-    this.moduleDataList = [];
+    this.id = this.controller.config.deviceSavedInfo.target_id;
+    /** 장치 재접속 횟수(연속으로 3번해서 안되면 Interval 10배수 해서 시도) */
+    this.retryConnectDeviceCount = 0;
 
+    this.deviceSavedInfo = this.controller.config.deviceSavedInfo;
+
+    /** 컨트롤러를 제어하기 위한 상태 값 및 옵션 정보 */
     this.controlStatus = {
       reserveCmdList: [], // Buffer List
       processCmd: {}, // 일반적으로 Buffer
@@ -36,9 +39,15 @@ class Model {
       sendMsgTimeOutSec: 1000 * 1 // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
     };
 
-    // 현재 발생되고 있는 에러 리스트
-    this.troubleCodeList = troubleCodeList;
-    this.currTroubleList = this.initTroubleMsg();
+    /** 컨트롤러 구동 중 발생한 Error List */
+    this.systemErrorList = [];
+    /** 장치에서 보내온 Error Info List */
+    this.troubleList = [];
+
+    this.moduleList = this.controller.config.moduleList;
+
+    /** 접속반은 채널 별 모듈 발전 정보가 들어감 */
+    this.deviceData = [];
 
 
     // TEST DATA
@@ -52,79 +61,7 @@ class Model {
     });
   }
 
-  /**
-   * Custom Trouble을 공통 관리할 Trouble Case Model List로 변환 
-   * @return {Array.<{connector_seq: number, is_error: number, code: string, msg: string, occur_date: Date, fix_date: Date}>} 실제적으로관리할 TroubleList List 생성. Date는 초기화를 null로 함
-   */
-  initTroubleMsg() {
-    BU.CLI(this.troubleCodeList);
-    const returnValue = [];
-    this.troubleCodeList.forEach(ele => {
-      let addObj = {
-        connector_seq: this.deviceSavedInfo.connector_seq,
-        is_error: ele.is_error,
-        code: ele.code,
-        msg: ele.msg,
-        occur_date: null,
-        fix_date: null
-      };
-      returnValue.push(addObj);
-    });
-    return returnValue;
-  }
-
-
-  /**
-   * 실제 장치에서 보내온 Error 처리. Trouble Case Model List로 공통 처리
-   * @param {String} troubleCode Trouble Code
-   * @param {Boolean} hasOccur 발생 or 해결
-   * @return {{msg: string, obj: {}}}
-   */
-  onTroubleData(troubleCode, hasOccur) {
-    // BU.CLI('onTroubleData', troubleCode, this.troubleCodeList);
-    const returnValue = {
-      msg: '',
-      obj: {}
-    };
-    const troubleObj = _.findWhere(this.troubleCodeList, {
-      code: troubleCode
-    });
-    if (_.isEmpty(troubleObj)) {
-      throw ReferenceError('해당 Trouble Msg는 없습니다' + troubleCode);
-    }
-    const findObj = _.findWhere(this.currTroubleList, {
-      code: troubleCode
-    });
-
-    // 발생
-    if (hasOccur) {
-      // 완료된 내역이 있다면 초기화
-      if (findObj.occur_date !== null && findObj.fix_date !== null) {
-        findObj.occur_date = null;
-        findObj.fix_date = null;
-      }
-      // 최초 발생시에만 발생 날짜 기록.
-      if (findObj.occur_date === null) {
-        returnValue.msg = `Trouble 발생 : ${troubleCode}`;
-        findObj.occur_date = BU.convertDateToText(new Date());
-      } else {
-        returnValue.msg = `Trouble 이미 모니터링 중 : ${troubleCode}`;
-      }
-    } else { // 해결 시
-      // 발생 시각이 존재 할 경우
-      if (findObj.occur_date === null) {
-        returnValue.msg = `Trouble 내역 존재하지 않음 : ${troubleCode}`;
-      } else if (findObj.fix_date === null) {
-        returnValue.msg = `Trouble 해제 완료 : ${troubleCode}`;
-        findObj.fix_date = BU.convertDateToText(new Date());
-      } else {
-        returnValue.msg = `이미 완료된 Trouble : ${troubleCode}`;
-      }
-    }
-    returnValue.obj = findObj;
-    return returnValue;
-  }
-
+  /** 컨트롤러를 제어하기 위한 상태 값 및 옵션 정보 초기화 */
   initControlStatus() {
     this.controlStatus = {
       reserveCmdList: [],
@@ -136,21 +73,18 @@ class Model {
     };
   }
 
-  /**
-   * 접속반 컨트롤 관련 Getter
-   */
-
+  /** 장치로 요청할 명령 리스트 반환 */
   get reserveCmdList() {
     return this.controlStatus.reserveCmdList;
   }
 
+  /** 현재 장치에게 요청 중인 명령 반환 */
   get processCmd() {
     return this.controlStatus.processCmd;
   }
 
 
-
-  // Module List에 맞는 데이터 저장소 정의
+  /** Module List에 맞는 데이터 저장소 정의 */
   initModule() {
     this.moduleList.forEach(moduleObj => {
       let addObj = {
@@ -159,15 +93,63 @@ class Model {
         amp: 0,
         vol: 0,
       };
-      this.moduleDataList.push(addObj);
+      this.deviceData.push(addObj);
     });
 
   }
 
+  /**
+   * 실제 장치에서 보내온 Error 처리. Trouble Case Model List로 공통 처리
+   * @param {string} troubleCode Trouble Code
+   * @param {Boolean} hasOccur 발생 or 해결
+   * @param {Object|string} msg Error 상세 내용
+   * @return {Object}
+   */
+  onSystemError(troubleCode, hasOccur, msg) {
+    // BU.CLI(troubleCode, hasOccur);
+    if (troubleCode === undefined) {
+      this.systemErrorList = [];
+      return this.systemErrorList;
+    }
+    const troubleObj = _.findWhere(troubleCodeList, {
+      code: troubleCode
+    });
+    if (_.isEmpty(troubleObj)) {
+      throw ReferenceError('해당 Trouble Msg는 없습니다' + troubleCode);
+    }
+
+    const findObj = _.findWhere(this.systemErrorList, {
+      code: troubleCode
+    });
+
+    // 에러가 발생하였고 systemErrorList에 없다면 삽입
+    if (hasOccur && _.isEmpty(findObj)) {
+      troubleObj.occur_date = new Date();
+      this.systemErrorList.push(troubleObj);
+      BU.errorLog('inverter', msg);
+    } else if (!hasOccur && !_.isEmpty(findObj)) {  // 에러 해제하였고 해당 에러가 존재한다면 삭제
+      this.systemErrorList = _.reject(this.systemErrorList, systemError => {
+        return systemError.code === troubleCode;
+      });
+    }
+
+    return this.systemErrorList;
+  }
+
+  /**
+   * Trouble List로 받을 경우 (장치에서 에러 Code로 줄 경우)
+   * @param {Array} troubleList {msg, code} 로 이루어진 리스트
+   */
+  onTroubleDataList(troubleList) {
+    // BU.CLI(troubleList);
+    return this.troubleList = _.isArray(troubleList) ? troubleList.slice(0) : [];
+  }
+
+
 
   // 데이터 정제한 데이터 테이블 (10배수 하여 반환)
   get refineData() {
-    const returnValue = this.moduleDataList.map(ele => {
+    const returnValue = this.deviceData.map(ele => {
       return {
         photovoltaic_seq: ele.photovoltaic_seq,
         amp: NU.multiplyScale2Value(ele.amp, 10, 1),
@@ -179,20 +161,17 @@ class Model {
     return returnValue;
   }
 
-  get connectorData() {
-    return this.moduleDataList;
-  }
-
   // Connecotr Data 수신
   /**
    * 접속반 데이터 Model에 저장
-   * @param {Array} connectorDataList Array
+   * @param {Array.<{ch: number, amp: number, vol: number}>} connectorDataList Array
    * @returns {Void} 
    */
   onData(connectorDataList) {
     // BU.CLI('ondata', connectorDataList)
 
     this.initModule();
+    // 접속반 모듈 중 채널과 접속반 seq가 같은 모듈에 모듈 seq를 정의
     connectorDataList.forEach(dataInfo => {
       let findObj = _.findWhere(this.moduleList, {
         connector_ch: dataInfo.ch,
@@ -201,9 +180,9 @@ class Model {
       dataInfo.photovoltaic_seq = _.isEmpty(findObj) ? null : findObj.photovoltaic_seq;
     });
 
-    this.moduleDataList = connectorDataList;
+    this.deviceData = connectorDataList;
 
-    return this.moduleDataList;
+    return this.deviceData;
   }
 }
 

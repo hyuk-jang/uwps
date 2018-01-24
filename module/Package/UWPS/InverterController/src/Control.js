@@ -96,7 +96,7 @@ class Control extends EventEmitter {
 
   /**
    * 인버터의 현재 데이터 및 에러 내역을 가져옴
-   * @return {{data: Object, trouble: Object}} data: baseFormat 기초로 한 데이터, trouble: 에러 종합.
+   * @return {{id: string, data: Object, systemErrorList: Array, troubleList: Array}} data: baseFormat 기초로 한 데이터, trouble: 에러 종합.
    */
   getDeviceStatus() {
     return {
@@ -116,7 +116,6 @@ class Control extends EventEmitter {
     // 국번 정의
     let dialing = this.config.deviceSavedInfo.dialing;
     dialing = dialing.type === 'Buffer' ? Buffer.from(dialing) : dialing;
-
 
     // 접속반 종류별 프로토콜 장착 (개발용이고 socket 일 경우 port 자동 변경)
     await this.p_Setter.settingConverter(dialing);
@@ -147,7 +146,7 @@ class Control extends EventEmitter {
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
-      this.retryConnectDeviceCount = 0;
+      this.model.retryConnectDeviceCount = 0;
 
       return this.hasConnect;
     } catch (error) {
@@ -182,7 +181,7 @@ class Control extends EventEmitter {
         return this.send2Cmd(cmd);
       })
         .then(() => {
-          // BU.CLI(`${this.inverterId}의 명령 수행이 모두 완료되었습니다.`);
+          // BU.CLI(`${this.deviceId}의 명령 수행이 모두 완료되었습니다.`);
           // resolve(this.model.refineData);
           resolve(this.getDeviceStatus());
         })

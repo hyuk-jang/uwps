@@ -32,7 +32,7 @@ class P_Setter extends EventEmitter {
 
       // 실제 Converter 객체 생성 및 덮어씌움
       this.controller.encoder = new Encoder(dialing);
-      this.controller.decoder = new Decoder(dialing);
+      this.controller.decoder = new Decoder();
 
       // 개발용 버전일 경우 더미 인버터프로그램 구동
       if (this.config.hasDev) {

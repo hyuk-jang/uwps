@@ -163,12 +163,16 @@ describe('UPSAS Test', () => {
                 // 인버터 리스트 계측 명령
                 let result = await control.p_Scheduler._measureInverter(new Date(), control.model.getUpsasControllerGrouping('inverter'));
                 inverterData = result;
-                BU.CLI(result);
                 result.forEach(ele => {
                   expect(ele.data).to.not.deep.equal({});
                 });
+
+                BU.CLI(result);
+                let resOnMeasureDeviceList =  await control.model.onMeasureDeviceList(new Date(), result, 'inverter');
+                // BU.CLI(resOnMeasureDeviceList);
+                expect(true).to.be.equal(false);
                 // 수신받은 데이터 갯수와 명령 요청한 리스트 갯수 비교
-                expect(result.length).to.be.equal(control.model.getUpsasControllerGrouping('inverter').length);
+                // expect(result.length).to.be.equal(control.model.getUpsasControllerGrouping('inverter').length);
               });
             }
 

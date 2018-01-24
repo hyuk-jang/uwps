@@ -67,7 +67,7 @@ class P_Scheduler extends EventEmitter {
 
     // BU.CLI(inverterListData);
 
-    this.emit('completeMeasureInverter', measureTime, inverterListData);
+    // this.emit('completeMeasureInverter', measureTime, inverterListData);
 
     return inverterListData;
   }

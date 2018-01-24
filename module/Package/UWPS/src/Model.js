@@ -248,6 +248,11 @@ class Model {
     BU.CLI(dbTroubleList);
 
     await this.processSystemErrorList(upsasDataGroup, dbTroubleList, deviceType);
+    BU.CLI('what the', upsasDataGroup);
+
+
+
+
 
     return upsasDataGroup;
   }
@@ -261,6 +266,7 @@ class Model {
    * @param {string} deviceType 
    */
   async processSystemErrorList(upsasDeviceDataGroup, dbTroubleList, deviceType) {
+    BU.CLI('processSystemErrorList');
     let updateList = [];
     upsasDeviceDataGroup.storage.forEach(deviceDataObj => {
       // systemError가 있을 경우에만 처리
@@ -296,13 +302,64 @@ class Model {
         });
       }
     });
+    return Promise.map(updateList, update => {
+      return this.BM.updateTable(update.tbName, update.whereObj, update.updateObj);
+    });
+  }
 
-    return await Promise.map(updateList, update => {
+  /**
+   * 
+   * @param {number} isSystemError 시스템 에러를 체크할지
+   * @param {Object} upsasDeviceDataGroup 같은 그룹간 장치 계측한 데이터 
+   * @param {Array} upsasDeviceDataGroup.insertTroubleList db에 새로 저장할 데이터를 넣을 공간
+   * @param {Array.<{id: string, data: Object, systemErrorList: Array, troubleList: Array}>} upsasDeviceDataGroup.storage 실제 장치들 데이터가 존재 {id, data, systemErrorList, troubleList}
+   * @param {Array} dbTroubleList 
+   * @param {string} deviceType 
+   */
+  async processErrorList(isSystemError, upsasDeviceDataGroup, dbTroubleList, deviceType) {
+    const errorType = isSystemError === 1 ? 'systemErrorList' : 'troubleList';
+    BU.CLI('processTroubleList');
+    let updateList = [];
+    upsasDeviceDataGroup.storage.forEach(deviceDataObj => {
+      // systemError가 있을 경우에만 처리
+      if(!_.isEmpty(deviceDataObj[errorType])){
+        deviceDataObj[errorType].forEach(errorObj => {
+          // dbTrouble에 해당 SystemError가 존재하는지 체크
+          let hasNewError = true;
+          // 기존 시스템 에러가 존재한다면 처리할 필요가 없으므로 dbTroubleList에서 삭제
+          dbTroubleList = _.reject(dbTroubleList, dbTrouble => {
+            if(dbTrouble.code === errorObj.code){
+              hasNewError = false;
+
+              return true;
+            } else {
+              return false;
+            }
+          });
+
+          // 신규 에러라면 insertList에 추가
+          if(hasNewError){
+            upsasDeviceDataGroup.insertTroubleList.push(errorObj);
+          } 
+        });
+      }
+    });
+    return Promise.map(updateList, update => {
       return this.BM.updateTable(update.tbName, update.whereObj, update.updateObj);
     });
   }
 
 
+  // updateList.push({
+  //   tbName:`${deviceType}_trouble_data`,
+  //   whereObj: {
+  //     key: `${deviceType}_trouble_data_seq`,
+  //     value: dbTrouble[`${deviceType}_trouble_data_seq`]  
+  //   },
+  //   updateObj: {
+  //     fix_date: BU.convertDateToText(new Date())
+  //   }
+  // });
 
   /**
    * 장치 그룹에서 해당 deviceType을 돌려줌(단, controller chaning 제외)

@@ -184,7 +184,7 @@ describe('UPSAS Test', () => {
                 expect(true).be.ok;
               });
 
-              if(false){
+              if(true){
                 it('inverter System Error Test', done => {
                   let testDbTroubleList = [{
                     inverter_trouble_data_seq: 11,
@@ -340,7 +340,7 @@ describe('UPSAS Test', () => {
                 });
               }
 
-              if(true){
+              if(false){
                 it('inverter processMeasureData Test', async () => {
                   model = control.model;
                   let upsasDataGroup = await model.processMeasureData('inverter');
@@ -349,23 +349,6 @@ describe('UPSAS Test', () => {
                   expect(upsasDataGroup).to.not.deep.equal({});
                 });
               }
-
-
-
-
-
-              let a = [{a:1}, {b:1}];
-              let b = [{c:1}, {d:1}];
-              let c = a.concat(b);
-              console.log(c);
-
-
-
-
-
-
-
-
             }
 
             // 접속반 계측 테스트

@@ -256,21 +256,21 @@ class Model {
     let upsasDataGroup = this.findUpsasDataGroup(deviceType);
     // deviceType Trouble 조회
     let dbTroubleList = await this.getTroubleList(deviceType);
-    BU.CLI(dbTroubleList);
+    // BU.CLI(dbTroubleList);
 
     upsasDataGroup.storage.forEach(dataObj => {
       const contollerInfo = this.findUpsasController(dataObj.id);
       const deviceSavedInfo = contollerInfo.controller.getDeviceInfo();
-      BU.CLI(deviceSavedInfo);
+      // BU.CLI(deviceSavedInfo);
 
       let resultProcessError;
       let hasSystemError = false;
       // 시스템 에러가 있다면 
       if (dataObj.systemErrorList.length) {
         hasSystemError = true;
-        resultProcessError = this.processDeviceErrorList(dataObj.systemErrorList, dbTroubleList, dataObj.seq, true, deviceType);
+        resultProcessError = this.processDeviceErrorList(dataObj.systemErrorList, dbTroubleList, dataObj.seq, 1, deviceType);
       } else { // 장치 에러 처리
-        resultProcessError = this.processDeviceErrorList(dataObj.troubleList, dbTroubleList, dataObj.seq, false, deviceType);
+        resultProcessError = this.processDeviceErrorList(dataObj.troubleList, dbTroubleList, dataObj.seq, 0, deviceType);
       }
 
       // BU.CLI(resultProcessError);
@@ -280,14 +280,8 @@ class Model {
       // 시스템 에러가 없을 경우에 insert 구문 입력
       if (!hasSystemError) {
         const convertDataList = this.processDeviceDataList(dataObj.data, deviceSavedInfo, deviceType);
+        dataObj.convertData = convertDataList; 
         upsasDataGroup.insertDataList = upsasDataGroup.insertDataList.concat(convertDataList);
-
-        // 배열 일 경우에는 연결
-        // if (_.isArray(dataObj.data)) {
-        //   upsasDataGroup.insertDataList = upsasDataGroup.insertDataList.concat(dataObj.data);
-        // } else if (_.isObject(dataObj.data)) { // 객체일 경우에는 삽입
-        //   upsasDataGroup.insertDataList.push(dataObj.data);
-        // }
       }
     });
 
@@ -340,8 +334,16 @@ class Model {
       });
       // 신규 에러라면 insertList에 추가
       if (hasNewError) {
-        BU.CLI('hasNewError', errorObj);
-        insertTroubleList.push(errorObj);
+        let addErrorObj = {
+          [keyName]: seq,
+          is_error: isSystemError,
+          code: errorObj.code,
+          msg: errorObj.msg,
+          occur_date: errorObj.occur_date || null,
+          fix_date: null
+        };
+
+        insertTroubleList.push(addErrorObj);
       }
     });
     // 시스템 에러가 발생할 경우 trouble, data check는 하지 않으므로 남아있는 시스템 에러를 dbTrouble에서 제거함
@@ -413,7 +415,7 @@ class Model {
    * @return {number} 계산 결과
    */
   calculateMatchingData(deviceData, matchingBindingObj) {
-    // BU.CLI('calculateMatchingData', matchingBindingObj );
+    // BU.CLI('calculateMatchingData', matchingBindingObj, deviceData );
     let resultCalculate = 0;
     try {
       let baseKey = matchingBindingObj.baseKey;
@@ -422,12 +424,13 @@ class Model {
       var reg = /[a-zA-Z]/;
       // 계산식이 숫자일 경우는 eval 하지 않음
       if (_.isNumber(calculate)) {
-        let data = deviceData[baseKey] || null;
+        let data = deviceData[baseKey];
+        data = typeof data === 'string' ? Number(data) : data;
         // 숫자가 아니거나 null일 경우 throw 반환
-        if (data === null || isNaN(data)) {
-          throw Error('해당 데이터 이상');
-        } else {
+        if (_.isNumber(data)) {
           resultCalculate = Number((deviceData[baseKey] * calculate).toFixed(toFixed));
+        } else {
+          throw Error(`해당 데이터는 숫자가 아님: ${deviceData[baseKey]}`);
         }
       } else { // 계산식이 문자일 경우 eval 계산식 생성
         let finalMsg = '';
@@ -448,12 +451,17 @@ class Model {
           }
         }
         resultCalculate = Number(Number(eval(finalMsg)).toFixed(toFixed));
+        resultCalculate = isNaN(resultCalculate) ? 0 : resultCalculate;
       }
     } catch (error) {
       throw error;
     }
 
     return resultCalculate;
+  }
+
+  async applyMeasureData2Db(){
+
   }
 
 

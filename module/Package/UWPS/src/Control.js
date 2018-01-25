@@ -112,7 +112,7 @@ class Control extends EventEmitter {
     this.eventHandler();
     let result = await Promise.all([
       this.createInverterController(this.config.inverterList),
-      this.createConnectorController(this.config.connectorList)
+      // this.createConnectorController(this.config.connectorList)
     ]);
 
     return result;
@@ -176,13 +176,13 @@ class Control extends EventEmitter {
     // 스케줄러 실행
     this.p_Scheduler.on('completeMeasureInverter', (measureTime, inverterListData) => {
       try {
-        BU.CLI(measureTime, inverterListData);
+        // BU.CLI(measureTime, inverterListData);
 
         // 계측 데이터 대입
-        let res = this.model.onMeasureDeviceList(measureTime, inverterListData, 'inverter');
+        // let res = this.model.onMeasureDeviceList(measureTime, inverterListData, 'inverter');
 
         // this.model.updateUpsas2Db('inverter');
-        BU.CLI(res);
+        // BU.CLI(res);
 
         return;
 

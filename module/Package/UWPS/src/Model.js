@@ -1,7 +1,5 @@
 'use strict';
-const Promise = require('bluebird');
 const _ = require('underscore');
-const cron = require('cron');
 const bmjh = require('base-model-jh');
 const BU = require('base-util-jh').baseUtil;
 
@@ -19,23 +17,15 @@ class Model {
   constructor(controller) {
     this.controller = controller;
 
-    this.controllerConfig = this.controller.config;
-    this.deviceTypeList = this.controller.config.deviceInfo.typeList;
+    this.config = this.controller.config;
+    this.deviceTypeList = this.config.deviceInfo.typeList;
 
-    this.hasCopyInverterData = controller.config.devOption.hasCopyInverterData;
-    this.hasInsertQuery = controller.config.devOption.hasInsertQuery;
-
-    // 생성한 인버터, 접속반 컨트롤러 객체 리스트
-    this.inverterControllerList = [];
-    this.connectorControllerList = [];
-
-    // 최근에 계측한 인버터, 접속반 데이터 리스트
-    this.inverterDataList = [];
-    this.connectorDataList = [];
+    this.hasCopyInverterData = this.config.devOption.hasCopyInverterData;
+    this.hasInsertQuery = this.config.devOption.hasInsertQuery;
 
     /**
      * 하부 Controller에서 계측한 데이터 저장소
-     * @type {Array.<{key: string, insertTroubleList: Array, updateTroubleList: Array, insertDataList: Array, storage: Array.<{ id: string, seq: string, measureDate: Date, systemErrorList: Array.<{code: string, msg: string, occur_date: Date}>, data: Array | Object, convertData: Array, troubleList: Array.<{code: string, msg: string}>}}>} upmsDeviceDataList 
+     * @type {Array.<{key: string, measureDate: Date, insertTroubleList: Array, updateTroubleList: Array, insertDataList: Array, storage: Array.<{ id: string, seq: string, measureDate: Date, systemErrorList: Array.<{code: string, msg: string, occur_date: Date}>, data: Array | Object, convertData: Array, troubleList: Array.<{code: string, msg: string}>}}>} upmsDeviceDataList 
      */
     this.upmsDeviceDataList = [];
 
@@ -47,7 +37,7 @@ class Model {
 
     this.initDeviceGroup();
 
-    this.BM = new bmjh.BM(this.controller.config.dbInfo);
+    this.BM = new bmjh.BM(this.config.dbInfo);
 
   }
 
@@ -62,6 +52,7 @@ class Model {
     this.deviceTypeList.forEach(deviceType => {
       let addDataObj = {
         key: deviceType,
+        measureDate: null,
         insertTroubleList: [],
         updateTroubleList: [],
         insertDataList: [],
@@ -211,7 +202,7 @@ class Model {
         }
       }
 
-      deviceDataObj.measureDate = BU.convertDateToText(measureTime);
+      deviceDataObj.measureDate = measureTime;
       deviceDataObj.data = deviceControllerMeasureData.data;
       deviceDataObj.systemErrorList = deviceControllerMeasureData.systemErrorList;
       deviceDataObj.troubleList = deviceControllerMeasureData.troubleList;
@@ -229,9 +220,10 @@ class Model {
    * @param {string} deviceType 장치 Type 'inverter', 'connector'
    */
   onMeasureDeviceList(measureTime, deviceControllerMeasureData, deviceType) {
-    BU.CLI('onMeasureDeviceList', deviceControllerMeasureData);
+    // BU.CLI('onMeasureDeviceList', deviceControllerMeasureData);
 
     let upsasDataGroup = this.findUpsasDataGroup(deviceType);
+    upsasDataGroup.measureDate = measureTime;
 
     if (_.isEmpty(upsasDataGroup)) {
       throw Error(`deviceType [${deviceType}]은 없습니다.`);
@@ -254,70 +246,114 @@ class Model {
    */
   async processMeasureData(deviceType) {
     let upsasDataGroup = this.findUpsasDataGroup(deviceType);
+    let bindingObj = _.findWhere(keybinding.binding, {
+      deviceType
+    });
+    // BU.CLI(upsasDataGroup);
     // deviceType Trouble 조회
     let dbTroubleList = await this.getTroubleList(deviceType);
-    // BU.CLI(dbTroubleList);
+    let strMeasureDate = BU.convertDateToText(upsasDataGroup.measureDate);
 
     upsasDataGroup.storage.forEach(dataObj => {
       const contollerInfo = this.findUpsasController(dataObj.id);
       const deviceSavedInfo = contollerInfo.controller.getDeviceInfo();
       // BU.CLI(deviceSavedInfo);
-
+      // dataObj.
       let resultProcessError;
       let hasSystemError = false;
       // 시스템 에러가 있다면 
       if (dataObj.systemErrorList.length) {
         hasSystemError = true;
-        resultProcessError = this.processDeviceErrorList(dataObj.systemErrorList, dbTroubleList, dataObj.seq, 1, deviceType);
+        resultProcessError = this.processDeviceErrorList(dataObj.systemErrorList, dbTroubleList, dataObj, 1, deviceType);
       } else { // 장치 에러 처리
-        resultProcessError = this.processDeviceErrorList(dataObj.troubleList, dbTroubleList, dataObj.seq, 0, deviceType);
+        resultProcessError = this.processDeviceErrorList(dataObj.troubleList, dbTroubleList, dataObj, 0, deviceType);
       }
 
       // BU.CLI(resultProcessError);
       upsasDataGroup.insertTroubleList = upsasDataGroup.insertTroubleList.concat(resultProcessError.insertTroubleList);
       upsasDataGroup.updateTroubleList = upsasDataGroup.updateTroubleList.concat(resultProcessError.updateTroubleList);
+      dbTroubleList = resultProcessError.dbTroubleList;
 
       // 시스템 에러가 없을 경우에 insert 구문 입력
       if (!hasSystemError) {
         const convertDataList = this.processDeviceDataList(dataObj.data, deviceSavedInfo, deviceType);
-        dataObj.convertData = convertDataList; 
+        dataObj.convertData = convertDataList;
         upsasDataGroup.insertDataList = upsasDataGroup.insertDataList.concat(convertDataList);
       }
     });
 
     // 남아있는 dbTroubleList는 Clear 처리
     dbTroubleList.forEach(dbTrouble => {
-      upsasDataGroup.updateTroubleList.push({
-        tbName: `${deviceType}_trouble_data`,
-        whereObj: {
-          key: `${deviceType}_trouble_data_seq`,
-          value: dbTrouble[`${deviceType}_trouble_data_seq`]
-        },
-        updateObj: {
-          fix_date: null
-        }
-      });
+      BU.CLIS(dbTrouble, BU.convertDateToText(dbTrouble.occur_date), upsasDataGroup.measureDate);
+      dbTrouble.occur_date = dbTrouble.occur_date instanceof Date ? BU.convertDateToText(dbTrouble.occur_date) : BU.convertDateToText(upsasDataGroup.measureDate);
+      dbTrouble.fix_date = BU.convertDateToText(upsasDataGroup.measureDate);
+      upsasDataGroup.updateTroubleList.push(dbTrouble);
+    });
+
+    // insertDataList에 날짜 추가
+    upsasDataGroup.insertDataList = _.map(upsasDataGroup.insertDataList, insertData => {
+      return Object.assign({ [bindingObj.dateParam]: strMeasureDate }, insertData);
     });
 
     return upsasDataGroup;
   }
+
+  /**
+   * 
+   * @param {{key: string, measureDate: Date, insertTroubleList: Array, updateTroubleList: Array, insertDataList: Array, storage: Array.<{ id: string, seq: string, measureDate: Date, systemErrorList: Array.<{code: string, msg: string, occur_date: Date}>, data: Array | Object, convertData: Array, troubleList: Array.<{code: string, msg: string}>}}} upmsDeviceData 입력할 테이블 명
+   * @param {Array} setList 입력할 데이터 리스트
+   * @return {Promise} 정상적으로 성공할경우 upmsDeviceData sql 구문은 초기화 처리
+   */
+  async applyingMeasureDataToDb(upmsDeviceData) {
+    if (this.hasInsertQuery) {
+      let bindingObj = _.findWhere(keybinding.binding, {
+        deviceType: upmsDeviceData.key
+      });
+
+      let dataTableName = bindingObj.dataTableName;
+      let troubleTableName = bindingObj.troubleTableName;
+      // 입력할 데이터가 있는 경우
+      if (upmsDeviceData.insertDataList.length) {
+        await this.BM.setTables(dataTableName, upmsDeviceData.insertDataList, true);
+      }
+
+      // 입력할 Trouble이 있을 경우
+      if (upmsDeviceData.insertTroubleList.length) {
+        await this.BM.setTables(troubleTableName, upmsDeviceData.insertTroubleList, true);
+      }
+
+      // 수정할 Trouble이 있을 경우
+      if (upmsDeviceData.updateTroubleList.length) {
+        await this.BM.updateTablesByConnection(troubleTableName, `${troubleTableName}_seq`, upmsDeviceData.updateTroubleList);
+      }
+    }
+
+    // 초기화
+    upmsDeviceData.insertDataList = [];
+    upmsDeviceData.insertTroubleList = [];
+    upmsDeviceData.updateTroubleList = [];
+
+    return upmsDeviceData;
+  }
+
+
 
 
   /**
    * Device Error 처리. 신규 에러라면 insert, 기존 에러라면 dbTroubleList에서 해당 에러 삭제, 최종으로 남아있는 에러는 update
    * @param {Array.<{code: string, msg: string, occur_date: Date}>} deviceErrorList 장치에서 발생된 시스템 에러 목록
    * @param {Array} dbTroubleList DB에서 가져온 trouble list.
-   * @param {number} seq 에러 시퀀스
+   * @param {{seq: number, measureDate: Date}} categoryInfo deviceDataList 요소. 시퀀스 와 측정 날짜
    * @param {boolean} isSystemError System Error 인지 여부
    * @param {string} deviceType 장치 타입 
    * @return {{insertTroubleList: Array.<{code: string, msg: string, occur_date: Date}>, updateTroubleList: Array.<{tbName: string, whereObj: {key: string, value: number}, updateObj: {fix_date: Date}}>, dbTroubleList: Array}} 삽입 목록과 수정 목록, 수정한 dbTroubleList 
    */
-  processDeviceErrorList(deviceErrorList, dbTroubleList, seq, isSystemError, deviceType) {
-    BU.CLI('processSystemErrorList', deviceErrorList, seq, deviceType);
-
+  processDeviceErrorList(deviceErrorList, dbTroubleList, categoryInfo, isSystemError, deviceType) {
+    // BU.CLI('processSystemErrorList', deviceErrorList, categoryInfo.seq, deviceType);
+    const seq = categoryInfo.seq;
+    const measureDate = categoryInfo.measureDate;
     const insertTroubleList = [];
     const updateTroubleList = [];
-
     const keyName = `${deviceType}_seq`;
     deviceErrorList.forEach(errorObj => {
       // BU.CLI(systemError);
@@ -339,7 +375,7 @@ class Model {
           is_error: isSystemError,
           code: errorObj.code,
           msg: errorObj.msg,
-          occur_date: errorObj.occur_date || null,
+          occur_date: errorObj.occur_date instanceof Date ? BU.convertDateToText(errorObj.occur_date) : BU.convertDateToText(measureDate),
           fix_date: null
         };
 
@@ -350,16 +386,9 @@ class Model {
     dbTroubleList = _.reject(dbTroubleList, dbTrouble => {
       let hasResultOption = isSystemError ? dbTrouble.is_error === 1 : true;
       if (dbTrouble[keyName] === seq && hasResultOption) {
-        updateTroubleList.push({
-          tbName: `${deviceType}_trouble_data`,
-          whereObj: {
-            key: `${deviceType}_trouble_data_seq`,
-            value: dbTrouble[`${deviceType}_trouble_data_seq`]
-          },
-          updateObj: {
-            fix_date: null
-          }
-        });
+        dbTrouble.occur_date = dbTrouble.occur_date instanceof Date ? BU.convertDateToText(dbTrouble.occur_date) : BU.convertDateToText(measureDate);
+        dbTrouble.fix_date = BU.convertDateToText(measureDate);
+        updateTroubleList.push(dbTrouble);
         return true;
       } else {
         return false;
@@ -389,10 +418,9 @@ class Model {
       let bindingObj = _.findWhere(keybinding.binding, {
         deviceType
       });
-      
+
       let convertData = {};
       const addParamList = bindingObj.addParamList;
-      const dataTableName = bindingObj.dataTableName;
       const matchingList = bindingObj.matchingList;
 
       // 계산식 반영
@@ -460,163 +488,6 @@ class Model {
     return resultCalculate;
   }
 
-  async applyMeasureData2Db(){
-
-  }
-
-
-  /**
-   * 
-   * @param {string} deviceType 장치 type
-   * @param {number} deviceSeq deivce seq
-   * @param {Array} dbTroubleList DB에서 조회한 현재 Trouble
-   * @param {Array} localTroubleList 장치에서 계측한 Trouble
-   * @return {Array.<{{isInsertData: number, insertTroubleList: Array, updateTroubleList: Array}}>} isInsert: 계측 data 입력 여부, insertTroubleList: DB로 새로 삽입할 데이터, updateTroubleList: update 할 Trouble
-   */
-  getRefineTrouble(deviceType, deviceSeq, dbTroubleList, localTroubleList) {
-    const returnValue = {
-      isInsertData: 0,
-      currentTroubleList: [],
-      insertTroubleList: [],
-      updateTroubleList: []
-    };
-
-    // BU.CLIS(dbTroubleList, localTroubleList);
-    // DB에서 얻어온 DB List 중에서 Device Seq와 같은 요소만 뽑아냄
-    let deviceKey = `${deviceType}_seq`;
-    let filterDbTrouble = _.filter(dbTroubleList, dbTrouble => {
-      // BU.CLIS(deviceKey, deviceSeq, dbTrouble[deviceKey]);
-      return dbTrouble[deviceKey] === deviceSeq ? true : false;
-    });
-
-    // BU.CLIS(filterDbTrouble, localTroubleList);
-
-    // 장치에서 수신한 Trouble 순회
-    localTroubleList.forEach(localTrouble => {
-
-
-    });
-
-
-    return returnValue;
-  }
-
-
-
-  // 인버터 id로 인버터 컨트롤러 객체 찾아줌
-  findMeasureInverter(targetId) {
-    // BU.CLI('findMeasureInverter', ivtId)
-    return _.find(this.inverterControllerList, controller => {
-      let targetInfo = controller.getInverterInfo();
-      return targetInfo.target_id === targetId;
-    });
-
-    return findObj;
-  }
-
-  // 접속반 id로 인버터 컨트롤러 객체 찾아줌
-  findMeasureConnector(targetId) {
-    return _.find(this.connectorControllerList, controller => {
-      // BU.CLI(controller)
-      let targetInfo = controller.getConnectorInfo();
-      return targetInfo.target_id === targetId;
-    });
-  }
-
-  // TODO 에러 시 예외처리, 인버터 n개 중 부분 성공일 경우 처리
-  /**
-   * 인버터 계측 Event가 모두 완료될 경우 호출되는 Method
-   * @param {Date} measureTime DB에 입력할 계측 날짜
-   * @param {Array} inverterListData 계측한 값. NOTE 쓸지 말지는 기획에 따라서 차후 처리
-   * @returns {Array} Data List
-   */
-  onInverterDataList(measureTime, inverterListData) {
-    // BU.CLI(measureTime, inverterListData);
-    this.inverterDataList = [];
-
-    inverterListData.forEach(refineData => {
-      // TODO 메시지 발송? 에러 처리? 인버터 정지? 고민 필요
-      if (_.isEmpty(refineData)) {
-        return;
-      }
-
-      let measureHour = measureTime.getHours();
-      let measureMin = measureTime.getMinutes();
-
-      // 자정일 경우에는 d_wh를 강제로 초기화 한다
-      if (measureHour === 0 && measureMin === 0) {
-        refineData.d_wh = 0;
-      }
-
-      // BU.CLI(measureTime)
-      refineData.writedate = BU.convertDateToText(measureTime);
-      this.inverterDataList.push(refineData);
-    });
-
-
-    // TEST 인버터 데이터에 기초해 데이터 넣음
-    if (this.hasCopyInverterData) {
-      let testCntDataList = [];
-      inverterListData.forEach(ivtData => {
-        let addObj = {
-          photovoltaic_seq: ivtData.inverter_seq,
-          amp: ivtData.in_a || null,
-          vol: ivtData.in_v || null,
-        };
-        testCntDataList.push(addObj);
-      });
-
-      // BU.CLI(testCntDataList)
-      let dummyConnectorDataList = this.onConnectorDataList(measureTime, testCntDataList);
-      this.insertQuery('module_data', dummyConnectorDataList)
-        .then(resQuery => {})
-        .catch(err => {
-          BU.errorLog('insertErrorDB', err);
-        });
-    }
-
-    return this.inverterDataList;
-  }
-
-
-  // TODO 에러 시 예외처리, 인버터 n개 중 부분 성공일 경우 처리
-  /**
-   * 인버터 계측 Event가 모두 완료될 경우 호출되는 Method
-   * @param {Date} measureTime DB에 입력할 계측 날짜
-   * @param {Array} connectorListData 계측한 값. NOTE 쓸지 말지는 기획에 따라서 차후 처리
-   * @returns {Array} Data List
-   */
-  onConnectorDataList(measureTime, connectorListData) {
-    // BU.CLI('completeMeasureConnector', connectorListData)
-    this.connectorDataList = [];
-
-    connectorListData.forEach(refineData => {
-      // TODO 메시지 발송? 에러 처리? 인버터 정지? 고민 필요
-      if (_.isEmpty(refineData)) {
-        return;
-      }
-      refineData.writedate = BU.convertDateToText(measureTime);
-      this.connectorDataList.push(refineData);
-    });
-
-    return this.connectorDataList;
-  }
-
-  /**
-   * 계측한 인버터, 접속반 Data List를 DB에 입력
-   * @param {String} tbName DB Table Name
-   * @param {Array} dataList 계측한 리스트
-   * @returns {Promise} 성공 유무
-   */
-  async insertQuery(tbName, dataList) {
-    // TEST 실제 입력은 하지 않음. 
-    if (this.hasInsertQuery) {
-      return await this.BM.setTables(tbName, dataList);
-    } else {
-      return {};
-    }
-  }
-
   /**
    * 인버터 및 접속반 에러 리스트 가져옴
    * @param {string} deviceType 'inverter' or 'connect'
@@ -627,14 +498,13 @@ class Model {
         FROM ${deviceType}_trouble_data o                    
           LEFT JOIN ${deviceType}_trouble_data b             
               ON o.${deviceType}_seq = b.${deviceType}_seq AND o.code = b.code AND o.${deviceType}_trouble_data_seq < b.${deviceType}_trouble_data_seq
-        WHERE b.${deviceType}_trouble_data_seq is NULL
+        WHERE b.${deviceType}_trouble_data_seq is NULL AND o.fix_date is NULL
         ORDER BY o.${deviceType}_trouble_data_seq ASC
     `;
 
     let returnValue = await this.BM.db.single(sql);
 
     return returnValue;
-
   }
 }
 

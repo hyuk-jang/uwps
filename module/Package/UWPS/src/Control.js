@@ -33,74 +33,6 @@ class Control extends EventEmitter {
     // Process
     this.p_Scheduler = new P_Scheduler(this);
 
-    // Child
-    // this.inverterController = this.createInverterController(config.InverterController);
-
-  }
-
-  /**
-   * 인버터의 현재 동작상태를 가져옴
-   * @param {String} targetId 인버터 id
-   * @return {Boolean} 동작: True, 정지: False
-   */
-  hasOperationInverter(targetId) {
-    try {
-      let findTarget = this.model.findMeasureInverter(targetId);
-      return findTarget.getHasOperation();
-    } catch (error) {
-      throw error;
-    }
-  }
-  /**
-   * 접속반의 현재 동작상태를 가져옴
-   * @param {String} targetId 접속반 id
-   * @return {Boolean} 동작: True, 정지: False
-   */
-  hasOperationConnector(targetId) {
-    try {
-      let findTarget = this.model.findMeasureConnector(targetId);
-      return findTarget.getHasOperation();
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * 인버터 현재 상태 데이터를 가져옴
-   * @param {String} targetId 인버터 id
-   * @return {Object} Converter에 정의된 getBaseInverterValue json 대입
-   */
-  getInverterData(targetId) {
-    try {
-      let findTarget = this.model.findMeasureInverter(targetId);
-      return findTarget.inverterData;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * 인버터 현재 상태 데이터를 가져옴
-   * @param {String} targetId 인버터 id
-   * @return {Object} Converter에 정의된 getBaseInverterValue json 대입
-   */
-  getInverterTotalData() {
-
-  }
-
-  /**
-   * 접속반 현재 상태 데이터를 가져옴
-   * @param {String} targetId 접속반 id
-   * @return {Object} {photovoltaic_seq, amp, vol, writedate}
-   */
-  getConnectorData(targetId) {
-    // BU.CLI('getConnectorData', targetId)
-    try {
-      let findTarget = this.model.findMeasureConnector(targetId);
-      return findTarget.connectorData;
-    } catch (error) {
-      throw error;
-    }
   }
 
   /**
@@ -112,7 +44,7 @@ class Control extends EventEmitter {
     this.eventHandler();
     let result = await Promise.all([
       this.createInverterController(this.config.inverterList),
-      // this.createConnectorController(this.config.connectorList)
+      this.createConnectorController(this.config.connectorList)
     ]);
 
     return result;

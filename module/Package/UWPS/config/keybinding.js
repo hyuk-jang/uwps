@@ -1,10 +1,11 @@
-const inverterBaseFormat = require('../InverterController/Converter').baseFormat;
-const connectorBaseFormat = require('../ConnectorController/Converter').baseFormat;
+// const inverterBaseFormat = require('../InverterController/Converter').baseFormat;
+// const connectorBaseFormat = require('../ConnectorController/Converter').baseFormat;
 module.exports = {
   binding: [{
     deviceType: 'inverter',
     dataTableName: 'inverter_data',
-    troubleTableName: 'iverter_trouble_data',
+    troubleTableName: 'inverter_trouble_data',
+    dateParam: 'writedate',
     addParamList: [{
       baseKey: 'inverter_seq',
       updateKey: 'inverter_seq',
@@ -41,7 +42,7 @@ module.exports = {
       toFixed: 0
     },{
       baseKey: 'pf',
-      updateKey: 'in_w',
+      updateKey: 'p_f',
       calculate: '(rAmp * rsVol) / (amp * vol) * 100',
       toFixed: 0
     },{

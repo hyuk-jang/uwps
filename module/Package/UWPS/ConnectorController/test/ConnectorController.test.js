@@ -11,8 +11,8 @@ global._ = _;
 global.BU = BU;
 
 let hasTestModel = true;
-let hasTestSocket = true;
-let hasTestSerial = false;
+let hasTestSocket = false;
+let hasTestSerial = true;
 
 describe('Connector Controller Test', () => {
   if(hasTestModel){

@@ -12,7 +12,7 @@ module.exports = {
       },
       'code': '324f78ff-452c-4a46-844a-ffe47defc1f7',
       'ip': 'localhost',
-      'port': null,
+      'port': 'COM1',
       'baud_rate': 9600,
       'address': {
         'type': 'Buffer',

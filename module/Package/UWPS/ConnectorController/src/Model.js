@@ -133,6 +133,7 @@ class Model {
     if (hasOccur && _.isEmpty(findObj)) {
       troubleObj.occur_date = new Date();
       this.systemErrorList.push(troubleObj);
+      BU.CLI(msg);
       BU.errorLog('connector', troubleCode, msg);
     } else if (!hasOccur && !_.isEmpty(findObj)) {  // 에러 해제하였고 해당 에러가 존재한다면 삭제
       this.systemErrorList = _.reject(this.systemErrorList, systemError => {

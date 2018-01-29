@@ -5,78 +5,51 @@ const Control = require('./src/Control');
 module.exports = Control;
 
 // if __main process
+const config = require('./src/config.js');
+const BU = require('base-util-jh').baseUtil;
+const bmjh = require('base-model-jh');
+const BM = new bmjh.BM(config.current.dbInfo);
+const Promise = require('bluebird');
+const _ = require('underscore');
 if (require !== undefined && require.main === module) {
-  process.env.NODE_ENV = 'production'
+  process.env.NODE_ENV = 'production';
 
-  const _ = require('underscore');
-  const config = require('./src/config.js');
-  const BU = require('base-util-jh').baseUtil;
 
   global._ = _;
   global.BU = BU;
 
-
   process.on('unhandledRejection', function (reason, p) {
-    console.log("Possibly Unhandled Rejection at: Promise ", p, " reason: ", reason);
+    console.log('Possibly Unhandled Rejection at: Promise ', p, ' reason: ', reason);
     // application specific logging here
   });
 
 
+
+  /**
+   * Init Config Setting
+   */
+  startIndex()
+    .then(res => {
+      BU.CLI(res);
+    })
+    .catch(err => {
+      BU.CLI(err);
+    });
+
 }
 
-const Control = require('./Control.js');
-const config = require('./config.js');
-const BU = require('base-util-jh').baseUtil;
-const bmjh = require('base-model-jh');
-
-const eventToPromise = require('event-to-promise');
-const Promise = require('bluebird')
-
-const _ = require('underscore');
-
-global.BU = BU;
-global._ = _;
-
-const BM = new bmjh.BM(config.current.dbInfo);
-
-/**
- * Init Config Setting
- */
-
-
-startIndex()
-  .then(res => {
-    BU.CLI(res)
-  })
-  .catch(err => {
-    BU.CLI(err);
-  })
 
 async function startIndex() {
   await setter();
 
+  BU.CLI(config);
   const control = new Control(config);
-  let result = {};
-  
-  control.on('completeMeasureInverter', (err, res) => {
-    BU.CLI('completeMeasureInverter', res.length)
-  });
-  
-  control.on('completeMeasureConnector', (err, res) => {
-    BU.CLI('completeMeasureConnector', res.length)
-  });
-  
-  console.time('Uwps Init')
-  await control.init();
-  console.timeEnd('Uwps Init')
 
-  // TODO
-  result = control.hasOperationInverter('IVT1');
-  BU.CLI('hasOperationInverter IVT1', result)
-  result = control.getInverterData('IVT1');
-  BU.CLI('getInverterData IVT1', result)
-  result = control.getConnectorData('CNT1');
-  BU.CLI('getConnectorData CNT1', result)
+  console.time('Uwps Init');
+  await control.init();
+  console.timeEnd('Uwps Init');
+
+  control.operationScheduler();
 
   return true;
 }
@@ -87,7 +60,7 @@ async function startIndex() {
 
 
 async function setter() {
-  BU.CLI('setter')
+  BU.CLI('setter');
   if (config.current.devOption.hasLoadSqlInverter) {
     config.current.inverterList = await inverterSetter();
   }
@@ -98,9 +71,9 @@ async function setter() {
 
   if (config.current.devOption.hasSaveConfig) {
     BU.writeFile('./config.json', `${JSON.stringify(config)}`, 'w', (err, res) => {
-      BU.CLI(err, res)
+      BU.CLI(err, res);
       process.exit();
-    })
+    });
   }
 
   return true;
@@ -114,7 +87,7 @@ async function inverterSetter() {
 
   let recentInverterDataList = await Promise.map(inverterList, inverter => {
     return BM.db.single(`SELECT d_wh, c_wh FROM inverter_data WHERE ${inverter.inverter_seq} = inverter_seq ORDER BY inverter_data_seq DESC LIMIT 1 `);
-  })
+  });
 
   let ivtDataList = _.flatten(recentInverterDataList);
 
@@ -123,7 +96,7 @@ async function inverterSetter() {
       hasDev: true,
       ivtDummyData: {},
       deviceSavedInfo: element
-    }
+    };
 
     addObj.ivtDummyData.dailyKwh = ivtDataList[index].d_wh / 10000;
     addObj.ivtDummyData.cpKwh = ivtDataList[index].c_wh / 10000;
@@ -137,21 +110,19 @@ async function inverterSetter() {
 }
 
 async function connectorSetter() {
-  let connectorList = await BM.db.single(`SELECT *,(SELECT COUNT(*) FROM relation_upms WHERE cnt.connector_seq = relation_upms.connector_seq  ) AS ch_number FROM connector cnt`);
+  let connectorList = await BM.db.single('SELECT *,(SELECT COUNT(*) FROM relation_upms WHERE cnt.connector_seq = relation_upms.connector_seq  ) AS ch_number FROM connector cnt');
   let relation_upms = await BM.getTable('relation_upms');
 
   let returnValue = [];
   // let moduleList = [];
-  let basePort = 5555;
-  connectorList.forEach((element, index) => {
+  connectorList.forEach((element) => {
     let addObj = {
       hasDev: true,
-      // devPort: basePort + index,
       deviceSavedInfo: element,
       moduleList: _.where(relation_upms, {
         connector_seq: element.connector_seq
       })
-    }
+    };
     returnValue.push({
       current: addObj
     });

@@ -54,9 +54,8 @@ class Control extends EventEmitter {
    * 접속반, 인버터 데이터 계측 스케줄러 시작
    */
   operationScheduler() {
-    // let a = this.model.getControllerGroup('inverter');
-    this.p_Scheduler.runCronForMeasureInverter(this.model.getControllerGroup('inverter'));
-    this.p_Scheduler.runCronForMeasureConnector(this.model.getControllerGroup('connector'));
+    this.p_Scheduler.runCronForMeasureInverter(this.model.getUpsasControllerGrouping('inverter'));
+    this.p_Scheduler.runCronForMeasureConnector(this.model.getUpsasControllerGrouping('connector'));
   }
 
   /**
@@ -107,6 +106,7 @@ class Control extends EventEmitter {
     // 스케줄러 실행
     this.p_Scheduler.on('completeMeasureInverter', async (measureTime, measureDataList) => {
       try {
+        BU.CLIS(measureTime, measureDataList);
         let upsasDataGroup = this.model.onMeasureDeviceList(new Date(), measureDataList, 'inverter');
         // BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.processMeasureData('inverter');
@@ -123,7 +123,7 @@ class Control extends EventEmitter {
     // 스케줄러 실행
     this.p_Scheduler.on('completeMeasureConnector', async (measureTime, measureDataList) => {
       try {
-        // BU.CLIS(measureTime, measureDataList);
+        BU.CLIS(measureTime, measureDataList);
         let upsasDataGroup = this.model.onMeasureDeviceList(new Date(), measureDataList, 'connector');
         // BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.processMeasureData('connector');

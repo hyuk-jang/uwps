@@ -119,6 +119,7 @@ class Control extends EventEmitter {
     await this.p_Setter.settingConverter(dialing);
 
     // device connector 객체 연결
+    BU.CLI(this.model.deviceSavedInfo);
     this.dcm.init(this.model.deviceSavedInfo, this);
 
     // this에 Event Emitter Binding

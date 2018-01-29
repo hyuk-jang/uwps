@@ -18,7 +18,7 @@ class Control extends EventEmitter {
         hasCopyInverterData: false,
         hasInsertQuery: false,
       },
-      childInfo: {
+      deviceInfo: {
         typeList: []
       },
       inverterList: [],
@@ -33,74 +33,6 @@ class Control extends EventEmitter {
     // Process
     this.p_Scheduler = new P_Scheduler(this);
 
-    // Child
-    // this.inverterController = this.createInverterController(config.InverterController);
-
-  }
-
-  /**
-   * 인버터의 현재 동작상태를 가져옴
-   * @param {String} targetId 인버터 id
-   * @return {Boolean} 동작: True, 정지: False
-   */
-  hasOperationInverter(targetId) {
-    try {
-      let findTarget = this.model.findMeasureInverter(targetId);
-      return findTarget.getHasOperation();
-    } catch (error) {
-      throw error;
-    }
-  }
-  /**
-   * 접속반의 현재 동작상태를 가져옴
-   * @param {String} targetId 접속반 id
-   * @return {Boolean} 동작: True, 정지: False
-   */
-  hasOperationConnector(targetId) {
-    try {
-      let findTarget = this.model.findMeasureConnector(targetId);
-      return findTarget.getHasOperation();
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * 인버터 현재 상태 데이터를 가져옴
-   * @param {String} targetId 인버터 id
-   * @return {Object} Converter에 정의된 getBaseInverterValue json 대입
-   */
-  getInverterData(targetId) {
-    try {
-      let findTarget = this.model.findMeasureInverter(targetId);
-      return findTarget.inverterData;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * 인버터 현재 상태 데이터를 가져옴
-   * @param {String} targetId 인버터 id
-   * @return {Object} Converter에 정의된 getBaseInverterValue json 대입
-   */
-  getInverterTotalData() {
-
-  }
-
-  /**
-   * 접속반 현재 상태 데이터를 가져옴
-   * @param {String} targetId 접속반 id
-   * @return {Object} {photovoltaic_seq, amp, vol, writedate}
-   */
-  getConnectorData(targetId) {
-    // BU.CLI('getConnectorData', targetId)
-    try {
-      let findTarget = this.model.findMeasureConnector(targetId);
-      return findTarget.connectorData;
-    } catch (error) {
-      throw error;
-    }
   }
 
   /**
@@ -121,9 +53,10 @@ class Control extends EventEmitter {
   /**
    * 접속반, 인버터 데이터 계측 스케줄러 시작
    */
-  operationScheduler(){
-    this.p_Scheduler.runCronForMeasureInverter(this.model.inverterControllerList);
-    this.p_Scheduler.runCronForMeasureConnector(this.model.connectorControllerList);
+  operationScheduler() {
+    // let a = this.model.getControllerGroup('inverter');
+    this.p_Scheduler.runCronForMeasureInverter(this.model.getControllerGroup('inverter'));
+    this.p_Scheduler.runCronForMeasureConnector(this.model.getControllerGroup('connector'));
   }
 
   /**
@@ -139,16 +72,16 @@ class Control extends EventEmitter {
 
     // let troubleList = await this.model.getTroubleList('inverter');
     // BU.CLI(troubleList);
-    
-    this.model.setDeviceGroup('inverter', inverterControllerList);
-    this.model.inverterControllerList = inverterControllerList;
-    
+
+    this.model.setDeviceController('inverter', inverterControllerList);
+    // this.model.inverterControllerList = inverterControllerList;
+
     return inverterControllerList;
   }
 
   /**
    * 접속반 설정 값에 따라 접속반 계측 컨트롤러 생성 및 계측 스케줄러 실행
-   * @param {Object} connectorConfigList 인버터 설정 값
+   * @param {Object} connectorConfigList 접속반 설정 값
    * @returns {Promise} 접속반 계측 컨트롤러 생성 결과 Promise
    */
   async createConnectorController(connectorConfigList) {
@@ -161,8 +94,8 @@ class Control extends EventEmitter {
 
     // let troubleList = await this.model.getTroubleList('inverter');
 
-    this.model.setDeviceGroup('connector', connectorControllerList);
-    this.model.connectorControllerList = connectorControllerList;
+    this.model.setDeviceController('connector', connectorControllerList);
+    // this.model.connectorControllerList = connectorControllerList;
     // console.timeEnd('createConnectorController')
     return connectorControllerList;
   }
@@ -172,36 +105,37 @@ class Control extends EventEmitter {
   eventHandler() {
     // BU.CLI('eventHandler')
     // 스케줄러 실행
-    this.p_Scheduler.on('completeMeasureInverter', (measureTime, inverterListData) => {
-      // BU.CLI(measureTime, inverterListData)
+    this.p_Scheduler.on('completeMeasureInverter', async (measureTime, measureDataList) => {
+      try {
+        let upsasDataGroup = this.model.onMeasureDeviceList(new Date(), measureDataList, 'inverter');
+        // BU.CLI(upsasDataGroup);
+        upsasDataGroup = await this.model.processMeasureData('inverter');
+        // BU.CLI(upsasDataGroup);
+        upsasDataGroup = await this.model.applyingMeasureDataToDb(upsasDataGroup);
+        // BU.CLI(upsasDataGroup);
 
-      let res = this.model.onDeviceData(measureTime, inverterListData, 'inverter');
-
-      this.model.updateUpsas2Db('inverter');
-      BU.CLI(res);
-
-      return;
-
-      let dataList = this.model.onInverterDataList(measureTime, inverterListData);
-      this.model.insertQuery('inverter_data', dataList)
-        .then(resQuery => {})
-        .catch(err => {
-          BU.errorLog('insertErrorDB', err);
-        });
+        // Measure Inverter 종료 이벤트 발생
+        this.emit('completeProcessInverterData', upsasDataGroup);
+      } catch (error) {
+        BU.errorLog('measureDevice', error);
+      }
     });
     // 스케줄러 실행
-    this.p_Scheduler.on('completeMeasureConnector', (measureTime, connectorListData) => {
-      // BU.CLI(measureTime, connectorListData)
-      // TEST 인버터 계측 데이터에 기반하여 수행함
-      if (this.config.devOption.hasCopyInverterData) {
-        return false;
+    this.p_Scheduler.on('completeMeasureConnector', async (measureTime, measureDataList) => {
+      try {
+        // BU.CLIS(measureTime, measureDataList);
+        let upsasDataGroup = this.model.onMeasureDeviceList(new Date(), measureDataList, 'connector');
+        // BU.CLI(upsasDataGroup);
+        upsasDataGroup = await this.model.processMeasureData('connector');
+        // BU.CLI(upsasDataGroup);
+        upsasDataGroup = await this.model.applyingMeasureDataToDb(upsasDataGroup);
+        // BU.CLI(upsasDataGroup);
+
+        // Measure Connector 종료 이벤트 발생
+        this.emit('completeProcessConnectorData', upsasDataGroup);
+      } catch (error) {
+        BU.errorLog('measureDevice', error);
       }
-      let dataList = this.model.onConnectorDataList(measureTime, connectorListData);
-      this.model.insertQuery('module_data', dataList)
-        .then(resQuery => {})
-        .catch(err => {
-          BU.errorLog('insertErrorDB', err);
-        });
     });
   }
 

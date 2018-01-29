@@ -10,26 +10,24 @@ const protocol = require('./protocol');
 class Decoder extends Converter {
   /**
    * 국번을 부여하여 Decoder 객체 생성
-   * @param {Buffer} dialing 장치 ID
    * Buffer를 권장하나 [...0x], 유사 Buffer, string(ascii chr)도 변경 가능
    * - [0x30, 0x31, 0x32] -> Buffer 30 31 32
    * - 유사 Buffer : {type: Buffer, data: [0, 0, 1]} -> Buffer 30 31 32
    * - string 012 -> Buffer 30 31 32
    */
-  constructor(dialing) {
+  constructor() {
     super();
-    this.protocolTable = protocol.encodingProtocolTable(dialing);
+    this.protocolTable = protocol.encodingProtocolTable();
 
     this.returnValue = [];
     
     /** baseFormat Guide Line */
     this.baseFormat = require('../../').baseFormat;
-    BU.CLI(this.baseFormat);
+    // BU.CLI(this.baseFormat);
   }
 
   /**
    * 인버터 가이드라인 데이터 형태
-   * @return {baseFormat} Converter -> baseFormat Json
    */
   getBaseValue() {
     return Object.assign({}, this.baseFormat);

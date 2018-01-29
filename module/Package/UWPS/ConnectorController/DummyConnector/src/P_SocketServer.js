@@ -61,9 +61,9 @@ class P_SocketServer extends bcjh.socket.SocketServer {
           contents: '알수없는 명령입니다.'
         };
       }
-      BU.CLI(returnValue);
+      // BU.CLI(returnValue);
       let result = connectedClient.write(bcjh.classModule.makeRequestMsgForTransfer(returnValue));
-      BU.CLI(result);
+      // BU.CLI(result);
       return result;
     });
   }

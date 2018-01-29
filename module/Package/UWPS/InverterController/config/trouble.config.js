@@ -1,9 +1,10 @@
 module.exports = [{
-  is_error: 1,
-  code: 'Disconnected Device',
+  code: 'Disconnected',
   msg: '인버터 연결 해제'
 }, {
-  is_error: 1,
-  code: 'Communication Error',
+  code: 'Timeout Error',
   msg: '통신 이상'
+}, {
+  code: 'Protocol Error',
+  msg: '데이터 변환 에러'
 }];

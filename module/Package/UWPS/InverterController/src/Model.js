@@ -9,10 +9,8 @@ const BU = require('base-util-jh').baseUtil;
  */
 const troubleCodeList = require('../config/trouble.config');
 
-/** */
-const {
-  baseFormat
-} = require('../Converter');
+/** Device Storage Base Format */
+const baseFormat = require('../Converter').baseFormat;
 
 /** Class Controller 데이터 관리 */
 class Model {
@@ -80,7 +78,7 @@ class Model {
    * @return {Object}
    */
   onSystemError(troubleCode, hasOccur, msg) {
-    // BU.CLI(troubleCode, hasOccur);
+    // BU.CLI(troubleCode, hasOccur, msg);
     if (troubleCode === undefined) {
       this.systemErrorList = [];
       return this.systemErrorList;

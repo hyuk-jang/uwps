@@ -1,6 +1,6 @@
 const _ = require('underscore');
 
-const {Converter} = require('base-class-jh');
+const { Converter } = require('base-class-jh');
 /** Class Msg Buffer Parsing */
 class Decoder extends Converter {
   constructor() {
@@ -8,7 +8,19 @@ class Decoder extends Converter {
 
     this.returnValue = [];
     this.splitModuleDataCount = 4;
+
+    /** baseFormat Guide Line */
+    this.baseFormat = require('../../').baseFormat;
+    // BU.CLI(this.baseFormat)
   }
+
+  /**
+   * 접속반 가이드라인 데이터 형태
+   */
+  getBaseValue() {
+    return Object.assign({}, this.baseFormat);
+  }
+
 
   /**
    * STX ~ ETX 까지의 CRC 유효성을 체크
@@ -40,6 +52,7 @@ class Decoder extends Converter {
    */
   _receiveData(buffer) {
     try {
+      
       let bufBody = this.checkCrc(buffer);
 
       // 모듈 단위로 나눔
@@ -62,11 +75,14 @@ class Decoder extends Converter {
         _.each(powerGroup, (powerObj, index) => {
           let amp = Number(powerObj[0].reduce((prev, next) => prev + next)) / 10;
           let vol = Number(powerObj[1].reduce((prev, next) => prev + next)) / 10;
-          returnValue.push({
-            ch: (Number(index) + 1) + this.splitModuleDataCount * indexHeader,
-            amp,
-            vol
-          });
+
+          let baseValue = this.getBaseValue();
+
+          baseValue.amp = amp;
+          baseValue.vol = vol;
+          baseValue.ch = (Number(index) + 1) + this.splitModuleDataCount * indexHeader;
+
+          returnValue.push(baseValue);
         });
       }
       return returnValue;

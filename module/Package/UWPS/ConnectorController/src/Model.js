@@ -6,6 +6,9 @@ const BU = require('base-util-jh').baseUtil;
 /** 수중태양광 관련 새로이 만들고 있는 util */
 const NU = require('base-util-jh').newUtil;
 
+/** Device Storage Base Format */
+const baseFormat = require('../Converter').baseFormat;
+
 /**
  * @module Array 고장정보 리스트
  */
@@ -18,7 +21,7 @@ class Model {
    * @param {Object} controller Controller 구동 객체
    * @param {Object} controller.config Controller 객체 생성 구동 정보
    * @param {Object} controller.config.deviceSavedInfo 장치 설정 정보로 DB를 기초로 도출
-   * @param {Array} controller.config.moduleList 태양광 모듈의 접속반, 인버터 등등의 table relation info
+   * @param {Array.<{photovoltaic_seq: number, inverter_seq: number, connector_seq: number, saltern_block_seq: number=, connector_ch: number}>} controller.config.moduleList 태양광 모듈의 접속반, 인버터 등등의 table relation info
    */
   constructor(controller) {
     this.controller = controller;
@@ -44,7 +47,9 @@ class Model {
     /** 장치에서 보내온 Error Info List */
     this.troubleList = [];
 
-    this.moduleList = this.controller.config.moduleList;
+    this.moduleList = _.filter(this.controller.config.moduleList, moduleInfo => {
+      return moduleInfo.connector_seq === this.deviceSavedInfo.connector_seq;
+    }) ;
 
     /** 접속반은 채널 별 모듈 발전 정보가 들어감 */
     this.deviceData = [];
@@ -84,18 +89,20 @@ class Model {
   }
 
 
-  /** Module List에 맞는 데이터 저장소 정의 */
-  initModule() {
-    this.moduleList.forEach(moduleObj => {
-      let addObj = {
-        photovoltaic_seq: moduleObj.photovoltaic_seq,
-        ch: 0,
-        amp: 0,
-        vol: 0,
-      };
-      this.deviceData.push(addObj);
-    });
+  /**
+   *  Module List에 맞는 데이터 저장소 정의
+   * @return {Array.<{photovoltaic_seq: number, amp: number=, vol: number=, ch: number=}>}
+   */
 
+  initModule() {
+    const returnModuleDataDump = [];
+    this.moduleList.forEach(moduleObj => {
+      let moduleFormat =  Object.assign({}, baseFormat);
+      // 접속반 모듈 시퀀스 추가
+      moduleFormat.photovoltaic_seq = moduleObj.photovoltaic_seq;
+      returnModuleDataDump.push(moduleFormat);
+    });
+    return returnModuleDataDump;
   }
 
   /**
@@ -126,7 +133,7 @@ class Model {
     if (hasOccur && _.isEmpty(findObj)) {
       troubleObj.occur_date = new Date();
       this.systemErrorList.push(troubleObj);
-      BU.errorLog('inverter', msg);
+      BU.errorLog('connector', troubleCode, msg);
     } else if (!hasOccur && !_.isEmpty(findObj)) {  // 에러 해제하였고 해당 에러가 존재한다면 삭제
       this.systemErrorList = _.reject(this.systemErrorList, systemError => {
         return systemError.code === troubleCode;
@@ -146,21 +153,6 @@ class Model {
   }
 
 
-
-  // 데이터 정제한 데이터 테이블 (10배수 하여 반환)
-  get refineData() {
-    const returnValue = this.deviceData.map(ele => {
-      return {
-        photovoltaic_seq: ele.photovoltaic_seq,
-        amp: NU.multiplyScale2Value(ele.amp, 10, 1),
-        vol: NU.multiplyScale2Value(ele.vol, 10, 1),
-      };
-    });
-
-    // BU.CLI(returnValue)
-    return returnValue;
-  }
-
   // Connecotr Data 수신
   /**
    * 접속반 데이터 Model에 저장
@@ -168,19 +160,28 @@ class Model {
    * @returns {Void} 
    */
   onData(connectorDataList) {
-    // BU.CLI('ondata', connectorDataList)
+    // BU.CLI('ondata', connectorDataList);
+    let moduleDataStorage =  this.initModule();
+    moduleDataStorage.forEach(moduleStorage => {
+      let savedModuleInfo = _.findWhere(this.moduleList, {photovoltaic_seq: moduleStorage.photovoltaic_seq});
+      // BU.CLI(savedModuleInfo);
+      let findConnectorData = _.findWhere(connectorDataList, {ch: savedModuleInfo.connector_ch});
 
-    this.initModule();
-    // 접속반 모듈 중 채널과 접속반 seq가 같은 모듈에 모듈 seq를 정의
-    connectorDataList.forEach(dataInfo => {
-      let findObj = _.findWhere(this.moduleList, {
-        connector_ch: dataInfo.ch,
-        connector_seq: this.deviceSavedInfo.connector_seq
-      });
-      dataInfo.photovoltaic_seq = _.isEmpty(findObj) ? null : findObj.photovoltaic_seq;
+      // BU.CLI(findConnectorData);
+
+      // 해당 채널 정보가 없다면 에러처리
+      if(_.isEmpty(findConnectorData)){
+        BU.errorLog('connector', `채널 ${savedModuleInfo.connector_ch} 데이터가 안들어옴`);
+        return false;
+      }
+
+      moduleStorage.amp = findConnectorData.amp;
+      moduleStorage.vol = findConnectorData.vol;
+      moduleStorage.ch = findConnectorData.ch;
     });
 
-    this.deviceData = connectorDataList;
+    // 장치 데이터 업데이트
+    this.deviceData = moduleDataStorage;
 
     return this.deviceData;
   }

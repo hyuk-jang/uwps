@@ -3,6 +3,7 @@ const {
 } = require('chai');
 const _ = require('underscore');
 const Promise = require('bluebird');
+const eventToPromise = require('event-to-promise');
 
 const BU = require('base-util-jh').baseUtil;
 const bmjh = require('base-model-jh');
@@ -27,39 +28,48 @@ describe('UPSAS Inverter Controller Test', () => {
     describe('connect Type: socket', () => {
       let control = new Control(config);
       let upsasDataGroup;
-      let dbTroubleList;
       let model;
-      let inverterData;
-      it('init', async () => {
-        setInverterConfig(true, 'single', 'dev', 'socket');
-        BU.CLI(config);
-        control = new Control(config);
-        console.time('init - single dev');
-        let result = await Promise.all([
-          control.createInverterController(config.current.inverterList),
-        ]);
-        console.timeEnd('init - single dev');
-        expect(result).to.not.be.deep.equal([]);
-      });
+      // let dbTroubleList;
+      // let inverterData;
+      // Create Inverter Controller
+      if (true) {
+        it('createContoller', async () => {
+          setInverterConfig(true, 'single', 'dev', 'socket');
+          BU.CLI(config);
+          control = new Control(config);
+          control.eventHandler();
+          console.time('init - single dev');
+          let result = await Promise.all([
+            control.createInverterController(config.current.inverterList),
+          ]);
+          console.timeEnd('init - single dev');
 
-      it('measure Inverter(single, dev, socket)', async () => {
-        model = control.model;
-        // 인버터 리스트 계측 명령
-        console.time('_measureInverter');
-        let measureDataList = await control.p_Scheduler._measureInverter(new Date(), control.model.getUpsasControllerGrouping('inverter'));
-        console.timeEnd('_measureInverter');
-        inverterData = measureDataList;
-        measureDataList.forEach(ele => {
-          expect(ele.data).to.not.deep.equal({});
+
+          expect(result).to.not.be.deep.equal([]);
         });
+      }
 
-        // 해당 Device Type으로 초기화한 데이터와 잘 들어가는지 확인.
-        upsasDataGroup = model.onMeasureDeviceList(new Date(), measureDataList, 'inverter');
-        // BU.CLI(upsasDataGroup);
-        expect(upsasDataGroup).to.not.be.deep.equal({});
+      // measure Inverter(single, dev, socket)
+      if (true) {
+        it('measure Inverter(single, dev, socket)', async () => {
+          model = control.model;
+          // 인버터 리스트 계측 명령
+          console.time('_measureInverter');
+          let measureDataList = await control.p_Scheduler._measureInverter(new Date(), control.model.getUpsasControllerGrouping('inverter'));
+          console.timeEnd('_measureInverter');
+          // measureDataList;
+          measureDataList.forEach(ele => {
+            expect(ele.data).to.not.deep.equal({});
+          });
 
-        expect(true).be.ok;
-      });
+          // 해당 Device Type으로 초기화한 데이터와 잘 들어가는지 확인.
+          upsasDataGroup = model.onMeasureDeviceList(new Date(), measureDataList, 'inverter');
+          // BU.CLI(upsasDataGroup);
+          expect(upsasDataGroup).to.not.be.deep.equal({});
+
+          expect(true).be.ok;
+        });
+      }
 
       // inverter System Error Test
       if (true) {
@@ -200,7 +210,7 @@ describe('UPSAS Inverter Controller Test', () => {
             if (testTroubleList.length) {
               const resultProcessErrorList = model.processDeviceErrorList(testTroubleList, testDbTroubleList, dataObj, false, 'inverter');
               testDbTroubleList = resultProcessErrorList.dbTroubleList;
-              BU.CLIS(resultProcessErrorList, testDbTroubleList, count);
+              // BU.CLIS(resultProcessErrorList, testDbTroubleList, count);
               // insert 1(신규), update 2, DB reject 3
               if (count === 1) {
                 expect(resultProcessErrorList.insertTroubleList.length).to.be.equal(1);
@@ -219,19 +229,44 @@ describe('UPSAS Inverter Controller Test', () => {
         });
 
 
-        if(true){
+        if (true) {
           it('inverter processMeasureData Test', async () => {
             model = control.model;
             let upsasDataGroup = await model.processMeasureData('inverter');
-            BU.CLI(upsasDataGroup);
+            // BU.CLI(upsasDataGroup);
 
             // insert, update 결과 확인
             let applyUpsasDataGroup = await model.applyingMeasureDataToDb(upsasDataGroup);
-            BU.CLI(applyUpsasDataGroup);
+            // BU.CLI(applyUpsasDataGroup);
 
             expect(upsasDataGroup).to.not.deep.equal({});
           });
         }
+      }
+
+      // normal course
+      if (false) {
+        it('normal course', async () => {
+          setInverterConfig(true, 'single', 's_hex', 'socket');
+          BU.CLI(config);
+          control = new Control(config);
+          control.eventHandler();
+          console.time('init - single dev');
+          let controllerList = await Promise.all([
+            control.createInverterController(config.current.inverterList),
+          ]);
+          console.timeEnd('init - single dev');
+          BU.CLI(controllerList.length);
+          controllerList = control.model.getUpsasControllerGrouping('inverter');
+          BU.CLI(controllerList.length);
+          control.p_Scheduler._measureInverter(new Date(), controllerList);
+
+          let result = await eventToPromise(control, 'completeProcessInverterData');
+          BU.CLI(result);
+
+          expect(result).to.not.be.deep.equal([]);
+        });
+
       }
     });
 

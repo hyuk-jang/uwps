@@ -13,5 +13,11 @@ module.exports = {
    * @description PV 
    * @type {number=}
    */
-  vol: null
+  vol: null,
+  /**
+   * 채널(channel)
+   * @description CH
+   * @type {number=}
+   */
+  ch: null
 };

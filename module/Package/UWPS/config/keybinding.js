@@ -56,6 +56,28 @@ module.exports = {
       calculate: 1000,
       toFixed: 0
     }]
+  },{
+    deviceType: 'connector',
+    dataTableName: 'module_data',
+    troubleTableName: 'connector_trouble_data',
+    dateParam: 'writedate',
+    addParamList: [],
+    matchingList: [{
+      baseKey: 'photovoltaic_seq',
+      updateKey: 'photovoltaic_seq',
+      calculate: null,
+      toFixed: 0
+    },{
+      baseKey: 'amp',
+      updateKey: 'amp',
+      calculate: 10,
+      toFixed: 0
+    }, {
+      baseKey: 'vol',
+      updateKey: 'vol',
+      calculate: 10,
+      toFixed: 0
+    }]
   }]
 };
 

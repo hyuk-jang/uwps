@@ -23,12 +23,11 @@ class Decoder extends Converter {
     
     /** baseFormat Guide Line */
     this.baseFormat = require('../../').baseFormat;
-    BU.CLI(this.baseFormat);
+    // BU.CLI(this.baseFormat);
   }
 
   /**
    * 인버터 가이드라인 데이터 형태
-   * @return {baseFormat} Converter -> baseFormat Json
    */
   getBaseValue() {
     return Object.assign({}, this.baseFormat);

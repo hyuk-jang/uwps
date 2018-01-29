@@ -95,52 +95,48 @@ class Model {
    */
   setDeviceController(deviceType, deviceControllerList) {
     // BU.CLI('setDeviceController', deviceType, this.upsasControllerList);
-    let findUpsasController = _.findWhere(this.upmsDeviceControllerList, {
-      key: deviceType
-    });
-    if (_.isEmpty(findUpsasController)) {
-      throw Error(`deviceType [${deviceType}]은 없습니다.`);
-    }
+    let upsasController = this.findUpsasControllerGroup(deviceType);
 
     // 장치 컨트롤러 반복
     deviceControllerList.forEach(controller => {
-      let controllerGroup = this.findUpsasController(controller.deviceId);
+      let controllerGroup = this.findUpsasController(controller.deviceId, deviceType);
       if (_.isEmpty(controllerGroup)) {
         throw Error(`${controller.deviceId}를 가진 Controller는 없습니다.`);
       }
       controllerGroup.controller = controller;
     });
-    return findUpsasController;
+    return upsasController;
   }
 
   /**
    * 장치 ID를 가진 Data Model 객체 반환
    * @param {string} deviceId 장치 ID
+   * @param {string} deviceType 장치 ID
    */
-  findUpsasData(deviceId) {
-    let returnValue = _.map(this.upmsDeviceDataList, data => {
-      let resultFind = _.findWhere(data.storage, {
-        id: deviceId
-      });
-      return resultFind;
-    });
-
-    return _.first(returnValue);
+  findUpsasData(deviceId, deviceType) {
+    // BU.CLI(deviceId, deviceType);
+    try {
+      let upsasDataGroup = this.findUpsasDataGroup(deviceType);
+      let returnValue = _.findWhere(upsasDataGroup.storage, { id: deviceId });
+      return returnValue;
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
    * 장치 ID를 가진 Controller Object 객체 반환
    * @param {string} deviceId 장치 ID
+   * @param {string} deviceType 장치 ID
    */
-  findUpsasController(deviceId) {
-    let returnValue = _.map(this.upmsDeviceControllerList, data => {
-      let resultFind = _.findWhere(data.storage, {
-        id: deviceId
-      });
-      return resultFind;
-    });
-
-    return _.first(returnValue);
+  findUpsasController(deviceId, deviceType) {
+    try {
+      let upsasController = this.findUpsasControllerGroup(deviceType);
+      let returnValue = _.findWhere(upsasController.storage, { id: deviceId });
+      return returnValue;
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -152,7 +148,7 @@ class Model {
       key: deviceType
     });
     if (_.isEmpty(dataGroup)) {
-      throw Error(`${deviceType} Controller Group은 없습니다.`);
+      throw Error(`${deviceType} Data Group은 없습니다.`);
     }
 
     return dataGroup;
@@ -162,7 +158,7 @@ class Model {
    * 장치 컨트롤러 그룹을 돌려줌
    * @param {string} deviceType 장치 Type 'inverter', 'connector'
    */
-  getUpsasControllerGrouping(deviceType) {
+  findUpsasControllerGroup(deviceType) {
     const controllerGroup = _.findWhere(this.upmsDeviceControllerList, {
       key: deviceType
     });
@@ -170,9 +166,22 @@ class Model {
       throw Error(`${deviceType} Controller Group은 없습니다.`);
     }
 
-    return _.map(controllerGroup.storage, obj => {
-      return obj.controller;
-    });
+    return controllerGroup;
+  }
+
+  /**
+   * 장치 컨트롤러 그룹을 돌려줌
+   * @param {string} deviceType 장치 Type 'inverter', 'connector'
+   */
+  getUpsasControllerGrouping(deviceType) {
+    try {
+      const controllerGroup = this.findUpsasControllerGroup(deviceType);
+      return _.map(controllerGroup.storage, obj => {
+        return obj.controller;
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
 
@@ -183,12 +192,12 @@ class Model {
    * @param {string} deviceType 장치 Type 'inverter', 'connector'
    */
   onDeviceData(measureTime, deviceControllerMeasureData, deviceType) {
-    BU.CLI('onDeviceData', measureTime, deviceControllerMeasureData);
+    // BU.CLIS('onDeviceData', measureTime, deviceControllerMeasureData, deviceType);
     try {
       let id = deviceControllerMeasureData.id;
-      let deviceDataObj = this.findUpsasData(id);
+      let deviceDataObj = this.findUpsasData(id, deviceType);
       if (_.isEmpty(deviceDataObj)) {
-        throw Error(`device ID: ${id}가 이상합니다.`);
+        throw Error(`fn(onDeviceData) device ID: ${id}가 이상합니다.`);
       }
 
       // 인버터일 경우에는 계측 시간이 자정일 경우에 일간 발전량을 초기화 시킴
@@ -209,7 +218,7 @@ class Model {
 
       return deviceDataObj;
     } catch (error) {
-      throw Error(error);
+      throw error;
     }
   }
 
@@ -221,7 +230,6 @@ class Model {
    */
   onMeasureDeviceList(measureTime, deviceControllerMeasureData, deviceType) {
     // BU.CLI('onMeasureDeviceList', deviceControllerMeasureData);
-
     let upsasDataGroup = this.findUpsasDataGroup(deviceType);
     upsasDataGroup.measureDate = measureTime;
 
@@ -230,10 +238,10 @@ class Model {
     }
     if (typeof deviceControllerMeasureData === 'object' && Array.isArray(deviceControllerMeasureData)) {
       deviceControllerMeasureData.forEach(deviceMeasureData => {
-        this.onDeviceData(measureTime, deviceMeasureData);
+        this.onDeviceData(measureTime, deviceMeasureData, deviceType);
       });
     } else {
-      this.onDeviceData(measureTime, deviceControllerMeasureData);
+      this.onDeviceData(measureTime, deviceControllerMeasureData, deviceType);
     }
 
     return upsasDataGroup;
@@ -242,9 +250,10 @@ class Model {
   /**
    * 실제 계측한 데이터 처리
    * @param {string} deviceType  장치 Type 'inverter', 'connector'
-   * @return {Object} upsasDataGroup
+   * @return {Promise} upsasDataGroup
    */
   async processMeasureData(deviceType) {
+    // BU.CLI('processMeasureData', deviceType);
     let upsasDataGroup = this.findUpsasDataGroup(deviceType);
     let bindingObj = _.findWhere(keybinding.binding, {
       deviceType
@@ -255,7 +264,7 @@ class Model {
     let strMeasureDate = BU.convertDateToText(upsasDataGroup.measureDate);
 
     upsasDataGroup.storage.forEach(dataObj => {
-      const contollerInfo = this.findUpsasController(dataObj.id);
+      const contollerInfo = this.findUpsasController(dataObj.id, deviceType);
       const deviceSavedInfo = contollerInfo.controller.getDeviceInfo();
       // BU.CLI(deviceSavedInfo);
       // dataObj.
@@ -295,6 +304,8 @@ class Model {
       return Object.assign({ [bindingObj.dateParam]: strMeasureDate }, insertData);
     });
 
+    // BU.CLI(upsasDataGroup);
+
     return upsasDataGroup;
   }
 
@@ -314,12 +325,12 @@ class Model {
       let troubleTableName = bindingObj.troubleTableName;
       // 입력할 데이터가 있는 경우
       if (upmsDeviceData.insertDataList.length) {
-        await this.BM.setTables(dataTableName, upmsDeviceData.insertDataList, true);
+        await this.BM.setTables(dataTableName, upmsDeviceData.insertDataList, false);
       }
 
       // 입력할 Trouble이 있을 경우
       if (upmsDeviceData.insertTroubleList.length) {
-        await this.BM.setTables(troubleTableName, upmsDeviceData.insertTroubleList, true);
+        await this.BM.setTables(troubleTableName, upmsDeviceData.insertTroubleList, false);
       }
 
       // 수정할 Trouble이 있을 경우
@@ -409,10 +420,15 @@ class Model {
    * @param {string} deviceType 장치 타입 (inverter, connector)
    */
   processDeviceDataList(deviceData, deviceSavedInfo, deviceType) {
+    // BU.CLI('processDeviceDataList', deviceData);
     // 배열 일 경우에는 재귀
     if (_.isArray(deviceData)) {
       let convertDataList = [];
-      convertDataList = convertDataList.concat(deviceData.forEach(data => this.processDeviceDataList(data, deviceSavedInfo, deviceType)));
+
+      deviceData.forEach(data => {
+        let result = this.processDeviceDataList(data, deviceSavedInfo, deviceType);
+        convertDataList = convertDataList.concat(result);
+      });
       return convertDataList;
     } else if (_.isObject(deviceData)) {
       let bindingObj = _.findWhere(keybinding.binding, {
@@ -443,7 +459,7 @@ class Model {
    * @return {number} 계산 결과
    */
   calculateMatchingData(deviceData, matchingBindingObj) {
-    // BU.CLI('calculateMatchingData', matchingBindingObj, deviceData );
+    // BU.CLI('calculateMatchingData', matchingBindingObj, deviceData);
     let resultCalculate = 0;
     try {
       let baseKey = matchingBindingObj.baseKey;
@@ -457,10 +473,11 @@ class Model {
         // 숫자가 아니거나 null일 경우 throw 반환
         if (_.isNumber(data)) {
           resultCalculate = Number((deviceData[baseKey] * calculate).toFixed(toFixed));
+          // BU.CLI('resultCalculate', resultCalculate);
         } else {
           throw Error(`해당 데이터는 숫자가 아님: ${deviceData[baseKey]}`);
         }
-      } else { // 계산식이 문자일 경우 eval 계산식 생성
+      } else if(typeof calculate === 'string') { // 계산식이 문자일 경우 eval 계산식 생성
         let finalMsg = '';
         let tempBuffer = '';
         for (let i = 0; i < calculate.length; i += 1) {
@@ -480,6 +497,9 @@ class Model {
         }
         resultCalculate = Number(Number(eval(finalMsg)).toFixed(toFixed));
         resultCalculate = isNaN(resultCalculate) ? 0 : resultCalculate;
+      } else {
+        // BU.CLI('deviceData[baseKey]', deviceData[baseKey]);
+        resultCalculate = deviceData[baseKey];
       }
     } catch (error) {
       throw error;

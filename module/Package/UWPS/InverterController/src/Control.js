@@ -137,12 +137,10 @@ class Control extends EventEmitter {
    */
   async connectDevice() {
     try {
-      // 개발 버전일경우 자체 더미 인버터 소켓에 접속
-      let deviceSavedInfo = this.model.deviceSavedInfo;
       // 장치 접속 객체에 connect 요청
       this.hasConnect = await this.dcm.connect();
       this.model.onSystemError('Disconnected', false);
-      BU.log('Sucess Connected to Device ', deviceSavedInfo.target_id);
+      BU.log('Sucess Connected to Device ', this.model.deviceSavedInfo.target_id);
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
@@ -242,25 +240,27 @@ class Control extends EventEmitter {
     let originalMsg = await eventToPromise.multi(this, ['completeSend2Msg'], ['errorSend2Msg']);
     // 요청 메시지 리스트가 비어있다면 명령 리스트를 초기화하고 Resolve
     this.model.controlStatus.processCmd = {};
+    this.model.controlStatus.retryChance = 3;
     return true;
   }
 
   /**
    * eventHandler로 부터 넘겨받은 data 처리
-   * @param {Buffer} msg 
+   * @param {Buffer} bufferMsg 
    */
-  _onReceiveMsg(msg) {
+  _onReceiveMsg(bufferMsg) {
     // BU.CLI('_onReceiveMsg', msg);
     // 명령 내리고 있는 경우에만 수신 메시지 유효
     if (!BU.isEmpty(this.model.processCmd)) {
       try {
-        let result = this.decoder._receiveData(msg);
+        let result = this.decoder._receiveData(bufferMsg);
         this.model.onSystemError('Protocol Error', false);
         // BU.CLI('_onReceiveMsg result', result);
         this.model.onData(result);
         // _receiveMsgHandler Method 에게 알려줄 Event 발생
         return this.emit('completeSend2Msg', result);
       } catch (error) {
+        // BU.CLI('this.model.controlStatus.retryChance', this.model.controlStatus.retryChance);
         // TEST 개발 버전이고, 일반 인버터 프로토콜을 사용, 테스트용 데이터가 있다면 
         if (this.model.controlStatus.retryChance-- && this.config.hasDev && this.config.deviceSavedInfo.target_category !== 'dev' && !BU.isEmpty(this.testStubData[this.model.controlStatus.sendIndex]())) {
           return this._onReceiveMsg(this.testStubData[this.model.controlStatus.sendIndex]());

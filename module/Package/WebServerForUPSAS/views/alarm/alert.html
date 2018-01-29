@@ -52,6 +52,11 @@
                   
                   var eleInfo = alarmList[index];
                   var count = index + 1;
+
+                  var occur_date = eleInfo.occur_date instanceof Date ? BU.convertDateToText(eleInfo.occur_date) : '';
+                  console.log(occur_date)
+                  var fix_date = eleInfo.fix_date instanceof Date ? BU.convertDateToText(eleInfo.fix_date) : '';
+
               %>
                 <tr class="sel tex">
                   <td class="td1 td1_num">
@@ -65,10 +70,10 @@
                     <%= eleInfo.msg %>
                   </td>
                   <td>
-                    <%= BU.convertDateToText(eleInfo.occur_date)  %>
+                    <%= occur_date  %>
                   </td>
                   <td>
-                    <%= BU.convertDateToText(eleInfo.fix_date) %>
+                    <%= fix_date %>
                   </td>
 
                 </tr>

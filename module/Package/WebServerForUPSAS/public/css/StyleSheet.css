@@ -168,7 +168,11 @@ table>tbody>tr:last-child{border-bottom:1px solid #ddd;}
 .td1{background:linear-gradient(#4384DB, #2C75D4); color:#fff; text-align:left;}
 .td1_num{text-align:center;}
 
-.form-control_st{height:35px; border-radius:3px; width:150px; float:left;}
+/* 인풋,셀렉트박스 */
+.form-control_st{height:35px; border-radius:3px; width:140px; float:left; margin-top: 3px;}
+.sel_box{width:150px; border-radius: 3px; background-color: #337ab7; color:#fff; padding: 5px; margin:5px; padding:5px !important;}
+.top_box{margin-bottom:20px;  background-color: #e9ecef; border-radius: 3px;     padding:13px 10px;}
+
 
 /*테이블이벤트*/
  .selected{background-color:#D9EDF7;}

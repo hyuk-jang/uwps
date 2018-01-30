@@ -45,7 +45,7 @@ module.exports = function (app) {
       end_date: searchRange.strEndDateInputValue,
       search_type: searchType,
       search_interval: searchInterval
-    }
+    };
 
     let paginationInfo = DU.makeBsPagination(searchRange.page, reportList.totalCount, '/report', queryString, searchRange.pageListCount);
 
@@ -56,7 +56,7 @@ module.exports = function (app) {
     inverterList.unshift({
       inverter_seq: 'all',
       target_name: '모두'
-    })
+    });
 
     // BU.CLI(gridChartReport)
     req.locals.inverter_seq = param_inverter_seq;
@@ -66,13 +66,13 @@ module.exports = function (app) {
     req.locals.paginationInfo = paginationInfo;
 
 
-    return res.render('./report/report.html', req.locals)
+    return res.render('./report/report.html', req.locals);
   }));
 
   router.use(wrap(async(err, req, res, next) => {
-    console.log('Err', err)
+    console.log('Err', err);
     res.status(500).send(err);
   }));
 
   return router;
-}
+};

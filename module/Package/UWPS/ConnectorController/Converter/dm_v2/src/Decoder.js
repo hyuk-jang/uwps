@@ -47,11 +47,8 @@ class Decoder extends Converter {
     let bufBody = buf.slice(0, indexETX + 1);
 
     let crcBuffer = this.transCrc(bufBody);
-    console.log('@@@@@@@@@@', crcBuffer.toString());
-    // BU.CLI(bufBody.toString())
 
-    let baseCrcValue = crc.crc16xmodem(bufBody.toString());
-    if (crcValue.toString() === baseCrcValue.toString(16)) {
+    if (crcValue.toString() === crcBuffer.toString()) {
       return buf.slice(0, indexETX);
     } else {
       throw 'Crc Error';

@@ -121,6 +121,7 @@ class Control extends EventEmitter {
     // device connector 객체 연결
     BU.CLI(this.model.deviceSavedInfo);
     this.dcm.init(this.model.deviceSavedInfo, this);
+    BU.CLI(this.dcm);
 
     // this에 Event Emitter Binding
     this.eventHandler();
@@ -168,7 +169,7 @@ class Control extends EventEmitter {
       this.model.initControlStatus();
       // BU.CLI(this.encoder)
       this.model.controlStatus.reserveCmdList = this.encoder.makeMsg();
-      // BU.CLI(this.model.controlStatus.reserveCmdList)
+      // BU.CLI(this.model.controlStatus.reserveCmdList);
 
       Promise.each(this.model.controlStatus.reserveCmdList, cmd => {
         this.model.controlStatus.reserveCmdList.shift();
@@ -198,8 +199,9 @@ class Control extends EventEmitter {
    * @param  cmd 요청할 명령
    */
   async send2Cmd(cmd) {
-    // BU.CLI('send2Cmd', cmd)
+    // BU.CLI('send2Cmd', cmd);
     let timeout = {};
+    console.time('Timeout');
     await Promise.race(
       [
         this.msgSendController(cmd),
@@ -207,6 +209,7 @@ class Control extends EventEmitter {
           timeout = setTimeout(() => {
             // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
             // 명전 전송 후 제한시간안에 응답이 안올 경우 에러 
+            console.timeEnd('Timeout');
             this.model.onSystemError('Timeout Error', true);
             reject(new Error('timeout'));
           }, this.model.controlStatus.sendMsgTimeOutSec);
@@ -256,7 +259,7 @@ class Control extends EventEmitter {
         // _receiveMsgHandler Method 에게 알려줄 Event 발생
         return this.emit('completeSend2Msg', result);
       } catch (error) {
-        // BU.CLI(error)
+        BU.CLI(error);
         // 개발 버전이고, 개발용 Category가 아니라면 가상 데이터 반환하고 완료 처리함
         if (this.config.hasDev && this.config.deviceSavedInfo.target_category !== 'dev') {
           this.model.onData(this.model.testData);
@@ -315,7 +318,7 @@ class Control extends EventEmitter {
 
     /** 장치에서 수신된 데이터 처리 */
     this.on('dcData', data => {
-      // BU.CLI(data);
+      // BU.CLIS(data, data.toString());
       return this._onReceiveMsg(data);
     });
 

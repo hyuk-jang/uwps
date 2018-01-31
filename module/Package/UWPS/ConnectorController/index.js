@@ -1,4 +1,4 @@
-const Control = require('./src/Control')
+const Control = require('./src/Control');
 
 module.exports = Control;
 
@@ -11,19 +11,21 @@ if (require !== undefined && require.main === module) {
   global._ = _;
   global.BU = BU;
 
-  config.current.deviceSavedInfo.target_category = 'dm_v2'
-  config.current.deviceSavedInfo.connect_type = 'serial'
-  config.current.deviceSavedInfo.port = 'COM11'
+  config.current.deviceSavedInfo.target_category = 'dm_v2';
+  config.current.deviceSavedInfo.connect_type = 'serial';
+  config.current.deviceSavedInfo.port = 'COM4';
+  config.current.deviceSavedInfo.baud_rate = 4800;
+  config.current.deviceSavedInfo.dialing.data = [0x30, 0x30, 0x31];
 
-  const control = new Control(config)
+  const control = new Control(config);
   control.init()
     .then(result => {
       return control.measureDevice();
     })
     .then(result => {
-      BU.CLI(result)
+      BU.CLI(result);
     })
     .catch(error => {
-      BU.CLI(error)
-    })
+      BU.CLI(error);
+    });
 }

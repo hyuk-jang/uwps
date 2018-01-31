@@ -10,7 +10,7 @@ const config = require('../src/config.js');
 global._ = _;
 global.BU = BU;
 
-let hasTestModel = true;
+let hasTestModel = false;
 let hasTestSocket = false;
 let hasTestSerial = true;
 
@@ -136,7 +136,8 @@ describe('Connector Controller Test', () => {
   
       it('Category: (dm_v2, serial)', done => {
         config.current.deviceSavedInfo.target_category = 'dm_v2';
-        config.current.deviceSavedInfo.port = 'COM11';
+        config.current.deviceSavedInfo.baud_rate = 4800;
+        config.current.deviceSavedInfo.port = 'COM3';
         const control = new Control(config);
         control.init()
           .then(result => {

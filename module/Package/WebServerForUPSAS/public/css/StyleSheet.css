@@ -175,6 +175,8 @@ table>tbody>tr:last-child{border-bottom:1px solid #ddd;}
 .top_box{margin-bottom:20px;  background-color: #e9ecef; border-radius: 3px;     padding:13px 10px;}
 .sel_box_data{ border-radius: 3px;padding: 5px; margin:5px; padding:5px !important; padding-bottom:7px !important;}
 
+.sel_box2{width:220px; border-radius: 3px; background-color: #337ab7; color:#fff; padding: 5px; margin:5px; padding:5px !important;}
+.form-control_st2{height:35px; border-radius:3px;float:left; margin-top: 3px;}
 
 /*테이블이벤트*/
  .selected{background-color:#D9EDF7;}

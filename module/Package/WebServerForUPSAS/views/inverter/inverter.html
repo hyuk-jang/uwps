@@ -51,10 +51,10 @@
               </thead>
               <tbody id="myTable">
                 <%
-                var total_in_w = _.pluck(inverterStatus, 'in_w').sum().scale(0.001, 3)
-                var total_out_w = _.pluck(inverterStatus, 'out_w').sum().scale(0.001, 3)
-                var total_d_wh = _.pluck(inverterStatus, 'd_wh').sum().scale(0.001, 3)
-                var total_c_wh = _.pluck(inverterStatus, 'c_wh').sum().scale(0.000001, 4);
+                var total_in_w = inverterStatus.length ? _.pluck(inverterStatus, 'in_w').sum().scale(0.001, 3) : '';
+                var total_out_w = inverterStatus.length ?  _.pluck(inverterStatus, 'out_w').sum().scale(0.001, 3) : '';
+                var total_d_wh = inverterStatus.length ?  _.pluck(inverterStatus, 'd_wh').sum().scale(0.001, 3) : '';
+                var total_c_wh = inverterStatus.length ? _.pluck(inverterStatus, 'c_wh').sum().scale(0.000001, 4) : '';;
 
 
                 for(var i = 0 ;i < inverterStatus.length ; i++)

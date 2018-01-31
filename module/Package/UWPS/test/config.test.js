@@ -53,8 +53,13 @@ describe('Config Setter Test', () => {
         deviceSavedInfo: element
       };
 
-      addObj.ivtDummyData.dailyKwh = ivtDataList[index].d_wh / 10000;
-      addObj.ivtDummyData.cpKwh = ivtDataList[index].c_wh / 10000;
+      try {
+        addObj.ivtDummyData.dailyKwh = ivtDataList[index].d_wh / 10000;
+        addObj.ivtDummyData.cpKwh = ivtDataList[index].c_wh / 10000;
+      } catch (error) {
+        addObj.ivtDummyData.dailyKwh = 0;
+        addObj.ivtDummyData.cpKwh = 0;
+      }
       returnValue.push({
         current: addObj
       });

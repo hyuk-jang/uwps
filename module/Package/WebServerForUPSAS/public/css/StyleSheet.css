@@ -146,11 +146,12 @@ ul li{list-style:none;}
 
 
 /*접속반*/
-.conne{list-style:none; width:350px; float:right; padding:0;}
-.conne_1{width:150px; float:left; margin-right:20px; border: solid 1px #ddd; height:90px; background:linear-gradient( to bottom, #ffffff, #f7f7f7); border-radius: 7px 7px 0 0; }
-.conne_1>input{height:35px; padding:0 20px 0 0; float:right; width:130px; margin-right:9px; text-align:right;}
-.inputlg_1{height:40px; width:150px;  border-radius: 7px 7px 0 0; border: solid 1px #ddd; background:linear-gradient(#4384DB, #2C75D4); color:#fff; line-height:2.5; font-weight:500;}
+.conne{list-style:none; float:right; padding:0;}
+.conne_1{width:150px; float:left; margin-right:20px; margin-bottom: 0px; border: solid 1px #ddd; height:80px; background:linear-gradient( to bottom, #ffffff, #f7f7f7); border-radius: 7px 7px 0 0; }
+.conne_1>input{height:30px; padding:0 20px 0 0; float:right; width:130px; margin-right:9px; text-align:right;}
+.inputlg_1{height:35px; width:150px;  border-radius: 7px 7px 0 0; border: solid 1px #ddd; background:#337ab7; color:#fff; line-height:2.5; font-weight:500;}
 .input-lg{font-size:16px;}
+.conne_1:last-child{margin-right:0px;}
 
 
 /*테이블*/
@@ -168,7 +169,12 @@ table>tbody>tr:last-child{border-bottom:1px solid #ddd;}
 .td1{background:linear-gradient(#4384DB, #2C75D4); color:#fff; text-align:left;}
 .td1_num{text-align:center;}
 
-.form-control_st{height:35px; border-radius:3px; width:150px; float:left;}
+/* 인풋,셀렉트박스 */
+.form-control_st{height:35px; border-radius:3px; width:140px; float:left; margin-top: 3px;}
+.sel_box{width:150px; border-radius: 3px; background-color: #337ab7; color:#fff; padding: 5px; margin:5px; padding:5px !important;}
+.top_box{margin-bottom:20px;  background-color: #e9ecef; border-radius: 3px;     padding:13px 10px;}
+.sel_box_data{ border-radius: 3px;padding: 5px; margin:5px; padding:5px !important; padding-bottom:7px !important;}
+
 
 /*테이블이벤트*/
  .selected{background-color:#D9EDF7;}
@@ -241,8 +247,8 @@ table>tbody>tr:last-child{border-bottom:1px solid #ddd;}
 .right_check_2{margin-left: 63px!important;}
 
 .input_tre{width:120px; height:30px; border-radius:3px; border: 1px solid #bcbcbc; padding: 0 5px 0 0; text-align:center;}
-.input_st{width:320px; height:38px; float:right; padding-right:5px; padding-top:5px; border:1px solid #ddd; border-radius:20px;}
-.serch_st{ margin-top: 5px; float:right; }
+.input_st{width:320px; height:38px; float:right; padding-right:5px; padding-top:5px; border:1px solid #ddd; border-radius:20px;margin-top: 20px; background: #fff;}
+.serch_st{ margin-top: 20px; float:right; }
 .title_trend{margin-top:30px; float:left;}
 .title_p{font-size:14px!important;display: inline-block; margin-top:38px; margin-bottom:0px!important; margin-left:-635px; color:#0C7B30;}
 

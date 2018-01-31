@@ -11,16 +11,41 @@
     <!--메인-->
     <div class="jumbotron text-center  jumbotron_line">
       <div class="row  row_st_line">
-        <div class="row row_width" style="margin-bottom:30px;">
-
-          <div class="pad serch_st">
-            날짜 &nbsp;
-            <input class="input_tre" name="start" id="start_date_input" type="text" readonly> ~
-            <input class="input_tre" name="end" id="end_date_input" type="text" readonly>
-            <button type="button" class="btn btn-primary" onclick="searchReport()" style="margin-bottom:3px; height:28px;" id="search">검색</button>
+        <div class="row row_width top_box">
+          <div class="col-xs-2 pad sel_box">
+            장비그룹
+            <select class="form-control form-control_st" id="ivt_list_sel" name="connector_seq">
+                <option>모두</option>
+                <option>접속반</option>
+                <option>인버터</option>
+            </select>
           </div>
-
-
+          <div class="col-xs-2 pad sel_box">
+            오류 상태
+            <select class="form-control form-control_st" id="ivt_list_sel" name="connector_seq">
+                <option>모두</option>
+                <option>해결된 오류</option>
+                <option>미해결 오류</option>
+            </select>
+          </div>
+          
+          <div class="pad serch_st sel_box_data" style="margin-top:5px;">
+           <div><span style="float:left; margin-left:35px;"> fromDate</span> <span style=" margin-left:-55px;"> ToDate</span>    </div> 
+            <div>
+           <span>날짜</span>
+           
+            <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
+            <%
+              var hiddenValue = '';
+              if(searchRange.searchType !== 'range'){
+                hiddenValue = 'hidden';
+              }
+            %>
+            <span id="between-start-end" <%= hiddenValue %>>~</span>
+            <input class="input_tre" name="end"  id="end_date_input" type="text" readonly <%= hiddenValue %>>
+            <button type="button" class="btn btn-primary" onclick="searchReport()" style="" id="search">검색</button>
+          </div>
+          </div>
         </div>
         <div class="row_width search_area">
           <b>검색결과 (총 <%- paginationInfo.totalCount %> 건)</b>
@@ -54,7 +79,6 @@
                   var count = index + 1;
 
                   var occur_date = eleInfo.occur_date instanceof Date ? BU.convertDateToText(eleInfo.occur_date) : '';
-                  console.log(occur_date)
                   var fix_date = eleInfo.fix_date instanceof Date ? BU.convertDateToText(eleInfo.fix_date) : '';
 
               %>

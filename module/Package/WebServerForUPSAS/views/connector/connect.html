@@ -12,8 +12,12 @@
     <!--메인-->
     <div class="jumbotron text-center jumbotron_line">
       <div class="row row_st_line">
-        <div class="row row_width">
-          <div class="col-xs-3 connect_3" style="padding:0;">
+
+
+        <div class="row row_width top_box">
+     
+              <div class="col-xs-2 sel_box">
+                  장비그룹
             <select class="form-control form-control_st" id="sel1" name="connector_seq" onchange="changeConnector(this.value)">
               <%
               for(var i = 0 ; i < connectorList.length ; i++){
@@ -33,15 +37,14 @@
               }
               %>
             </select>
+              </div>
 
-            <div class="title" style="margin-top:30px;"> 실시간 접속반 모니터링
-              <span style="position: absolute;color: black;width: 300px; text-align: left; text-indent: 30px">
-                측정시간:
-                <%- gridInfo.measureTime %>
-              </span>
-            </div>
-          </div>
-          <div class="col-xs-9" style="padding:0; width:820px;">
+
+          
+
+        
+      
+          <div class="col-xs-9" style="float:right;">
             <div class="conne">
               <div class="form-group conne_1">
                 <label class="inputlg_1" for="inputlg">평균 전압(V)</label>
@@ -54,6 +57,18 @@
             </div>
           </div>
         </div>
+
+
+        <div class="row row_title">
+            <div class="title" style="margin-top:10px; float:left;"> 실시간 접속반 모니터링
+                <span style="position: absolute;color: black;width: 300px; text-align: left; text-indent: 30px">
+                    측정시간:
+                    <%- gridInfo.measureTime %>
+                  </span>
+            </div>
+          </div>
+
+
         <div class="row_width">
           <div class="table-responsive">
             <table class="table table-hover ">

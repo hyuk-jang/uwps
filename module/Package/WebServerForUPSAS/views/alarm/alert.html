@@ -29,8 +29,11 @@
             </select>
           </div>
           
-          <div class="pad serch_st" style="margin-top:20px;">
-            <span>날짜</span>
+          <div class="pad serch_st sel_box_data" style="margin-top:5px;">
+           <div><span style="float:left; margin-left:35px;"> fromDate</span> <span style=" margin-left:-55px;"> ToDate</span>    </div> 
+            <div>
+           <span>날짜</span>
+           
             <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
             <%
               var hiddenValue = '';
@@ -41,7 +44,7 @@
             <span id="between-start-end" <%= hiddenValue %>>~</span>
             <input class="input_tre" name="end"  id="end_date_input" type="text" readonly <%= hiddenValue %>>
             <button type="button" class="btn btn-primary" onclick="searchReport()" style="" id="search">검색</button>
-
+          </div>
           </div>
         </div>
         <div class="row_width search_area">

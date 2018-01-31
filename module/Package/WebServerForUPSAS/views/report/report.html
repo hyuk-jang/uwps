@@ -11,8 +11,9 @@
     <!--메인-->
     <div class="jumbotron text-center jumbotron_line">
       <div class="row row_st_line">
-        <div class="row row_width" style="margin-bottom:20px;">
-          <div class="col-xs-2 pad" style="width:150px;">
+        <div class="row row_width top_box" style="margin-bottom:20px;">
+          <div class="col-xs-2 pad sel_box">
+              장비그룹
             <select class="form-control form-control_st" id="ivt_list_sel" name="connector_seq">
               <%
                         for(var i = 0 ; i < inverterList.length ; i++){
@@ -33,11 +34,11 @@
                         %>
             </select>
           </div>
-          <div class="col-xs-7 pad" style="width:600px;">
+          <div class="col-xs-7 pad" style="width:560px;">
 
-            <div class="input_st" style="display:inline-block; width:230px; padding-left:28px; padding-right:15px; margin-left:30px;">
+            <div class="input_st" style="display:inline-block; width:210px; padding-left:28px; padding-right:15px; margin-left:20px;">
               <span style="float:left; line-height:2; margin-right:10px; ">조회간격</span>
-              <select class="form-control" id="search_interval_sel" style="width:100px; margin-top:-2px; height:30px; padding: 4px 12px;">
+              <select class="form-control" id="search_interval_sel" style="width:80px; margin-top:-2px; height:30px; padding: 4px 8px;">
                 <option value="hour">1시간</option>
                 <option value="day">1일</option>
                 <option value="month">1달</option>
@@ -57,8 +58,10 @@
                 <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="range">기간선택</label>
             </div>
           </div>
-          <div class="pad serch_st">
+          <div class="pad serch_st sel_box_data" style="margin-top:17px;" >
+             
             <span>날짜</span>
+            
             <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
             <%
               var hiddenValue = '';
@@ -67,7 +70,7 @@
               }
             %>
             <span id="between-start-end" <%= hiddenValue %>>~</span>
-            <input class="input_tre" name="end"  id="end_date_input" type="text" readonly <%= hiddenValue %>>
+           <input class="input_tre" name="end"  id="end_date_input" type="text" readonly <%= hiddenValue %>>
             <button type="button" class="btn btn-primary" onclick="searchReport()" style="" id="search">검색</button>
 
           </div>

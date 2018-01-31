@@ -15,6 +15,20 @@ class Encoder extends Converter {
   }
 
   /**
+   * crc 반환
+   * @param {Buffer} bufferStorage crc16xmodem CRC를 구할 Body
+   * @return {Buffer} UpperCase 적용 후 Buffer
+   */
+  transCrc(bufferStorage){
+    let crcValue = crc.crc16xmodem(bufferStorage.toString());
+    let lower = this.convertNum2Hx2Buffer(crcValue, 4);
+    let strLower =  lower.toString();
+    let strUpper = strLower.toLocaleUpperCase();
+
+    return Buffer.from(strUpper);
+  }
+
+  /**
    * 정해진 프로토콜에 따라 명령 생성
    * @param {{code:number[],dialing:buffer}} obj 명령 요청 구성 정보
    * @return {buffer}
@@ -28,11 +42,9 @@ class Encoder extends Converter {
       this.ETX
     ]);
 
-    let crcValue = crc.crc16xmodem(bufferStorage.toString());
-
     let returnValue = [
       bufferStorage,
-      this.convertNum2Hx2Buffer(crcValue, 2),
+      this.transCrc(bufferStorage),
       this.EOT
     ];
 

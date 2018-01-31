@@ -4,7 +4,7 @@ const Decoder = require('../src/Decoder');
 const BU = require('base-util-jh').baseUtil;
 
 describe('Decoder Test', () => {
-  let decoder;
+  let decoder = new Decoder();
   let receiveMsg;
   before(() => {
     const {Converter} = require('base-class-jh');
@@ -19,8 +19,11 @@ describe('Decoder Test', () => {
       Buffer.from([0x03])
     ]);
 
+    BU.CLI(decoder.transCrc(msgBuffer).toString());
+
     let crcValue = crc.crc16xmodem(msgBuffer.toString()); 
-    // BU.CLI(crcValue.toString(16))
+    
+    BU.CLI(crcValue.toString(16));
     receiveMsg = Buffer.concat([
       msgBuffer,
       converter.convertNum2Hx2Buffer(crcValue, 2),
@@ -32,7 +35,7 @@ describe('Decoder Test', () => {
   
   it('Dummy Data Decoding Test', done => {
     console.log('Decoder ReceiveData');
-    decoder = new Decoder();
+    
     let result = decoder._receiveData(receiveMsg);
 
     expect(result).to.be.ok;

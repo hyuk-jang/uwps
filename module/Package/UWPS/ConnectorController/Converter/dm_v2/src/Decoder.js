@@ -1,5 +1,5 @@
 const _ = require('underscore');
-
+const crc = require('crc');
 const { Converter } = require('base-class-jh');
 /** Class Msg Buffer Parsing */
 class Decoder extends Converter {
@@ -21,6 +21,19 @@ class Decoder extends Converter {
     return Object.assign({}, this.baseFormat);
   }
 
+  /**
+   * crc 반환
+   * @param {Buffer} bufferStorage crc16xmodem CRC를 구할 Body
+   * @return {Buffer} UpperCase 적용 후 Buffer
+   */
+  transCrc(bufferStorage){
+    let crcValue = crc.crc16xmodem(bufferStorage.toString());
+    let lower = this.convertNum2Hx2Buffer(crcValue, 4);
+    let strLower =  lower.toString();
+    let strUpper = strLower.toLocaleUpperCase();
+
+    return Buffer.from(strUpper);
+  }
 
   /**
    * STX ~ ETX 까지의 CRC 유효성을 체크
@@ -28,16 +41,16 @@ class Decoder extends Converter {
    * @return {buffer|error} crc 값이 참이라면 STX~ETX 까지의 Buffer, 아니라면 throw error
    */
   checkCrc(buf) {
-    const crc = require('crc');
     let indexETX = buf.indexOf(0x03);
     let indexEOT = buf.indexOf(0x04);
     let crcValue = buf.slice(indexETX + 1, indexEOT);
     let bufBody = buf.slice(0, indexETX + 1);
 
+    let crcBuffer = this.transCrc(bufBody);
+    console.log('@@@@@@@@@@', crcBuffer.toString());
     // BU.CLI(bufBody.toString())
 
     let baseCrcValue = crc.crc16xmodem(bufBody.toString());
-
     if (crcValue.toString() === baseCrcValue.toString(16)) {
       return buf.slice(0, indexETX);
     } else {

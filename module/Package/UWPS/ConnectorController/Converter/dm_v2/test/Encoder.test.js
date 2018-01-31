@@ -6,7 +6,7 @@ const _ = require('underscore');
 describe('Encoder Test', () => {
   let encoder;
   before(() => {
-    encoder = new Encoder(Buffer.from([0x30, 0x30, 0x32]));
+    encoder = new Encoder(Buffer.from([0x30, 0x30, 0x31]));
   });
 
   it('makeMsg Test', done => {

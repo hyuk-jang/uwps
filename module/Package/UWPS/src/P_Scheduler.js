@@ -12,7 +12,7 @@ class P_Scheduler extends EventEmitter {
     this.cronJobMeasureInverter = null;
     this.cronJobMeasureConnector = null;
 
-    this.scheduleIntervalMin = 10; // 10 분마다
+    this.scheduleIntervalMin = 1; // 10 분마다
 
   }
 

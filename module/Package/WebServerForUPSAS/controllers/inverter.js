@@ -46,6 +46,8 @@ module.exports = function (app) {
       measureTime: _.first(inverterStatus) ? BU.convertDateToText(_.first(inverterStatus).writedate) : ''
     };
 
+    BU.CLI(req.locals)
+
     return res.render('./inverter/inverter.html', req.locals);
   }));
 

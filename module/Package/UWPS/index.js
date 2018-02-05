@@ -40,7 +40,7 @@ if (require !== undefined && require.main === module) {
 
 
 async function startIndex() {
-  await setter();
+  // await setter();
 
   BU.CLI(config);
   const control = new Control(config);

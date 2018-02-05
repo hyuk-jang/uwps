@@ -145,7 +145,7 @@ describe('UPSAS Connector Controller Test', () => {
       }
 
       // normal course
-      if (true) {
+      if (false) {
         it('normal course', async () => {
           setConnectorConfig(true, 'dev', 'socket');
           BU.CLI(config);

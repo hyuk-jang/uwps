@@ -1,5 +1,5 @@
 const bmjh = require('base-model-jh');
-const Promise = require('bluebird')
+const Promise = require('bluebird');
 const BU = require('base-util-jh').baseUtil;
 
 class BiModule extends bmjh.BM {
@@ -11,7 +11,8 @@ class BiModule extends bmjh.BM {
   /**
    * 접속반 기준 Module 최신 데이터 가져옴
    *  
-   * @param {} photovoltatic_seq Format => Number or Array or undefinded
+   * @param {number|Array} photovoltatic_seq Format => Number or Array or undefinded
+   * @return {Promise} 최신 데이터 리스트
    */
   getModuleStatus(photovoltatic_seq) {
     let sql = `
@@ -29,9 +30,9 @@ class BiModule extends bmjh.BM {
           ON sb.saltern_block_seq = ru.saltern_block_seq
     `;
     if (Number.isInteger(photovoltatic_seq)) {
-      sql += `WHERE pv.photovoltaic_seq = (${photovoltatic_seq})`
+      sql += `WHERE pv.photovoltaic_seq = (${photovoltatic_seq})`;
     } else if (Array.isArray(photovoltatic_seq)) {
-      sql += `WHERE pv.photovoltaic_seq IN (${photovoltatic_seq})`
+      sql += `WHERE pv.photovoltaic_seq IN (${photovoltatic_seq})`;
     }
     sql += 'ORDER BY ru.connector_seq, ru.connector_ch';
 
@@ -41,7 +42,8 @@ class BiModule extends bmjh.BM {
   /**
    * Inverter에서 수집된 월의 발전량을 출력
    * @param {Date} targetDate 해당 월
-   * @param {} inverter_seq Format => Number or Array or undefinded
+   * @param {number|Array} inverter_seq Format => Number or Array or undefinded
+   * @return {Promise} m_kwh 반환
    */
   async getMonthPower(targetDate, inverter_seq) {
     targetDate = targetDate instanceof Date ? targetDate : new Date();
@@ -64,9 +66,9 @@ class BiModule extends bmjh.BM {
           ) AS step_1
       `;
     if (Number.isInteger(inverter_seq)) {
-      sql += `WHERE pv.inverter_seq = (${inverter_seq})`
+      sql += `WHERE pv.inverter_seq = (${inverter_seq})`;
     } else if (Array.isArray(inverter_seq)) {
-      sql += `WHERE pv.inverter_seq IN (${inverter_seq})`
+      sql += `WHERE pv.inverter_seq IN (${inverter_seq})`;
     }
     sql += `
           GROUP BY DATE_FORMAT(writedate,"%Y-%m"), inverter_seq
@@ -82,6 +84,11 @@ class BiModule extends bmjh.BM {
     }
   }
 
+  /**
+   * 금일 발전 레포트 가져옴
+   * @param {searchRange} searchRange 
+   * @return {{chartList: Array.<{dateList: Array, whList: Array}>, dailyPowerRange: {start: string, end: string} }} 차트 구성 정보 목록(날짜, 출력 전류), 금일 발전현황(시작 날짜, 종료 날짜)
+   */
   getDailyPowerReport(searchRange) {
     // date = date ? date : new Date();
 
@@ -109,13 +116,14 @@ class BiModule extends bmjh.BM {
             start: BU.convertDateToText(new Date(), '', 2, 0) + ' ' + '00:00:00',
             end: BU.convertDateToText(new Date(), '', 2, 0) + ' ' + dateOffset + ':00',
           }
-        }
+        };
       });
   }
 
   /**
-   * 접속반에서 쓸 데이터 
-   * @param {} moduleSeq null, String, Array
+   * 접속반 메뉴 에서 쓸 데이터 
+   * @param {number[]=} moduleSeq null, String, Array
+   * @return {Promise} SQL 실행 결과
    */
   getTodayConnectorReport(moduleSeq) {
     let sql = `
@@ -129,7 +137,7 @@ class BiModule extends bmjh.BM {
           WHERE writedate>= CURDATE() and writedate<CURDATE() + 1
     `;
     if (moduleSeq) {
-      sql += `AND photovoltaic_seq IN (${moduleSeq})`
+      sql += `AND photovoltaic_seq IN (${moduleSeq})`;
     }
     sql += `
           GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), photovoltaic_seq
@@ -138,12 +146,25 @@ class BiModule extends bmjh.BM {
     return this.db.single(sql);
   }
 
-    /**
-   * 검색 종류와 검색 기간에 따라 검색 시작 값과 종료 값 반환
-   * @param {String} searchType day, month, year, range
-   * @param {String} start_date '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
-   * @param {String} end_date '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
-   * @return {Object} {startDate, endDate}
+
+  /**
+   * searchRagnge Type
+   * @typedef {Object} searchRange
+   * @property {string} searchType day, month, year, range
+   * @property {string} strStartDate sql writedate range 사용
+   * @property {string} strEndDate sql writedate range 사용
+   * @property {string} rangeStart Chart 위에 표시될 시작 날짜
+   * @property {string} rangeEnd Chart 위에 표시될 종료 날짜
+   * @property {string} strStartDateInputValue input[type=text] 에 표시될 시작 날짜
+   * @property {string} strEndDateInputValue input[type=text] 에 표시될 종료 날짜
+   */
+
+  /**
+   * 검색 종류와 검색 기간에 따라 계산 후 검색 조건 객체 반환
+   * @param {string} searchType day, month, year, range
+   * @param {string} start_date '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
+   * @param {string} end_date '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
+   * @return {searchRange} 검색 범위
    */
   getSearchRange(searchType, start_date, end_date) {
     // BU.CLIS(searchType, start_date, end_date)
@@ -158,7 +179,7 @@ class BiModule extends bmjh.BM {
       rangeEnd: '', // Chart 위에 표시될 종료 날짜
       strStartDateInputValue: '', // input에 표시될 시작 날짜
       strEndDateInputValue: '', // input에 표시될 종료 날짜
-    }
+    };
 
     let spliceIndex = 0;
 
@@ -169,11 +190,11 @@ class BiModule extends bmjh.BM {
       endDate = (new Date(startDate)).addDays(1);
     } else if (searchType === 'day') {
       spliceIndex = 1;
-      startDate.setDate(1)
+      startDate.setDate(1);
       endDate = (new Date(startDate)).addMonths(1);
     } else if (searchType === 'month') {
       spliceIndex = 0;
-      startDate.setMonth(0, 1)
+      startDate.setMonth(0, 1);
       endDate = (new Date(startDate)).addYear(1);
     } else if (searchType === 'range') {
       spliceIndex = 2;
@@ -194,6 +215,12 @@ class BiModule extends bmjh.BM {
   }
 
 
+  /**
+   * 
+   * @param {number[]=} inverter_seq_list 
+   * @param {*} startDate 
+   * @param {*} endDate 
+   */
   getInverterHistory(inverter_seq_list, startDate, endDate) {
     startDate = startDate ? startDate : 'CURDATE()';
     endDate = endDate ? endDate : 'CURDATE() + 1';
@@ -226,7 +253,7 @@ class BiModule extends bmjh.BM {
     return this.db.single(sql)
       .then(result => {
         return _.groupBy(result, rows => rows.inverter_seq);
-      })
+      });
   }
 
 
@@ -260,21 +287,21 @@ class BiModule extends bmjh.BM {
   convertSearchType2DateFormat(searchType) {
     let dateFormat = '';
     switch (searchType) {
-      case 'year':
-        dateFormat = '%Y';
-        break;
-      case 'month':
-        dateFormat = '%Y-%m';
-        break;
-      case 'day':
-        dateFormat = '%Y-%m-%d';
-        break;
-      case 'hour':
-        dateFormat = '%Y-%m-%d %H';
-        break;
-      default:
-        dateFormat = '%Y-%m';
-        break;
+    case 'year':
+      dateFormat = '%Y';
+      break;
+    case 'month':
+      dateFormat = '%Y-%m';
+      break;
+    case 'day':
+      dateFormat = '%Y-%m-%d';
+      break;
+    case 'hour':
+      dateFormat = '%Y-%m-%d %H';
+      break;
+    default:
+      dateFormat = '%Y-%m';
+      break;
     }
     return dateFormat;
   }
@@ -328,7 +355,7 @@ class BiModule extends bmjh.BM {
         WHERE writedate>= "${strStartDate}" and writedate<"${strEndDate}"
     `;
     if (moduleSeqList.length) {
-      sql += `AND photovoltaic_seq IN (${moduleSeqList})`
+      sql += `AND photovoltaic_seq IN (${moduleSeqList})`;
     }
     sql += `
         GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), photovoltaic_seq
@@ -343,12 +370,12 @@ class BiModule extends bmjh.BM {
 
     return this.db.single(sql)
       .then(result => {
-        let groupByResult = _.groupBy(result, 'photovoltaic_seq')
+        let groupByResult = _.groupBy(result, 'photovoltaic_seq');
 
         return {
           betweenDatePointObj,
           gridPowerInfo: groupByResult
-        }
+        };
       });
   }
 
@@ -395,7 +422,7 @@ class BiModule extends bmjh.BM {
 
     `;
     if (inverter_seq !== 'all') {
-      sql += `AND inverter_seq = ${inverter_seq}`
+      sql += `AND inverter_seq = ${inverter_seq}`;
     }
     sql += `            
     GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), inverter_seq
@@ -407,25 +434,24 @@ class BiModule extends bmjh.BM {
     `;
 
     // 총 갯수 구하는 Query 생성
-    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`
+    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
     // Report 가져오는 Query 생성
-    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${(searchRange.page) * searchRange.pageListCount}`
+    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
 
     let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
     let totalCount = resTotalCountQuery[0].total_count;
-    let resMainQuery = await this.db.single(mainQuery, '', false)
+    let resMainQuery = await this.db.single(mainQuery, '', false);
 
     return {
       totalCount,
       report: resMainQuery
-    }
+    };
   }
 
 
   /**
    * 경보 내역 리스트
-   * @param {String} strStartDate 검색 시작 날짜 String
-   * @param {String} strEndDate 검색 종료 날짜 String
+   * @param {searchRange} searchRange 검색 조건 객체
    */
   async getAlarmList(searchRange){
     let sql = `
@@ -442,18 +468,18 @@ class BiModule extends bmjh.BM {
     `;
 
       // 총 갯수 구하는 Query 생성
-      let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`
-      // Report 가져오는 Query 생성
-      let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${(searchRange.page) * searchRange.pageListCount}`
+    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
+    // Report 가져오는 Query 생성
+      
+    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
+    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
+    let totalCount = resTotalCountQuery[0].total_count;
+    let resMainQuery = await this.db.single(mainQuery, '', false);
 
-      let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
-      let totalCount = resTotalCountQuery[0].total_count;
-      let resMainQuery = await this.db.single(mainQuery, '', false)
-
-      return {
-        totalCount,
-        report: resMainQuery
-      }
+    return {
+      totalCount,
+      report: resMainQuery
+    };
   }
 
 
@@ -480,7 +506,7 @@ class BiModule extends bmjh.BM {
       trendReportObj.id = `id_${moduleSeq}`;
       trendReportObj.name = `CH_${findProfile.connector_ch} ${findProfile.pv_target_name}`;
       trendReportObj.group_date = moduleReportList.betweenDatePointObj.fullTxtPoint;
-      trendReportObj.data = []
+      trendReportObj.data = [];
 
       moduleReportList.betweenDatePointObj.fullTxtPoint.forEach((strDateFormat, ftpIndex) => {
         // BU.CLIS(strDateFormat, moduleDataList)
@@ -493,7 +519,7 @@ class BiModule extends bmjh.BM {
         trendReportObj.data.push(data);
       });
       trendReportList.push(trendReportObj);
-    })
+    });
 
     // BU.CLI(trendReportList);
 
@@ -519,21 +545,21 @@ class BiModule extends bmjh.BM {
     // BU.CLI('convertValueBySearchType', searchType, number)
     let returnValue = 0;
     switch (searchType) {
-      case 'year':
-        returnValue = (number / 1000 / 1000).toFixed(4);
-        break;
-      case 'month':
-        returnValue = (number / 1000).toFixed(3);
-        break;
-      case 'day':
-        returnValue = (number / 1000).toFixed(3);
-        break;
-      case 'hour':
-      default:
-        returnValue = number;
-        break;
+    case 'year':
+      returnValue = (number / 1000 / 1000).toFixed(4);
+      break;
+    case 'month':
+      returnValue = (number / 1000).toFixed(3);
+      break;
+    case 'day':
+      returnValue = (number / 1000).toFixed(3);
+      break;
+    case 'hour':
+    default:
+      returnValue = number;
+      break;
     }
-    return Number(returnValue)
+    return Number(returnValue);
   }
 
   makeChartOption(searchRange) {
@@ -541,24 +567,24 @@ class BiModule extends bmjh.BM {
     let xAxisTitle = '';
     let yAxisTitle = '';
     switch (searchRange.searchType) {
-      case 'year':
-        xAxisTitle = '시간(년)'
-        yAxisTitle = '발전량(MWh)'
-        break;
-      case 'month':
-        xAxisTitle = '시간(월)'
-        yAxisTitle = '발전량(kWh)'
-        break;
-      case 'day':
-        xAxisTitle = '시간(일)'
-        yAxisTitle = '발전량(kWh)'
-        break;
-      case 'hour':
-        xAxisTitle = '시간(시)'
-        yAxisTitle = '발전량(Wh)'
-        break;
-      default:
-        break;
+    case 'year':
+      xAxisTitle = '시간(년)';
+      yAxisTitle = '발전량(MWh)';
+      break;
+    case 'month':
+      xAxisTitle = '시간(월)';
+      yAxisTitle = '발전량(kWh)';
+      break;
+    case 'day':
+      xAxisTitle = '시간(일)';
+      yAxisTitle = '발전량(kWh)';
+      break;
+    case 'hour':
+      xAxisTitle = '시간(시)';
+      yAxisTitle = '발전량(Wh)';
+      break;
+    default:
+      break;
     }
 
     if (searchRange.rangeEnd !== '') {
@@ -570,7 +596,7 @@ class BiModule extends bmjh.BM {
       mainTitle,
       xAxisTitle,
       yAxisTitle
-    }
+    };
   }
 
 

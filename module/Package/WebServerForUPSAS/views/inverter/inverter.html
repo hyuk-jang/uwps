@@ -13,13 +13,15 @@
     <div class="jumbotron text-center jumbotron_line">
       <div class="row row_st_line">
 
-        <div class="row row_width">
-          <div class="title" style="float: none; margin-bottom: 20px"> 실시간 인버터 모니터링
+        <div class="row row_title">
+          <div class="title" style="float: none; margin-bottom: 10px"> 실시간 인버터 모니터링
             <span style="position: absolute;color: black;width: 300px; text-align: left; text-indent: 30px">
               측정시간:
               <%- powerInfo.measureTime %>
             </span>
           </div>
+
+
           <div class="table-responsive">
             <table class="table table-hover ">
               <thead>
@@ -49,10 +51,10 @@
               </thead>
               <tbody id="myTable">
                 <%
-                var total_in_w = _.pluck(inverterStatus, 'in_w').sum().scale(0.001, 3)
-                var total_out_w = _.pluck(inverterStatus, 'out_w').sum().scale(0.001, 3)
-                var total_d_wh = _.pluck(inverterStatus, 'd_wh').sum().scale(0.001, 3)
-                var total_c_wh = _.pluck(inverterStatus, 'c_wh').sum().scale(0.000001, 4);
+                var total_in_w = inverterStatus.length ? _.pluck(inverterStatus, 'in_w').sum().scale(0.001, 3) : '';
+                var total_out_w = inverterStatus.length ?  _.pluck(inverterStatus, 'out_w').sum().scale(0.001, 3) : '';
+                var total_d_wh = inverterStatus.length ?  _.pluck(inverterStatus, 'd_wh').sum().scale(0.001, 3) : '';
+                var total_c_wh = inverterStatus.length ? _.pluck(inverterStatus, 'c_wh').sum().scale(0.000001, 4) : '';;
 
 
                 for(var i = 0 ;i < inverterStatus.length ; i++)

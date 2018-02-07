@@ -10,20 +10,20 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "base-class-jh": "^1.0.15",
-    "base-util-jh": "^1.0.9",
+    "base-class-jh": "^1.0.17",
+    "base-util-jh": "^1.0.11",
     "bluebird": "^3.5.1",
     "crc": "^3.5.0",
     "device-connect-manager": "^0.1.5",
     "event-to-promise": "^0.8.0",
-    "modbus-serial": "^7.0.3",
-    "serialport": "^6.0.4",
+    "modbus-serial": "^7.1.4",
+    "serialport": "^6.0.5",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
     "chai": "^4.1.2",
     "docdash": "^0.4.0",
-    "eslint": "^4.16.0",
+    "eslint": "^4.17.0",
     "jsdoc": "^3.5.5",
     "mocha": "^5.0.0"
   },

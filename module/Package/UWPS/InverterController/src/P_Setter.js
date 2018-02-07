@@ -1,4 +1,5 @@
 const EventEmitter = require('events');
+const Control = require('./Control');
 /**
  * @module
  * 장치별 Encoder, Decoder가 담겨 있는 Class
@@ -8,7 +9,7 @@ const Converter = require('../Converter');
 class P_Setter extends EventEmitter {
   /**
    * 계측 프로그램을 구동하기 위해서 필요한 설정 정보 
-   * @param {Object} controller Controller 구동 객체
+   * @param {Control} controller Controller 구동 객체
    * @param {Converter} controller.encoder Controller 에서 장치에게 보낼 명령을 만들어 주는 객체
    * @param {Converter} controller.decoder 장치에서 수신된 데이터를 Pasring 해주는 객체
    * @param {DummyInverter} controller.dummyInverter 개발용 가상 접속반 장치
@@ -27,8 +28,11 @@ class P_Setter extends EventEmitter {
 
   async settingConverter(dialing) {
     try {
+      const parser = Converter[this.config.deviceSavedInfo.target_category].parser;
       const Encoder = Converter[this.config.deviceSavedInfo.target_category].Encoder;
       const Decoder = Converter[this.config.deviceSavedInfo.target_category].Decoder;
+
+      this.controller.config.deviceSavedInfo.parser = parser;
 
       // 실제 Converter 객체 생성 및 덮어씌움
       this.controller.encoder = new Encoder(dialing);
@@ -49,7 +53,7 @@ class P_Setter extends EventEmitter {
         }
       }
 
-      return true;
+      return parser;
     } catch (error) {
       BU.CLI(error);
       throw Error(error);

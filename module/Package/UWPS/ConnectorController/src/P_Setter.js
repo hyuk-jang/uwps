@@ -34,8 +34,11 @@ class P_Setter extends EventEmitter {
   async settingConverter(dialing) {
     try {
       // BU.CLI(this.config.deviceSavedInfo.target_category)
+      const parser = Converter[this.config.deviceSavedInfo.target_category].parser;
       const Encoder = Converter[this.config.deviceSavedInfo.target_category].Encoder;
       const Decoder = Converter[this.config.deviceSavedInfo.target_category].Decoder;
+
+      this.controller.config.deviceSavedInfo.parser = parser;
 
       // 실제 Converter 객체 생성 및 덮어씌움
       this.controller.encoder = new Encoder(dialing);

@@ -49,9 +49,9 @@ class Control extends EventEmitter {
     Object.assign(this.config, config.current);
 
     /** Converter Encoder Binding 객체  */
-    this.encoder;
+    this.encoder = null;
     /** Converter Decoder Binding 객체  */
-    this.decoder;
+    this.decoder = null;
     this.testStubData = [];
 
     /** 장치 연결 유무 */
@@ -119,7 +119,7 @@ class Control extends EventEmitter {
 
     // 접속반 종류별 프로토콜 장착 (개발용이고 socket 일 경우 port 자동 변경)
     await this.p_Setter.settingConverter(dialing);
-
+    
     // device connector 객체 연결
     this.dcm.init(this.model.deviceSavedInfo, this);
 
@@ -148,7 +148,7 @@ class Control extends EventEmitter {
 
       return this.hasConnect;
     } catch (error) {
-      // BU.CLI(error);
+      BU.CLI(error);
       this.model.onSystemError('Disconnected', true, error);
       this.emit('dcDisconnected', error);
       throw Error('Disconnected');
@@ -202,7 +202,7 @@ class Control extends EventEmitter {
    * @param  cmd 요청할 명령
    */
   async send2Cmd(cmd) {
-    // BU.CLI('send2Cmd', cmd)
+    BU.CLI('send2Cmd', cmd);
     let timeout = {};
     await Promise.race(
       [
@@ -319,7 +319,7 @@ class Control extends EventEmitter {
 
     /** 장치에서 수신된 데이터 처리 */
     this.on('dcData', data => {
-      // BU.CLI(data);
+      BU.CLI(data);
       return this._onReceiveMsg(data);
     });
 

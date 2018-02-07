@@ -4,6 +4,12 @@ module.exports = Control;
 
 // if __main process
 if (require !== undefined && require.main === module) {
+  process.on('unhandledRejection', function (reason, p) {
+    console.log('@@@ Possibly Unhandled Rejection at: Promise ', p);
+    console.log('@@@ reason: ', reason);
+    // application specific logging here
+  });
+
   const _ = require('underscore');
   const BU = require('base-util-jh').baseUtil;
   const config = require('./src/config.js');

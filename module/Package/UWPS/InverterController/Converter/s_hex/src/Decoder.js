@@ -55,9 +55,9 @@ class Decoder extends Converter {
   /**
    * 운영 정보 도출
    * @param {string|Buffer} msg 
-   * @param {baseFormat} returnValue 
    */
-  operation(msg, returnValue) {
+  operation(msg) {
+    let returnValue = this.getBaseValue();
     returnValue.errorList = [];
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
     arrSpliceBuffer.forEach((buffer, index) => {
@@ -85,9 +85,9 @@ class Decoder extends Converter {
   /**
    * 태양 전지 정보 도출
    * @param {string|Buffer} msg 
-   * @param {baseFormat} returnValue 
    */
-  pv(msg, returnValue) {
+  pv(msg) {
+    let returnValue = this.getBaseValue();
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
     returnValue.vol = this.convertBuffer2Char2Dec(arrSpliceBuffer[0]);
     returnValue.amp = this.convertBuffer2Char2Dec(arrSpliceBuffer[1]) / 10;
@@ -98,9 +98,9 @@ class Decoder extends Converter {
   /**
    * 계통 계측 정보 도출
    * @param {string|Buffer} msg 
-   * @param {baseFormat} returnValue 
    */
-  grid(msg, returnValue) {
+  grid(msg) {
+    let returnValue = this.getBaseValue();
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
 
     returnValue.rsVol = this.convertBuffer2Char2Dec(arrSpliceBuffer[0]); // rs 선간 전압
@@ -117,9 +117,9 @@ class Decoder extends Converter {
   /**
    * 전력량 계측 정보 도출
    * @param {string|Buffer} msg 
-   * @param {baseFormat} returnValue 
    */
-  power(msg, returnValue) {
+  power(msg) {
+    let returnValue = this.getBaseValue();
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
     let high = this.convertBuffer2Char2Dec(arrSpliceBuffer[1]);
     let low = this.convertBuffer2Char2Dec(arrSpliceBuffer[2]);
@@ -135,9 +135,9 @@ class Decoder extends Converter {
   /**
    * 시스템 정보 도출
    * @param {string|Buffer} msg 
-   * @param {baseFormat} returnValue 
    */
-  system(msg, returnValue) {
+  system(msg) {
+    let returnValue = this.getBaseValue();
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
     returnValue.isSingle = arrSpliceBuffer[0].slice(0, 1).toString() === '1' ? 1 : 0; // 단상 or 삼상
     returnValue.capa = Number(arrSpliceBuffer[0].slice(1, 4).toString()) / 10; // 인버터 용량 kW
@@ -167,9 +167,6 @@ class Decoder extends Converter {
   _receiveData(buffer) {
     // BU.CLI('_receiveData', buffer)
     // 표준 반환 가이드라인 불러옴
-    let returnValue = this.getBaseValue();
-    // BU.CLI(returnValue);
-
     try {
       // startPoint, Start, dialing, Cmd, Addr (Byte Number)
       let bufArray = [
@@ -219,7 +216,7 @@ class Decoder extends Converter {
         return false;
       }
       // 정의된 메소드 실행 resBufArray[4] --> DATA
-      returnValue = this[cmd](resBufArray[4], returnValue);
+      let returnValue = this[cmd](resBufArray[4]);
       // BU.CLI(returnValue);
       return returnValue;
     } catch (error) {

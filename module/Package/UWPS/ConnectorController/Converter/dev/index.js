@@ -3,7 +3,11 @@
 const Encoder = require('./src/Encoder');
 const Decoder = require('./src/Decoder');
 module.exports = {
-  Encoder, Decoder
+  Encoder, Decoder,
+  parser: {
+    type: 'delimiterParser',
+    option: Buffer.from([0x04])
+  }
 };
 
 

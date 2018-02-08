@@ -19,7 +19,6 @@ module.exports = {
         'type': 'Buffer',
         'data': [0, 0, 1]
       },
-      'delimiter': Buffer.from([0x04]),
       'director_name': '에스엠관리자',
       'director_tel': '01012345678'
     },

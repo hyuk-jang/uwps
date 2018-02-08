@@ -1,8 +1,8 @@
 module.exports = {
   current: {
     devOption: {
-      hasReloadInverterConfig: false, // db `inverter` 에서 읽어오고 새로이 데이터를 정립할 것인가
-      hasReloadConnectorConfig: false, // db `connector` 에서 읽어오고 새로이 데이터를 정립할 것인가
+      hasReloadInverterConfig: true, // db `inverter` 에서 읽어오고 새로이 데이터를 정립할 것인가
+      hasReloadConnectorConfig: true, // db `connector` 에서 읽어오고 새로이 데이터를 정립할 것인가
       hasSaveConfig: false, // db에서 읽어온 내용을 새로이 file에 저장할 것인가
       hasCopyInverterData: true,  // inverter를 기초로 접속반 데이터를 세팅할 것인가
       hasInsertQuery: true, // db에 정기적으로 데이터를 저장할 것인가
@@ -20,7 +20,7 @@ module.exports = {
     },
     'inverterList': [{
       'current': {
-        'hasDev': true,
+        'hasDev': false,
         'ivtDummyData': {
           'dailyKwh': 0,
           'cpKwh': 0
@@ -30,14 +30,14 @@ module.exports = {
           'target_id': 'IVT1',
           'target_name': '인버터 1',
           'target_type': 'single',
-          'target_category': 'dev',
-          'connect_type': 'socket',
+          'target_category': 's_hex',
+          'connect_type': 'serial',
           'dialing': {
             'type': 'Buffer',
             'data': [48, 49]
           },
           'host': 'localhost',
-          'port': null,
+          'port': 'COM5',
           'baud_rate': 9600,
           'code': 'e279f4c4-cdc8-4423-97f8-d30a78c5aff1',
           'amount': 30,
@@ -47,7 +47,7 @@ module.exports = {
       }
     }, {
       'current': {
-        'hasDev': true,
+        'hasDev': false,
         'ivtDummyData': {
           'dailyKwh': 0,
           'cpKwh': 0
@@ -57,14 +57,14 @@ module.exports = {
           'target_id': 'IVT2',
           'target_name': '인버터 2',
           'target_type': 'single',
-          'target_category': 'dev',
-          'connect_type': 'socket',
+          'target_category': 's_hex',
+          'connect_type': 'serial',
           'dialing': {
             'type': 'Buffer',
-            'data': [48, 50]
+            'data': [48, 49]
           },
           'host': 'localhost',
-          'port': null,
+          'port': 'COM6',
           'baud_rate': 9600,
           'code': 'd6717789-009c-415e-8dbf-b637e6a45182',
           'amount': 30,
@@ -72,115 +72,122 @@ module.exports = {
           'director_tel': '01011114444'
         }
       }
-    }, {
-      'current': {
-        'hasDev': true,
-        'ivtDummyData': {
-          'dailyKwh': 0,
-          'cpKwh': 0
-        },
-        'deviceSavedInfo': {
-          'inverter_seq': 3,
-          'target_id': 'IVT3',
-          'target_name': '인버터 3',
-          'target_type': 'single',
-          'target_category': 'dev',
-          'connect_type': 'socket',
-          'dialing': {
-            'type': 'Buffer',
-            'data': [48, 51]
-          },
-          'host': 'localhost',
-          'port': null,
-          'baud_rate': 9600,
-          'code': '1afcb839-78e4-431a-a91c-de2d6e9ff6d4',
-          'amount': 30,
-          'director_name': '홍길동 3',
-          'director_tel': '01011114444'
-        }
-      }
-    }, {
-      'current': {
-        'hasDev': true,
-        'ivtDummyData': {
-          'dailyKwh': 0,
-          'cpKwh': 0
-        },
-        'deviceSavedInfo': {
-          'inverter_seq': 4,
-          'target_id': 'IVT4',
-          'target_name': '인버터 4',
-          'target_type': 'single',
-          'target_category': 'dev',
-          'connect_type': 'socket',
-          'dialing': {
-            'type': 'Buffer',
-            'data': [48, 52]
-          },
-          'host': 'localhost',
-          'port': null,
-          'baud_rate': 9600,
-          'code': 'aa3e00f6-94b6-4caa-825b-40fd527c47c8',
-          'amount': 30,
-          'director_name': '홍길동 4',
-          'director_tel': '01011114444'
-        }
-      }
-    }, {
-      'current': {
-        'hasDev': true,
-        'ivtDummyData': {
-          'dailyKwh': 0,
-          'cpKwh': 0
-        },
-        'deviceSavedInfo': {
-          'inverter_seq': 5,
-          'target_id': 'IVT5',
-          'target_name': '인버터 5',
-          'target_type': 'single',
-          'target_category': 'dev',
-          'connect_type': 'socket',
-          'dialing': {
-            'type': 'Buffer',
-            'data': [48, 53]
-          },
-          'host': 'localhost',
-          'port': null,
-          'baud_rate': 9600,
-          'code': 'a8b3b27a-239f-4bd7-8025-b5025c71aedd',
-          'amount': 30,
-          'director_name': '홍길동 5',
-          'director_tel': '01011114444'
-        }
-      }
-    }, {
-      'current': {
-        'hasDev': true,
-        'ivtDummyData': {
-          'dailyKwh': 0,
-          'cpKwh': 0
-        },
-        'deviceSavedInfo': {
-          'inverter_seq': 6,
-          'target_id': 'IVT6',
-          'target_name': '인버터 6',
-          'target_type': 'single',
-          'target_category': 'dev',
-          'connect_type': 'socket',
-          'dialing': {
-            'type': 'Buffer',
-            'data': [48, 54]
-          },
-          'host': 'localhost',
-          'port': null,
-          'baud_rate': 9600,
-          'code': 'ebbd733e-95df-4e52-8f4d-9ab0a884cb19',
-          'amount': 30,
-          'director_name': '홍길동 6',
-          'director_tel': '01011114444'
-        }
-      }
-    }],
+    },
+    //  {
+    //   'current': {
+    //     'hasDev': true,
+    //     'ivtDummyData': {
+    //       'dailyKwh': 0,
+    //       'cpKwh': 0
+    //     },
+    //     'deviceSavedInfo': {
+    //       'inverter_seq': 3,
+    //       'target_id': 'IVT3',
+    //       'target_name': '인버터 3',
+    //       'target_type': 'single',
+    //       'target_category': 'dev',
+    //       'connect_type': 'socket',
+    //       'dialing': {
+    //         'type': 'Buffer',
+    //         'data': [48, 51]
+    //       },
+    //       delimiter: Buffer.from([0x04]),
+    //       'host': 'localhost',
+    //       'port': null,
+    //       'baud_rate': 9600,
+    //       'code': '1afcb839-78e4-431a-a91c-de2d6e9ff6d4',
+    //       'amount': 30,
+    //       'director_name': '홍길동 3',
+    //       'director_tel': '01011114444'
+    //     }
+    //   }
+    // }, {
+    //   'current': {
+    //     'hasDev': true,
+    //     'ivtDummyData': {
+    //       'dailyKwh': 0,
+    //       'cpKwh': 0
+    //     },
+    //     'deviceSavedInfo': {
+    //       'inverter_seq': 4,
+    //       'target_id': 'IVT4',
+    //       'target_name': '인버터 4',
+    //       'target_type': 'single',
+    //       'target_category': 'dev',
+    //       'connect_type': 'socket',
+    //       'dialing': {
+    //         'type': 'Buffer',
+    //         'data': [48, 52]
+    //       },
+    //       delimiter: Buffer.from([0x04]),
+    //       'host': 'localhost',
+    //       'port': null,
+    //       'baud_rate': 9600,
+    //       'code': 'aa3e00f6-94b6-4caa-825b-40fd527c47c8',
+    //       'amount': 30,
+    //       'director_name': '홍길동 4',
+    //       'director_tel': '01011114444'
+    //     }
+    //   }
+    // }, {
+    //   'current': {
+    //     'hasDev': true,
+    //     'ivtDummyData': {
+    //       'dailyKwh': 0,
+    //       'cpKwh': 0
+    //     },
+    //     'deviceSavedInfo': {
+    //       'inverter_seq': 5,
+    //       'target_id': 'IVT5',
+    //       'target_name': '인버터 5',
+    //       'target_type': 'single',
+    //       'target_category': 'dev',
+    //       'connect_type': 'socket',
+    //       'dialing': {
+    //         'type': 'Buffer',
+    //         'data': [48, 53]
+    //       },
+    //       delimiter: Buffer.from([0x04]),
+    //       'host': 'localhost',
+    //       'port': null,
+    //       'baud_rate': 9600,
+    //       'code': 'a8b3b27a-239f-4bd7-8025-b5025c71aedd',
+    //       'amount': 30,
+    //       'director_name': '홍길동 5',
+    //       'director_tel': '01011114444'
+    //     }
+    //   }
+    // }, {
+    //   'current': {
+    //     'hasDev': true,
+    //     'ivtDummyData': {
+    //       'dailyKwh': 0,
+    //       'cpKwh': 0
+    //     },
+    //     'deviceSavedInfo': {
+    //       'inverter_seq': 6,
+    //       'target_id': 'IVT6',
+    //       'target_name': '인버터 6',
+    //       'target_type': 'single',
+    //       'target_category': 'dev',
+    //       'connect_type': 'socket',
+    //       'dialing': {
+    //         'type': 'Buffer',
+    //         'data': [48, 54]
+    //       },
+    //       delimiter: Buffer.from([0x04]),
+    //       'host': 'localhost',
+    //       'port': null,
+    //       'baud_rate': 9600,
+    //       'code': 'ebbd733e-95df-4e52-8f4d-9ab0a884cb19',
+    //       'amount': 30,
+    //       'director_name': '홍길동 6',
+    //       'director_tel': '01011114444'
+    //     }
+    //   }
+    // }
+
+    ],
     'connectorList': [{
       'current': {
         'hasDev': true,
@@ -194,7 +201,6 @@ module.exports = {
             'type': 'Buffer',
             'data': [0x30, 0x30, 0x32]
           },
-          delimiter: Buffer.from([0x04]),
           'code': '324f78ff-452c-4a46-844a-ffe47defc1f7',
           'host': 'localhost',
           'port': 'COM3',
@@ -246,7 +252,6 @@ module.exports = {
             'type': 'Buffer',
             'data': [0x30, 0x30, 0x31]
           },
-          delimiter: Buffer.from([0x04]),
           'code': null,
           'host': '',
           'port': 'COM4',

@@ -43,7 +43,7 @@ class Control extends EventEmitter {
   async init() {
     this.eventHandler();
     let result = await Promise.all([
-      // this.createInverterController(this.config.inverterList),
+      this.createInverterController(this.config.inverterList),
       this.createConnectorController(this.config.connectorList)
     ]);
 
@@ -54,7 +54,7 @@ class Control extends EventEmitter {
    * 접속반, 인버터 데이터 계측 스케줄러 시작
    */
   operationScheduler() {
-    // this.p_Scheduler.runCronForMeasureInverter(this.model.getUpsasControllerGrouping('inverter'));
+    this.p_Scheduler.runCronForMeasureInverter(this.model.getUpsasControllerGrouping('inverter'));
     this.p_Scheduler.runCronForMeasureConnector(this.model.getUpsasControllerGrouping('connector'));
   }
 

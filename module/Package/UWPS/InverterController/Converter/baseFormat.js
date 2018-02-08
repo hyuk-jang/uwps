@@ -130,9 +130,14 @@ module.exports = {
   errorList: null,
   /**
    * 경고 리스트, 단위[Array.<{}>]
-   * @description Operation 
+   * @description warningList 
    * @type {Array.<Object>=}
    */
-  warningList: null
-
+  warningList: null,
+  /**
+   * 경고 리스트, 단위[Array.<{}>]
+   * @description troubleList 
+   * @type {Array.<Object>=}
+   */
+  troubleList: null
 };

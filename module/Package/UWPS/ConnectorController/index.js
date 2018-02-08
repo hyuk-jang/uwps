@@ -4,6 +4,12 @@ module.exports = Control;
 
 // if __main process
 if (require !== undefined && require.main === module) {
+  process.on('unhandledRejection', function (reason, p) {
+    console.log('@@@ Possibly Unhandled Rejection at: Promise ', p);
+    console.log('@@@ reason: ', reason);
+    // application specific logging here
+  });
+
   const _ = require('underscore');
   const BU = require('base-util-jh').baseUtil;
   const config = require('./src/config.js');
@@ -13,9 +19,9 @@ if (require !== undefined && require.main === module) {
 
   config.current.deviceSavedInfo.target_category = 'dm_v2';
   config.current.deviceSavedInfo.connect_type = 'serial';
-  config.current.deviceSavedInfo.port = 'COM4';
+  config.current.deviceSavedInfo.port = 'COM3';
   config.current.deviceSavedInfo.baud_rate = 4800;
-  config.current.deviceSavedInfo.dialing.data = [0x30, 0x30, 0x31];
+  config.current.deviceSavedInfo.dialing.data = [0x30, 0x30, 0x32];
 
   const control = new Control(config);
   control.init()

@@ -119,9 +119,9 @@ class Control extends EventEmitter {
     await this.p_Setter.settingConverter(dialing);
 
     // device connector 객체 연결
-    BU.CLI(this.model.deviceSavedInfo);
+    // BU.CLI(this.model.deviceSavedInfo);
     this.dcm.init(this.model.deviceSavedInfo, this);
-    BU.CLI(this.dcm);
+    // BU.CLI(this.dcm);
 
     // this에 Event Emitter Binding
     this.eventHandler();
@@ -140,7 +140,7 @@ class Control extends EventEmitter {
       // 장치 접속 객체에 connect 요청
       this.hasConnect = await this.dcm.connect();
       this.model.onSystemError('Disconnected', false);
-      BU.log('Sucess Connected to Device ', this.model.deviceSavedInfo.target_id);
+      // BU.log('Sucess Connected to Device ', this.model.deviceSavedInfo.target_id);
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);

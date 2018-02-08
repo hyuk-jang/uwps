@@ -19,7 +19,8 @@ if (require !== undefined && require.main === module) {
   global.BU = BU;
 
   process.on('unhandledRejection', function (reason, p) {
-    console.log('Possibly Unhandled Rejection at: Promise ', p, ' reason: ', reason);
+    // console.trace('Possibly Unhandled Rejection at: Promise ', p);
+    // console.trace(' reason: ', reason)
     // application specific logging here
   });
 
@@ -40,7 +41,7 @@ if (require !== undefined && require.main === module) {
 
 
 async function startIndex() {
-  // await setter();
+  await setter();
 
   BU.CLI(config);
   const control = new Control(config);
@@ -49,7 +50,7 @@ async function startIndex() {
   await control.init();
   console.timeEnd('Uwps Init');
 
-  control.operationScheduler();
+  // control.operationScheduler();
 
   return true;
 }
@@ -61,11 +62,11 @@ async function startIndex() {
 
 async function setter() {
   BU.CLI('setter');
-  if (config.current.devOption.hasLoadSqlInverter) {
+  if (config.current.devOption.hasReloadInverterConfig) {
     config.current.inverterList = await inverterSetter();
   }
 
-  if (config.current.devOption.hasLoadSqlConnector) {
+  if (config.current.devOption.hasReloadConnectorConfig) {
     config.current.connectorList = await connectorSetter();
   }
 
@@ -80,7 +81,7 @@ async function setter() {
 }
 
 async function inverterSetter() {
-  // BU.CLI('inverterSetter')
+  BU.CLI('inverterSetter');
   let inverterList = await BM.getTable('inverter');
 
   let returnValue = [];
@@ -93,13 +94,13 @@ async function inverterSetter() {
 
   inverterList.forEach((element, index) => {
     let addObj = {
-      hasDev: true,
+      hasDev: process.env.NODE_ENV === 'production' ? false : true,
       ivtDummyData: {},
       deviceSavedInfo: element
     };
-
-    addObj.ivtDummyData.dailyKwh = ivtDataList[index].d_wh / 10000;
-    addObj.ivtDummyData.cpKwh = ivtDataList[index].c_wh / 10000;
+    BU.CLI(element);
+    addObj.ivtDummyData.dailyKwh = ivtDataList[index] ? ivtDataList[index].d_wh / 10000 : 0;
+    addObj.ivtDummyData.cpKwh = ivtDataList[index] ? ivtDataList[index].c_wh / 10000 : 0;
     returnValue.push({
       current: addObj
     });
@@ -110,6 +111,7 @@ async function inverterSetter() {
 }
 
 async function connectorSetter() {
+  BU.CLI('connectorSetter');
   let connectorList = await BM.db.single('SELECT *,(SELECT COUNT(*) FROM relation_upms WHERE cnt.connector_seq = relation_upms.connector_seq  ) AS ch_number FROM connector cnt');
   let relation_upms = await BM.getTable('relation_upms');
 
@@ -117,7 +119,7 @@ async function connectorSetter() {
   // let moduleList = [];
   connectorList.forEach((element) => {
     let addObj = {
-      hasDev: true,
+      hasDev: process.env.NODE_ENV === 'production' ? false : true,
       deviceSavedInfo: element,
       moduleList: _.where(relation_upms, {
         connector_seq: element.connector_seq

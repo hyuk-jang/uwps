@@ -148,7 +148,7 @@ class Control extends EventEmitter {
 
       return this.hasConnect;
     } catch (error) {
-      BU.CLI(error);
+      // BU.CLI(error);
       this.model.onSystemError('Disconnected', true, error);
       this.emit('dcDisconnected', error);
       throw Error('Disconnected');
@@ -202,7 +202,7 @@ class Control extends EventEmitter {
    * @param  cmd 요청할 명령
    */
   async send2Cmd(cmd) {
-    BU.CLI('send2Cmd', cmd);
+    // BU.CLI('send2Cmd', cmd);
     let timeout = {};
     await Promise.race(
       [
@@ -319,7 +319,7 @@ class Control extends EventEmitter {
 
     /** 장치에서 수신된 데이터 처리 */
     this.on('dcData', data => {
-      BU.CLI(data);
+      // BU.CLI(data);
       return this._onReceiveMsg(data);
     });
 

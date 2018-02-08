@@ -161,7 +161,7 @@ class Model {
    * @returns {Void} 
    */
   onData(connectorDataList) {
-    // BU.CLI('ondata', connectorDataList, `deviceId: ${this.id}`);
+    BU.CLI('ondata', connectorDataList, `deviceId: ${this.id}`);
     let moduleDataStorage =  this.initModule();
     moduleDataStorage.forEach(moduleStorage => {
       let savedModuleInfo = _.findWhere(this.moduleList, {photovoltaic_seq: moduleStorage.photovoltaic_seq});

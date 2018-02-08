@@ -72,7 +72,7 @@ describe('UPSAS Inverter Controller Test', () => {
       }
 
       // inverter System Error Test
-      if (true) {
+      if (false) {
         it('inverter System Error Test', done => {
           let testDbTroubleList = [{
             inverter_trouble_data_seq: 11,
@@ -148,7 +148,7 @@ describe('UPSAS Inverter Controller Test', () => {
       }
 
       // inverter trouble Test
-      if (true) {
+      if (false) {
         it('inverter trouble Test', done => {
           let testDbTroubleList = [{
             inverter_trouble_data_seq: 11,
@@ -245,7 +245,7 @@ describe('UPSAS Inverter Controller Test', () => {
       }
 
       // normal course
-      if (false) {
+      if (true) {
         it('normal course', async () => {
           setInverterConfig(true, 'single', 's_hex', 'socket');
           BU.CLI(config);

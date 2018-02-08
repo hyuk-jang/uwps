@@ -43,7 +43,7 @@ module.exports = {
     },{
       baseKey: 'pf',
       updateKey: 'p_f',
-      calculate: '(rAmp * rsVol) / (amp * vol) * 100',
+      calculate: '(amp * vol) / (rAmp * rsVol) * 100',
       toFixed: 0
     },{
       baseKey: 'dailyKwh',

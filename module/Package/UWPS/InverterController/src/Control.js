@@ -122,7 +122,6 @@ class Control extends EventEmitter {
     
     // device connector 객체 연결
     this.dcm.init(this.model.deviceSavedInfo, this);
-
     // this에 Event Emitter Binding
     this.eventHandler();
 
@@ -138,9 +137,11 @@ class Control extends EventEmitter {
   async connectDevice() {
     try {
       // 장치 접속 객체에 connect 요청
+      BU.CLI('@@@@@@@@@@@@@@@@@@@@', `Port: ${this.model.deviceSavedInfo.port}`);
       this.hasConnect = await this.dcm.connect();
+      BU.CLI('###################');
       this.model.onSystemError('Disconnected', false);
-      BU.log('Sucess Connected to Device ', this.model.deviceSavedInfo.target_id);
+      BU.log(`Sucess Connected to Device Id: ${this.model.deviceSavedInfo.target_id}, Port: ${this.model.deviceSavedInfo.port}`);
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
@@ -148,10 +149,11 @@ class Control extends EventEmitter {
 
       return this.hasConnect;
     } catch (error) {
-      // BU.CLI(error);
+      BU.CLI(error);
       this.model.onSystemError('Disconnected', true, error);
       this.emit('dcDisconnected', error);
-      throw Error('Disconnected');
+      return this.hasConnect;
+      // throw Error('Disconnected');
     }
   }
 
@@ -160,7 +162,7 @@ class Control extends EventEmitter {
    * @returns {Promise} 정제된 Inverter 계측 데이터 전송(DB 입력 용)
    */
   measureDevice() {
-    // BU.CLI('measureDevice')
+    // BU.CLI('measureDevice', this.deviceId);
     return new Promise((resolve, reject) => {
       if (!BU.isEmpty(this.model.processCmd)) {
         reject('현재 진행중인 명령이 존재합니다.\n' + this.model.processCmd);
@@ -180,7 +182,6 @@ class Control extends EventEmitter {
       })
         .then(() => {
           // BU.CLI(`${this.deviceId}의 명령 수행이 모두 완료되었습니다.`);
-          // resolve(this.model.refineData);
           resolve(this.getDeviceStatus());
         })
         .catch(err => {

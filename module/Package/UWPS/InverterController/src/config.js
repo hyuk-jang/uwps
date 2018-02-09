@@ -10,7 +10,7 @@ module.exports = {
       'target_id': 'IVT1',
       'target_name': '인버터 1',
       'target_type': 'single',
-      'target_category': 's_hex',
+      'target_category': 'dev',
       'connect_type': 'socket',
       'dialing': {
         'type': 'Buffer',

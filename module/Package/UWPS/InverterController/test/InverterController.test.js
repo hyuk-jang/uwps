@@ -14,12 +14,29 @@ global.BU = BU;
 
 let hasTestModel = false;
 
-let hasSocketS_hex = true;
-let s_hex_initTest = true;
-let hasSocketDev = false;
+let hasSocketS_hex = false;
+let s_hex_initTest = false;
+let hasSocketDev = true;
 
 
 describe('Inverter Controller Test', () => {
+
+  describe('create Test', () => {
+    it('create', async () => {
+      let ivtList = [];
+      for(let i = 1; i < 7; i += 1){
+        // let config = Object.assign({},config) ;
+        config.current.deviceSavedInfo.port = `COM1${i}`;
+        ivtList.push(config);
+        BU.CLI(ivtList);
+
+        ivtList.
+
+        
+      }
+    });
+  });
+
   if(hasTestModel){
     describe('Model Test', () => {
       let control = new Control(config);
@@ -88,21 +105,24 @@ describe('Inverter Controller Test', () => {
 
       });
     }
-
+ 
     // SM Dev 테스트
-    if (hasSocketDev) {
+    if (false) {
       it('Category: dev', async() => {
         config.current.deviceSavedInfo.target_category = 'dev';
         const control = new Control(config);
+        BU.CLI('@@@');
         let obj = await control.init();
+        BU.CLI('###################');
         control.on('completeSend2Msg', res => {
           BU.CLI(res);
         });
         control.on('errorSend2Msg', err => {
           BU.CLI(err);
         });
-
+        BU.CLI('B_B');
         let result = await control.measureDevice();
+        BU.CLI('B_B');
 
 
         BU.CLI(result);

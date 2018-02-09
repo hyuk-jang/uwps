@@ -293,7 +293,7 @@ class Model {
 
     // 남아있는 dbTroubleList는 Clear 처리
     dbTroubleList.forEach(dbTrouble => {
-      BU.CLIS(dbTrouble, BU.convertDateToText(dbTrouble.occur_date), upsasDataGroup.measureDate);
+      // BU.CLIS(dbTrouble, BU.convertDateToText(dbTrouble.occur_date), upsasDataGroup.measureDate);
       dbTrouble.occur_date = dbTrouble.occur_date instanceof Date ? BU.convertDateToText(dbTrouble.occur_date) : BU.convertDateToText(upsasDataGroup.measureDate);
       dbTrouble.fix_date = BU.convertDateToText(upsasDataGroup.measureDate);
       upsasDataGroup.updateTroubleList.push(dbTrouble);

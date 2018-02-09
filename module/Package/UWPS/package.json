@@ -16,7 +16,7 @@
     "base-util-jh": "^1.0.9",
     "bluebird": "^3.5.1",
     "cron": "^1.3.0",
-    "device-connect-manager": "^0.1.5",
+    "device-connect-manager": "^0.1.7",
     "event-to-promise": "^0.8.0",
     "mysql": "^2.15.0",
     "node-modbus": "^4.0.1",
@@ -26,7 +26,7 @@
   "devDependencies": {
     "chai": "^4.1.2",
     "docdash": "^0.4.0",
-    "eslint": "^4.16.0",
+    "eslint": "^4.17.0",
     "jsdoc": "^3.5.5",
     "mocha": "^5.0.0"
   }

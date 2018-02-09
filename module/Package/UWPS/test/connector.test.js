@@ -29,9 +29,9 @@ describe('UPSAS Connector Controller Test', () => {
       let dbTroubleList;
       let model;
       // Create Inverter Controller
-      if (false) {
+      if (true) {
         it('createContoller', async () => {
-          setConnectorConfig(true, 'dev', 'socket');
+          setConnectorConfig(true, 'dm_v2', 'serial');
           BU.CLI(config);
           control = new Control(config);
           control.eventHandler();
@@ -47,7 +47,7 @@ describe('UPSAS Connector Controller Test', () => {
       }
 
       // measure Connector(single, dev, socket)
-      if (false) {
+      if (1) {
         it('measure Connector(single, dev, socket)', async () => {
           model = control.model;
           // 장치 리스트 계측 명령

@@ -57,6 +57,7 @@ class Decoder extends Converter {
    * @param {string|Buffer} msg 
    */
   operation(msg) {
+    // BU.CLIS(msg, msg.toString());
     let returnValue = this.getBaseValue();
     returnValue.errorList = [];
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
@@ -64,8 +65,7 @@ class Decoder extends Converter {
       let binaryValue = this.convertChar2Binary(buffer.toString(), 4);
       let operationTable = protocol.operationInfo(index);
       _.each(operationTable, operationObj => {
-        let binaryCode = binaryValue.charAt(operationObj.number);
-
+        let binaryCode = binaryValue.charAt(15 - operationObj.number);
         // 인버터 동작 유무
         if (operationObj.code === 'inverter run') {
           returnValue.isRun = Number(binaryCode);
@@ -100,6 +100,7 @@ class Decoder extends Converter {
    * @param {string|Buffer} msg 
    */
   grid(msg) {
+    // BU.CLI(msg);
     let returnValue = this.getBaseValue();
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
 
@@ -124,6 +125,7 @@ class Decoder extends Converter {
     let high = this.convertBuffer2Char2Dec(arrSpliceBuffer[1]);
     let low = this.convertBuffer2Char2Dec(arrSpliceBuffer[2]);
 
+    returnValue.pvKw = this.convertBuffer2Char2Dec(arrSpliceBuffer[0]) / 1000; // 출력 전력
     returnValue.gridKw = this.convertBuffer2Char2Dec(arrSpliceBuffer[3]) / 1000; // 출력 전력
     returnValue.dailyKwh = this.convertBuffer2Char2Dec(arrSpliceBuffer[6]) / 10; // 하루 발전량 kWh
     returnValue.cpKwh = (high * 10000 + low) / 1000; // 인버터 누적 발전량 mWh  Cumulative Power Generation
@@ -165,7 +167,7 @@ class Decoder extends Converter {
    * @return {baseFormat} object -> this.baseFormat 채워서 Return. 데이터가 비는 곳은 null로 반환. throw Error
    */
   _receiveData(buffer) {
-    // BU.CLI('_receiveData', buffer)
+    // BU.CLI('_receiveData', buffer);
     // 표준 반환 가이드라인 불러옴
     try {
       // startPoint, Start, dialing, Cmd, Addr (Byte Number)

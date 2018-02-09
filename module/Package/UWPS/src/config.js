@@ -1,11 +1,11 @@
 module.exports = {
   current: {
     devOption: {
-      hasReloadInverterConfig: false, // db `inverter` 에서 읽어오고 새로이 데이터를 정립할 것인가
+      hasReloadInverterConfig: true, // db `inverter` 에서 읽어오고 새로이 데이터를 정립할 것인가
       hasReloadConnectorConfig: true, // db `connector` 에서 읽어오고 새로이 데이터를 정립할 것인가
       hasSaveConfig: false, // db에서 읽어온 내용을 새로이 file에 저장할 것인가
       hasCopyInverterData: false,  // inverter를 기초로 접속반 데이터를 세팅할 것인가
-      hasInsertQuery: false, // db에 정기적으로 데이터를 저장할 것인가
+      hasInsertQuery: true, // db에 정기적으로 데이터를 저장할 것인가
     },
     dbInfo: {
       host: process.env.SALTERN_HOST ? process.env.SALTERN_HOST : 'localhost',

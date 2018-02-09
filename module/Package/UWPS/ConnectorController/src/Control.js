@@ -138,9 +138,9 @@ class Control extends EventEmitter {
   async connectDevice() {
     try {
       // 장치 접속 객체에 connect 요청
-      BU.CLI('@@@@@@@@@@@@@@@@@@@@', `Port: ${this.model.deviceSavedInfo.port}`);
+      // BU.CLI('@@@@@@@@@@@@@@@@@@@@', `Port: ${this.model.deviceSavedInfo.port}`);
       this.hasConnect = await this.dcm.connect();
-      BU.CLI('###################');
+      // BU.CLI('###################');
       this.model.onSystemError('Disconnected', false);
       BU.log(`Sucess Connected to Device Id: ${this.model.deviceSavedInfo.target_id}, Port: ${this.model.deviceSavedInfo.port}`);
 

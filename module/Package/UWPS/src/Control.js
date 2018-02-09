@@ -44,7 +44,7 @@ class Control extends EventEmitter {
     this.eventHandler();
     let result = await Promise.all([
       this.createInverterController(this.config.inverterList),
-      // this.createConnectorController(this.config.connectorList)
+      this.createConnectorController(this.config.connectorList)
     ]);
 
     return result;
@@ -54,33 +54,30 @@ class Control extends EventEmitter {
    * 접속반, 인버터 데이터 계측 스케줄러 시작
    */
   operationScheduler() {
-    // this.p_Scheduler.runCronForMeasureInverter(this.model.getUpsasControllerGrouping('inverter'));
-    // this.p_Scheduler.runCronForMeasureConnector(this.model.getUpsasControllerGrouping('connector'));
+    this.p_Scheduler.runCronForMeasureInverter(this.model.getUpsasControllerGrouping('inverter'));
+    this.p_Scheduler.runCronForMeasureConnector(this.model.getUpsasControllerGrouping('connector'));
   }
 
   /**
    * 인버터 설정 값에 따라 인버터 계측 컨트롤러 생성 및 계측 스케줄러 실행
-   * @param {Object} inverterConfigList 인버터 설정 값
+   * @param {Object} configList 인버터 설정 값
    * @returns {Promise} 인버터 계측 컨트롤러 생성 결과 Promise
    */
-  async createInverterController(inverterConfigList) {
+  async createInverterController(configList) {
     BU.CLI('createInverterController');
-    let inverterControllerList = [];
-    // let inverterControllerList = 
-    console.time('AAAAAAAAAAAA');
-    await Promise.each(inverterConfigList, ivtConfig => {
-      const inverterObj = new InverterController(ivtConfig);
-      return Promise.delay(1000).then(() => {
-        return inverterObj.init().then(controller => inverterControllerList.push(controller));
-      });  
-      // Promise.delay(10000)
-      // .then(() => inverterObj.init());
+    let inverterControllerList = await Promise.map(configList, config => {
+      const controller = new InverterController(config);
+      return controller.init();
     });
-    console.timeEnd('AAAAAAAAAAAA');
-    // BU.CLI(inverterControllerList);
-    BU.CLI('@@@@@@@@@@@@@@@@@@@@@@@@@@');
-    // let troubleList = await this.model.getTroubleList('inverter');
-    // BU.CLI(troubleList);
+    // console.time('AAAAAAAAAAAA');
+    // let inverterControllerList = [];
+    // await Promise.each(inverterConfigList, ivtConfig => {
+    //   const inverterObj = new InverterController(ivtConfig);
+    //   return Promise.delay(1000).then(() => {
+    //     return inverterObj.init().then(controller => inverterControllerList.push(controller));
+    //   });  
+    // });
+    // console.timeEnd('AAAAAAAAAAAA');
     // BU.CLI(inverterControllerList);
     this.model.setDeviceController('inverter', inverterControllerList);
 
@@ -93,14 +90,12 @@ class Control extends EventEmitter {
    * @returns {Promise} 접속반 계측 컨트롤러 생성 결과 Promise
    */
   async createConnectorController(connectorConfigList) {
-    // BU.CLI('createConnectorController', connectorConfigList.length)
+    BU.CLI('createConnectorController', connectorConfigList.length);
     // console.time('createConnectorController')
     let connectorControllerList = await Promise.map(connectorConfigList, cntConfig => {
       const connectorObj = new ConectorController(cntConfig);
       return connectorObj.init();
     });
-
-    // let troubleList = await this.model.getTroubleList('inverter');
 
     this.model.setDeviceController('connector', connectorControllerList);
     // console.timeEnd('createConnectorController')
@@ -118,7 +113,7 @@ class Control extends EventEmitter {
         let upsasDataGroup = this.model.onMeasureDeviceList(new Date(), measureDataList, 'inverter');
         // BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.processMeasureData('inverter');
-        // BU.CLI(upsasDataGroup);
+        BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.applyingMeasureDataToDb(upsasDataGroup);
         // BU.CLI(upsasDataGroup);
 
@@ -135,7 +130,7 @@ class Control extends EventEmitter {
         let upsasDataGroup = this.model.onMeasureDeviceList(new Date(), measureDataList, 'connector');
         // BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.processMeasureData('connector');
-        // BU.CLI(upsasDataGroup);
+        BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.applyingMeasureDataToDb(upsasDataGroup);
         // BU.CLI(upsasDataGroup);
 

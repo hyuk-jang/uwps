@@ -1,11 +1,11 @@
 const wrap = require('express-async-wrap');
-let router = require('express').Router();
+const router = require('express').Router();
+const _ = require('underscore');
+const BU = require('base-util-jh').baseUtil;
+const DU = require('base-util-jh').domUtil;
 
-let BU = require('base-util-jh').baseUtil;
-let DU = require('base-util-jh').domUtil;
-
-let biSensor = require('../models/sensor.js');
 let BiModule = require('../models/BiModule.js');
+let webUtil = require('../models/web.util');
 
 module.exports = function (app) {
   const initSetter = app.get('initSetter');
@@ -25,9 +25,17 @@ module.exports = function (app) {
     // BU.CLI(searchRange)
 
     let moduleStatus = await biModule.getModuleStatus();
+    BU.CLI(moduleStatus);
+    let resultCheckValidData = webUtil.checkDataValidation(moduleStatus, new Date(), 'writedate');
+    BU.CLI(resultCheckValidData);
+    
+    let hasModuleOperation = _.every(_.values(_.map(resultCheckValidData, data => data.hasValidData))); 
+    
+
     let v_upsas_profile = await biModule.getTable('v_upsas_profile');
     let monthPower = await biModule.getMonthPower();
     let dailyPowerReport = await biModule.getDailyPowerReport(searchRange);
+    // BU.CLI(dailyPowerReport);
     let inverterDataList = await biModule.getTable('v_inverter_status');
     
     let pv_amount = _.reduce(_.pluck(v_upsas_profile, 'pv_amount'), (accumulator, currentValue) => accumulator + currentValue);
@@ -54,33 +62,14 @@ module.exports = function (app) {
     req.locals.moduleStatus = moduleStatus ;
     req.locals.powerGenerationInfo = powerGenerationInfo;
 
-    return res.render('./main/index.html', req.locals)
+    return res.render('./main/index.html', req.locals);
   }));
 
-  router.get('/sensor', wrap(async (req, res) => {
-    biSensor.getSensor(function (err, result) {
-      if (err) {
-        return res.status(500).send(err);
-      }
-      req.locals.chart1 = JSON.stringify(result.chart1);
-      req.locals.chart2 = JSON.stringify(result.chart2);
-      req.locals.chart3 = JSON.stringify(result.chart3);
-      req.locals.chart4 = JSON.stringify(result.chart4);
-      req.locals.chart5 = JSON.stringify(result.chart5);
-      req.locals.chart6 = JSON.stringify(result.chart6);
-      req.locals.chart7 = JSON.stringify(result.chart7);
-      console.log(req.locals)
-
-      res.render('./sensor.html', req.locals);
-    });
-  }))
-
-
-  router.use(wrap(async (err, req, res, next) => {
-    BU.CLI('Err', err)
+  router.use(wrap(async (err, req, res) => {
+    BU.CLI('Err', err);
     res.status(500).send(err);
   }));
 
 
   return router;
-}
+};

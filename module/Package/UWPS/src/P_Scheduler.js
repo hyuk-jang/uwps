@@ -62,6 +62,7 @@ class P_Scheduler extends EventEmitter {
   async _measureInverter(measureTime, inverterControllerList) {
     // BU.CLI('_measureInverter', measureTime, inverterControllerList.length);
     let measureDataList = await Promise.map(inverterControllerList, inverterController => {
+      // BU.CLI(inverterController.deviceId);
       return inverterController.measureDevice();
     });
 

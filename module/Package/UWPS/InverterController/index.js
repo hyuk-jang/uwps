@@ -21,9 +21,9 @@ if (require !== undefined && require.main === module) {
   config.current.hasDev = false;
   config.current.deviceSavedInfo.target_category = 's_hex';
   config.current.deviceSavedInfo.connect_type = 'serial';
-  config.current.deviceSavedInfo.port = 'COM8';
+  config.current.deviceSavedInfo.port = 'COM12';
   config.current.deviceSavedInfo.baud_rate = 9600;
-  config.current.deviceSavedInfo.dialing.data = [0x30, 0x31];
+  config.current.deviceSavedInfo.dialing.data = [0x30, 0x32];
 
 
   let control = new Control(config);
@@ -31,8 +31,8 @@ if (require !== undefined && require.main === module) {
     .then(result => {
       return control.measureDevice();
     })
-    .then(result => {
-      BU.CLI(result);
+    .then(d => {
+      BU.CLI(d);
     })
     .catch(error => {
       BU.CLI(error);
@@ -40,7 +40,6 @@ if (require !== undefined && require.main === module) {
 
 
   process.on('unhandledRejection', function (reason, p) {
-    BU.debugConsole();
     console.trace('Possibly Unhandled Rejection at: Promise ', p, ' \nreason: ', reason);
     // application specific logging here
   });

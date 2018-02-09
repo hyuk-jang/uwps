@@ -21,9 +21,9 @@ module.exports = {
       calculate: 10,
       toFixed: 0
     }, {
-      baseKey: '',
+      baseKey: 'pvKw',
       updateKey: 'in_w',
-      calculate: 'amp * vol * 100',
+      calculate: 1000,
       toFixed: 0
     },{
       baseKey: 'rAmp',
@@ -32,18 +32,18 @@ module.exports = {
       toFixed: 0
     },{
       baseKey: 'rsVol',
-      updateKey: 'out_w',
+      updateKey: 'out_v',
       calculate: 10,
       toFixed: 0
     },{
-      baseKey: '',
+      baseKey: 'gridKw',
       updateKey: 'out_w',
-      calculate: 'rAmp * rsVol * 100',
+      calculate: 1000,
       toFixed: 0
     },{
       baseKey: 'pf',
       updateKey: 'p_f',
-      calculate: '(rAmp * rsVol) / (amp * vol) * 100',
+      calculate: 10,
       toFixed: 0
     },{
       baseKey: 'dailyKwh',

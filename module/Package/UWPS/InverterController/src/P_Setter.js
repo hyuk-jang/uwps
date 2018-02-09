@@ -53,6 +53,8 @@ class P_Setter extends EventEmitter {
         }
       }
 
+      // BU.CLI(this.controller.model.deviceSavedInfo);
+
       return parser;
     } catch (error) {
       BU.CLI(error);

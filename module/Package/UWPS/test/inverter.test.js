@@ -34,7 +34,7 @@ describe('UPSAS Inverter Controller Test', () => {
       // Create Inverter Controller
       if (true) {
         it('createContoller', async () => {
-          setInverterConfig(true, 'single', 'dev', 'socket');
+          // setInverterConfig(true, 'single', 's_hex', 'serial');
           BU.CLI(config);
           control = new Control(config);
           control.eventHandler();
@@ -50,7 +50,7 @@ describe('UPSAS Inverter Controller Test', () => {
       }
 
       // measure Inverter(single, dev, socket)
-      if (true) {
+      if (false) {
         it('measure Inverter(single, dev, socket)', async () => {
           model = control.model;
           // 인버터 리스트 계측 명령
@@ -72,7 +72,7 @@ describe('UPSAS Inverter Controller Test', () => {
       }
 
       // inverter System Error Test
-      if (true) {
+      if (false) {
         it('inverter System Error Test', done => {
           let testDbTroubleList = [{
             inverter_trouble_data_seq: 11,
@@ -148,7 +148,7 @@ describe('UPSAS Inverter Controller Test', () => {
       }
 
       // inverter trouble Test
-      if (true) {
+      if (false) {
         it('inverter trouble Test', done => {
           let testDbTroubleList = [{
             inverter_trouble_data_seq: 11,
@@ -248,7 +248,7 @@ describe('UPSAS Inverter Controller Test', () => {
       if (false) {
         it('normal course', async () => {
           setInverterConfig(true, 'single', 's_hex', 'socket');
-          BU.CLI(config);
+          // BU.CLI(config);
           control = new Control(config);
           control.eventHandler();
           console.time('init - single dev');

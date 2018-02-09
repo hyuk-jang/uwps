@@ -19,13 +19,15 @@ if (require !== undefined && require.main === module) {
   global.BU = BU;
 
   process.on('unhandledRejection', function (reason, p) {
-    // console.trace('Possibly Unhandled Rejection at: Promise ', p);
-    // console.trace(' reason: ', reason)
+    console.trace('Possibly Unhandled Rejection at: Promise ', p);
+    console.trace(' reason: ', reason);
     // application specific logging here
   });
 
 
 
+
+  
   /**
    * Init Config Setting
    */
@@ -35,23 +37,25 @@ if (require !== undefined && require.main === module) {
     })
     .catch(err => {
       BU.CLI(err);
+    })
+    .then(() => {
+      BU.CLI('operationScheduler');
+      control.operationScheduler();
+    })
+    .catch(err => {
+      BU.CLI(err);
     });
-
 }
-
-
+let control = null;
 async function startIndex() {
   await setter();
 
   BU.CLI(config);
-  const control = new Control(config);
+  control = new Control(config);
 
   console.time('Uwps Init');
   await control.init();
   console.timeEnd('Uwps Init');
-
-  // control.operationScheduler();
-
   return true;
 }
 
@@ -98,14 +102,14 @@ async function inverterSetter() {
       ivtDummyData: {},
       deviceSavedInfo: element
     };
-    BU.CLI(element);
+    // BU.CLI(element);
     addObj.ivtDummyData.dailyKwh = ivtDataList[index] ? ivtDataList[index].d_wh / 10000 : 0;
     addObj.ivtDummyData.cpKwh = ivtDataList[index] ? ivtDataList[index].c_wh / 10000 : 0;
     returnValue.push({
       current: addObj
     });
   });
-  // BU.CLI(returnValue)
+  // BU.CLI(returnValue);
 
   return returnValue;
 }

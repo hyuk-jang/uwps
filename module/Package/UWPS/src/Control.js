@@ -60,20 +60,26 @@ class Control extends EventEmitter {
 
   /**
    * 인버터 설정 값에 따라 인버터 계측 컨트롤러 생성 및 계측 스케줄러 실행
-   * @param {Object} inverterConfigList 인버터 설정 값
+   * @param {Object} configList 인버터 설정 값
    * @returns {Promise} 인버터 계측 컨트롤러 생성 결과 Promise
    */
-  async createInverterController(inverterConfigList) {
-    let inverterControllerList = await Promise.map(inverterConfigList, ivtConfig => {
-      const inverterObj = new InverterController(ivtConfig);
-      return inverterObj.init();
+  async createInverterController(configList) {
+    BU.CLI('createInverterController');
+    let inverterControllerList = await Promise.map(configList, config => {
+      const controller = new InverterController(config);
+      return controller.init();
     });
-
-    // let troubleList = await this.model.getTroubleList('inverter');
-    // BU.CLI(troubleList);
-
+    // console.time('AAAAAAAAAAAA');
+    // let inverterControllerList = [];
+    // await Promise.each(inverterConfigList, ivtConfig => {
+    //   const inverterObj = new InverterController(ivtConfig);
+    //   return Promise.delay(1000).then(() => {
+    //     return inverterObj.init().then(controller => inverterControllerList.push(controller));
+    //   });  
+    // });
+    // console.timeEnd('AAAAAAAAAAAA');
+    // BU.CLI(inverterControllerList);
     this.model.setDeviceController('inverter', inverterControllerList);
-    // this.model.inverterControllerList = inverterControllerList;
 
     return inverterControllerList;
   }
@@ -84,17 +90,14 @@ class Control extends EventEmitter {
    * @returns {Promise} 접속반 계측 컨트롤러 생성 결과 Promise
    */
   async createConnectorController(connectorConfigList) {
-    // BU.CLI('createConnectorController', connectorConfigList.length)
+    BU.CLI('createConnectorController', connectorConfigList.length);
     // console.time('createConnectorController')
     let connectorControllerList = await Promise.map(connectorConfigList, cntConfig => {
       const connectorObj = new ConectorController(cntConfig);
       return connectorObj.init();
     });
 
-    // let troubleList = await this.model.getTroubleList('inverter');
-
     this.model.setDeviceController('connector', connectorControllerList);
-    // this.model.connectorControllerList = connectorControllerList;
     // console.timeEnd('createConnectorController')
     return connectorControllerList;
   }
@@ -106,11 +109,11 @@ class Control extends EventEmitter {
     // 스케줄러 실행
     this.p_Scheduler.on('completeMeasureInverter', async (measureTime, measureDataList) => {
       try {
-        BU.CLIS(measureTime, measureDataList);
+        // BU.CLIS(BU.convertDateToText(measureTime), measureDataList);
         let upsasDataGroup = this.model.onMeasureDeviceList(new Date(), measureDataList, 'inverter');
         // BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.processMeasureData('inverter');
-        // BU.CLI(upsasDataGroup);
+        BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.applyingMeasureDataToDb(upsasDataGroup);
         // BU.CLI(upsasDataGroup);
 
@@ -123,11 +126,11 @@ class Control extends EventEmitter {
     // 스케줄러 실행
     this.p_Scheduler.on('completeMeasureConnector', async (measureTime, measureDataList) => {
       try {
-        BU.CLIS(measureTime, measureDataList);
+        // BU.CLIS(measureTime, measureDataList);
         let upsasDataGroup = this.model.onMeasureDeviceList(new Date(), measureDataList, 'connector');
         // BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.processMeasureData('connector');
-        // BU.CLI(upsasDataGroup);
+        BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.applyingMeasureDataToDb(upsasDataGroup);
         // BU.CLI(upsasDataGroup);
 

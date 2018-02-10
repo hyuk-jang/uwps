@@ -1,11 +1,9 @@
-const Promise = require('bluebird');
 const wrap = require('express-async-wrap');
-let router = require('express').Router();
-
+const router = require('express').Router();
+const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
 const DU = require('base-util-jh').domUtil;
-
-let BiModule = require('../models/BiModule.js');
+const BiModule = require('../models/BiModule.js');
 
 module.exports = function (app) {
   const initSetter = app.get('initSetter');

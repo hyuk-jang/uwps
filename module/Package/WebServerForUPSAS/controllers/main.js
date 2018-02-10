@@ -19,47 +19,40 @@ module.exports = function (app) {
 
   // Get
   router.get('/', wrap(async (req, res) => {
-    // let workers = app.get('workers');
-    // let startDate = req.query.start_date ? req.query.start_date : '2017-12-14';
     let searchRange = biModule.getSearchRange();
-    // BU.CLI(searchRange)
 
+    // 접속반 현재 발전 현황
     let moduleStatus = await biModule.getModuleStatus();
-    BU.CLI(moduleStatus);
-    let resultCheckValidData = webUtil.checkDataValidation(moduleStatus, new Date(), 'writedate');
-    BU.CLI(resultCheckValidData);
-    
-    let hasModuleOperation = _.every(_.values(_.map(resultCheckValidData, data => data.hasValidData))); 
-    
+    // 접속반 발전 현황 데이터 검증
+    let vaildModuleStatusList = webUtil.checkDataValidation(moduleStatus, new Date(), 'writedate');
 
     let v_upsas_profile = await biModule.getTable('v_upsas_profile');
+    // 이달 발전량 가져오기
     let monthPower = await biModule.getMonthPower();
+    // 금일 발전 현황
     let dailyPowerReport = await biModule.getDailyPowerReport(searchRange);
-    // BU.CLI(dailyPowerReport);
+    // 인버터 현재 발전 현황
     let inverterDataList = await biModule.getTable('v_inverter_status');
-    
+    // 인버터 발전 현황 데이터 검증
+    let validInverterDataList = webUtil.checkDataValidation(inverterDataList, new Date(), 'writedate');
+
+    // 설치 인버터 총 용량
     let pv_amount = _.reduce(_.pluck(v_upsas_profile, 'pv_amount'), (accumulator, currentValue) => accumulator + currentValue);
     let powerGenerationInfo = {
-      currKw: Number((_.reduce(_.pluck(inverterDataList, 'out_w'), (accumulator, currentValue) => accumulator + currentValue ) / 1000).toFixed(3)) ,
+      currKw: webUtil.calcValue(webUtil.calcValidDataList(validInverterDataList, 'out_w', false), 0.001, 3),
       currKwYaxisMax: Math.ceil(pv_amount / 10),
-      dailyPower: Number((_.reduce(_.pluck(inverterDataList, 'd_wh'), (accumulator, currentValue) => accumulator + currentValue ) / 1000).toFixed(3)),
+      dailyPower: webUtil.calcValue(webUtil.calcValidDataList(validInverterDataList, 'd_wh', false), 0.001, 3),
       monthPower,
-      cumulativePower: Number((_.reduce(_.pluck(inverterDataList, 'c_wh'), (accumulator, currentValue) => accumulator + currentValue ) / 1000 / 1000).toFixed(3)),
-      hasOperationInverter: true,
+      cumulativePower: webUtil.calcValue(webUtil.calcValidDataList(validInverterDataList, 'c_wh', true), 0.000001, 3),
+      co2: webUtil.calcValue(webUtil.calcValidDataList(validInverterDataList, 'c_wh', true), 0.000000424, 3),
+      hasOperationInverter: _.every(_.values(_.map(validInverterDataList, data => data.hasValidData))),
+      hasAlarm: false // TODO 알람 정보 작업 필요
     };
 
-    // // 인버터 동작 상태 가져옴
-    // let ivtOperation = _.map(inverterDataList, ivtData => {
-    //   // TODO hasOperation이 연결 상태로 동작 유무 파악. isError check로 해야함.
-    //   let hasOperation = workers.uPMS.hasOperationInverter(ivtData.target_id);
-    //   if(!hasOperation){
-    //     powerGenerationInfo.hasOperationInverter = false;
-    //   }
-    //   return {seq: ivtData.inverter_seq, target_id : ivtData.target_id, hasOperation}
-    // })
+    // BU.CLI(powerGenerationInfo);
 
     req.locals.dailyPowerReport = dailyPowerReport;
-    req.locals.moduleStatus = moduleStatus ;
+    req.locals.moduleStatusList = vaildModuleStatusList ;
     req.locals.powerGenerationInfo = powerGenerationInfo;
 
     return res.render('./main/index.html', req.locals);

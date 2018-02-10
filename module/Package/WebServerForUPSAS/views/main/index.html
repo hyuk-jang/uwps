@@ -46,6 +46,12 @@
             <span>MWh</span>
           </div>
 
+          <div class="row power_2">
+            <p>CO₂ 저감량</p>
+            <input type="text" name="CO₂" value=<%- powerGenerationInfo.co2 %>>
+            <span>Ton</span>
+          </div>
+
           <div class="row power_3">
             <div class="col-xs-6 power_3in">
               <img src="image/sun_03.png" />
@@ -64,13 +70,17 @@
               <%
                 var hasOperationInverter = powerGenerationInfo.hasOperationInverter;
                 var hasOperationInverterCss = "";
+                var operationTxt = "";
+                console.log('hasOperationInverter', hasOperationInverter)
                 if(hasOperationInverter){
                   hasOperationInverterCss = "btn-primary";
+                  operationTxt = "RUN";
                 } else {
                   hasOperationInverterCss = "btn-warning";
+                  operationTxt = "STOP";
                 }
               %>
-                <button type="button" class="btn <%= hasOperationInverterCss %>">RUN</button>
+                <button type="button" class="btn <%= hasOperationInverterCss %>"><%= operationTxt %></button>
             </div>
             <div class="col-xs-6 power_3in">
               <img src="image/sun_11.png" />
@@ -144,7 +154,7 @@
                   <%- dailyPowerReport.dailyPowerRange.end %>]
               </span>
             </div>
-            <div class="row con_2_1" style="height:135px;" id="dailyPowerChart">
+            <div class="row con_2_1" style="height:185px;" id="dailyPowerChart">
             </div>
           </div>
         </div>
@@ -202,8 +212,8 @@
           <b style="position: absolute; top:22px; left:16px">
             <span id="pageNumCount" data-count="1"> 1</span>
             <span>/</span>
-            <span id="pageNumLimit" data-count="<%=  Math.ceil(moduleStatus.length / 4) %>">
-              <%=  Math.ceil(moduleStatus.length / 4) %>
+            <span id="pageNumLimit" data-count="<%=  Math.ceil(moduleStatusList.length / 4) %>">
+              <%=  Math.ceil(moduleStatusList.length / 4) %>
             </span>
           </b>
           <i class="fa fa-sort-asc arrow " aria-hidden="true" onclick=changeModuleInfo(-1); id="up"></i>
@@ -222,33 +232,41 @@
         })
 
 
-        var moduleStatus = <%- JSON.stringify(moduleStatus) %>;
+        // 수중 태양광 모듈 현황
+        var moduleStatusList = <%- JSON.stringify(moduleStatusList) %>;
+        // 한번에 보여줄려는 갯수
         var moduleViewSizeCount = 4;
-
+        // 수중 태양광 목록 updown 이벤트 발생 시
         function changeModuleInfo(changeValue) {
+          // 목록 리스트 초기화
           $("#moduleStatus").html("");
+          // page Number 체크
           changeValue = $.isNumeric(changeValue) ? changeValue : 0;
+          // 현재 페이지 / 총 페이지 값 가져옴
           var pCount = $("#pageNumCount").data("count");
           var pLimit = $("#pageNumLimit").data("count");
-
+          // 바뀌는 현재 페이지 값 계산
           var changeCount = Number(pCount) + changeValue;
-          console.log('changeCount',changeCount, 'pLimit', pLimit)
+          console.log('changeCount', changeCount, 'pLimit', pLimit)
+          // 현재 페이지가 총 페이지를 넘어간다면 1Page, 음수 값이라면 총 페이지로 변경
           if (changeCount <= 0) {
             changeCount = pLimit;
           } else if (changeCount > pLimit) {
             changeCount = 1;
           }
-
+          // 현재 페이지 값 세팅
           $("#pageNumCount").data("count", changeCount);
           $("#pageNumCount").html(changeCount)
 
+          // 시작해야할 목록 Index 추출
           var startIndex = (changeCount - 1) * moduleViewSizeCount;
-          for (var i = 0; i < 4; i++) {
+          // 표현할려는 목록 수 만큼 반복하면서 Template 생성
+          for (var i = 0; i < moduleViewSizeCount; i++) {
             var currIndex = startIndex + i;
             var template = null;
             var clone = null;
 
-            // IE
+            // IE (Html5 제한적 지원)
             if (navigator.appName === 'Netscape' || navigator.appName === 'Microsoft Internet Explorer') {
               template = document.querySelector('#moduleStatusTemplate').innerHTML;
               clone = $.parseHTML(template)
@@ -258,25 +276,33 @@
             }
 
             var $findIt = null;
-            if (moduleStatus[currIndex]) {
-              var moduleInfo = moduleStatus[currIndex];
+            if (moduleStatusList[currIndex]) {
 
-              var chName = "CH " + moduleInfo.connector_ch;
+              var moduleInfo = moduleStatusList[currIndex];
+              var hasValidData = moduleInfo.hasValidData;
+              var moduleInfo = moduleInfo.data;
+
               var deviceName = moduleInfo.target_name;
-              var amp = moduleInfo.amp;
-              var vol = moduleInfo.vol;
-              var kw = (amp * vol / 1000).toFixed(2);
-
-
+              var chName = "CH " + moduleInfo.connector_ch;
               $findIt = $(clone).find('[data-type=name]');
               $findIt.html(chName + " (" + deviceName + ")")
-              $findIt = $(clone).find('[data-type=amp]');
-              $findIt.val(amp)
-              $findIt = $(clone).find('[data-type=vol]');
-              $findIt.val(vol)
-              $findIt = $(clone).find('[data-type=kw]');
-              $findIt.val(kw)
-              // TODO 작동 유무 이미지 변경 필요
+
+              // 만약 유효한 데이터가 아니라면 에러 표현
+              if (!hasValidData) {
+                $findIt = $(clone).find('[data-type=operation]');
+                $findIt.attr('src', 'image/red.png');
+              } else {
+                var amp = moduleInfo.amp;
+                var vol = moduleInfo.vol;
+                var kw = (amp * vol / 1000).toFixed(2);
+
+                $findIt = $(clone).find('[data-type=amp]');
+                $findIt.val(amp)
+                $findIt = $(clone).find('[data-type=vol]');
+                $findIt.val(vol)
+                $findIt = $(clone).find('[data-type=kw]');
+                $findIt.val(kw)
+              }
             } else {
               $findIt = $(clone).find('[data-type=operation]');
               $findIt.remove();
@@ -289,7 +315,6 @@
       <script type="text/javascript">
         var powerGenerationInfo = <%- JSON.stringify(powerGenerationInfo) %>;
         var gaugeOptions = {
-
           chart: {
             type: 'solidgauge',
             backgroundColor: 'none'
@@ -399,7 +424,7 @@
       <!-- Main 하이차트 -->
       <script type="text/javascript">
         $(function () {
-          var data = <%- JSON.stringify(dailyPowerReport.chartList) %>;
+          var data = <% - JSON.stringify(dailyPowerReport.chartList) %>;
           // console.log('data', data[0])
           $('#dailyPowerChart').highcharts({
             title: {

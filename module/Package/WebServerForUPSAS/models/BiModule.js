@@ -1,3 +1,4 @@
+const _ = require('underscore');
 const bmjh = require('base-model-jh');
 const Promise = require('bluebird');
 const BU = require('base-util-jh').baseUtil;
@@ -97,7 +98,7 @@ class BiModule extends bmjh.BM {
        WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
        group by DATE_FORMAT(writedate,'%Y-%m-%d %H')`;
 
-    return this.db.single(sql, '', false)
+    return this.db.single(sql, '', true)
       .then(result => {
         // BU.CLI(result)
         let dateList = _.pluck(result, 'writedate');

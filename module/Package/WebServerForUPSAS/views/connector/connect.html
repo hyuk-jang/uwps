@@ -23,15 +23,14 @@
               for(var i = 0 ; i < connectorList.length ; i++){
                   var connectorInfo = connectorList[i];
                   var cntSeq = connectorInfo.connector_seq;
-                  var cntName = connectorInfo.cntName;
-                  var selected = '';
+                  var cntName = connectorInfo.target_name;
+                  var selected = "";
                   if(cntSeq === connector_seq){
-                    selected = 'selected';
+                    selected = "selected";
                   }
                 %>
-                <option <%=selected %> value='
-                  <%=cntSeq %>'>
-                    <%= cntName %>
+                <option value="<%=cntSeq %>" <%=selected %> >
+                      <%= cntName %>
                 </option>
                 <%
               }
@@ -39,16 +38,11 @@
             </select>
               </div>
 
-
-          
-
-        
-      
           <div class="col-xs-9" style="float:right;">
             <div class="conne">
               <div class="form-group conne_1">
                 <label class="inputlg_1" for="inputlg">평균 전압(V)</label>
-                <input class="form-control input-lg" id="inputlg" type="text" value=<%- gridInfo.vol %>>
+                <input class="form-control input-lg" id="inputlg" type="text" value=<%- gridInfo.avgVol %>>
               </div>
               <div class="form-group conne_1">
                 <label class="inputlg_1" for="inputlg">총 전류(A)</label>
@@ -77,10 +71,9 @@
                   <th style="width:12%;"></th>
                   <%
                     for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
-                      var chName = 'CH ' + Number(i + 1);
                   %>
                     <th style="width:11%;">
-                      <%= chName %>
+                      <%= connectorStatusData.connector_ch[i] %>
                     </th>
                     <%
                   }
@@ -92,11 +85,21 @@
                   <td class="td1">설치장소</td>
                   <%
                   for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    var moduleStatus = moduleStatusList[i];
-                    var modulePlace = moduleStatus ? moduleStatus.modulePlace ? moduleStatus.modulePlace : '외부' : '';
                   %>
                     <td>
-                      <%= modulePlace %>
+                        <%= connectorStatusData.install_place[i] %>
+                    </td>
+                    <%
+                  }
+                  %>
+                </tr>
+                <tr class="sel">
+                  <td class="td1">연결 인버터</td>
+                  <%
+                  for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
+                  %>
+                    <td>
+                        <%= connectorStatusData.ivt_target_name[i] %>
                     </td>
                     <%
                   }
@@ -106,11 +109,9 @@
                   <td class="td1">모듈 타입</td>
                   <%
                   for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    var moduleStatus = moduleStatusList[i];
-                    var moduleType = moduleStatus ? moduleStatus.target_name : '';
                   %>
                     <td>
-                      <%= moduleType %>
+                        <%= connectorStatusData.pv_target_name[i] %>
                     </td>
                     <%
                   }
@@ -120,11 +121,9 @@
                   <td class="td1">제조사</td>
                   <%
                   for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    var moduleStatus = moduleStatusList[i];
-                    var manufacturer = moduleStatus ? moduleStatus.manufacturer : '';
                   %>
                     <td>
-                      <%= manufacturer %>
+                        <%= connectorStatusData.pv_manufacturer[i] %>
                     </td>
                     <%
                   }
@@ -134,11 +133,9 @@
                   <td class="td1">전류 (A)</td>
                   <%
                   for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    var moduleStatus = moduleStatusList[i];
-                    var amp = moduleStatus ? moduleStatus.amp : '';
                   %>
                     <td>
-                      <%= amp %>
+                        <%= connectorStatusData.amp[i] %>
                     </td>
                     <%
                   }
@@ -148,11 +145,9 @@
                   <td class="td1">전압 (V)</td>
                   <%
                   for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    var moduleStatus = moduleStatusList[i];
-                    var vol = moduleStatus ? moduleStatus.vol : '';
                   %>
                     <td>
-                      <%= vol %>
+                        <%= connectorStatusData.vol[i] %>
                     </td>
                     <%
                   }
@@ -162,14 +157,9 @@
                   <td class="td1">전력(W)</td>
                   <%
                   for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    var moduleStatus = moduleStatusList[i];
-                    var amp = moduleStatus ? moduleStatus.amp : 'x';
-                    var vol = moduleStatus ? moduleStatus.vol : 'x';
-                    var hasWh = isNaN(amp) || isNaN(vol);
-                    var wh = hasWh ? '' : (amp * vol).toFixed(1);
                   %>
                     <td>
-                      <%= wh %>
+                      <%= connectorStatusData.power[i] %>
                     </td>
                     <%
                   }
@@ -179,11 +169,9 @@
                   <td class="td1">모듈온도(℃)</td>
                   <%
                   for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    var moduleStatus = moduleStatusList[i];
-                    var moduleTemperature = '';
                   %>
                     <td>
-                      <%= moduleTemperature %>
+                      <%= connectorStatusData.temperature[i] %>
                     </td>
                     <%
                   }
@@ -194,12 +182,11 @@
                   <td class="td1">장치상태</td>
                   <%
                   for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
-                    var moduleStatus = moduleStatusList[i];
-                    var moduleOperation = moduleStatus ? 'image/green.png' : '';
+                    var hasOperation = connectorStatusData.hasOperation[i];
+                    var moduleOperation = hasOperation ? 'image/green.png' : hasOperation === false ? 'image/red.png' : '';
                   %>
                     <td class="center_ball">
                       <img src="<%= moduleOperation %>" />
-
                     </td>
                     <%
                   }
@@ -219,8 +206,7 @@
 
     <script>
       function changeConnector(target) {
-        console.log(target)
-        location.href = 'connector?connector_seq=' + target;
+        location.href = "/connector?connector_seq=" + target;
       }
     </script>
 

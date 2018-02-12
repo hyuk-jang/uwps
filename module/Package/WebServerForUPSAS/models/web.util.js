@@ -10,24 +10,25 @@ const BU = require('base-util-jh').baseUtil;
  */
 function checkDataValidation(targetData, baseDate, dateKey) {
   if (_.isArray(targetData)) {
-    let vaildDataList = [];
+    let validDataList = [];
 
     targetData.forEach(data => {
       let result = checkDataValidation(data, baseDate, dateKey);
-      vaildDataList = vaildDataList.concat(result);
+      validDataList = validDataList.concat(result);
     });
-    return vaildDataList;
+    return validDataList;
   } else if (_.isObject(targetData)) {
-    let vaildData = {
+    let validData = {
       hasValidData: false,
       data: {}
     };
 
     const gapDate = BU.calcDateInterval(baseDate, targetData[dateKey]);
-    vaildData.hasValidData = gapDate.remainDay === 0 && gapDate.remainHour === 0 && gapDate.remainMin < 10 ? true : false;
-    vaildData.data = targetData;
+    // BU.CLIS(gapDate, BU.convertDateToText(baseDate), BU.convertDateToText(targetData[dateKey]))
+    validData.hasValidData = gapDate.remainDay === 0 && gapDate.remainHour === 0 && gapDate.remainMin < 10 ? true : false;
+    validData.data = targetData;
 
-    return [vaildData];
+    return [validData];
   }
 }
 exports.checkDataValidation = checkDataValidation;
@@ -40,34 +41,46 @@ exports.checkDataValidation = checkDataValidation;
  * @return {number} 합산 값
  */
 function calcValidDataList(validDataList, key, hasAll) {
-  let vaildList = [];
+  let validList = [];
   if (hasAll) {
-    vaildList = _.pluck(validDataList, 'data');
+    validList = _.pluck(validDataList, 'data');
   } else {
     _.each(validDataList, validData => {
       if (validData.hasValidData) {
-        vaildList.push(validData.data);
+        validList.push(validData.data);
       }
     });
   }
-  // BU.CLI(vaildList);
-  let returnNumber = _.reduce(_.pluck(vaildList, key), (accumulator, currentValue) => accumulator + currentValue);
+  // BU.CLI(validList);
+  let returnNumber = _.reduce(_.pluck(validList, key), (accumulator, currentValue) => accumulator + currentValue);
   return _.isNumber(returnNumber) ? returnNumber : 0;
 }
 exports.calcValidDataList = calcValidDataList;
 
 /**
+ * 값을 합산
+ * @param {Array.<{Object}>} dataList Object List 
+ * @param {string} key 계산 Key
+ * @return {number|string} 계산 결과 값 or ''
+ */
+function reduceDataList(dataList, key) {
+  let returnNumber = _.reduce(_.pluck(dataList, key), (prev, next) => prev + next);
+  return _.isNumber(returnNumber) ? returnNumber : '';
+}
+
+/**
  * 기준 값에 Scale 적용 후 소수 점 처리 후 반환
  * @param {number} value 계산 할려는 값
  * @param {number} scale 게산 식 etc: 0.001, 100, 10, 20 
- * @param {number} toFixedNumber 소수 점 자리
+ * @param {number|string} toFixedNumber 소수 점 자리
  */
 function calcValue(value, scale, toFixedNumber) {
   // BU.CLIS(value, scale, toFixedNumber);
   if (_.isNumber(value) && _.isNumber(scale) && _.isNumber(toFixedNumber)) {
     return Number((value * scale).toFixed(toFixedNumber));
   }
-  throw Error('argument 중 숫자가 아닌것이 있습니다.');
+  return '';
+  // throw Error('argument 중 숫자가 아닌것이 있습니다.');
 }
 exports.calcValue = calcValue;
 
@@ -124,15 +137,20 @@ function convertColumn2Rows(targetList, priotyKeyList, repeatLength) {
   return returnValue;
 }
 exports.convertColumn2Rows = convertColumn2Rows;
-
+// 
 /**
  * 인버터 메뉴에서 사용될 데이터 선언 및 부분 정의
  * @param {Object[]} viewInverterStatus DB에서 
- * @return {Array.<{photovoltaic_seq:number, connector_ch: number, pv_target_name:string, pv_manufacturer: string, cnt_target_name: string, ivt_target_name: string, install_place: string, writedate: Date, amp: number, vol: number, hasOperation: boolean }>}
+ * @return {{totalInfo: {in_kw: number=, out_kw: number=, d_kwh: number=, c_mwh: number=}, dataList: Array.<{photovoltaic_seq:number, connector_ch: number, pv_target_name:string, pv_manufacturer: string, cnt_target_name: string, ivt_target_name: string, install_place: string, writedate: Date, amp: number, vol: number, hasOperation: boolean }>}}
  */
-function refineSelectedInverterList(viewInverterStatus) {
-  let returnValue = _.map(viewInverterStatus, info => {
-    let vaildData = info.vaildData;
+function refineSelectedInverterStatus(viewInverterStatus) {
+  let returnValue = {
+    totalInfo: {},
+    dataList: []
+  }
+  let currInverterDataList = _.map(viewInverterStatus, info => {
+    // BU.CLI(info)
+    let hasValidData = info.hasValidData;
     let data = info.data;
     let addObj = {
       inverter_seq: data.inverter_seq,
@@ -154,7 +172,7 @@ function refineSelectedInverterList(viewInverterStatus) {
     };
 
     // if (true) {
-    if (vaildData) {
+    if (hasValidData) {
       addObj.in_a = data.in_a;
       addObj.in_v = data.in_v;
       addObj.in_w = data.in_w;
@@ -171,7 +189,23 @@ function refineSelectedInverterList(viewInverterStatus) {
     }
     return addObj;
   });
-  returnValue = _.sortBy(returnValue, 'target_name');
+  currInverterDataList = _.sortBy(currInverterDataList, 'target_name');
+  // 인버터 실시간 데이터 테이블
+
+  let in_kw = _.pluck(currInverterDataList, 'in_kw');
+  let out_kw = _.pluck(currInverterDataList, 'out_kw');
+  let d_kwh = _.pluck(currInverterDataList, 'd_kwh');
+  let c_mwh = _.pluck(currInverterDataList, 'c_mwh');
+
+
+  returnValue.dataList = currInverterDataList;
+  returnValue.totalInfo.in_kw = calcValue(reduceDataList(currInverterDataList, 'in_kw'), 1, 3) 
+  returnValue.totalInfo.out_kw = calcValue(reduceDataList(currInverterDataList, 'out_kw'), 1, 3) 
+  returnValue.totalInfo.d_kwh = calcValue(reduceDataList(currInverterDataList, 'd_kwh'), 1, 3) 
+  returnValue.totalInfo.c_mwh = calcValue(reduceDataList(currInverterDataList, 'c_mwh'), 1, 4) 
+
+
+
   return returnValue;
 }
-exports.refineSelectedInverterList = refineSelectedInverterList;
+exports.refineSelectedInverterStatus = refineSelectedInverterStatus;

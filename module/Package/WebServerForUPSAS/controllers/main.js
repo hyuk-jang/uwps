@@ -24,7 +24,7 @@ module.exports = function (app) {
     // 접속반 현재 발전 현황
     let moduleStatus = await biModule.getModuleStatus();
     // 접속반 발전 현황 데이터 검증
-    let vaildModuleStatusList = webUtil.checkDataValidation(moduleStatus, new Date(), 'writedate');
+    let validModuleStatusList = webUtil.checkDataValidation(moduleStatus, new Date(), 'writedate');
 
     let v_upsas_profile = await biModule.getTable('v_upsas_profile');
     // 이달 발전량 가져오기
@@ -52,7 +52,7 @@ module.exports = function (app) {
     // BU.CLI(powerGenerationInfo);
 
     req.locals.dailyPowerReport = dailyPowerReport;
-    req.locals.moduleStatusList = vaildModuleStatusList ;
+    req.locals.moduleStatusList = validModuleStatusList ;
     req.locals.powerGenerationInfo = powerGenerationInfo;
 
     return res.render('./main/index.html', req.locals);

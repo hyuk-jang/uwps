@@ -16,18 +16,18 @@ module.exports = function (app) {
     req.locals = DU.makeBaseHtml(req, 4);
     next();
   });
-
+  // Array.<{photovoltaic_seq:number, connector_ch: number, pv_target_name:string, pv_manufacturer: string, cnt_target_name: string, ivt_target_name: string, install_place: string, writedate: Date, amp: number, vol: number, hasOperation: boolean }>
   // Get
   router.get('/', wrap(async (req, res) => {
     // BU.CLI('inverter', req.locals)
     // console.time('getTable')
-    let inverterStatus = await biModule.getTable('v_inverter_status');
+    let viewInverterStatus = await biModule.getTable('v_inverter_status');
     // 데이터 검증
-    let validInverterStatus = webUtil.checkDataValidation(inverterStatus, new Date(), 'writedate');
-
+    let validInverterStatus = webUtil.checkDataValidation(viewInverterStatus, new Date(), 'writedate');
+    // BU.CLI(validInverterStatus)
     /** 인버터 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
-    let refinedInverterList = webUtil.refineSelectedInverterList(validInverterStatus);
-    // BU.CLI(refinedInverterList);
+    let refinedInverterStatus = webUtil.refineSelectedInverterStatus(validInverterStatus);
+    // BU.CLI(refinedInverterStatus);
 
     let inverterHistory = await biModule.getInverterHistory();
     // BU.CLI(inverterHistory);
@@ -37,7 +37,7 @@ module.exports = function (app) {
       series: []
     };
     _.each(inverterHistory, (statusObj, ivtSeq) => {
-      let findObj = _.findWhere(inverterStatus, {
+      let findObj = _.findWhere(viewInverterStatus, {
         inverter_seq: Number(ivtSeq)
       });
       let addObj = {
@@ -47,14 +47,13 @@ module.exports = function (app) {
       chartDataObj.range = _.pluck(statusObj, 'hour_time');
       chartDataObj.series.push(addObj);
     });
-
-    req.locals.inverterStatus = refinedInverterList;
+    chartDataObj.series = _.sortBy(chartDataObj.series, 'name');
+    req.locals.inverterStatus = refinedInverterStatus;
     req.locals.chartDataObj = chartDataObj;
     req.locals.powerInfo = {
       measureTime: `${BU.convertDateToText(new Date(), '', 4)}:00`,
     };
-
-    // BU.CLI(req.locals);
+    // BU.CLI(req.locals.powerInfo);
 
     return res.render('./inverter/inverter.html', req.locals);
   }));

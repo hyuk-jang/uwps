@@ -37,13 +37,13 @@ module.exports = function (app) {
     let validModuleStatusList = webUtil.checkDataValidation(moduleStatusList, new Date(), 'writedate');
 
     // 모듈 데이터 삽입
-    validModuleStatusList.forEach(vaildInfo => {
-      let hasOperation = vaildInfo.hasValidData;
+    validModuleStatusList.forEach(validInfo => {
+      let hasOperation = validInfo.hasValidData;
       // let hasOperation = true;
-      let amp = vaildInfo.data.amp;
-      let vol = vaildInfo.data.vol;
+      let amp = validInfo.data.amp;
+      let vol = validInfo.data.vol;
 
-      let findIt = _.findWhere(refinedConnectorList, { photovoltaic_seq: vaildInfo.data.photovoltaic_seq });
+      let findIt = _.findWhere(refinedConnectorList, { photovoltaic_seq: validInfo.data.photovoltaic_seq });
       findIt.hasOperation = hasOperation;
       findIt.amp = hasOperation ? amp  : '';
       findIt.vol = hasOperation ? vol  : '';

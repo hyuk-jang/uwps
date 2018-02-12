@@ -23,7 +23,7 @@ module.exports = {
     }, {
       baseKey: 'pvKw',
       updateKey: 'in_w',
-      calculate: 1000,
+      calculate: 10000,
       toFixed: 0
     },{
       baseKey: 'rAmp',
@@ -38,7 +38,7 @@ module.exports = {
     },{
       baseKey: 'gridKw',
       updateKey: 'out_w',
-      calculate: 1000,
+      calculate: 10000,
       toFixed: 0
     },{
       baseKey: 'pf',
@@ -48,12 +48,12 @@ module.exports = {
     },{
       baseKey: 'dailyKwh',
       updateKey: 'd_wh',
-      calculate: 1000,
+      calculate: 10000,
       toFixed: 0
     },{
       baseKey: 'cpKwh',
       updateKey: 'c_wh',
-      calculate: 1000,
+      calculate: 10000,
       toFixed: 0
     }]
   },{

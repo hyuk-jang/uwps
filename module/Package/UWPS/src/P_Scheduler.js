@@ -16,8 +16,8 @@ class P_Scheduler extends EventEmitter {
 
   }
 
-  runCronForMeasureInverter(inverterControllerList) {
-    this._measureInverter(new Date(), inverterControllerList);
+  runCronForMeasureInverter(controllerList) {
+    this._measureInverter(new Date(), controllerList);
     try {
       if (this.cronJobMeasureInverter !== null) {
         // BU.CLI('Stop')
@@ -27,7 +27,7 @@ class P_Scheduler extends EventEmitter {
       this.cronJobMeasureInverter = new cron.CronJob({
         cronTime: `0 */${this.scheduleIntervalMin} * * * *`,
         onTick: () => {
-          this._measureInverter(new Date(), inverterControllerList);
+          this._measureInverter(new Date(), controllerList);
         },
         start: true,
       });
@@ -37,18 +37,18 @@ class P_Scheduler extends EventEmitter {
     }
   }
 
-  runCronForMeasureConnector(connectorControllerList) {
-    this._measureConnector(new Date(), connectorControllerList);
+  runCronForMeasureConnector(controllerList) {
+    this._measureConnector(new Date(), controllerList);
     try {
-      if (this.cronJobMeasureInverter !== null) {
+      if (this.cronJobMeasureConnector !== null) {
         // BU.CLI('Stop')
-        this.cronJobMeasureInverter.stop();
+        this.cronJobMeasureConnector.stop();
       }
       // 10분마다 요청
-      this.cronJobMeasureInverter = new cron.CronJob({
+      this.cronJobMeasureConnector = new cron.CronJob({
         cronTime: `0 */${this.scheduleIntervalMin} * * * *`,
         onTick: () => {
-          this._measureConnector(new Date(), connectorControllerList);
+          this._measureConnector(new Date(), controllerList);
         },
         start: true,
       });

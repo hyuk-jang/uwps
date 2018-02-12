@@ -120,6 +120,7 @@ class Decoder extends Converter {
    * @param {string|Buffer} msg 
    */
   power(msg) {
+    // BU.CLI(msg);
     let returnValue = this.getBaseValue();
     let arrSpliceBuffer = this.spliceBuffer2ArrayBuffer(msg, 4);
     let high = this.convertBuffer2Char2Dec(arrSpliceBuffer[1]);

@@ -335,7 +335,7 @@ class Model {
 
       // 수정할 Trouble이 있을 경우
       if (upmsDeviceData.updateTroubleList.length) {
-        await this.BM.updateTablesByConnection(troubleTableName, `${troubleTableName}_seq`, upmsDeviceData.updateTroubleList);
+        await this.BM.updateTablesByPool(troubleTableName, `${troubleTableName}_seq`, upmsDeviceData.updateTroubleList);
       }
     }
 

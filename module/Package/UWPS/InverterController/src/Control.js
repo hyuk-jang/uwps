@@ -265,7 +265,6 @@ class Control extends EventEmitter {
         if (this.model.controlStatus.retryChance-- && this.config.hasDev && this.config.deviceSavedInfo.target_category !== 'dev' && !BU.isEmpty(this.testStubData[this.model.controlStatus.sendIndex]())) {
           return this._onReceiveMsg(this.testStubData[this.model.controlStatus.sendIndex]());
         }
-        this.model.onSystemError('Protocol Error', true, error);
         // 데이터가 깨질 경우를 대비해 기회를 더 줌
         if (this.model.controlStatus.retryChance--) {
           // BU.CLI('기회 줌', this.model.controlStatus.retryChance)
@@ -276,7 +275,8 @@ class Control extends EventEmitter {
           });
         } else {
           // _receiveMsgHandler Method 에게 알려줄 Event 발생
-          return this.emit('errorSend2Msg', error);
+          return this.model.onSystemError('Protocol Error', true, bufferMsg);
+          // return this.emit('errorSend2Msg', error);
         }
       }
     }

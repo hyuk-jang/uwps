@@ -98,13 +98,15 @@ class Model {
     if (hasOccur && _.isEmpty(findObj)) {
       troubleObj.occur_date = new Date();
       this.systemErrorList.push(troubleObj);
-      BU.errorLog('inverter', msg);
+      BU.errorLog('inverter', `이상 발생 id:${this.id}\tcode:${troubleCode}`, msg);
     } else if (!hasOccur && !_.isEmpty(findObj)) {  // 에러 해제하였고 해당 에러가 존재한다면 삭제
       this.systemErrorList = _.reject(this.systemErrorList, systemError => {
-        return systemError.code === troubleCode;
+        if(systemError.code === troubleCode){
+          BU.errorLog('inverter', `이상 해제 id:${this.id}\tcode:${troubleCode}`, msg);
+          return true;
+        }
       });
     }
-
     return this.systemErrorList;
   }
 

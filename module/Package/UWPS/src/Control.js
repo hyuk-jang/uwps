@@ -86,15 +86,15 @@ class Control extends EventEmitter {
 
   /**
    * 접속반 설정 값에 따라 접속반 계측 컨트롤러 생성 및 계측 스케줄러 실행
-   * @param {Object} connectorConfigList 접속반 설정 값
+   * @param {Object} configList 접속반 설정 값
    * @returns {Promise} 접속반 계측 컨트롤러 생성 결과 Promise
    */
-  async createConnectorController(connectorConfigList) {
-    BU.CLI('createConnectorController', connectorConfigList.length);
+  async createConnectorController(configList) {
+    BU.CLI('createConnectorController', configList.length);
     // console.time('createConnectorController')
-    let connectorControllerList = await Promise.map(connectorConfigList, cntConfig => {
-      const connectorObj = new ConectorController(cntConfig);
-      return connectorObj.init();
+    let connectorControllerList = await Promise.map(configList, config => {
+      const controller = new ConectorController(config);
+      return controller.init();
     });
 
     this.model.setDeviceController('connector', connectorControllerList);
@@ -109,7 +109,7 @@ class Control extends EventEmitter {
     // 스케줄러 실행
     this.p_Scheduler.on('completeMeasureInverter', async (measureTime, measureDataList) => {
       try {
-        // BU.CLIS(BU.convertDateToText(measureTime), measureDataList);
+        BU.CLIS(BU.convertDateToText(measureTime), measureDataList.length);
         let upsasDataGroup = this.model.onMeasureDeviceList(new Date(), measureDataList, 'inverter');
         // BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.processMeasureData('inverter');
@@ -126,11 +126,11 @@ class Control extends EventEmitter {
     // 스케줄러 실행
     this.p_Scheduler.on('completeMeasureConnector', async (measureTime, measureDataList) => {
       try {
-        // BU.CLIS(measureTime, measureDataList);
+        BU.CLIS(BU.convertDateToText(measureTime), measureDataList.length);
         let upsasDataGroup = this.model.onMeasureDeviceList(new Date(), measureDataList, 'connector');
         // BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.processMeasureData('connector');
-        BU.CLI(upsasDataGroup);
+        // BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.applyingMeasureDataToDb(upsasDataGroup);
         // BU.CLI(upsasDataGroup);
 

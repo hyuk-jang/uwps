@@ -268,7 +268,7 @@ class Control extends EventEmitter {
           this.model.onData(this.model.testData);
           return this.emit('completeSend2Msg', this.model.testData);
         }
-        this.model.onSystemError('Protocol Error', true, error);
+        
         // 데이터가 깨질 경우 현재 진행중인 명령 재 요청
         if (this.model.controlStatus.retryChance--) {
           return Promise.delay(30).then(() => {
@@ -278,7 +278,8 @@ class Control extends EventEmitter {
           });
         } else {
           // _receiveMsgHandler Method 에게 알려줄 Event 발생
-          return this.emit('errorSend2Msg', error);
+          this.model.onSystemError('Protocol Error', true, bufferMsg);
+          // return this.emit('errorSend2Msg', error);
         }
       }
     }

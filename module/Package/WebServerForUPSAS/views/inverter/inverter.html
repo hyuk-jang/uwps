@@ -51,15 +51,16 @@
               </thead>
               <tbody id="myTable">
                 <%
-                var total_in_w = inverterStatus.length ? _.pluck(inverterStatus, 'in_w').sum().scale(0.001, 3) : '';
-                var total_out_w = inverterStatus.length ?  _.pluck(inverterStatus, 'out_w').sum().scale(0.001, 3) : '';
-                var total_d_wh = inverterStatus.length ?  _.pluck(inverterStatus, 'd_wh').sum().scale(0.001, 3) : '';
-                var total_c_wh = inverterStatus.length ? _.pluck(inverterStatus, 'c_wh').sum().scale(0.000001, 4) : '';;
+                var total_in_kw = inverterStatus.length ? _.pluck(inverterStatus, 'in_kw').sum().scale(1,3) : '';
+                var total_out_kw = inverterStatus.length ?  _.pluck(inverterStatus, 'out_kw').sum().scale(1,3) : '';
+                var total_d_kwh = inverterStatus.length ?  _.pluck(inverterStatus, 'd_kwh').sum().scale(1,3) : '';
+                var total_c_mwh = inverterStatus.length ? _.pluck(inverterStatus, 'c_mwh').sum().scale(1,4) : '';;
 
 
                 for(var i = 0 ;i < inverterStatus.length ; i++)
                 {
                   var inverterData = inverterStatus[i];
+                   var deviceOperationImgName = inverterData.hasOperation ? "green.png" : "red.png";
                 %>
 
                   <tr class="sel">
@@ -73,7 +74,7 @@
                       <%=inverterData.in_a%>
                     </td>
                     <td>
-                      <%=inverterData.in_w.scale(0.001, 3)%>
+                      <%=inverterData.in_kw%>
                     </td>
                     <td>
                       <%=inverterData.out_v%>
@@ -82,19 +83,19 @@
                       <%=inverterData.out_a%>
                     </td>
                     <td>
-                      <%=inverterData.out_w.scale(0.001, 3)%>
+                      <%=inverterData.out_kw%>
                     </td>
                     <td>
                       <%=inverterData.p_f%>
                     </td>
                     <td>
-                      <%=inverterData.d_wh.scale(0.001, 3)%>
+                      <%=inverterData.d_kwh %>
                     </td>
                     <td>
-                      <%=inverterData.c_wh.scale(0.000001, 4)%>
+                      <%=inverterData.c_mwh %>
                     </td>
                     <td class="center_ball">
-                      <img src="image/green.png" />
+                      <img src="image/<%= deviceOperationImgName %>" />
                     </td>
                   </tr>
                   <%
@@ -106,20 +107,20 @@
                       <td>
                       </td>
                       <td>
-                        <%=total_in_w%>
+                        <%= total_in_kw %>
                       </td>
                       <td></td>
                       <td>
                       </td>
                       <td>
-                        <%=total_out_w%>
+                        <%= total_out_kw %>
                       </td>
                       <td></td>
                       <td>
-                        <%=total_d_wh%>
+                        <%= total_d_kwh %>
                       </td>
                       <td>
-                        <%= total_c_wh%>
+                        <%= total_c_mwh %>
                       </td>
                       <td></td>
                     </tr>
@@ -138,48 +139,50 @@
 
 
     <script type="text/javascript">
-      $(document).ready(function () {
+    var chartDataObj = <%- JSON.stringify (chartDataObj) %>;
+    if (chartDataObj.series.length) {
+        $(function () {
+          var yMax = 1500;
 
-      });
-      $(function () {
-        var chartDataObj = <%- JSON.stringify (chartDataObj) %>;
-        var yMax = 1500;
-
-        $('#chart_div').highcharts({
-          title: {
-            text: ''
-          },
-          xAxis: {
-            // opposite: true,
+          $('#chart_div').highcharts({
             title: {
-              text: '시간(Hour)'
+              text: ''
             },
-            // tickInterval: 6
-            categories: chartDataObj.range
-          },
-          yAxis: {
-            max: yMax,
-            title: {
-              text: '전력(wh)'
-            }
-          },
-          plotOptions: {
-            series: {
-              pointStart: 0
-            }
-          },
-          legend: { //범례
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle',
-            borderWidth: 0,
-          },
-          series: chartDataObj.series,
-          credits: {
-            enabled: false
-          },
+            xAxis: {
+              // opposite: true,
+              title: {
+                text: '시간(Hour)'
+              },
+              // tickInterval: 6
+              categories: chartDataObj.range
+            },
+            yAxis: {
+              max: yMax,
+              title: {
+                text: '전력(W)'
+              }
+            },
+            plotOptions: {
+              series: {
+                pointStart: 0
+              }
+            },
+            legend: { //범례
+              layout: 'vertical',
+              align: 'right',
+              verticalAlign: 'middle',
+              borderWidth: 0,
+            },
+            series: chartDataObj.series,
+            credits: {
+              enabled: false
+            },
+          });
         });
-      });
+      } else {
+        $("#chart_div").html("발전 내역이 존재하지 않습니다.").css({ "line-height": "300px", "font-size": "25px" });
+      }
+
     </script>
 </body>
 

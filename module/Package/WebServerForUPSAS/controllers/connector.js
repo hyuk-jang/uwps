@@ -26,6 +26,7 @@ module.exports = function (app) {
     let upsasProfile = await biModule.getTable('v_upsas_profile');
     // 선택된 접속반 seq 정의
     let connector_seq = req.query.connector_seq == null || req.query.connector_seq === 'all' ? 'all' : Number(req.query.connector_seq);
+    /** 접속반 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
     let refinedConnectorList = webUtil.refineSelectedConnectorList(upsasProfile, connector_seq);
     // 접속반에 물려있는 모듈 seq 정의
     let moduleSeqList = _.pluck(refinedConnectorList, 'photovoltaic_seq');
@@ -37,8 +38,8 @@ module.exports = function (app) {
 
     // 모듈 데이터 삽입
     validModuleStatusList.forEach(vaildInfo => {
-      // let hasOperation = vaildInfo.hasValidData;
-      let hasOperation = true;
+      let hasOperation = vaildInfo.hasValidData;
+      // let hasOperation = true;
       let amp = vaildInfo.data.amp;
       let vol = vaildInfo.data.vol;
 
@@ -83,23 +84,25 @@ module.exports = function (app) {
       range: chartRange,
       series: reportSeries
     };
-
     let connectorList = await biModule.getTable('connector');
     connectorList.unshift({
       connector_seq: 'all',
       target_name: '모두'
     });
 
-    // 접속반 리스트
+    /** 실시간 접속반 데이터 리스트 */
     req.locals.connectorStatusData = connectorStatusData;
+    /** 접속반 SelectBox  */
     req.locals.connectorList = connectorList;
+    /** 선택 접속반 seq */
     req.locals.connector_seq = connector_seq;
     req.locals.gridInfo = {
     // 총전류, 전압, 보여줄 컬럼 개수
       totalAmp,
       avgVol,
       maxModuleViewNum,
-      measureTime: _.first(moduleStatusList) ? BU.convertDateToText(_.first(moduleStatusList).writedate) : ''
+      measureTime: `${BU.convertDateToText(new Date(), '', 4)}:00`,
+      // measureTime: _.first(moduleStatusList) ? BU.convertDateToText(_.first(moduleStatusList).writedate) : ''
     };
     // 모듈 상태값들 가지고 있는 배열
     req.locals.moduleStatusList = refinedConnectorList;

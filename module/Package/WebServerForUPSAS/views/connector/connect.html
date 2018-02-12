@@ -183,7 +183,7 @@
                   <%
                   for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
                     var hasOperation = connectorStatusData.hasOperation[i];
-                    var moduleOperation = hasOperation ? 'image/green.png' : hasOperation === false ? 'image/red.png' : '';
+                    var moduleOperation = hasOperation ? "image/green.png" : hasOperation === false ? "image/red.png" : "";
                   %>
                     <td class="center_ball">
                       <img src="<%= moduleOperation %>" />
@@ -214,37 +214,42 @@
     <script type="text/javascript">
       var chartDataObj = <%- JSON.stringify (chartDataObj) %>;
 
-      $(function () {
-        $('#chart_div').highcharts({
-          title: {
-            text: ''
-          },
-          xAxis: {
+      if(chartDataObj.series.length){
+        $(function () {
+          $("#chart_div").highcharts({
             title: {
-              text: '시간(Hour)'
+              text: ""
             },
-            categories: chartDataObj.range
-            // categories: rangeData,
-            // tickInterval: 6
-            // categories: ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24']
-          },
-          yAxis: {
-            title: {
-              text: '발전량(W)'
-            }
-          },
-          legend: { //범례
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle',
-            borderWidth: 0
-          },
-          series: chartDataObj.series,
-          credits: {
-            enabled: false
-          },
+            xAxis: {
+              title: {
+                text: "시간(Hour)"
+              },
+              categories: chartDataObj.range
+              // categories: rangeData,
+              // tickInterval: 6
+              // categories: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24"]
+            },
+            yAxis: {
+              title: {
+                text: "발전량(W)"
+              }
+            },
+            legend: { //범례
+              layout: "vertical",
+              align: "right",
+              verticalAlign: "middle",
+              borderWidth: 0
+            },
+            series: chartDataObj.series,
+            credits: {
+              enabled: false
+            },
+          });
         });
-      });
+      } else {
+        $("#chart_div").html("발전 내역이 존재하지 않습니다.").css({"line-height": "300px", "font-size": "25px"});
+      }
+
     </script>
 </body>
 

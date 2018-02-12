@@ -219,12 +219,12 @@ class BiModule extends bmjh.BM {
   /**
    * 
    * @param {number[]=} inverter_seq_list 
-   * @param {*} startDate 
-   * @param {*} endDate 
+   * @param {string} strStartDate 
+   * @param {string} strEndDate 
    */
-  getInverterHistory(inverter_seq_list, startDate, endDate) {
-    startDate = startDate ? startDate : 'CURDATE()';
-    endDate = endDate ? endDate : 'CURDATE() + 1';
+  getInverterHistory(inverter_seq_list, strStartDate, strEndDate) {
+    strStartDate = strStartDate ? `'${strStartDate}'` : 'CURDATE()';
+    strEndDate = strEndDate ? `'${strEndDate}'` : 'CURDATE() + 1';
 
     let sql = `
       SELECT 
@@ -241,7 +241,7 @@ class BiModule extends bmjh.BM {
       ROUND(d_wh / 10, 1) AS d_wh,
       ROUND(c_wh / 10, 1) AS c_wh
       FROM inverter_data
-        WHERE writedate>= ${startDate} AND writedate<${endDate}
+        WHERE writedate>= ${strStartDate} AND writedate<${strEndDate}
     `;
     if (Array.isArray(inverter_seq_list)) {
       sql += ` AND inverter_seq IN (${inverter_seq_list})`;
@@ -250,8 +250,7 @@ class BiModule extends bmjh.BM {
       GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), inverter_seq
       ORDER BY inverter_seq, writedate
     `;
-
-    return this.db.single(sql)
+    return this.db.single(sql, '', false)
       .then(result => {
         return _.groupBy(result, rows => rows.inverter_seq);
       });

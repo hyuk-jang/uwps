@@ -3,12 +3,14 @@ const router = require('express').Router();
 const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
 const DU = require('base-util-jh').domUtil;
+
 const BiModule = require('../models/BiModule.js');
+let webUtil = require('../models/web.util');
 
 module.exports = function (app) {
   const initSetter = app.get('initSetter');
   const biModule = new BiModule(initSetter.dbInfo);
-  
+
   // server middleware
   router.use(function (req, res, next) {
     req.locals = DU.makeBaseHtml(req, 4);
@@ -16,22 +18,28 @@ module.exports = function (app) {
   });
 
   // Get
-  router.get('/', wrap(async(req, res) => {
+  router.get('/', wrap(async (req, res) => {
     // BU.CLI('inverter', req.locals)
-
     // console.time('getTable')
     let inverterStatus = await biModule.getTable('v_inverter_status');
-    // console.timeEnd('getTable')
-    // console.time('getInverterHistory')
+    // 데이터 검증
+    let validInverterStatus = webUtil.checkDataValidation(inverterStatus, new Date(), 'writedate');
+
+    /** 인버터 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
+    let refinedInverterList = webUtil.refineSelectedInverterList(validInverterStatus);
+    // BU.CLI(refinedInverterList);
+
     let inverterHistory = await biModule.getInverterHistory();
-    // BU.CLI(inverterHistory)
+    // BU.CLI(inverterHistory);
 
     let chartDataObj = {
       range: [],
       series: []
-    }; 
+    };
     _.each(inverterHistory, (statusObj, ivtSeq) => {
-      let findObj = _.findWhere(inverterStatus, {inverter_seq : Number(ivtSeq)});
+      let findObj = _.findWhere(inverterStatus, {
+        inverter_seq: Number(ivtSeq)
+      });
       let addObj = {
         name: findObj ? findObj.target_name : '',
         data: _.pluck(statusObj, 'out_w')
@@ -40,15 +48,13 @@ module.exports = function (app) {
       chartDataObj.series.push(addObj);
     });
 
-    // console.timeEnd('getInverterHistory')
-
-    req.locals.inverterStatus = inverterStatus;
+    req.locals.inverterStatus = refinedInverterList;
     req.locals.chartDataObj = chartDataObj;
     req.locals.powerInfo = {
-      measureTime: _.first(inverterStatus) ? BU.convertDateToText(_.first(inverterStatus).writedate) : ''
+      measureTime: `${BU.convertDateToText(new Date(), '', 4)}:00`,
     };
 
-    BU.CLI(req.locals);
+    // BU.CLI(req.locals);
 
     return res.render('./inverter/inverter.html', req.locals);
   }));

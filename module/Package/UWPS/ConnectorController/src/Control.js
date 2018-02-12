@@ -185,7 +185,7 @@ class Control extends EventEmitter {
         })
         .catch(err => {
           let msg = `${this.deviceId}의 ${this.model.processCmd}명령 수행 도중 ${err.message}오류가 발생하였습니다.`;
-          BU.errorLog('measureDevice', msg);
+          BU.appendFile(`./log/connector/error/measure/${BU.convertDateToText(new Date(), '', 2)}.txt`, msg);
 
           // 컨트롤 상태 초기화
           this.model.initControlStatus();
@@ -204,7 +204,7 @@ class Control extends EventEmitter {
   async send2Cmd(cmd) {
     // BU.CLI('send2Cmd', cmd);
     let timeout = {};
-    console.time('Timeout');
+    // console.time('Timeout');
     await Promise.race(
       [
         this.msgSendController(cmd),
@@ -212,7 +212,6 @@ class Control extends EventEmitter {
           timeout = setTimeout(() => {
             // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
             // 명전 전송 후 제한시간안에 응답이 안올 경우 에러 
-            console.timeEnd('Timeout');
             this.model.onSystemError('Timeout Error', true);
             reject(new Error('timeout'));
           }, this.model.controlStatus.sendMsgTimeOutSec);
@@ -238,8 +237,7 @@ class Control extends EventEmitter {
     // BU.CLI(this.config.deviceSavedInfo);
     await this.dcm.write(cmd);
     // 수신된 메시지의 유효성 검증
-    // TODO File Logging 하고싶다면 여기서 파일 저장
-    let originalMsg = await eventToPromise.multi(this, ['completeSend2Msg'], ['errorSend2Msg']);
+    await eventToPromise.multi(this, ['completeSend2Msg'], ['errorSend2Msg']);
     // 요청 메시지 리스트가 비어있다면 명령 리스트를 초기화하고 Resolve
     this.model.controlStatus.processCmd = {};
     this.model.controlStatus.retryChance = 3;
@@ -323,6 +321,7 @@ class Control extends EventEmitter {
     /** 장치에서 수신된 데이터 처리 */
     this.on('dcData', data => {
       // BU.CLIS(data, data.toString());
+      BU.appendFile(`./log/connector/data/${BU.convertDateToText(new Date(), '', 2)}.txt`, `${this.deviceId} : ${data}`);
       return this._onReceiveMsg(data);
     });
 

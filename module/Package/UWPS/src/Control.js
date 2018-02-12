@@ -120,7 +120,7 @@ class Control extends EventEmitter {
         // Measure Inverter 종료 이벤트 발생
         this.emit('completeProcessInverterData', upsasDataGroup);
       } catch (error) {
-        BU.errorLog('measureDevice', error);
+        BU.errorLog(`eventHandler_${BU.convertDateToText(new Date(), '', 2)}`, error);
       }
     });
     // 스케줄러 실행
@@ -130,14 +130,14 @@ class Control extends EventEmitter {
         let upsasDataGroup = this.model.onMeasureDeviceList(new Date(), measureDataList, 'connector');
         // BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.processMeasureData('connector');
-        // BU.CLI(upsasDataGroup);
+        BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.applyingMeasureDataToDb(upsasDataGroup);
         // BU.CLI(upsasDataGroup);
 
         // Measure Connector 종료 이벤트 발생
         this.emit('completeProcessConnectorData', upsasDataGroup);
       } catch (error) {
-        BU.errorLog('measureDevice', error);
+        BU.errorLog(`eventHandler_${BU.convertDateToText(new Date(), '', 2)}`, error);
       }
     });
   }

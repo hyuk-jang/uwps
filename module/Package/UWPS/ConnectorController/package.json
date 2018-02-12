@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "base-class-jh": "^1.0.17",
-    "base-util-jh": "^1.0.11",
+    "base-util-jh": "^1.0.14",
     "bluebird": "^3.5.1",
     "crc": "^3.5.0",
     "device-connect-manager": "^0.1.7",

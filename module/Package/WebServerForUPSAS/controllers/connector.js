@@ -64,13 +64,7 @@ module.exports = function (app) {
     // BU.CLI(todayModuleReport);
     let chartData = webUtil.makeDynamicChartData(todayModuleReport, 'wh', 'hour_time', 'photovoltaic_seq');
 
-    chartData.series.forEach(chart => {
-      let upsasInfo = _.findWhere(upsasProfile, {
-        photovoltaic_seq: Number(chart.name)
-      });
-      chart.name = `${upsasInfo.cnt_target_name} CH ${upsasInfo.connector_ch} `;
-    });
-    chartData.series = _.sortBy(chartData.series, 'ivt_target_name');
+    webUtil.mappingChartDataNameForModule(chartData, upsasProfile);
 
     let connectorList = await biModule.getTable('connector');
     connectorList.unshift({

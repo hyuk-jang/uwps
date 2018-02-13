@@ -1,6 +1,20 @@
 const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
 
+
+/**
+ * searchRange Type
+ * @typedef {Object} searchRange
+ * @property {string} searchType day, month, year, range
+ * @property {string} strStartDate sql writedate range 사용
+ * @property {string} strEndDate sql writedate range 사용
+ * @property {string} rangeStart Chart 위에 표시될 시작 날짜
+ * @property {string} rangeEnd Chart 위에 표시될 종료 날짜
+ * @property {string} strStartDateInputValue input[type=text] 에 표시될 시작 날짜
+ * @property {string} strEndDateInputValue input[type=text] 에 표시될 종료 날짜
+ */
+
+
 /**
  * 기준이 되는 날을 기준으로 해당 데이터의 유효성을 검증. 10분 이상 차이가 나면 유효하지 않는 데이터로 처리.
  * @param {Array|Object} targetData 점검하고자 하는 데이터
@@ -291,15 +305,18 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
       };
 
       baseRange.fullTxtPoint.forEach(fullTxtDate => {
-        
+        let resultFind = _.findWhere(groupObj, {
+          [rangeKey]: fullTxtDate
+        });
+
+        // BU.CLI(findGridObj)
+        let data = _.isEmpty(resultFind) ? '' : resultFind[dataKey];
+        addObj.data.push(data);
       });
-
-
-
-      _.each(groupObj, gInfo => {
-        let index = _.indexOf(returnValue.range, gInfo[rangeKey]);
-        addObj.data[index] = gInfo[dataKey];
-      });
+      // _.each(groupObj, gInfo => {
+      //   let index = _.indexOf(returnValue.range, gInfo[rangeKey]);
+      //   addObj.data[index] = gInfo[dataKey];
+      // });
       return addObj;
     });
   }
@@ -308,7 +325,94 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
 exports.makeStaticChartData = makeStaticChartData;
 
 /**
- * 
+ * 검색 조건 (year, month, day)에 따라서 비율을 변환하여 반환
+ * @param {number} number 
+ * @param {string} searchType 
+ */
+function convertValueBySearchType(number, searchType) {
+  // BU.CLI('convertValueBySearchType', searchType, number)
+  let returnValue = 0;
+  switch (searchType) {
+  case 'year':
+    returnValue = (number / 1000 / 1000).toFixed(4);
+    break;
+  case 'month':
+    returnValue = (number / 1000).toFixed(3);
+    break;
+  case 'day':
+    returnValue = (number / 1000).toFixed(3);
+    break;
+  case 'hour':
+  default:
+    returnValue = number;
+    break;
+  }
+  return Number(returnValue);
+}
+exports.convertValueBySearchType = convertValueBySearchType;
+
+/**
+ * 차트 데이터 검색 조건에 따라서 데이터 비율 적용
+ * @param {chartData} chartData 차트 데이터
+ * @param {string} searchType 검색 타입 year, month, day, hour
+ */
+function applyScaleChart(chartData, searchType) {
+  BU.CLI(searchType);
+  chartData.series.forEach(chart => {
+    chart.data.forEach((data, index) => {
+      // BU.CLI(data);
+      chart.data[index] = _.isNumber(data) ? convertValueBySearchType(data, searchType) : '';
+    });
+  });
+  return chartData;
+}
+exports.applyScaleChart = applyScaleChart;
+
+/**
+ * 차트를 생성하는데 필요한 부가적인 정보 생성
+ * @param {searchRange} searchRange 검색 옵션
+ * @return {{mainTitle: string, xAxisTitle: string, yAxisTitle: string}} x, y, title Text
+ */
+function makeChartOption(searchRange) {
+  let mainTitle = '';
+  let xAxisTitle = '';
+  let yAxisTitle = '';
+  switch (searchRange.searchType) {
+  case 'year':
+    xAxisTitle = '시간(년)';
+    yAxisTitle = '발전량(MWh)';
+    break;
+  case 'month':
+    xAxisTitle = '시간(월)';
+    yAxisTitle = '발전량(kWh)';
+    break;
+  case 'day':
+    xAxisTitle = '시간(일)';
+    yAxisTitle = '발전량(kWh)';
+    break;
+  case 'hour':
+    xAxisTitle = '시간(시)';
+    yAxisTitle = '발전량(Wh)';
+    break;
+  default:
+    break;
+  }
+
+  if (searchRange.rangeEnd !== '') {
+    mainTitle = `[ ${searchRange.rangeStart} ~ ${searchRange.rangeEnd} ]`;
+  } else {
+    mainTitle = `[ ${searchRange.rangeStart} ]`;
+  }
+  return {
+    mainTitle,
+    xAxisTitle,
+    yAxisTitle
+  };
+}
+exports.makeChartOption = makeChartOption;
+
+/**
+ * 차트 name을 의미있는 이름으로 변환
  * @param {chartData} chartData makeChartData 결과물
  * @param {Array.<{}>|string} mappingTarget Mapping 할 대상 데이터. 강제로 이름을 지정하고자 할 경우에 string
  * @param {string} matchingKey matchingKey
@@ -329,7 +433,7 @@ function mappingChartDataName(chartData, mappingTarget, matchingKey, mappingKey)
         });
       }
       chart.name = _.isEmpty(findObj) ? chart.name : findObj[mappingKey];
-    } else if(_.isString(mappingTarget)){
+    } else if (_.isString(mappingTarget)) {
       chart.name = mappingTarget;
     }
   });
@@ -339,3 +443,23 @@ function mappingChartDataName(chartData, mappingTarget, matchingKey, mappingKey)
   return chartData;
 }
 exports.mappingChartDataName = mappingChartDataName;
+
+/**
+ * 모듈 차트 name을 의미있는 이름으로 변환
+ * @param {chartData} chartData makeChartData 결과물
+ * @param {Array.<{}>|string} mappingTarget Mapping 할 대상 데이터. 강제로 이름을 지정하고자 할 경우에 string
+ * @param {string} matchingKey matchingKey
+ * @param {string} mappingKey matchingKey
+ * @return {chartData} Name 처리 한 후 반환
+ */
+function mappingChartDataNameForModule(chartData, mappingTarget) {
+  chartData.series.forEach(chart => {
+    let upsasInfo = _.findWhere(mappingTarget, {
+      photovoltaic_seq: Number(chart.name)
+    });
+    chart.name = `${upsasInfo.cnt_target_name} CH ${upsasInfo.connector_ch} `;
+  });
+  chartData.series = _.sortBy(chartData.series, 'ivt_target_name');
+  return chartData;
+}
+exports.mappingChartDataNameForModule = mappingChartDataNameForModule;

@@ -17,18 +17,29 @@
         <div class="row row_width  top_box">
             <div class="col-xs-2 sel_box">
                 장비 종류
-              <select class="form-control form-control_st" id="cnt_list_sel" name="connector_seq">
-                  <option>
+              <select class="form-control form-control_st" id="device_type_sel" name="">
+                  <option value="all">
+                      모두
+                  </option>
+                  <option value="inverter">
                       인버터
                   </option>
-                  <option>
+                  <option value="connector">
                       접속반
                   </option>
               </select>
             </div>
           <div class="col-xs-2 sel_box">
-              접속반
-            <select class="form-control form-control_st" id="cnt_list_sel" name="connector_seq">
+              장비 선택
+            <select class="form-control form-control_st" id="device_list_sel" name="device_seq">
+                <!-- for(var i = 0 ; i < deviceList.length ; i++){
+                  var deviceInfo = deviceList[i];
+                  var target_seq = deviceInfo.target_seq;
+                  var target_name = deviceInfo.target_name;
+                  var selected = '';
+                  if(target_seq === device_seq){
+                    selected = 'selected';
+                  } -->
               <%
                 for(var i = 0 ; i < connectorList.length ; i++){
                   var connectorInfo = connectorList[i];
@@ -99,17 +110,17 @@
 
       <!-- 기본 데이터 세팅 -->
       <script>
+        $("#device_type_sel").on('change', function(event){
+          console.log(event.target.value)
+          changeDeviceType(event.target.value)
+        })
+
+
         // 초기 시작시 라디오 체크버튼 클릭처리
         var searchRange = <%- JSON.stringify(searchRange)  %>;
-        var trendReportList = <%- JSON.stringify (trendReportList) %>;
-        var searchType = '<%-searchType%>';
+        var searchType = "<%-searchType%>";
 
         $(document).ready(function() {
-          console.log('searchRange', searchRange, trendReportList)
-          if (!trendReportList.hasData) {
-            $("#moduleChart_1").html("발전 내역이 존재하지 않습니다.").css({ "line-height": "240px", "font-size": "25px" });
-            // alert('조회 내역이 없습니다.');
-          }
           var selectedObj = $("#sel_type_div_area").find("input[value=" + searchType + "]") ;
           // document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
 
@@ -155,7 +166,8 @@
 
         // 검색 클릭 시
         function searchTrend() {
-          var connector_seq = document.querySelector('#cnt_list_sel option:checked').value;
+          var device_type = document.querySelector('#device_type_sel option:checked').value;
+          var device_seq = document.querySelector('#device_list_sel option:checked').value;
           var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
           var startDate = document.getElementById('start_date_input').value;
           var endDate = '';
@@ -167,29 +179,55 @@
             }
           }
 
-          return location.href ="/trend?connector_seq=" + connector_seq + "&start_date=" + startDate + "&end_date=" + endDate + "&search_type=" + searchType;
-          // `/trend?connector_seq=${connector_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}`;
+          return location.href ="/trend?device_type=" + device_type + "&device_seq=" + device_seq + "&start_date=" + startDate + "&end_date=" + endDate + "&search_type=" + searchType;
+          // `/trend?device_seq=${device_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}`;
+        }
+
+        // 장치 타입 변경 시
+        function changeDeviceType(deviceType) {
+          // console.log("changeDeviceType", deviceType)
+          // var deviceName = deviceType === 'inverter' ? '인버터' : deviceType === 'connector' ? '접속반' : '모두';
+          $.ajax({
+            type: "GET",
+            url: "/trend/sub-list/" + encodeURIComponent(deviceType)
+          }).done(function (dataList, msg, res) {
+            // Check for a successful (blank) response
+            // console.log('dataList', dataList)
+            var resultData = dataList;
+            var html = '<option value="all">모두</option>';
+            resultData.forEach(data => {
+              var seq = data.seq;
+              var target_name = data.target_name;
+              html += '<option value="' + seq + '">' + target_name + '</option>';
+            });
+
+            // $("#device_list_sel").parent().html(deviceName)
+            $("#device_list_sel").html(html);
+          }).fail(function (req, sts, err) {
+            alert(err);
+          });
         }
       </script>
 
       <!-- 모듈 차트 -->
       <script type="text/javascript">
-        // console.log('trendReportList.shortTxtPoint', trendReportList.shortTxtPoint)
-          if (trendReportList.hasData) {
-            $('#moduleChart_1').highcharts({
+      var chartData = <%- JSON.stringify(chartData) %>;
+      var chartOption = <%- JSON.stringify(chartOption) %>;
+      if(chartData.series.length){
+        $('#moduleChart_1').highcharts({
               title: {
-                text: trendReportList.chartOptionInfo.mainTitle
+                text: chartOption.mainTitle
               },
               xAxis: {
                 title: {
-                  text: trendReportList.chartOptionInfo.xAxisTitle
+                  text: chartOption.xAxisTitle
                 },
                 tickInterval: 1,
-                categories: trendReportList.columnList
+                categories: chartData.range
               },
               yAxis: {
                 title: {
-                  text: trendReportList.chartOptionInfo.yAxisTitle
+                  text: chartOption.yAxisTitle
                 }
               },
               legend: { //범례
@@ -198,15 +236,14 @@
                 verticalAlign: 'middle',
                 borderWidth: 0
               },
-              series: trendReportList.series,
+              series: chartData.series,
               credits: {
                 enabled: false
               },
             });
-          } else {
-            $("#moduleChart_1").html("발전 내역이 존재하지 않습니다.").css({ "line-height": "240px", "font-size": "25px" });
-            // alert('조회 내역이 없습니다.');
-          }
+      } else {
+        $("#moduleChart_1").html("발전 내역이 존재하지 않습니다.").css({"line-height": "240px", "font-size": "25px"});
+      }
       </script>
 
       <!-- 날씨 차트 -->

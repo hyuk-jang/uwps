@@ -19,12 +19,13 @@ module.exports = function (app) {
 
   // Get
   router.get('/', wrap(async(req, res) => {
+    let deviceType = req.query.device_type ? req.query.device_type : 'inverter';
     let searchType = req.query.search_type ? req.query.search_type : 'hour';
     let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
     let upsasProfile = await biModule.getTable('v_upsas_profile');
     let connectorList = await biModule.getTable('connector');
 
-    let param_connector_seq = req.query.connector_seq;
+    let param_connector_seq = req.query.device_seq;
     let connectorSeqList = !isNaN(param_connector_seq) && param_connector_seq !== '' ? [Number(req.query.connector_seq)] : _.pluck(connectorList.connector_seq);
 
     let moduleSeqList = [];
@@ -34,30 +35,53 @@ module.exports = function (app) {
     });
     moduleSeqList = _.union(moduleSeqList);
 
-    let moduleReportList = await biModule.getModuleReport(moduleSeqList, searchRange);
-    // BU.CLI(moduleReportList);
-
+    /** 모듈 데이터 가져옴 */
     let moduleHistory =  await biModule.getModuleHistory(moduleSeqList, searchRange);
-    BU.CLI(moduleHistory);
+    /** searchRange를 기준으로 검색 Column Date를 정함  */
     let betweenDatePoint =  BU.getBetweenDatePoint(searchRange.strEndDate, searchRange.strStartDate, searchRange.searchType);
-    BU.CLI(betweenDatePoint);
-    // let chartData = webUtil.makeChartData(moduleReportList, 'wh', 'group_date', 'photovoltaic_seq');
-
-    let trendReportList = await biModule.processModuleReport(upsasProfile, moduleReportList, searchRange);
-    // BU.CLI(trendReportList);
+    /** 정해진 column을 기준으로 모듈 데이터를 정리 */
+    let chartData = webUtil.makeStaticChartData(moduleHistory, betweenDatePoint, 'total_wh', 'group_date', 'photovoltaic_seq');
+    /** Grouping Chart에 의미있는 이름을 부여함. */
+    webUtil.mappingChartDataNameForModule(chartData, upsasProfile);
+    /** searchRange 조건에 따라서 Chart Data의 비율을 변경 */
+    webUtil.applyScaleChart(chartData, searchRange.searchType);
+    /** 차트를 표현하는데 필요한 Y축, X축, Title Text 설정 객체 생성 */
+    let chartOption = webUtil.makeChartOption(searchRange);
     connectorList.unshift({
       connector_seq: 'all',
       target_name: '모두'
     });
 
+    req.locals.chartData = chartData;
+    req.locals.chartOption = chartOption;
+
     // BU.CLI(gridChartReport)
     req.locals.searchType = searchType;
     req.locals.connector_seq = param_connector_seq == null ? 'all' : Number(param_connector_seq);
     req.locals.connectorList = connectorList;
-    req.locals.trendReportList = trendReportList;
     req.locals.searchRange = searchRange;
 
     return res.render('./trend/trend.html', req.locals);
+  }));
+
+  /** 장비 종류에 맞는 장비 선택 Select Box 돌려줌 */
+  router.get('/sub-list/:devicetype', wrap(async (req, res) => {
+    const devicetype = req.params.devicetype;
+    let returnValue = null;
+    let returnValue1 = [{seq: 1, target_name: '111'}];
+    let returnValue2 = [{seq: 2, target_name: '222'}];
+    let returnValue3 = [{seq: 3, target_name: '333'}];
+    if(devicetype === 'all'){
+      returnValue = returnValue1;
+    } else if(devicetype === 'inverter'){
+      returnValue = returnValue2;
+    } else if(devicetype === 'connector'){
+      returnValue = returnValue3;
+    }  else {
+      return res.status(400).send([]);
+    }
+
+    return res.status(200).send(returnValue);
   }));
 
 

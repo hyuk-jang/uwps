@@ -149,7 +149,7 @@ class BiModule extends bmjh.BM {
 
 
   /**
-   * searchRagnge Type
+   * searchRange Type
    * @typedef {Object} searchRange
    * @property {string} searchType day, month, year, range
    * @property {string} strStartDate sql writedate range 사용
@@ -281,8 +281,8 @@ class BiModule extends bmjh.BM {
 
   /**
    * searchType을 받아 dateFormat String 변환하여 반환
-   * @param {String} searchType 
-   * @return {String} dateFormat
+   * @param {string} searchType 
+   * @return {string} dateFormat
    */
   convertSearchType2DateFormat(searchType) {
     let dateFormat = '';
@@ -304,80 +304,6 @@ class BiModule extends bmjh.BM {
       break;
     }
     return dateFormat;
-  }
-
-
-  /**
-   * 모듈 Seq List와 SearchRange 객체를 받아 Report 생성 및 반환
-   * @param {Array} moduleSeqList [photovoltaic_seq]
-   * @param {searchRange} searchRange getSearchRange() Return 객체
-   * @return {Object} {betweenDatePointObj, gridPowerInfo}
-   */
-  getModuleReport(moduleSeqList, searchRange) {
-    
-    let searchType = searchRange.searchType;
-    let strStartDate = searchRange.strStartDate;
-    let strEndDate = searchRange.strEndDate;
-
-    let startDate = new Date(strStartDate);
-    let endDate = new Date(strEndDate);
-
-    // TEST
-    // endtDate = new Date('2017-11-16');
-    // strEndDate = BU.convertDateToText(endtDate)
-    // TEST
-
-    // BU.CLI(searchRange)
-
-
-    // 기간 검색일 경우 시작일과 종료일의 날짜 차 계산하여 searchType 정의
-    if (searchType === 'range') {
-      searchRange.searchType = searchType = this.convertSearchTypeWithCompareDate(strEndDate, strStartDate);
-    }
-
-    let dateFormat = this.convertSearchType2DateFormat(searchType);
-
-    let sql = `
-      SELECT
-        md_group.photovoltaic_seq,
-        DATE_FORMAT(writedate,"${dateFormat}") AS group_date,
-        ROUND(SUM(avg_amp), 1) AS total_amp,
-        ROUND(AVG(avg_vol), 1) AS avg_vol,
-        ROUND(SUM(avg_amp) * AVG(avg_vol), 1) AS total_wh
-        FROM
-        (
-        SELECT
-          md.photovoltaic_seq,
-          writedate,
-          ROUND(AVG(amp / 10), 1) AS avg_amp,
-          ROUND(AVG(vol / 10), 1) AS avg_vol,
-          DATE_FORMAT(writedate,"%H") AS hour_time
-          FROM module_data md
-        WHERE writedate>= "${strStartDate}" and writedate<"${strEndDate}"
-    `;
-    if (moduleSeqList.length) {
-      sql += `AND photovoltaic_seq IN (${moduleSeqList})`;
-    }
-    sql += `
-        GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), photovoltaic_seq
-        ORDER BY photovoltaic_seq, writedate
-      ) md_group
-      GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), photovoltaic_seq
-    `;
-
-    let betweenDatePointObj = BU.getBetweenDatePoint(strEndDate, strStartDate, searchType);
-    BU.CLI(betweenDatePointObj);
-    // return this.db.single(sql, '', true)
-
-    return this.db.single(sql)
-      .then(result => {
-        let groupByResult = _.groupBy(result, 'photovoltaic_seq');
-
-        return {
-          betweenDatePointObj,
-          gridPowerInfo: groupByResult
-        };
-      });
   }
 
   /**
@@ -429,20 +355,7 @@ class BiModule extends bmjh.BM {
       ) md_group
       GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), photovoltaic_seq
     `;
-
-    // let betweenDatePointObj = BU.getBetweenDatePoint(strEndDate, strStartDate, searchType);
-    // BU.CLI(betweenDatePointObj);
-    // return this.db.single(sql, '', true)
-
     return this.db.single(sql);
-    // .then(result => {
-    //   let groupByResult = _.groupBy(result, 'photovoltaic_seq');
-
-    //   return {
-    //     betweenDatePointObj,
-    //     gridPowerInfo: groupByResult
-    //   };
-    // });
   }
 
   /**

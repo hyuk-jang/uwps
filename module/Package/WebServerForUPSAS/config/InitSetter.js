@@ -41,7 +41,7 @@ class InitSetter {
     this.config.cryptoInfo.alice = alice;
 
     // DB Password Load
-    this.config.dbInfo.password = process.env.SALTERN_PW || 'test';
+    // this.config.dbInfo.password = process.env.SALTERN_PW || 'test';
   }
 
 
@@ -71,17 +71,17 @@ class InitSetter {
           pub_key: this.config.cryptoInfo.alicePub
         }
       }, (error, response, body) => {
-        BU.CLI(error)
+        BU.CLI(error);
         // 에러가 발생할 경우 기존에 저장된 Controller File 정보를 Load
         if (error) {
-          BU.errorLog('init', 'exchangeKey Error', error)
+          BU.errorLog('init', 'exchangeKey Error', error);
           return this._loadInitFile(callback);
         } else if (!(response.statusCode >= 200 && response.statusCode < 300)) {
-          BU.errorLog('init', 'exchangeKey Error', 'occur error 200 ~ 300')
+          BU.errorLog('init', 'exchangeKey Error', 'occur error 200 ~ 300');
           return this._loadInitFile(callback);
         } else {
           // 설정 변수 업데이트
-          this.config.cryptoInfo.aliceBobSecret = this.config.cryptoInfo.alice.computeSecret(new Buffer(body.bobPub))
+          this.config.cryptoInfo.aliceBobSecret = this.config.cryptoInfo.alice.computeSecret(new Buffer(body.bobPub));
           // 컨트롤러 정보 업데이트
           this.config.controllerInfo = body;
           // BU.CLI(this.controllerInfo)
@@ -100,10 +100,10 @@ class InitSetter {
   _loadInitFile(callback) {
     BU.readFile('./public/controllerInfo.conf', 'utf-8', (err, fileContents) => {
       if (err) {
-        return callback(err)
+        return callback(err);
       } else {
         this.config.controllerInfo = JSON.parse(fileContents);
-        return callback(null, this.controllerInfo)
+        return callback(null, this.controllerInfo);
       }
     });
   }
@@ -112,7 +112,7 @@ class InitSetter {
   downloadMap(callback) {
     // 통합 서버에서 실제로 Map Download 할 경우
     if (this.config.hasMapDownload) {
-      BU.CLI('Real downloadMap')
+      BU.CLI('Real downloadMap');
       let downloadUrl = this.config.webServerUrl + this.controllerInfo.url;
       request.get(downloadUrl, (error, response, body) => {
         if (error) {
@@ -135,9 +135,9 @@ class InitSetter {
             return process.exit();
           }
         }
-      })
+      });
     } else {
-      BU.CLI('Dev downloadMap')
+      BU.CLI('Dev downloadMap');
       this.config.mapInfo = require('../public/map/map.json');
       return callback(null, this.map);
     }
@@ -183,7 +183,7 @@ class InitSetter {
       mapControl: this.originalMap.CONTROL,
       mapText: '',
       mapFileName: this.controllerInfo.filename
-    }
+    };
   }
 
   get originalMap() {

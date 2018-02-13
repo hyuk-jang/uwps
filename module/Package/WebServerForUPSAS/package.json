@@ -8,9 +8,9 @@
     "build-prod": "pkg -t latest-win-x64 -o . ./.prod/app.js"
   },
   "dependencies": {
-    "base-class-jh": "^1.0.15",
+    "base-class-jh": "^1.0.17",
     "base-model-jh": "^1.0.6",
-    "base-util-jh": "^1.0.12",
+    "base-util-jh": "^1.0.14",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "connect-flash": "^0.1.1",
@@ -19,6 +19,7 @@
     "event-to-promise": "^0.8.0",
     "express": "^4.16.2",
     "express-async-wrap": "^1.0.0",
+    "express-favicon": "^2.0.0",
     "express-mysql-session": "^1.2.3",
     "express-session": "^1.15.6",
     "joi": "^13.1.1",
@@ -32,6 +33,7 @@
     "passport-local": "^1.0.0",
     "request": "^2.83.0",
     "serialport": "^5.0.0",
+    "serve-favicon": "^2.4.5",
     "underscore": "^1.8.3",
     "xbee-api": "^0.6.0",
     "xml2js": "^0.4.19"

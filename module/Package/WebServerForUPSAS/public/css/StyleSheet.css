@@ -124,15 +124,17 @@ ul li{list-style:none;}
 
 
 .con_b{height:188px; width:1170px; margin:0 auto; margin-top:45px;  border:solid 1px #ddd; border-radius: 7px 0 0  7px; background: linear-gradient(to bottom, #ffffff, #f7f7f7);}
-.con_b_1 {width: 176px; height: 186px; background:linear-gradient(#659E2F,#44771A); border-radius: 7px 0 0  7px;}
-.con_b_1>p{color:#fff; font-weight:500; margin-top:50px; }
+.con_b_1 {width: 176px; height: 186px; background:#337AB7;}
+.con_b_1>p{color:#fff; font-weight:500; margin-top:30px; font-size: 17px; }
+.con_b_1>img{margin-left: 55px; margin-top: 5px;}
+
 
 .con_b_c{border:1px solid #ddd; border-radius: 5px 5px 5px 5px;  width:210px; height:160px; margin:14px 14px 0 0;  margin-right:0; padding:0; background:#fff; }
 .con_b_c>p{font-size:17px; text-align: left; line-height:1.7; margin-top:10px;}
 .con_b_d{margin:0; padding:0;}
-.con_b_d_f{background:linear-gradient(#659E2F,#44771A); height:40px; margin:0; margin-bottom:10px; color:#Fff;}
-.con_b_d_f>p{font-size:18px; text-align:left; margin-left:20px;  margin-top:8px; float:left;}
-.con_b_d_f>img{float:right; margin-top:8px; margin-right:10px;  }
+.con_b_d_f{background:#e9e9e9; height:40px; margin:0; margin-bottom:10px; color:#333;}
+.con_b_d_f>p{font-size:15px; text-align:left; margin-left:20px;  margin-top:10px; float:left;}
+.con_b_d_f>img{float:right; margin-top:10px; margin-right:10px;  }
 
 
 .con_b_d_la{text-align:left; margin-left:20px; height:35px; line-height:2; float:left;}
@@ -140,7 +142,7 @@ ul li{list-style:none;}
 .con_b_d_la>input{width:70px; float:left; height:30px; border-radius:3px;     border: 1px solid #bcbcbc; text-align:right; padding-right: 5px;}
 
 .con_b_2{width:60px; height:188px;  padding-top:60px;  padding-left:20px;  float:right; border-left:1px solid #ddd; }
-.arrow{float:left; font-size:33px!important; cursor:pointer; color:#44771A;}
+.arrow{float:left; font-size:33px!important; cursor:pointer; color:#337AB7;}
 .arrow:hover{color:#1C57A4;}
 .arrow_1{width:15px; height:2px; background:#44771A; margin-left:2px; float:left;}
 

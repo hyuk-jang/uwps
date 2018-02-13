@@ -14,14 +14,14 @@ module.exports = function (dbInfo) {
   var app = express();
 
   var flash = require('connect-flash');
-
-
+  var favicon = require('serve-favicon');
+  app.use(favicon(path.join(process.cwd(), 'public/image', 'favicon.ico')));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({
     limit: 1024 * 1024 * 1, // 1mb 까지 허용
     extended: true
   }));
-
+  
   app.use(methodOverride('_method'));
 
   app.use(flash());
@@ -60,12 +60,12 @@ module.exports = function (dbInfo) {
   }
 
   // Pkg 를 위한 path 추가
-  path.join(process.cwd(), '/controllers/**/*')
-  path.join(process.cwd(), '/models/**/*')
+  path.join(process.cwd(), '/controllers/**/*');
+  path.join(process.cwd(), '/models/**/*');
 
-
+  
   // Error-handling middleware
-  console.log(app.get('env'))
+  console.log(app.get('env'));
   // development error handler
   // will print stacktrace
   if (app.get('env') === 'development') {
@@ -98,4 +98,4 @@ module.exports = function (dbInfo) {
 
 
   return app;
-}
+};

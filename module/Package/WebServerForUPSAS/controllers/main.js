@@ -29,8 +29,10 @@ module.exports = function (app) {
     let v_upsas_profile = await biModule.getTable('v_upsas_profile');
     // 이달 발전량 가져오기
     let monthPower = await biModule.getMonthPower();
+    let inverterHistory = await biModule.getInverterHistory();
+    let chartData = webUtil.makeDynamicChartData(inverterHistory, 'out_w', 'hour_time', '');
+    webUtil.mappingChartDataName(chartData, '인버터 시간당 평균 전력');
     // 금일 발전 현황
-    let dailyPowerReport = await biModule.getDailyPowerReport(searchRange);
     // 인버터 현재 발전 현황
     let inverterDataList = await biModule.getTable('v_inverter_status');
     // 인버터 발전 현황 데이터 검증
@@ -49,9 +51,7 @@ module.exports = function (app) {
       hasAlarm: false // TODO 알람 정보 작업 필요
     };
 
-    // BU.CLI(powerGenerationInfo);
-
-    req.locals.dailyPowerReport = dailyPowerReport;
+    req.locals.dailyPowerChartData = chartData;
     req.locals.moduleStatusList = validModuleStatusList ;
     req.locals.powerGenerationInfo = powerGenerationInfo;
 

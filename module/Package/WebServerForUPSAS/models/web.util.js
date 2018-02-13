@@ -67,6 +67,7 @@ function reduceDataList(dataList, key) {
   let returnNumber = _.reduce(_.pluck(dataList, key), (prev, next) => prev + next);
   return _.isNumber(returnNumber) ? returnNumber : '';
 }
+exports.reduceDataList = reduceDataList;
 
 /**
  * 기준 값에 Scale 적용 후 소수 점 처리 후 반환
@@ -147,7 +148,7 @@ function refineSelectedInverterStatus(viewInverterStatus) {
   let returnValue = {
     totalInfo: {},
     dataList: []
-  }
+  };
   let currInverterDataList = _.map(viewInverterStatus, info => {
     // BU.CLI(info)
     let hasValidData = info.hasValidData;
@@ -191,21 +192,150 @@ function refineSelectedInverterStatus(viewInverterStatus) {
   });
   currInverterDataList = _.sortBy(currInverterDataList, 'target_name');
   // 인버터 실시간 데이터 테이블
-
-  let in_kw = _.pluck(currInverterDataList, 'in_kw');
-  let out_kw = _.pluck(currInverterDataList, 'out_kw');
-  let d_kwh = _.pluck(currInverterDataList, 'd_kwh');
-  let c_mwh = _.pluck(currInverterDataList, 'c_mwh');
-
-
   returnValue.dataList = currInverterDataList;
-  returnValue.totalInfo.in_kw = calcValue(reduceDataList(currInverterDataList, 'in_kw'), 1, 3) 
-  returnValue.totalInfo.out_kw = calcValue(reduceDataList(currInverterDataList, 'out_kw'), 1, 3) 
-  returnValue.totalInfo.d_kwh = calcValue(reduceDataList(currInverterDataList, 'd_kwh'), 1, 3) 
-  returnValue.totalInfo.c_mwh = calcValue(reduceDataList(currInverterDataList, 'c_mwh'), 1, 4) 
-
-
+  returnValue.totalInfo.in_kw = calcValue(reduceDataList(currInverterDataList, 'in_kw'), 1, 3);
+  returnValue.totalInfo.out_kw = calcValue(reduceDataList(currInverterDataList, 'out_kw'), 1, 3);
+  returnValue.totalInfo.d_kwh = calcValue(reduceDataList(currInverterDataList, 'd_kwh'), 1, 3);
+  returnValue.totalInfo.c_mwh = calcValue(reduceDataList(currInverterDataList, 'c_mwh'), 1, 4);
 
   return returnValue;
 }
 exports.refineSelectedInverterStatus = refineSelectedInverterStatus;
+
+
+/**
+ * @typedef {{range: [], series: Array.<{name: string, data: []}>}} chartData 차트 그리기 위한 데이터 형태
+ */
+
+/**
+ * Range에 맞는 차트 데이터 구성
+ * @param {Object[]} rowDataPacketList 
+ * @param {string} dataKey Chart에 표현할 Key
+ * @param {string} rangeKey 차트 리스트 범위를 참조할 Key
+ * @param {string} groupKey rowDataPacketList를 Group 처리 할 Key
+ * @return {chartData}
+ */
+function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey) {
+  // 반환 데이터 유형
+  let returnValue = {
+    range: _.sortBy(_.union(_.pluck(rowDataPacketList, rangeKey)), rangeKey),
+    series: []
+  };
+
+  if (groupKey === '' || groupKey === undefined) {
+    let addObj = {
+      name: '',
+      data: []
+    };
+
+    addObj.data = _.map(_.sortBy(_.groupBy(rowDataPacketList, rangeKey), rangeKey), dataList => {
+      return reduceDataList(dataList, dataKey);
+    });
+
+    returnValue.series.push(addObj);
+  } else {
+    // 같은 Key 끼리 그루핑
+    let groupDataList = _.groupBy(rowDataPacketList, groupKey);
+
+    returnValue.series = _.map(groupDataList, (groupObj, gKey) => {
+      let addObj = {
+        name: gKey,
+        data: []
+      };
+      _.each(groupObj, gInfo => {
+        let index = _.indexOf(returnValue.range, gInfo[rangeKey]);
+        addObj.data[index] = gInfo[dataKey];
+      });
+      return addObj;
+    });
+  }
+  return returnValue;
+}
+exports.makeDynamicChartData = makeDynamicChartData;
+
+/**
+ * 차트 데이터
+ * @param {Object[]} rowDataPacketList 
+ * @param {{fullTxtPoint: [], shortTxtPoint: []}} baseRange 고정된 Column 객체
+ * @param {string} dataKey Chart에 표현할 Key
+ * @param {string} rangeKey 차트 리스트 범위를 참조할 Key
+ * @param {string} groupKey rowDataPacketList를 Group 처리 할 Key
+ * @return {chartData}
+ */
+function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, groupKey) {
+  // 반환 데이터 유형
+  let returnValue = {
+    range: baseRange.shortTxtPoint,
+    series: []
+  };
+
+  if (groupKey === '' || groupKey === undefined) {
+    let addObj = {
+      name: '',
+      data: []
+    };
+
+    addObj.data = _.map(_.sortBy(_.groupBy(rowDataPacketList, rangeKey), rangeKey), dataList => {
+      return reduceDataList(dataList, dataKey);
+    });
+
+    returnValue.series.push(addObj);
+  } else {
+    // 같은 Key 끼리 그루핑
+    let groupDataList = _.groupBy(rowDataPacketList, groupKey);
+
+    returnValue.series = _.map(groupDataList, (groupObj, gKey) => {
+      let addObj = {
+        name: gKey,
+        data: []
+      };
+
+      baseRange.fullTxtPoint.forEach(fullTxtDate => {
+        
+      });
+
+
+
+      _.each(groupObj, gInfo => {
+        let index = _.indexOf(returnValue.range, gInfo[rangeKey]);
+        addObj.data[index] = gInfo[dataKey];
+      });
+      return addObj;
+    });
+  }
+  return returnValue;
+}
+exports.makeStaticChartData = makeStaticChartData;
+
+/**
+ * 
+ * @param {chartData} chartData makeChartData 결과물
+ * @param {Array.<{}>|string} mappingTarget Mapping 할 대상 데이터. 강제로 이름을 지정하고자 할 경우에 string
+ * @param {string} matchingKey matchingKey
+ * @param {string} mappingKey matchingKey
+ * @return {chartData} Name 처리 한 후 반환
+ */
+function mappingChartDataName(chartData, mappingTarget, matchingKey, mappingKey) {
+  // BU.CLIS(mappingTarget, matchingKey);
+  chartData.series.forEach(chart => {
+    let chartKey = chart.name;
+    if (_.isArray(mappingTarget)) {
+      let findObj = _.findWhere(mappingTarget, {
+        [matchingKey]: Number(chartKey)
+      });
+      if (_.isEmpty(findObj)) {
+        findObj = _.findWhere(mappingTarget, {
+          [matchingKey]: chartKey
+        });
+      }
+      chart.name = _.isEmpty(findObj) ? chart.name : findObj[mappingKey];
+    } else if(_.isString(mappingTarget)){
+      chart.name = mappingTarget;
+    }
+  });
+  // Name을 새로이 입력했으므로 이름순으로 정렬
+  chartData.series = _.sortBy(chartData.series, 'name');
+
+  return chartData;
+}
+exports.mappingChartDataName = mappingChartDataName;

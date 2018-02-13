@@ -1,9 +1,8 @@
-
 process.env.NODE_ENV = 'production';
 process.env.NODE_ENV = 'development';
 
 
-const Promise = require('bluebird')
+const Promise = require('bluebird');
 
 const InitSetter = require('./config/InitSetter.js');
 
@@ -32,16 +31,16 @@ exchangeInfo()
     return downloadMap();
   })
   .then(res => {
-    BU.CLI(res)
+    BU.CLI(res);
     return operationController();
   })
   .catch(error => {
-    BU.CLI('????', error)
+    BU.CLI('????', error);
     setTimeout(() => {
       process.exit();
     }, 10000);
     BU.errorLog('init', 'init() 실패', error);
-  })
+  });
 
 process.on('unhandledRejection', r => console.log(BU.CLI(r)));
 
@@ -54,7 +53,7 @@ function exchangeInfo() {
       } else {
         resolve(resExchangeKey);
       }
-    })
+    });
   });
 }
 // Map 초기화
@@ -66,7 +65,7 @@ function downloadMap() {
       } else {
         resolve(resDownloadMap);
       }
-    })
+    });
   });
 }
 

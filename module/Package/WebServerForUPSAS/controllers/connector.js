@@ -49,41 +49,29 @@ module.exports = function (app) {
       findIt.vol = hasOperation ? vol  : '';
       findIt.power = hasOperation && _.isNumber(amp) && _.isNumber(vol) ? webUtil.calcValue(amp * vol, 1, 1)   : '';
     });
-
+    refinedConnectorList = _.sortBy(refinedConnectorList, 'ivt_target_name');
+    
     let connectorStatusData = webUtil.convertColumn2Rows(refinedConnectorList, ['connector_ch', 'install_place', 'ivt_target_name', 'pv_target_name', 'pv_manufacturer', 'amp', 'vol', 'power', 'temperature', 'hasOperation'], maxModuleViewNum);
-    let totalAmp = _.reduce(_.pluck(refinedConnectorList, 'amp'), (accumulator, currentValue) => accumulator + currentValue);
+    
+    let totalAmp = webUtil.reduceDataList(refinedConnectorList, 'amp');
     totalAmp = _.isNumber(totalAmp) ? totalAmp.scale(1, 1) : '';
-    let avgVol = _.reduce(_.pluck(refinedConnectorList, 'vol'), (accumulator, currentValue) => accumulator + currentValue);
+    let avgVol = webUtil.reduceDataList(refinedConnectorList, 'vol');
     avgVol = _.isNumber(avgVol) ? (avgVol / refinedConnectorList.length).scale(1, 1) : '';
 
 
     // 금일 접속반 발전량 현황
     let todayModuleReport = await biModule.getTodayConnectorReport(moduleSeqList);
-    todayModuleReport = _.groupBy(todayModuleReport, 'photovoltaic_seq');
+    // BU.CLI(todayModuleReport);
+    let chartData = webUtil.makeDynamicChartData(todayModuleReport, 'wh', 'hour_time', 'photovoltaic_seq');
 
-    // 차트 데이터로 변환
-    let chartRange = [];
-    let reportSeries = _.map(todayModuleReport, (moduleDataObj, moduleKey) => {
-      let addObj = {
-        name: '',
-        data: []
-      };
+    chartData.series.forEach(chart => {
       let upsasInfo = _.findWhere(upsasProfile, {
-        photovoltaic_seq: Number(moduleKey)
+        photovoltaic_seq: Number(chart.name)
       });
-      if (_.isEmpty(upsasInfo)) {
-        return addObj;
-      }
-      addObj.name = `CH_${upsasInfo.connector_ch} ${upsasInfo.pv_target_name}`;
-      addObj.data = _.pluck(moduleDataObj, 'wh');
-      chartRange = _.pluck(moduleDataObj, 'hour_time');
-      return addObj;
+      chart.name = `${upsasInfo.cnt_target_name} CH ${upsasInfo.connector_ch} `;
     });
+    chartData.series = _.sortBy(chartData.series, 'ivt_target_name');
 
-    let chartDataObj = {
-      range: chartRange,
-      series: reportSeries
-    };
     let connectorList = await biModule.getTable('connector');
     connectorList.unshift({
       connector_seq: 'all',
@@ -107,7 +95,7 @@ module.exports = function (app) {
     // 모듈 상태값들 가지고 있는 배열
     req.locals.moduleStatusList = refinedConnectorList;
     // 금일 발전 현황
-    req.locals.chartDataObj = chartDataObj;
+    req.locals.chartDataObj = chartData;
 
     return res.render('./connector/connect.html', req.locals);
   }));

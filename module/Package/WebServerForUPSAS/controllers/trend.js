@@ -3,7 +3,9 @@ const router = require('express').Router();
 const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
 const DU = require('base-util-jh').domUtil;
+
 const BiModule = require('../models/BiModule.js');
+let webUtil = require('../models/web.util');
 
 module.exports = function (app) {
   const initSetter = app.get('initSetter');
@@ -33,8 +35,16 @@ module.exports = function (app) {
     moduleSeqList = _.union(moduleSeqList);
 
     let moduleReportList = await biModule.getModuleReport(moduleSeqList, searchRange);
+    // BU.CLI(moduleReportList);
+
+    let moduleHistory =  await biModule.getModuleHistory(moduleSeqList, searchRange);
+    BU.CLI(moduleHistory);
+    let betweenDatePoint =  BU.getBetweenDatePoint(searchRange.strEndDate, searchRange.strStartDate, searchRange.searchType);
+    BU.CLI(betweenDatePoint);
+    // let chartData = webUtil.makeChartData(moduleReportList, 'wh', 'group_date', 'photovoltaic_seq');
 
     let trendReportList = await biModule.processModuleReport(upsasProfile, moduleReportList, searchRange);
+    // BU.CLI(trendReportList);
     connectorList.unshift({
       connector_seq: 'all',
       target_name: '모두'

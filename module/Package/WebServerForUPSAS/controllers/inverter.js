@@ -30,26 +30,11 @@ module.exports = function (app) {
     // BU.CLI(refinedInverterStatus);
 
     let inverterHistory = await biModule.getInverterHistory();
-    // BU.CLI(inverterHistory);
-
-    let chartDataObj = {
-      range: [],
-      series: []
-    };
-    _.each(inverterHistory, (statusObj, ivtSeq) => {
-      let findObj = _.findWhere(viewInverterStatus, {
-        inverter_seq: Number(ivtSeq)
-      });
-      let addObj = {
-        name: findObj ? findObj.target_name : '',
-        data: _.pluck(statusObj, 'out_w')
-      };
-      chartDataObj.range = _.pluck(statusObj, 'hour_time');
-      chartDataObj.series.push(addObj);
-    });
-    chartDataObj.series = _.sortBy(chartDataObj.series, 'name');
+    let chartData = webUtil.makeDynamicChartData(inverterHistory, 'out_w', 'hour_time', 'inverter_seq');
+    webUtil.mappingChartDataName(chartData, viewInverterStatus, 'inverter_seq', 'target_name');
+    
     req.locals.inverterStatus = refinedInverterStatus;
-    req.locals.chartDataObj = chartDataObj;
+    req.locals.chartDataObj = chartData;
     req.locals.powerInfo = {
       measureTime: `${BU.convertDateToText(new Date(), '', 4)}:00`,
     };

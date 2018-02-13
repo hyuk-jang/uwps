@@ -14,7 +14,7 @@
     "base-util-jh": "^1.0.14",
     "bluebird": "^3.5.1",
     "crc": "^3.5.0",
-    "device-connect-manager": "^0.1.7",
+    "device-connect-manager": "^0.1.8",
     "event-to-promise": "^0.8.0",
     "modbus-serial": "^7.1.4",
     "serialport": "^6.0.5",

@@ -287,7 +287,7 @@ class Control extends EventEmitter {
    */
   eventHandler() {
     /** 장치의 연결이 끊겼을 경우 */
-    this.on('dcDisconnected', () => {
+    this.on('dcClose', () => {
       this.model.onSystemError('Disconnected', true);
       // BU.CLI('disconnected', error)
       this.hasConnect = false;

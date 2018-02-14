@@ -1,7 +1,7 @@
 const _ = require('underscore');
 const bmjh = require('base-model-jh');
-const Promise = require('bluebird');
 const BU = require('base-util-jh').baseUtil;
+
 
 class BiModule extends bmjh.BM {
   constructor(dbInfo) {
@@ -40,86 +40,6 @@ class BiModule extends bmjh.BM {
     return this.db.single(sql);
   }
 
-  /**
-   * Inverter에서 수집된 월의 발전량을 출력
-   * @param {Date} targetDate 해당 월
-   * @param {number|Array} inverter_seq Format => Number or Array or undefinded
-   * @return {Promise} m_kwh 반환
-   */
-  async getMonthPower(targetDate, inverter_seq) {
-    targetDate = targetDate instanceof Date ? targetDate : new Date();
-    let sql = ` 
-      SELECT 
-        ROUND(SUM(sum_d_wh) / 10 / 1000, 3) AS m_kwh
-        FROM
-        (
-        SELECT
-          *,
-          DATE_FORMAT(writedate,"%Y-%m") AS group_date,
-          SUM(max_d_wh) AS sum_d_wh
-          FROM
-          (SELECT 
-            *,
-            MAX(d_wh) AS max_d_wh
-            FROM 
-            inverter_data
-            GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d"), inverter_seq
-          ) AS step_1
-      `;
-    if (Number.isInteger(inverter_seq)) {
-      sql += `WHERE pv.inverter_seq = (${inverter_seq})`;
-    } else if (Array.isArray(inverter_seq)) {
-      sql += `WHERE pv.inverter_seq IN (${inverter_seq})`;
-    }
-    sql += `
-          GROUP BY DATE_FORMAT(writedate,"%Y-%m"), inverter_seq
-        ) AS step_2
-        WHERE group_date = "${BU.convertDateToText(targetDate, '', 1, 0)}"
-        GROUP BY group_date	
-    `;
-    let monthData = await this.db.single(sql);
-    if (monthData.length) {
-      return monthData[0].m_kwh;
-    } else {
-      return 0;
-    }
-  }
-
-  /**
-   * 금일 발전 레포트 가져옴
-   * @param {searchRange} searchRange 
-   * @return {{chartList: Array.<{dateList: Array, whList: Array}>, dailyPowerRange: {start: string, end: string} }} 차트 구성 정보 목록(날짜, 출력 전류), 금일 발전현황(시작 날짜, 종료 날짜)
-   */
-  getDailyPowerReport(searchRange) {
-    // date = date ? date : new Date();
-
-    let sql = `select DATE_FORMAT(writedate,"%H:%i")as writedate,round(sum(out_w)/count(writedate)/10,1) as out_w
-       from inverter_data
-       WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
-       group by DATE_FORMAT(writedate,'%Y-%m-%d %H')`;
-
-    return this.db.single(sql, '', true)
-      .then(result => {
-        // BU.CLI(result)
-        let dateList = _.pluck(result, 'writedate');
-        let whList = _.pluck(result, 'out_w');
-        let chartList = [
-          dateList,
-          whList,
-        ];
-
-        let dateOffset = _.isEmpty(dateList) ? '23:00' : _.last(dateList);
-        
-
-        return {
-          chartList,
-          dailyPowerRange: {
-            start: BU.convertDateToText(new Date(), '', 2, 0) + ' ' + '00:00:00',
-            end: BU.convertDateToText(new Date(), '', 2, 0) + ' ' + dateOffset + ':00',
-          }
-        };
-      });
-  }
 
   /**
    * 접속반 메뉴 에서 쓸 데이터 
@@ -148,21 +68,11 @@ class BiModule extends bmjh.BM {
   }
 
 
-  /**
-   * searchRange Type
-   * @typedef {Object} searchRange
-   * @property {string} searchType day, month, year, range
-   * @property {string} strStartDate sql writedate range 사용
-   * @property {string} strEndDate sql writedate range 사용
-   * @property {string} rangeStart Chart 위에 표시될 시작 날짜
-   * @property {string} rangeEnd Chart 위에 표시될 종료 날짜
-   * @property {string} strStartDateInputValue input[type=text] 에 표시될 시작 날짜
-   * @property {string} strEndDateInputValue input[type=text] 에 표시될 종료 날짜
-   */
+
 
   /**
    * 검색 종류와 검색 기간에 따라 계산 후 검색 조건 객체 반환
-   * @param {string} searchType day, month, year, range
+   * @param {string} searchType hour, day, month, year, range
    * @param {string} start_date '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
    * @param {string} end_date '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
    * @return {searchRange} 검색 범위
@@ -216,49 +126,7 @@ class BiModule extends bmjh.BM {
   }
 
 
-  /**
-   * 
-   * @param {number[]=} inverter_seq_list 
-   * @param {string} strStartDate 
-   * @param {string} strEndDate 
-   */
-  getInverterHistory(inverter_seq_list, strStartDate, strEndDate) {
-    strStartDate = strStartDate ? `'${strStartDate}'` : 'CURDATE()';
-    strEndDate = strEndDate ? `'${strEndDate}'` : 'CURDATE() + 1';
-
-    let sql = `
-      SELECT 
-      inverter_seq,
-      writedate, 
-      DATE_FORMAT(writedate,'%H') AS hour_time,
-      ROUND(AVG(in_a) / 10, 1) AS in_a,
-      ROUND(AVG(in_v) / 10, 1) AS in_v,
-      ROUND(AVG(in_w) / 10, 1) AS in_w,
-      ROUND(AVG(out_a) / 10, 1) AS out_a,
-      ROUND(AVG(out_v) / 10, 1) AS out_v,
-      ROUND(AVG(out_w) / 10, 1) AS out_w,
-      ROUND(AVG(p_f) / 10, 1) AS p_f,
-      ROUND(d_wh / 10, 1) AS d_wh,
-      ROUND(MAX(c_wh) / 10, 1) AS max_c_wh,
-      ROUND(MIN(c_wh) / 10, 1) AS min_c_wh,
-      ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_wh
-      FROM inverter_data
-        WHERE writedate>= ${strStartDate} AND writedate<${strEndDate}
-    `;
-    if (Array.isArray(inverter_seq_list)) {
-      sql += ` AND inverter_seq IN (${inverter_seq_list})`;
-    }
-    sql += `
-      GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), inverter_seq
-      ORDER BY inverter_seq, writedate
-    `;
-    return this.db.single(sql, '', true);
-    // .then(result => {
-    //   return _.groupBy(result, rows => rows.inverter_seq);
-    // });
-  }
-
-
+  
   /**
    * 종료일과 시작일 사이의 간격을 기준으로 조회 Interval Text 구함
    * @param {String} strEndDate 
@@ -279,6 +147,59 @@ class BiModule extends bmjh.BM {
       searchType = 'hour';
     }
     return searchType;
+  }
+
+  /**
+   * searchRange Type
+   * @typedef {Object} searchRange
+   * @property {string} searchType day, month, year, range
+   * @property {string} strStartDate sql writedate range 사용
+   * @property {string} strEndDate sql writedate range 사용
+   * @property {string} rangeStart Chart 위에 표시될 시작 날짜
+   * @property {string} rangeEnd Chart 위에 표시될 종료 날짜
+   * @property {string} strStartDateInputValue input[type=text] 에 표시될 시작 날짜
+   * @property {string} strEndDateInputValue input[type=text] 에 표시될 종료 날짜
+   */
+
+   
+
+  /**
+   * 인버터 발전량 구해옴
+   * @param {searchRange} searchRange  검색 옵션
+   * @param {number[]=} inverter_seq_list 
+   * @return {{inverter_seq: number, group_date: string, }}
+   */
+  getInverterPower(searchRange, inverter_seq_list) {
+    searchRange = searchRange ? searchRange : this.getSearchRange();
+    let dataFormat = this.convertSearchType2DateFormat(searchRange.searchType);
+
+    let sql = `
+      SELECT
+      inverter_seq,
+      writedate, 
+      DATE_FORMAT(writedate,'%H') AS hour_time,
+      DATE_FORMAT(writedate,'${dataFormat}') AS group_date,
+      ROUND(AVG(in_a) / 10, 1) AS in_a,
+      ROUND(AVG(in_v) / 10, 1) AS in_v,
+      ROUND(AVG(in_w) / 10, 1) AS in_w,
+      ROUND(AVG(out_a) / 10, 1) AS out_a,
+      ROUND(AVG(out_v) / 10, 1) AS out_v,
+      ROUND(AVG(out_w) / 10, 1) AS out_w,
+      ROUND(AVG(p_f) / 10, 1) AS p_f,
+      ROUND(d_wh / 10, 1) AS d_wh,
+      ROUND(MAX(c_wh) / 10, 1) AS max_c_wh,
+      ROUND(MIN(c_wh) / 10, 1) AS min_c_wh,
+      ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_wh
+      FROM inverter_data
+      WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
+        `;
+    if (Array.isArray(inverter_seq_list)) {
+      sql += ` AND inverter_seq IN (${inverter_seq_list})`;
+    }
+    sql += `        
+      GROUP BY DATE_FORMAT(writedate,'${dataFormat}'), inverter_seq
+      `;
+    return this.db.single(sql, '', false);
   }
 
   /**

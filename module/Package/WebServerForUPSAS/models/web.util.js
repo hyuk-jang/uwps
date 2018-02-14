@@ -230,27 +230,17 @@ exports.refineSelectedInverterStatus = refineSelectedInverterStatus;
  * @return {chartData}
  */
 function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey) {
+  // BU.CLI(rowDataPacketList);
   // 반환 데이터 유형
   let returnValue = {
     range: _.sortBy(_.union(_.pluck(rowDataPacketList, rangeKey)), rangeKey),
     series: []
   };
-
-  if (groupKey === '' || groupKey === undefined) {
-    let addObj = {
-      name: '',
-      data: []
-    };
-
-    addObj.data = _.map(_.groupBy(rowDataPacketList, rangeKey), dataList => {
-      return reduceDataList(dataList, dataKey);
-    });
-
-    returnValue.series.push(addObj);
-  } else {
-    // 같은 Key 끼리 그루핑
+  // BU.CLI(returnValue.range);
+  // 같은 Key 끼리 그루핑
+  if (groupKey) {
+    BU.CLI(groupKey);
     let groupDataList = _.groupBy(rowDataPacketList, groupKey);
-
     returnValue.series = _.map(groupDataList, (groupObj, gKey) => {
       let addObj = {
         name: gKey,
@@ -262,6 +252,18 @@ function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey) {
       });
       return addObj;
     });
+  } else {  
+    let addObj = {
+      name: '',
+      data: []
+    };
+
+    addObj.data = _.map(_.sortBy(_.groupBy(rowDataPacketList, rangeKey), rangeKey) , dataList => {
+      let resReduce = reduceDataList(dataList, dataKey);
+      return resReduce;
+    });
+
+    returnValue.series.push(addObj);
   }
   return returnValue;
 }
@@ -283,19 +285,8 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
     series: []
   };
 
-  if (groupKey === '' || groupKey === undefined) {
-    let addObj = {
-      name: '',
-      data: []
-    };
-
-    addObj.data = _.map(_.groupBy(rowDataPacketList, rangeKey), dataList => {
-      return reduceDataList(dataList, dataKey);
-    });
-
-    returnValue.series.push(addObj);
-  } else {
-    // 같은 Key 끼리 그루핑
+  // 같은 Key 끼리 그루핑
+  if (groupKey) {
     let groupDataList = _.groupBy(rowDataPacketList, groupKey);
 
     returnValue.series = _.map(groupDataList, (groupObj, gKey) => {
@@ -319,6 +310,17 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
       // });
       return addObj;
     });
+  } else {
+    let addObj = {
+      name: '',
+      data: []
+    };
+
+    addObj.data = _.map(_.sortBy(_.groupBy(rowDataPacketList, rangeKey), rangeKey) , dataList => {
+      return reduceDataList(dataList, dataKey);
+    });
+
+    returnValue.series.push(addObj);
   }
   return returnValue;
 }
@@ -464,39 +466,39 @@ function mappingChartDataNameForModule(chartData, mappingTarget) {
 }
 exports.mappingChartDataNameForModule = mappingChartDataNameForModule;
 
-/**
- * Range에 맞는 차트 데이터 구성
- * @param {Object[]} rowDataPacketList 
- * @param {string} dataKey Chart에 표현할 Key
- * @param {string} outputKey 추가할 output Key
- * @param {string} groupKey rowDataPacketList를 Group 처리 할 Key
- * @param {string} sortKey 
- * @return {Object[]} outputKey 가 추가된 rowDataPacketList
- */
-function calcDailyPower(rowDataPacketList, groupKey, dataKey, outputKey, sortKey) {
-  // 그룹을 지어 계산할 거라면
-  if(groupKey){
-    const group = _.groupBy(rowDataPacketList, groupKey);
-    BU.CLI(group);
-    _.each(group, (list, key) => {
+// /**
+//  * Range에 맞는 차트 데이터 구성
+//  * @param {Object[]} rowDataPacketList 
+//  * @param {string} dataKey Chart에 표현할 Key
+//  * @param {string} outputKey 추가할 output Key
+//  * @param {string} groupKey rowDataPacketList를 Group 처리 할 Key
+//  * @param {string} sortKey 
+//  * @return {Object[]} outputKey 가 추가된 rowDataPacketList
+//  */
+// function calcDailyPower(rowDataPacketList, groupKey, dataKey, outputKey, sortKey) {
+//   // 그룹을 지어 계산할 거라면
+//   if(groupKey){
+//     const group = _.groupBy(rowDataPacketList, groupKey);
+//     BU.CLI(group);
+//     _.each(group, (list, key) => {
       
-      let reverseList = (_.sortBy(list, ele => {
-        return ele[sortKey];
-      })).reverse();
+//       let reverseList = (_.sortBy(list, ele => {
+//         return ele[sortKey];
+//       })).reverse();
 
-      _.reduce(reverseList, (prev, next) => {
+//       _.reduce(reverseList, (prev, next) => {
         
-      });
+//       });
 
-      BU.CLI(reverseList);
-    });
-    // BU.CLI(group);
-  } else {
+//       BU.CLI(reverseList);
+//     });
+//     // BU.CLI(group);
+//   } else {
 
-  }
+//   }
 
-}
-exports.calcDailyPower = calcDailyPower;
+// }
+// exports.calcDailyPower = calcDailyPower;
 
 
 // if (groupKey === '' || groupKey === undefined) {

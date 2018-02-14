@@ -47,7 +47,7 @@ module.exports = function (app) {
       moduleSeqList = moduleSeqList.concat(moduleList.length ? _.pluck(moduleList, 'photovoltaic_seq') : []) ;
     });
     moduleSeqList = _.union(moduleSeqList);
-    BU.CLI(moduleSeqList);
+    // BU.CLI(moduleSeqList);
 
     /** 모듈 데이터 가져옴 */
     let moduleHistory =  await biModule.getModuleHistory(moduleSeqList, searchRange);

@@ -420,6 +420,7 @@
 <!-- Main 하이차트 -->
 <script type="text/javascript">
   var chartDataObj = <%- JSON.stringify(dailyPowerChartData) %>;
+  console.log('chartDataObj', chartDataObj)
   if (chartDataObj.series.length) {
       $('#dailyPowerChart').highcharts({
       title: {

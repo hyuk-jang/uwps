@@ -24,13 +24,15 @@ module.exports = function (app) {
     let viewInverterStatus = await biModule.getTable('v_inverter_status');
     // 데이터 검증
     let validInverterStatus = webUtil.checkDataValidation(viewInverterStatus, new Date(), 'writedate');
-    BU.CLI(validInverterStatus);
+    // BU.CLI(validInverterStatus);
     /** 인버터 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
     let refinedInverterStatus = webUtil.refineSelectedInverterStatus(validInverterStatus);
-    BU.CLI(refinedInverterStatus);
+    // BU.CLI(refinedInverterStatus);
 
-    let inverterHistory = await biModule.getInverterHistory();
-    let chartData = webUtil.makeDynamicChartData(inverterHistory, 'out_w', 'hour_time', 'inverter_seq');
+    // let searchRange = biModule.getSearchRange('hour');
+    let searchRange = biModule.getSearchRange('hour', '2018-02-14');
+    let inverterPowerList = await biModule.getInverterPower(searchRange);
+    let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'interval_wh', 'hour_time', 'inverter_seq');
     webUtil.mappingChartDataName(chartData, viewInverterStatus, 'inverter_seq', 'target_name');
     
     req.locals.inverterStatus = refinedInverterStatus;
@@ -44,7 +46,7 @@ module.exports = function (app) {
   }));
 
 
-  router.use(wrap(async (err, req, res, next) => {
+  router.use(wrap(async (err, req, res) => {
     BU.CLI('Err', err);
     res.status(500).send(err);
   }));

@@ -30,8 +30,17 @@ module.exports = function (app) {
     // 이달 발전량 가져오기
     let monthPower = await biModule.getMonthPower();
     let inverterHistory = await biModule.getInverterHistory();
-    let chartData = webUtil.makeDynamicChartData(inverterHistory, 'out_w', 'hour_time', '');
+    // BU.CLI(inverterHistory);
+    // webUtil.calcDailyPower(inverterHistory, 'inverter_seq', 'c_wh', 'daily_power', 'hour_time');
+    let chartData = webUtil.makeDynamicChartData(inverterHistory, 'interval_wh', 'hour_time', '');
     webUtil.mappingChartDataName(chartData, '인버터 시간당 평균 전력');
+    chartData.series.forEach(dataObj => {
+      dataObj.data.forEach((ele, index) => {
+        BU.CLI(ele, index, webUtil.calcValue(ele, 0.001, 3));
+        dataObj.data[index] = webUtil.calcValue(ele, 0.001, 3);
+      });
+    });
+    BU.CLI(chartData);
     // 금일 발전 현황
     // 인버터 현재 발전 현황
     let inverterDataList = await biModule.getTable('v_inverter_status');
@@ -43,7 +52,7 @@ module.exports = function (app) {
     let powerGenerationInfo = {
       currKw: webUtil.calcValue(webUtil.calcValidDataList(validInverterDataList, 'out_w', false), 0.001, 3),
       currKwYaxisMax: Math.ceil(pv_amount / 10),
-      dailyPower: webUtil.calcValue(webUtil.calcValidDataList(validInverterDataList, 'd_wh', false), 0.001, 3),
+      dailyPower: webUtil.calcValue(webUtil.calcValidDataList(validInverterDataList, 'daily_power_wh', false), 0.001, 3),
       monthPower,
       cumulativePower: webUtil.calcValue(webUtil.calcValidDataList(validInverterDataList, 'c_wh', true), 0.000001, 3),
       co2: webUtil.calcValue(webUtil.calcValidDataList(validInverterDataList, 'c_wh', true), 0.000000424, 3),

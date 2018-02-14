@@ -242,7 +242,7 @@ function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey) {
       data: []
     };
 
-    addObj.data = _.map(_.sortBy(_.groupBy(rowDataPacketList, rangeKey), rangeKey), dataList => {
+    addObj.data = _.map(_.groupBy(rowDataPacketList, rangeKey), dataList => {
       return reduceDataList(dataList, dataKey);
     });
 
@@ -289,7 +289,7 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
       data: []
     };
 
-    addObj.data = _.map(_.sortBy(_.groupBy(rowDataPacketList, rangeKey), rangeKey), dataList => {
+    addObj.data = _.map(_.groupBy(rowDataPacketList, rangeKey), dataList => {
       return reduceDataList(dataList, dataKey);
     });
 
@@ -463,3 +463,66 @@ function mappingChartDataNameForModule(chartData, mappingTarget) {
   return chartData;
 }
 exports.mappingChartDataNameForModule = mappingChartDataNameForModule;
+
+/**
+ * Range에 맞는 차트 데이터 구성
+ * @param {Object[]} rowDataPacketList 
+ * @param {string} dataKey Chart에 표현할 Key
+ * @param {string} outputKey 추가할 output Key
+ * @param {string} groupKey rowDataPacketList를 Group 처리 할 Key
+ * @param {string} sortKey 
+ * @return {Object[]} outputKey 가 추가된 rowDataPacketList
+ */
+function calcDailyPower(rowDataPacketList, groupKey, dataKey, outputKey, sortKey) {
+  // 그룹을 지어 계산할 거라면
+  if(groupKey){
+    const group = _.groupBy(rowDataPacketList, groupKey);
+    BU.CLI(group);
+    _.each(group, (list, key) => {
+      
+      let reverseList = (_.sortBy(list, ele => {
+        return ele[sortKey];
+      })).reverse();
+
+      _.reduce(reverseList, (prev, next) => {
+        
+      });
+
+      BU.CLI(reverseList);
+    });
+    // BU.CLI(group);
+  } else {
+
+  }
+
+}
+exports.calcDailyPower = calcDailyPower;
+
+
+// if (groupKey === '' || groupKey === undefined) {
+//   let addObj = {
+//     name: '',
+//     data: []
+//   };
+
+//   addObj.data = _.map(_.groupBy(rowDataPacketList, rangeKey), dataList => {
+//     return reduceDataList(dataList, dataKey);
+//   });
+
+//   returnValue.series.push(addObj);
+// } else {
+//   // 같은 Key 끼리 그루핑
+//   let groupDataList = _.groupBy(rowDataPacketList, groupKey);
+
+//   returnValue.series = _.map(groupDataList, (groupObj, gKey) => {
+//     let addObj = {
+//       name: gKey,
+//       data: []
+//     };
+//     _.each(groupObj, gInfo => {
+//       let index = _.indexOf(returnValue.range, gInfo[rangeKey]);
+//       addObj.data[index] = gInfo[dataKey];
+//     });
+//     return addObj;
+//   });
+// }

@@ -231,15 +231,17 @@ class BiModule extends bmjh.BM {
       inverter_seq,
       writedate, 
       DATE_FORMAT(writedate,'%H') AS hour_time,
-      ROUND(in_a / 10, 1) AS in_a,
-      ROUND(in_v / 10, 1) AS in_v,
-      ROUND(in_w / 10, 1) AS in_w,
-      ROUND(out_a / 10, 1) AS out_a,
-      ROUND(out_v / 10, 1) AS out_v,
-      ROUND(out_w / 10, 1) AS out_w,
-      ROUND(p_f / 10, 1) AS p_f,
+      ROUND(AVG(in_a) / 10, 1) AS in_a,
+      ROUND(AVG(in_v) / 10, 1) AS in_v,
+      ROUND(AVG(in_w) / 10, 1) AS in_w,
+      ROUND(AVG(out_a) / 10, 1) AS out_a,
+      ROUND(AVG(out_v) / 10, 1) AS out_v,
+      ROUND(AVG(out_w) / 10, 1) AS out_w,
+      ROUND(AVG(p_f) / 10, 1) AS p_f,
       ROUND(d_wh / 10, 1) AS d_wh,
-      ROUND(c_wh / 10, 1) AS c_wh
+      ROUND(MAX(c_wh) / 10, 1) AS max_c_wh,
+      ROUND(MIN(c_wh) / 10, 1) AS min_c_wh,
+      ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_wh
       FROM inverter_data
         WHERE writedate>= ${strStartDate} AND writedate<${strEndDate}
     `;
@@ -250,7 +252,7 @@ class BiModule extends bmjh.BM {
       GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), inverter_seq
       ORDER BY inverter_seq, writedate
     `;
-    return this.db.single(sql, '', false);
+    return this.db.single(sql, '', true);
     // .then(result => {
     //   return _.groupBy(result, rows => rows.inverter_seq);
     // });

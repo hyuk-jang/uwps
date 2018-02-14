@@ -19,21 +19,35 @@ module.exports = function (app) {
 
   // Get
   router.get('/', wrap(async(req, res) => {
-    let deviceType = req.query.device_type ? req.query.device_type : 'inverter';
+
+
+    // let deviceSeq = !isNaN(req.query.device_seq) && req.query.device_seq !== '' ? [Number(req.query.device_seq)] : _.pluck(connectorList.connector_seq);
+    // let deviceType = req.query.device_type ? req.query.device_type : 'inverter';
+
+    // if(deviceType === 'inverter'){
+    //   getInverterChart();
+    // } else if(deviceType === 'connector'){
+    //   getInverterChart();
+    // }
+
+
     let searchType = req.query.search_type ? req.query.search_type : 'hour';
     let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
     let upsasProfile = await biModule.getTable('v_upsas_profile');
     let connectorList = await biModule.getTable('connector');
 
     let param_connector_seq = req.query.device_seq;
-    let connectorSeqList = !isNaN(param_connector_seq) && param_connector_seq !== '' ? [Number(req.query.connector_seq)] : _.pluck(connectorList.connector_seq);
 
+    BU.CLI(param_connector_seq, connectorList);
+    let connectorSeqList = !isNaN(param_connector_seq) && param_connector_seq !== '' ? [Number(req.query.connector_seq)] : _.pluck(connectorList, 'connector_seq');
+    BU.CLI(connectorSeqList);
     let moduleSeqList = [];
     _.each(connectorSeqList, seq => {
       let moduleList = _.where(upsasProfile, {connector_seq:seq});
       moduleSeqList = moduleSeqList.concat(moduleList.length ? _.pluck(moduleList, 'photovoltaic_seq') : []) ;
     });
     moduleSeqList = _.union(moduleSeqList);
+    BU.CLI(moduleSeqList);
 
     /** 모듈 데이터 가져옴 */
     let moduleHistory =  await biModule.getModuleHistory(moduleSeqList, searchRange);
@@ -83,6 +97,15 @@ module.exports = function (app) {
 
     return res.status(200).send(returnValue);
   }));
+
+
+  function getInverterChart() {
+
+  }
+
+  function getConnectorChart(){
+
+  }
 
 
   router.use(wrap(async(err, req, res, next) => {

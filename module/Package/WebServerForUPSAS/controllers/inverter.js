@@ -24,10 +24,10 @@ module.exports = function (app) {
     let viewInverterStatus = await biModule.getTable('v_inverter_status');
     // 데이터 검증
     let validInverterStatus = webUtil.checkDataValidation(viewInverterStatus, new Date(), 'writedate');
-    // BU.CLI(validInverterStatus)
+    BU.CLI(validInverterStatus);
     /** 인버터 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
     let refinedInverterStatus = webUtil.refineSelectedInverterStatus(validInverterStatus);
-    // BU.CLI(refinedInverterStatus);
+    BU.CLI(refinedInverterStatus);
 
     let inverterHistory = await biModule.getInverterHistory();
     let chartData = webUtil.makeDynamicChartData(inverterHistory, 'out_w', 'hour_time', 'inverter_seq');

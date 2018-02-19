@@ -239,7 +239,7 @@ function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey) {
   // BU.CLI(returnValue.range);
   // 같은 Key 끼리 그루핑
   if (groupKey) {
-    BU.CLI(groupKey);
+    // BU.CLI(groupKey);
     let groupDataList = _.groupBy(rowDataPacketList, groupKey);
     returnValue.series = _.map(groupDataList, (groupObj, gKey) => {
       let addObj = {

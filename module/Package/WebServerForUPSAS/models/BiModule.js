@@ -43,28 +43,33 @@ class BiModule extends bmjh.BM {
 
   /**
    * 접속반 메뉴 에서 쓸 데이터 
-   * @param {number[]=} moduleSeq null, String, Array
+   * @param {searchRange} searchRange  검색 옵션
+   * @param {number[]=} module_seq_list null, String, Array
    * @return {Promise} SQL 실행 결과
    */
-  getTodayConnectorReport(moduleSeq) {
+  getConnectorPower(searchRange, module_seq_list) {
+    searchRange = searchRange ? searchRange : this.getSearchRange();
+    let dataFormat = this.convertSearchType2DateFormat(searchRange.searchType);
+
     let sql = `
       SELECT
         md.photovoltaic_seq,
         ROUND(AVG(amp / 10), 1) AS amp,
         ROUND(AVG(vol / 10), 1) AS vol,
         ROUND(AVG(amp) * AVG(vol) / 100, 1) AS wh,
-        DATE_FORMAT(writedate,'%H') AS hour_time
+        DATE_FORMAT(writedate,'%H') AS hour_time,
+        DATE_FORMAT(writedate,'${dataFormat}') AS group_date
         FROM module_data md
-          WHERE writedate>= CURDATE() and writedate<CURDATE() + 1
+        WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
     `;
-    if (moduleSeq) {
-      sql += `AND photovoltaic_seq IN (${moduleSeq})`;
+    if (module_seq_list) {
+      sql += `AND photovoltaic_seq IN (${module_seq_list})`;
     }
     sql += `
-          GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), photovoltaic_seq
+          GROUP BY DATE_FORMAT(writedate,'${dataFormat}'), photovoltaic_seq
           ORDER BY photovoltaic_seq, writedate
     `;
-    return this.db.single(sql);
+    return this.db.single(sql, '', false);
   }
 
 
@@ -78,10 +83,10 @@ class BiModule extends bmjh.BM {
    * @return {searchRange} 검색 범위
    */
   getSearchRange(searchType, start_date, end_date) {
-    // BU.CLIS(searchType, start_date, end_date)
+    // BU.CLIS(searchType, start_date, end_date);
     let startDate = start_date ? BU.convertTextToDate(start_date) : new Date();
     let endDate = searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : new Date(startDate);
-
+    // BU.CLI(BU.convertDateToText(startDate), endDate);
     let returnValue = {
       searchType,
       strStartDate: null, // sql writedate range 사용
@@ -171,14 +176,14 @@ class BiModule extends bmjh.BM {
    */
   getInverterPower(searchRange, inverter_seq_list) {
     searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dataFormat = this.convertSearchType2DateFormat(searchRange.searchType);
+    let dateFormat = this.convertSearchType2DateFormat(searchRange.searchType);
 
     let sql = `
       SELECT
       inverter_seq,
       writedate, 
       DATE_FORMAT(writedate,'%H') AS hour_time,
-      DATE_FORMAT(writedate,'${dataFormat}') AS group_date,
+      DATE_FORMAT(writedate,'${dateFormat}') AS group_date,
       ROUND(AVG(in_a) / 10, 1) AS in_a,
       ROUND(AVG(in_v) / 10, 1) AS in_v,
       ROUND(AVG(in_w) / 10, 1) AS in_w,
@@ -197,8 +202,62 @@ class BiModule extends bmjh.BM {
       sql += ` AND inverter_seq IN (${inverter_seq_list})`;
     }
     sql += `        
-      GROUP BY DATE_FORMAT(writedate,'${dataFormat}'), inverter_seq
+      GROUP BY DATE_FORMAT(writedate,'${dateFormat}'), inverter_seq
       `;
+    return this.db.single(sql, '', false);
+  }
+
+  /**
+   * 인버터 발전량 구해옴
+   * @param {searchRange} searchRange  검색 옵션
+   * @param {number[]=} inverter_seq 
+   * @return {{inverter_seq: number, group_date: string, }}
+   */
+  getInverterReportChart(searchRange, inverter_seq) {
+    searchRange = searchRange ? searchRange : this.getSearchRange();
+    let dateFormat = this.convertSearchType2DateFormat(searchRange.searchType);
+    let sql = `
+    SELECT 
+          inverter_seq,
+          DATE_FORMAT(writedate,"${dateFormat}") AS group_date,
+          ROUND(AVG(avg_in_a) / 10, 1) AS avg_in_a,
+          ROUND(AVG(avg_in_v) / 10, 1) AS avg_in_v,
+          ROUND(AVG(avg_in_wh) / 10, 1) AS avg_in_wh,
+          ROUND(AVG(avg_out_a) / 10, 1) AS avg_out_a,
+          ROUND(AVG(avg_out_v) / 10, 1) AS avg_out_v,
+          ROUND(AVG(avg_out_wh) / 10, 1) AS avg_out_wh,
+          ROUND(AVG(avg_p_f) / 10, 1) AS avg_p_f,
+          ROUND(MAX(max_c_wh) / 10, 1) AS max_c_wh,
+          ROUND(MIN(min_c_wh) / 10, 1) AS min_c_wh,
+          ROUND((MAX(max_c_wh) - MIN(min_c_wh)) / 10, 1) AS interval_wh
+    FROM
+      (SELECT 
+              id.inverter_seq,
+              writedate,
+              DATE_FORMAT(writedate,"%H") AS hour_time,
+              AVG(in_a) AS avg_in_a,
+              AVG(in_v) AS avg_in_v,
+              AVG(in_w) AS avg_in_wh,
+              AVG(out_a) AS avg_out_a,
+              AVG(out_v) AS avg_out_v,
+              AVG(out_w) AS avg_out_wh,
+              AVG(CASE WHEN p_f > 0 THEN p_f END) AS avg_p_f,
+              AVG(out_a) * AVG(out_v) AS wh,
+              MAX(c_wh) AS max_c_wh,
+              MIN(c_wh) AS min_c_wh,
+              MAX(c_wh) - MIN(c_wh) AS interval_wh
+      FROM inverter_data id
+            WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
+    `;
+    if (inverter_seq !== '' && inverter_seq && inverter_seq !== 'all') {
+      sql += `AND inverter_seq = ${inverter_seq}`;
+    }
+    sql += `            
+      GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), inverter_seq
+      ORDER BY inverter_seq, writedate) AS id_group
+    GROUP BY inverter_seq, DATE_FORMAT(writedate,"${dateFormat}")
+    `;
+
     return this.db.single(sql, '', false);
   }
 
@@ -295,33 +354,38 @@ class BiModule extends bmjh.BM {
       ,ROUND(SUM(sum_wh) / 1000, 2) AS total_s_kwh	
 			,ROUND(SUM(c_wh) / 1000000, 3) AS total_c_mwh
   FROM
-    (SELECT inverter_seq
-        ,DATE_FORMAT(writedate,"${dateFormat}") AS group_date
-				,ROUND(AVG(avg_in_a) / 10, 1) AS avg_in_a
-				,ROUND(AVG(avg_in_v) / 10, 1) AS avg_in_v
-				,ROUND(AVG(in_wh) / 10, 1) AS avg_in_wh
-				,ROUND(AVG(avg_out_a) / 10, 1) AS avg_out_a
-				,ROUND(AVG(avg_out_v) / 10, 1) AS avg_out_v
-				,ROUND(AVG(out_wh) / 10, 1) AS avg_out_wh
-				,ROUND(AVG(avg_p_f) / 10, 1) AS avg_p_f
-				,ROUND(SUM(wh) / 100, 1) AS sum_wh
-				,ROUND(MAX(c_wh) / 10, 1) AS c_wh
+    (SELECT 
+        inverter_seq,
+        DATE_FORMAT(writedate,"${dateFormat}") AS group_date,
+				ROUND(AVG(avg_in_a) / 10, 1) AS avg_in_a,
+				ROUND(AVG(avg_in_v) / 10, 1) AS avg_in_v,
+				ROUND(AVG(in_wh) / 10, 1) AS avg_in_wh,
+				ROUND(AVG(avg_out_a) / 10, 1) AS avg_out_a,
+				ROUND(AVG(avg_out_v) / 10, 1) AS avg_out_v,
+				ROUND(AVG(out_wh) / 10, 1) AS avg_out_wh,
+				ROUND(AVG(avg_p_f) / 10, 1) AS avg_p_f,
+				ROUND(SUM(wh) / 100, 1) AS sum_wh,
+				ROUND(MAX(max_c_wh) / 10, 1) AS max_c_wh,
+        ROUND(MIN(min_c_wh) / 10, 1) AS min_c_wh,
+        ROUND((MAX(max_c_wh) - MIN(min_c_wh)) / 10, 1) AS interval_wh
     FROM
-      (SELECT id.inverter_seq
-          ,writedate
-          ,AVG(in_a) AS avg_in_a
-					,AVG(in_v) AS avg_in_v
-					,AVG(in_w) AS in_wh
-					,AVG(out_a) AS avg_out_a
-					,AVG(out_v) AS avg_out_v
-					,AVG(out_w) AS out_wh
-          ,AVG(CASE WHEN p_f > 0 THEN p_f END) AS avg_p_f
-					,AVG(out_a) * AVG(out_v) AS wh
-					,MAX(c_wh) AS c_wh
-          ,DATE_FORMAT(writedate,"%H") AS hour_time
+      (SELECT 
+          id.inverter_seq,
+          writedate,
+          DATE_FORMAT(writedate,"%H") AS hour_time,
+          AVG(in_a) AS avg_in_a,
+					AVG(in_v) AS avg_in_v,
+					AVG(in_w) AS in_wh,
+					AVG(out_a) AS avg_out_a,
+					AVG(out_v) AS avg_out_v,
+					AVG(out_w) AS out_wh,
+          AVG(CASE WHEN p_f > 0 THEN p_f END) AS avg_p_f,
+          AVG(out_a) * AVG(out_v) AS wh,
+          ROUND(MAX(c_wh) / 10, 1) AS max_c_wh,
+          ROUND(MIN(c_wh) / 10, 1) AS min_c_wh,
+          ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_wh
       FROM inverter_data id
             WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
-
     `;
     if (inverter_seq !== 'all') {
       sql += `AND inverter_seq = ${inverter_seq}`;

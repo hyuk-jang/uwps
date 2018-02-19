@@ -81,6 +81,8 @@ ul li{list-style:none;}
 .title_box{ height: 240px; border: solid 1px #ddd; background:#Fff;}
 .row_title{width:1110px; margin:0 auto; margin-bottom:10px;}
 
+.title_box2{ height: 340px; border: solid 1px #ddd; background:#Fff;}
+
 
 /* index 전력생산현황*/
 .power_1{background:linear-gradient(#4384DB,#1C57A4);  border-radius: 7px 7px 0 0; border: solid 1px #ddd; height:55px; width: 292.5px; border-bottom:0px;}

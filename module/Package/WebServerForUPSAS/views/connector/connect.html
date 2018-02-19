@@ -42,11 +42,15 @@
             <div class="conne">
               <div class="form-group conne_1">
                 <label class="inputlg_1" for="inputlg">평균 전압(V)</label>
-                <input class="form-control input-lg" id="inputlg" type="text" value=<%- gridInfo.avgVol %>>
+                <input class="form-control input-lg" type="text" value=<%- gridInfo.avgVol %>>
               </div>
               <div class="form-group conne_1">
                 <label class="inputlg_1" for="inputlg">총 전류(A)</label>
-                <input class="form-control input-lg" id="inputlg" type="text" value=<%- gridInfo.totalAmp %>>
+                <input class="form-control input-lg" type="text" value=<%- gridInfo.totalAmp %>>
+              </div>
+              <div class="form-group conne_1">
+                <label class="inputlg_1" for="inputlg">총 전력(kW)</label>
+                <input class="form-control input-lg" type="text" value=<%- gridInfo.totalPower %>>
               </div>
             </div>
           </div>
@@ -212,10 +216,10 @@
 
     <!-- 접속반 하이차트-->
     <script type="text/javascript">
-      var chartDataObj = <%- JSON.stringify (chartDataObj) %>;
+      var chartDataObj = <%- JSON.stringify(chartDataObj) %>;
 
-      if(chartDataObj.series.length){
-        $(function () {
+        if (chartDataObj.series.length) {
+          var yMax = 1500;
           $("#chart_div").highcharts({
             title: {
               text: ""
@@ -230,6 +234,7 @@
               // categories: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24"]
             },
             yAxis: {
+              max: yMax,
               title: {
                 text: "전력(W)"
               }
@@ -245,12 +250,11 @@
               enabled: false
             },
           });
-        });
-      } else {
-        $("#chart_div").html("발전 내역이 존재하지 않습니다.").css({"line-height": "300px", "font-size": "25px"});
-      }
+        } else {
+          $("#chart_div").html("발전 내역이 존재하지 않습니다.").css({ "line-height": "300px", "font-size": "25px" });
+        }
 
-    </script>
+      </script>
 </body>
 
 </html>

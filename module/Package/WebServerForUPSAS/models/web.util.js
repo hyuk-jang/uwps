@@ -359,7 +359,7 @@ exports.convertValueBySearchType = convertValueBySearchType;
  * @param {string} searchType 검색 타입 year, month, day, hour
  */
 function applyScaleChart(chartData, searchType) {
-  BU.CLI(searchType);
+  // BU.CLI(searchType);
   chartData.series.forEach(chart => {
     chart.data.forEach((data, index) => {
       // BU.CLI(data);

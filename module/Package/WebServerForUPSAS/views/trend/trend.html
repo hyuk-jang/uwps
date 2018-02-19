@@ -190,7 +190,8 @@
 
           var locationHref = "trend?device_type=" + encodeURIComponent(device_type) + "&device_list_type=" + encodeURIComponent(device_list_type) + "&device_seq=" + encodeURIComponent(device_seq) + "&start_date=" + encodeURIComponent(startDate) + "&end_date=" + encodeURIComponent(endDate) + "&search_type=" + encodeURIComponent(searchType);
           // var locationHref = "/trend?device_type=" + device_type + "&device_seq=" + device_seq + "&start_date=" + startDate + "&end_date=" + endDate + "&search_type=" + searchType;
-          // console.log('location', locationHref)
+          console.log('location', locationHref)
+          // alert(locationHref)
           return location.href = locationHref;
           // `/trend?device_seq=${device_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}`;
         }

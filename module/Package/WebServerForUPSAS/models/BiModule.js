@@ -155,6 +155,34 @@ class BiModule extends bmjh.BM {
   }
 
   /**
+   * searchType을 받아 dateFormat String 변환하여 반환
+   * @param {string} searchType 
+   * @return {string} dateFormat
+   */
+  convertSearchType2DateFormat(searchType) {
+    let dateFormat = '';
+    switch (searchType) {
+    case 'year':
+      dateFormat = '%Y';
+      break;
+    case 'month':
+      dateFormat = '%Y-%m';
+      break;
+    case 'day':
+      dateFormat = '%Y-%m-%d';
+      break;
+    case 'hour':
+      dateFormat = '%Y-%m-%d %H';
+      break;
+    default:
+      dateFormat = '%Y-%m';
+      break;
+    }
+    return dateFormat;
+  }
+
+
+  /**
    * searchRange Type
    * @typedef {Object} searchRange
    * @property {string} searchType day, month, year, range
@@ -166,6 +194,26 @@ class BiModule extends bmjh.BM {
    * @property {string} strEndDateInputValue input[type=text] 에 표시될 종료 날짜
    */
 
+
+  /**
+   * 인버터 총 누적 발전량을 구함
+   * @param {number[]=} inverter_seq_list 
+   */
+  getInverterCumulativePower(inverter_seq_list){
+    let sql = `
+      SELECT
+        inverter_seq,
+        ROUND(MAX(c_wh) / 10, 1) AS max_c_wh
+      FROM inverter_data
+      `;
+    if (typeof(inverter_seq_list) === 'number' ||  Array.isArray(inverter_seq_list)) {
+      sql += ` AND inverter_seq IN (${inverter_seq_list})`;
+    }
+    sql += `        
+    GROUP BY inverter_seq
+    `;
+    return this.db.single(sql, '', false);
+  }
    
 
   /**
@@ -180,21 +228,21 @@ class BiModule extends bmjh.BM {
 
     let sql = `
       SELECT
-      inverter_seq,
-      writedate, 
-      DATE_FORMAT(writedate,'%H') AS hour_time,
-      DATE_FORMAT(writedate,'${dateFormat}') AS group_date,
-      ROUND(AVG(in_a) / 10, 1) AS in_a,
-      ROUND(AVG(in_v) / 10, 1) AS in_v,
-      ROUND(AVG(in_w) / 10, 1) AS in_w,
-      ROUND(AVG(out_a) / 10, 1) AS out_a,
-      ROUND(AVG(out_v) / 10, 1) AS out_v,
-      ROUND(AVG(out_w) / 10, 1) AS out_w,
-      ROUND(AVG(p_f) / 10, 1) AS p_f,
-      ROUND(d_wh / 10, 1) AS d_wh,
-      ROUND(MAX(c_wh) / 10, 1) AS max_c_wh,
-      ROUND(MIN(c_wh) / 10, 1) AS min_c_wh,
-      ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_wh
+        inverter_seq,
+        writedate, 
+        DATE_FORMAT(writedate,'%H') AS hour_time,
+        DATE_FORMAT(writedate,'${dateFormat}') AS group_date,
+        ROUND(AVG(in_a) / 10, 1) AS in_a,
+        ROUND(AVG(in_v) / 10, 1) AS in_v,
+        ROUND(AVG(in_w) / 10, 1) AS in_w,
+        ROUND(AVG(out_a) / 10, 1) AS out_a,
+        ROUND(AVG(out_v) / 10, 1) AS out_v,
+        ROUND(AVG(out_w) / 10, 1) AS out_w,
+        ROUND(AVG(p_f) / 10, 1) AS p_f,
+        ROUND(d_wh / 10, 1) AS d_wh,
+        ROUND(MAX(c_wh) / 10, 1) AS max_c_wh,
+        ROUND(MIN(c_wh) / 10, 1) AS min_c_wh,
+        ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_wh
       FROM inverter_data
       WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
         `;
@@ -209,11 +257,11 @@ class BiModule extends bmjh.BM {
 
   /**
    * 인버터 발전량 구해옴
-   * @param {searchRange} searchRange  검색 옵션
    * @param {number[]=} inverter_seq 
+   * @param {searchRange} searchRange  검색 옵션
    * @return {{inverter_seq: number, group_date: string, }}
    */
-  getInverterReportChart(searchRange, inverter_seq) {
+  getInverterTrend(inverter_seq, searchRange) {
     searchRange = searchRange ? searchRange : this.getSearchRange();
     let dateFormat = this.convertSearchType2DateFormat(searchRange.searchType);
     let sql = `
@@ -261,32 +309,6 @@ class BiModule extends bmjh.BM {
     return this.db.single(sql, '', false);
   }
 
-  /**
-   * searchType을 받아 dateFormat String 변환하여 반환
-   * @param {string} searchType 
-   * @return {string} dateFormat
-   */
-  convertSearchType2DateFormat(searchType) {
-    let dateFormat = '';
-    switch (searchType) {
-    case 'year':
-      dateFormat = '%Y';
-      break;
-    case 'month':
-      dateFormat = '%Y-%m';
-      break;
-    case 'day':
-      dateFormat = '%Y-%m-%d';
-      break;
-    case 'hour':
-      dateFormat = '%Y-%m-%d %H';
-      break;
-    default:
-      dateFormat = '%Y-%m';
-      break;
-    }
-    return dateFormat;
-  }
 
   /**
    * 모듈 Seq List와 SearchRange 객체를 받아 Report 생성 및 반환
@@ -294,14 +316,11 @@ class BiModule extends bmjh.BM {
    * @param {searchRange} searchRange getSearchRange() Return 객체
    * @return {Object[]} {betweenDatePointObj, gridPowerInfo}
    */
-  getModuleHistory(moduleSeqList, searchRange) {
+  getConnectorTrend(moduleSeqList, searchRange) {
     // TEST
     // endtDate = new Date('2017-11-16');
     // strEndDate = BU.convertDateToText(endtDate)
     // TEST
-
-    // BU.CLI(searchRange)
-
 
     // 기간 검색일 경우 시작일과 종료일의 날짜 차 계산하여 searchType 정의
     if (searchRange.searchType === 'range') {
@@ -337,7 +356,7 @@ class BiModule extends bmjh.BM {
       ) md_group
       GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), photovoltaic_seq
     `;
-    return this.db.single(sql);
+    return this.db.single(sql, '', false);
   }
 
   /**

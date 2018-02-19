@@ -37,7 +37,11 @@ module.exports = function (app) {
     let inverterPowerByToday = await biModule.getInverterPower(searchRange);
     // 각 인버터에서 기록된 데이터 차를 합산
     let dailyPower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerByToday, 'interval_wh'), 0.001, 1) ;
-    let cumulativePower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerByToday, 'max_c_wh'), 0.000001, 3) ;
+    // BU.CLI(inverterPowerByToday);
+    // let cumulativePower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerByToday, 'max_c_wh'), 0.000001, 3) ;
+
+    let cumulativePowerList = await biModule.getInverterCumulativePower();
+    let cumulativePower = webUtil.calcValue(webUtil.reduceDataList(cumulativePowerList, 'max_c_wh'), 0.000001, 3) ;
 
 
     // 금일 발전 현황 데이터
@@ -70,14 +74,14 @@ module.exports = function (app) {
     let powerGenerationInfo = {
       currKw: webUtil.calcValue(webUtil.calcValidDataList(validInverterDataList, 'out_w', false), 0.001, 3),
       currKwYaxisMax: Math.ceil(pv_amount / 10),
-      dailyPower,
+      dailyPower : dailyPower === '' ? 0 : dailyPower,
       monthPower,
       cumulativePower,
       co2: webUtil.calcValue(cumulativePower, 0.424, 3),
       hasOperationInverter: _.every(_.values(_.map(validInverterDataList, data => data.hasValidData))),
       hasAlarm: false // TODO 알람 정보 작업 필요
     };
-
+    // BU.CLI(powerGenerationInfo);
     req.locals.dailyPowerChartData = chartData;
     req.locals.moduleStatusList = validModuleStatusList ;
     req.locals.powerGenerationInfo = powerGenerationInfo;

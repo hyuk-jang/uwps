@@ -36,79 +36,19 @@ module.exports = function (app) {
 
   // Get
   router.get('/', wrap(async(req, res) => {
-    let deviceType = req.query.device_type ? req.query.device_type : 'all';
-    BU.CLI(req.query.device_seq);
+    // 장비 종류 여부 (전체, 인버터, 접속반)
+    let deviceType = req.query.device_type === 'inverter' || req.query.device_type === 'connector' ? req.query.device_type : 'all';
+    // 장비 선택 타입 (전체, 인버터, 접속반)
+    let deviceListType = req.query.device_list_type === 'inverter' || req.query.device_list_type === 'connector' ? req.query.device_list_type : 'all';
+    // 장비 선택 seq (all, number)
     let deviceSeq = !isNaN(req.query.device_seq) && req.query.device_seq !== '' ? Number(req.query.device_seq) : 'all';
-    let deviceListType = req.query.device_list_type === undefined ? 'all' : Number(req.query.device_list_type);
-    BU.CLIS(deviceSeq, deviceListType, req.query.device_list_type);
-    // let param_connector_seq = req.query.device_seq;
+    // BU.CLIS(deviceType, deviceListType, deviceSeq);
     let searchType = req.query.search_type ? req.query.search_type : 'hour';
     let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
     searchRange.searchType = searchType === 'range' ? biModule.convertSearchTypeWithCompareDate(searchRange.strEndDate, searchRange.strStartDate) : searchType;
 
-
-    let upsasProfile = await biModule.getTable('v_upsas_profile');
-    /** searchRange를 기준으로 검색 Column Date를 정함  */
-    let betweenDatePoint =  BU.getBetweenDatePoint(searchRange.strEndDate, searchRange.strStartDate, searchRange.searchType);
-    
+    // 장비 선택 리스트 가져옴
     let deviceList = await getDeviceList(deviceType);
-    let inverterChart = {range: [], series: []};
-    let connectorChart = {range: [], series: []};
-    if(deviceType === 'all'){
-      if(deviceListType === 'all' || deviceListType === 'inverter'){
-        inverterChart = await getInverterChart(deviceSeq, searchRange, betweenDatePoint);
-      }
-      if(deviceListType === 'all' || deviceListType === 'connector'){
-        connectorChart = await getConnectorChart(deviceSeq, searchRange, betweenDatePoint, upsasProfile);
-      }
-    } else if (deviceType === 'inverter'){
-      inverterChart = await getInverterChart(deviceSeq, searchRange, betweenDatePoint);
-    } else if(deviceType === 'connector'){
-      connectorChart = await getConnectorChart(deviceSeq, searchRange, betweenDatePoint, upsasProfile);
-    }
-    
-    let chartData = {range: betweenDatePoint.shortTxtPoint, series: []};
-    
-    chartData.series = inverterChart.series.concat(connectorChart.series);
-    
-    // BU.CLI(inverterChart);
-    // BU.CLI(connectorChart);
-    
-    // BU.CLI(chartData);
-
-    
-    // return;
-    
-    // // getInverterChart('all',upsasProfile, searchRange );
-    // // getConnectorChart(param_connector_seq,upsasProfile, searchRange );
-    // let connectorList = await biModule.getTable('connector');
-    // BU.CLI(param_connector_seq, connectorList);
-    // let connectorSeqList = !isNaN(param_connector_seq) && param_connector_seq !== '' ? [Number(param_connector_seq)] : _.pluck(connectorList, 'connector_seq');
-    // BU.CLI(connectorSeqList);
-    // let moduleSeqList = [];
-    // _.each(connectorSeqList, seq => {
-    //   let moduleList = _.where(upsasProfile, {connector_seq:seq});
-    //   moduleSeqList = moduleSeqList.concat(moduleList.length ? _.pluck(moduleList, 'photovoltaic_seq') : []) ;
-    // });
-    // moduleSeqList = _.union(moduleSeqList);
-    // // BU.CLI(moduleSeqList);
-
-    // /** 모듈 데이터 가져옴 */
-    // let moduleHistory =  await biModule.getModuleHistory(moduleSeqList, searchRange);
-    // /** searchRange를 기준으로 검색 Column Date를 정함  */
-    // // let betweenDatePoint =  BU.getBetweenDatePoint(searchRange.strEndDate, searchRange.strStartDate, searchRange.searchType);
-    // /** 정해진 column을 기준으로 모듈 데이터를 정리 */
-    // // let chartData = webUtil.makeStaticChartData(moduleHistory, betweenDatePoint, 'total_wh', 'group_date', 'photovoltaic_seq');
-    // /** Grouping Chart에 의미있는 이름을 부여함. */
-    // webUtil.mappingChartDataNameForModule(chartData, upsasProfile);
-    // /** searchRange 조건에 따라서 Chart Data의 비율을 변경 */
-    // webUtil.applyScaleChart(chartData, searchRange.searchType);
-    // /** 차트를 표현하는데 필요한 Y축, X축, Title Text 설정 객체 생성 */
-    let chartOption = webUtil.makeChartOption(searchRange);
-    // connectorList.unshift({
-    //   connector_seq: 'all',
-    //   target_name: '모두'
-    // });
 
     let device_type_list = [
       {type: 'all', name: '전체'},
@@ -116,25 +56,37 @@ module.exports = function (app) {
       {type: 'connector', name: '접속반'}
     ];
 
+    // 차트 제어 및 자질 구래한 데이터 모음
     let searchOption = {
-      device_type_list: device_type_list,
       device_type: deviceType,
+      device_type_list: device_type_list,
+      device_list_type: deviceListType,
       device_seq:  deviceSeq,
       device_list: deviceList,
       search_range: searchRange,
       search_type: searchType
     };
     // BU.CLI(searchOption);
+    
+    /** searchRange를 기준으로 검색 Column Date를 정함  */
+    let betweenDatePoint =  BU.getBetweenDatePoint(searchRange.strEndDate, searchRange.strStartDate, searchRange.searchType);
+    // 인버터 차트
+    let inverterChart = await getInverterChart(searchOption, searchRange, betweenDatePoint);
+    // BU.CLI(inverterChart);
+    // 접속반 차트
+    let connectorChart = await getConnectorChart(searchOption, searchRange, betweenDatePoint);
+    // 차트 Range 지정
+    let chartData = {range: betweenDatePoint.shortTxtPoint, series: []};
+    // 차트 합침
+    chartData.series = inverterChart.series.concat(connectorChart.series);
+   
+    // /** 차트를 표현하는데 필요한 Y축, X축, Title Text 설정 객체 생성 */
+    let chartOption = webUtil.makeChartOption(searchRange);
+    
+    // BU.CLI(chartOption);
     req.locals.searchOption = searchOption;
     req.locals.chartData = chartData;
     req.locals.chartOption = chartOption;
-
-    // BU.CLI(gridChartReport)
-    req.locals.searchType = searchType;
-    req.locals.device_seq = deviceSeq == null ? 'all' : Number(deviceSeq);
-    req.locals.deviceType = deviceType;
-    req.locals.deviceList = deviceList;
-    req.locals.searchRange = searchRange;
 
     return res.render('./trend/trend.html', req.locals);
   }));
@@ -153,20 +105,15 @@ module.exports = function (app) {
    */
   async function getDeviceList(deviceType) {
     let returnValue = [];
-
-    returnValue.unshift({
-      type: 'all',
-      seq: 'all',
-      target_name: '전체'
-    });
-
     deviceType = deviceType ? deviceType : 'all';
     if (deviceType === 'all' || deviceType === 'inverter') {
       let inverterList = await biModule.getTable('inverter');
       _.each(inverterList, info => {
         returnValue.push({type: 'inverter', seq: info.inverter_seq, target_name: info.target_name});
       });
-    } 
+    }
+    // 인버터 이름순으로 정렬
+    returnValue = _.sortBy(returnValue, 'target_name');
     
     if (deviceType === 'all' || deviceType === 'connector') {
       let connectorList = await biModule.getTable('connector');
@@ -174,37 +121,49 @@ module.exports = function (app) {
         returnValue.push({type: 'connector', seq: info.connector_seq, target_name: info.target_name});
       });
     }
+    // 모든 셀렉트 박스 정리 끝낸 후 최상단에 보일 셀렉트 박스 정의
+    returnValue.unshift({
+      type: 'all',
+      seq: 'all',
+      target_name: '전체'
+    });
     return returnValue;
   }
 
 
   /**
-   *
-   * @param {number|string} inverter_seq
+   * 인버터 차트 반환
+   * @param {{device_type: string, device_list_type: string, device_type_list: [], device_seq: string, search_type: string}} searchOption
    * @param {searchRange} searchRange
-   * @param {{fullTxtPoint: [], shortTxtPoint: []}}
+   * @param {{fullTxtPoint: [], shortTxtPoint: []}} betweenDatePoint
    * @return {chartData} chartData
    */
-  async function getInverterChart(inverter_seq, searchRange, betweenDatePoint) {
-    // BU.CLIS(inverter_seq, searchRange, betweenDatePoint);
-    inverter_seq = inverter_seq == null || inverter_seq === 'all' ? 'all' : Number(inverter_seq);
+  async function getInverterChart(searchOption, searchRange, betweenDatePoint) {
+    let chartData = {range: [], series: []};
+    // 장비 종류가 접속반, 장비 선택이 전체라면 즉시 종료
+    if(searchOption.device_type === 'connector' && searchOption.device_list_type === 'all'){
+      return chartData;
+    }
+
+    // 인버터나 전체를 검색한게 아니라면 즉시 리턴
+    if(searchOption.device_list_type !== 'all' && searchOption.device_list_type !== 'inverter'){
+      return chartData;
+    }
+    
+    let device_seq = !isNaN(searchOption.device_seq) ? Number(searchOption.device_seq) : 'all';
+    // TEST
     // searchRange = biModule.getSearchRange('day', '2018-02-17', '2018-02-18');
-    // searchRange.searchInterval = 'day';
     // searchRange.searchType = 'hour';
-    searchRange.page = Number(1);
-    searchRange.pageListCount = 20;
-
-
+    // TODO 인버터 모듈 이름을 가져오기 위한 테이블. 성능을 위해서라면 다른 쿼리문 작성 사용 필요
     let viewInverterStatus = await biModule.getTable('v_inverter_status');
-
-    let inverterReport = await biModule.getInverterReportChart(searchRange, inverter_seq);
+    // 인버터 차트 데이터 불러옴
+    let inverterTrend = await biModule.getInverterTrend(device_seq, searchRange);
     // BU.CLI(inverterReport);
 
-    // let betweenDatePoint =  BU.getBetweenDatePoint(searchRange.strEndDate, searchRange.strStartDate, searchRange.searchType);
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
-    let chartData = webUtil.makeStaticChartData(inverterReport, betweenDatePoint, 'interval_wh', 'group_date', 'inverter_seq');
-    // let chartData = webUtil.makeStaticChartData(inverterReport, 'interval_wh', 'group_date', 'inverter_seq');
+    chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, 'interval_wh', 'group_date', 'inverter_seq');
     // BU.CLI(chartData);
+    /** Grouping Chart에 의미있는 이름을 부여함. */
     webUtil.mappingChartDataName(chartData, viewInverterStatus, 'inverter_seq', 'target_name');
     /** searchRange 조건에 따라서 Chart Data의 비율을 변경 */
     webUtil.applyScaleChart(chartData, searchRange.searchType);
@@ -213,35 +172,49 @@ module.exports = function (app) {
   }
 
   /**
-   * 
-   * @param {number|string} param_connector_seq 
+   * 접속반 차트 반환
+   * @param {{device_type: string, device_list_type: string, device_type_list: [], device_seq: string, search_type: string}} searchOption
    * @param {searchRange} searchRange 
    * @param {{fullTxtPoint: [], shortTxtPoint: []}}
-   * @param {Array.<{}>} upsasProfile 
    * @return {chartData} chartData
    */
-  async function getConnectorChart(param_connector_seq, searchRange, betweenDatePoint, upsasProfile){
+  async function getConnectorChart(searchOption, searchRange, betweenDatePoint){
+    let chartData = {range: [], series: []};
+
+    // 장비 종류가 인버터, 장비 선택이 전체라면 즉시 종료
+    if(searchOption.device_type === 'inverter' && searchOption.device_list_type === 'all'){
+      return chartData;
+    }
+
+    // 인버터나 전체를 검색한게 아니라면 즉시 리턴
+    if(searchOption.device_list_type !== 'all' && searchOption.device_list_type !== 'connector'){
+      return chartData;
+    }
+
+    // TEST
     // searchRange = biModule.getSearchRange('range', '2018-02-10', '2018-02-14');
+    // TODO 접속반 모듈 이름을 가져오기 위한 테이블. 성능을 위해서라면 다른 쿼리문 작성 사용 필요
+    let upsasProfile = await biModule.getTable('v_upsas_profile');
     // BU.CLI(searchRange);
+    // 접속반 리스트 불러옴(선택한 접속반의 모듈을 가져오기 위함)
     let connectorList = await biModule.getTable('connector');
-    // BU.CLI(param_connector_seq, connectorList);
-    let connectorSeqList = !isNaN(param_connector_seq) && param_connector_seq !== '' ? [Number(param_connector_seq)] : _.pluck(connectorList, 'connector_seq');
-    // BU.CLI(connectorSeqList);
+    // BU.CLIS(searchOption, connectorList);
+    // 선택한 접속반 seq 정의
+    let connectorSeqList =  !isNaN(searchOption.device_seq) ? [Number(searchOption.device_seq)] : _.pluck(connectorList, 'connector_seq');
+    // 선택한 접속반에 물려있는 모듈의 seq를 배열에 저장
     let moduleSeqList = [];
     _.each(connectorSeqList, seq => {
       let moduleList = _.where(upsasProfile, {connector_seq:seq});
       moduleSeqList = moduleSeqList.concat(moduleList.length ? _.pluck(moduleList, 'photovoltaic_seq') : []) ;
     });
+    // 혹시나 중복된 seq가 있다면 중복 제거
     moduleSeqList = _.union(moduleSeqList);
     // BU.CLI(moduleSeqList);
 
     /** 모듈 데이터 가져옴 */
-    let moduleHistory =  await biModule.getModuleHistory(moduleSeqList, searchRange);
-    // BU.CLI(moduleHistory);
-    /** searchRange를 기준으로 검색 Column Date를 정함  */
-    // let betweenDatePoint =  BU.getBetweenDatePoint(searchRange.strEndDate, searchRange.strStartDate, searchRange.searchType);
+    let connectorTrend =  await biModule.getConnectorTrend(moduleSeqList, searchRange);
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
-    let chartData = webUtil.makeStaticChartData(moduleHistory, betweenDatePoint, 'total_wh', 'group_date', 'photovoltaic_seq');
+    chartData = webUtil.makeStaticChartData(connectorTrend, betweenDatePoint, 'total_wh', 'group_date', 'photovoltaic_seq');
     // BU.CLI(chartData);
     /** Grouping Chart에 의미있는 이름을 부여함. */
     webUtil.mappingChartDataNameForModule(chartData, upsasProfile);
@@ -253,7 +226,7 @@ module.exports = function (app) {
   }
 
 
-  router.use(wrap(async(err, req, res, next) => {
+  router.use(wrap(async(err, req, res) => {
     console.log('Err', err);
     res.status(500).send(err);
   }));

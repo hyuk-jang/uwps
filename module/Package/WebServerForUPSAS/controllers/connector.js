@@ -21,9 +21,9 @@ module.exports = function (app) {
 
   // Get
   router.get('/', wrap(async (req, res) => {
-    // BU.CLI('connector', req.locals);
     // upsas 현황
     let upsasProfile = await biModule.getTable('v_upsas_profile');
+    // BU.CLI('connector', req.locals);
     // 선택된 접속반 seq 정의
     let connector_seq = req.query.connector_seq == null || req.query.connector_seq === 'all' ? 'all' : Number(req.query.connector_seq);
     /** 접속반 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
@@ -49,7 +49,7 @@ module.exports = function (app) {
       findIt.vol = hasOperation ? vol  : '';
       findIt.power = hasOperation && _.isNumber(amp) && _.isNumber(vol) ? webUtil.calcValue(amp * vol, 1, 1)   : '';
     });
-    refinedConnectorList = _.sortBy(refinedConnectorList, 'ivt_target_name');
+    // refinedConnectorList = _.sortBy(refinedConnectorList, 'ivt_target_name');
     
     let connectorStatusData = webUtil.convertColumn2Rows(refinedConnectorList, ['connector_ch', 'install_place', 'ivt_target_name', 'pv_target_name', 'pv_manufacturer', 'amp', 'vol', 'power', 'temperature', 'hasOperation'], maxModuleViewNum);
     
@@ -57,13 +57,16 @@ module.exports = function (app) {
     totalAmp = _.isNumber(totalAmp) ? totalAmp.scale(1, 1) : '';
     let avgVol = webUtil.reduceDataList(refinedConnectorList, 'vol');
     avgVol = _.isNumber(avgVol) ? (avgVol / refinedConnectorList.length).scale(1, 1) : '';
+    let totalPower = webUtil.reduceDataList(refinedConnectorList, 'power');
+    totalPower = _.isNumber(totalPower) ? totalPower.scale(0.001, 3) : '';
 
 
     // 금일 접속반 발전량 현황
-    let todayModuleReport = await biModule.getTodayConnectorReport(moduleSeqList);
-    // BU.CLI(todayModuleReport);
-    let chartData = webUtil.makeDynamicChartData(todayModuleReport, 'wh', 'hour_time', 'photovoltaic_seq');
-
+    let searchRange = biModule.getSearchRange('hour');
+    // let searchRange = biModule.getSearchRange('hour', '2018-02-13');
+    let connectorPowerList = await biModule.getConnectorPower(searchRange, moduleSeqList);
+    let chartData = webUtil.makeDynamicChartData(connectorPowerList, 'wh', 'hour_time', 'photovoltaic_seq');
+    webUtil.applyScaleChart(chartData, 'hour');
     webUtil.mappingChartDataNameForModule(chartData, upsasProfile);
 
     let connectorList = await biModule.getTable('connector');
@@ -82,6 +85,7 @@ module.exports = function (app) {
     // 총전류, 전압, 보여줄 컬럼 개수
       totalAmp,
       avgVol,
+      totalPower,
       maxModuleViewNum,
       measureTime: `${BU.convertDateToText(new Date(), '', 4)}:00`,
       // measureTime: _.first(moduleStatusList) ? BU.convertDateToText(_.first(moduleStatusList).writedate) : ''
@@ -94,7 +98,7 @@ module.exports = function (app) {
     return res.render('./connector/connect.html', req.locals);
   }));
 
-  router.use(wrap(async (err, req, res, next) => {
+  router.use(wrap(async (err, req, res) => {
     console.trace(err);
     res.status(500).send(err);
   }));

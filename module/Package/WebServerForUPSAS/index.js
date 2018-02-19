@@ -31,7 +31,7 @@ exchangeInfo()
     return downloadMap();
   })
   .then(res => {
-    BU.CLI(res);
+    // BU.CLI(res);
     return operationController();
   })
   .catch(error => {

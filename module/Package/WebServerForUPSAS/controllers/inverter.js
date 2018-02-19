@@ -29,10 +29,10 @@ module.exports = function (app) {
     let refinedInverterStatus = webUtil.refineSelectedInverterStatus(validInverterStatus);
     // BU.CLI(refinedInverterStatus);
 
-    // let searchRange = biModule.getSearchRange('hour');
-    let searchRange = biModule.getSearchRange('hour', '2018-02-14');
+    let searchRange = biModule.getSearchRange('hour');
+    // let searchRange = biModule.getSearchRange('hour', '2018-02-14');
     let inverterPowerList = await biModule.getInverterPower(searchRange);
-    let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'interval_wh', 'hour_time', 'inverter_seq');
+    let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'out_w', 'hour_time', 'inverter_seq');
     webUtil.mappingChartDataName(chartData, viewInverterStatus, 'inverter_seq', 'target_name');
     
     req.locals.inverterStatus = refinedInverterStatus;

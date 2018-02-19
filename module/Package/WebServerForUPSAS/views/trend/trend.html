@@ -15,43 +15,43 @@
 
 
         <div class="row row_width  top_box">
-            <!-- <div class="col-xs-2 sel_box">
+            <div class="col-xs-2 sel_box">
                 장비 종류
               <select class="form-control form-control_st" id="device_type_sel" name="">
-                  <option value="all">
-                      모두
-                  </option>
-                  <option value="inverter">
-                      인버터
-                  </option>
-                  <option value="connector">
-                      접속반
-                  </option>
-              </select>
-            </div> -->
-          <div class="col-xs-2 sel_box">
-              장비 선택
-            <select class="form-control form-control_st" id="device_list_sel" name="device_seq">
-                <!-- for(var i = 0 ; i < deviceList.length ; i++){
-                  var deviceInfo = deviceList[i];
-                  var target_seq = deviceInfo.target_seq;
-                  var target_name = deviceInfo.target_name;
-                  var selected = '';
-                  if(target_seq === device_seq){
-                    selected = 'selected';
-                  } -->
-              <%
-                for(var i = 0 ; i < connectorList.length ; i++){
-                  var connectorInfo = connectorList[i];
-                  var cntSeq = connectorInfo.connector_seq;
-                  var cntName = connectorInfo.target_name;
-                  var selected = '';
-                  if(cntSeq === connector_seq){
+                <%
+                  for(var i = 0 ; i < searchOption.device_type_list.length ; i++){
+                    var deviceTypeInfo = searchOption.device_type_list[i];
+                    var deviceType = deviceTypeInfo.type;
+                    var deviceName = deviceTypeInfo.name;
+                    var selected = '';
+                    if(deviceType === searchOption.device_type){
                     selected = 'selected';
                   }
                 %>
-                <option  value="<%= cntSeq %>" <%=selected %> >
-                    <%= cntName %>
+                <option  value="<%= deviceType %>" <%=selected %> >
+                  <%= deviceName %>
+              </option>
+                <%
+                  }
+                %>
+              </select>
+            </div>
+          <div class="col-xs-2 sel_box">
+              장비 선택
+            <select class="form-control form-control_st" id="device_list_sel" name="device_seq">
+              <%
+                for(var i = 0 ; i < searchOption.device_list.length ; i++){
+                  var deviceInfo = searchOption.device_list[i];
+                  var device_seq = deviceInfo.seq;
+                  var device_type = deviceInfo.type;
+                  var device_name = deviceInfo.target_name;
+                  var selected = '';
+                  if(device_seq === searchOption.device_seq){
+                    selected = 'selected';
+                  }
+                %>
+                <option data-type="<%= device_type %>"  value="<%= device_seq %>" <%=selected %> >
+                    <%= device_name %>
                 </option>
                 <%
                   }
@@ -92,7 +92,7 @@
             </p>
           </div>
 
-          <div class="title_box" id="moduleChart_1">
+          <div class=".title_box2" id="moduleChart_1">
 
 
           </div>
@@ -117,8 +117,8 @@
 
 
         // 초기 시작시 라디오 체크버튼 클릭처리
-        var searchRange = <%- JSON.stringify(searchRange)  %>;
-        var searchType = "<%-searchType%>";
+        var searchRange = <%- JSON.stringify(searchOption.search_range)  %>;
+        var searchType = "<%- searchOption.search_type %>";
 
         $(document).ready(function() {
           var selectedObj = $("#sel_type_div_area").find("input[value=" + searchType + "]") ;
@@ -167,7 +167,7 @@
         // 검색 클릭 시
         function searchTrend() {
           var device_type = document.querySelector('#device_type_sel option:checked').value;
-          var device_seq = document.querySelector('#device_list_sel option:checked').value;
+          var $deviceListDom = $('#device_list_sel option:checked');
           var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
           var startDate = document.getElementById('start_date_input').value;
           var endDate = '';
@@ -178,8 +178,21 @@
               return alert('종료일이 시작일보다 빠를 수 없습니다.');
             }
           }
+          console.log($deviceListDom.data('type'))
+          var device_list_type = $deviceListDom.data('type');
+          var device_seq = $deviceListDom.val();
 
-          return location.href ="/trend?device_type=" + device_type + "&device_seq=" + device_seq + "&start_date=" + startDate + "&end_date=" + endDate + "&search_type=" + searchType;
+          // return;
+
+          
+
+          // device_type === 'all' ? 
+
+          var locationHref = "trend?device_type=" + encodeURIComponent(device_type) + "&device_list_type=" + encodeURIComponent(device_list_type) + "&device_seq=" + encodeURIComponent(device_seq) + "&start_date=" + encodeURIComponent(startDate) + "&end_date=" + encodeURIComponent(endDate) + "&search_type=" + encodeURIComponent(searchType);
+          // var locationHref = "/trend?device_type=" + device_type + "&device_seq=" + device_seq + "&start_date=" + startDate + "&end_date=" + endDate + "&search_type=" + searchType;
+          console.log('location', locationHref)
+          // alert(locationHref)
+          return location.href = locationHref;
           // `/trend?device_seq=${device_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}`;
         }
 
@@ -194,7 +207,7 @@
             // Check for a successful (blank) response
             // console.log('dataList', dataList)
             var resultData = dataList;
-            var html = '<option value="all">모두</option>';
+            var html = '';
             resultData.forEach(data => {
               var seq = data.seq;
               var target_name = data.target_name;

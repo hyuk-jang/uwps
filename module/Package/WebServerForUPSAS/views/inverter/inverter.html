@@ -141,48 +141,46 @@
     <script type="text/javascript">
     var chartDataObj = <%- JSON.stringify (chartDataObj) %>;
     if (chartDataObj.series.length) {
-      console.log("@@@", chartDataObj.range, chartDataObj.series )
-        $(function () {
-          var yMax = 1500;
+      console.log("@@@", chartDataObj.range, chartDataObj.series)
+      var yMax = 1500;
 
-          $('#chart_div').highcharts({
-            title: {
-              text: ''
-            },
-            xAxis: {
-              // opposite: true,
-              title: {
-                text: '시간(Hour)'
-              },
-              // tickInterval: 6
-              categories: chartDataObj.range
-            },
-            yAxis: {
-              max: yMax,
-              title: {
-                text: '전력(W)'
-              }
-            },
-            plotOptions: {
-              series: {
-                pointStart: 0
-              }
-            },
-            legend: { //범례
-              layout: 'vertical',
-              align: 'right',
-              verticalAlign: 'middle',
-              borderWidth: 0,
-            },
-            series: chartDataObj.series,
-            credits: {
-              enabled: false
-            },
-          });
-        });
-      } else {
-        $("#chart_div").html("발전 내역이 존재하지 않습니다.").css({ "line-height": "300px", "font-size": "25px" });
-      }
+      $('#chart_div').highcharts({
+        title: {
+          text: ''
+        },
+        xAxis: {
+          // opposite: true,
+          title: {
+            text: '시간(Hour)'
+          },
+          // tickInterval: 6
+          categories: chartDataObj.range
+        },
+        yAxis: {
+          max: yMax,
+          title: {
+            text: '전력(W)'
+          }
+        },
+        plotOptions: {
+          series: {
+            pointStart: 0
+          }
+        },
+        legend: { //범례
+          layout: 'vertical',
+          align: 'right',
+          verticalAlign: 'middle',
+          borderWidth: 0,
+        },
+        series: chartDataObj.series,
+        credits: {
+          enabled: false
+        },
+      });
+    } else {
+      $("#chart_div").html("발전 내역이 존재하지 않습니다.").css({ "line-height": "300px", "font-size": "25px" });
+    }
 
     </script>
 </body>

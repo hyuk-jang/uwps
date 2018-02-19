@@ -202,7 +202,7 @@ class Control extends EventEmitter {
    * @param  cmd 요청할 명령
    */
   async send2Cmd(cmd) {
-    // BU.CLI('send2Cmd', cmd);
+    BU.CLI('send2Cmd', cmd);
     let timeout = {};
     // console.time('Timeout');
     await Promise.race(
@@ -229,7 +229,7 @@ class Control extends EventEmitter {
    * @param {Promise} 정상 처리라면 true, 아닐 경우 throw error
    */
   async msgSendController(cmd) {
-    // BU.CLI('msgSendController', this.model.controlStatus)
+    BU.CLI('msgSendController', this.model.controlStatus);
     if (BU.isEmpty(cmd)) {
       return new Error('수행할 명령이 없습니다.');
     }
@@ -320,7 +320,7 @@ class Control extends EventEmitter {
 
     /** 장치에서 수신된 데이터 처리 */
     this.on('dcData', data => {
-      // BU.CLIS(data, data.toString());
+      BU.CLIS(data, data.toString());
       BU.appendFile(`./log/connector/data/${BU.convertDateToText(new Date(), '', 2)}.txt`, `${this.deviceId} : ${data}`);
       return this._onReceiveMsg(data);
     });

@@ -267,12 +267,12 @@ class Model {
       const contollerInfo = this.findUpsasController(dataObj.id, deviceType);
       const deviceSavedInfo = contollerInfo.controller.getDeviceInfo();
       // BU.CLI(deviceSavedInfo);
-      // dataObj.
+      
       let resultProcessError;
-      let hasSystemError = false;
+      
+      let hasError = dataObj.systemErrorList.length || dataObj.troubleList.length ? true : false;
       // 시스템 에러가 있다면 
       if (dataObj.systemErrorList.length) {
-        hasSystemError = true;
         resultProcessError = this.processDeviceErrorList(dataObj.systemErrorList, dbTroubleList, dataObj, 1, deviceType);
       } else { // 장치 에러 처리
         resultProcessError = this.processDeviceErrorList(dataObj.troubleList, dbTroubleList, dataObj, 0, deviceType);
@@ -283,8 +283,8 @@ class Model {
       upsasDataGroup.updateTroubleList = upsasDataGroup.updateTroubleList.concat(resultProcessError.updateTroubleList);
       dbTroubleList = resultProcessError.dbTroubleList;
 
-      // 시스템 에러가 없을 경우에 insert 구문 입력
-      if (!hasSystemError) {
+      // Trouble 이나 System Error가 발생한 계측 데이터는 사용하지 않음.
+      if (!hasError) {
         const convertDataList = this.processDeviceDataList(dataObj.data, deviceSavedInfo, deviceType);
         dataObj.convertData = convertDataList;
         upsasDataGroup.insertDataList = upsasDataGroup.insertDataList.concat(convertDataList);

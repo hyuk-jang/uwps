@@ -130,6 +130,38 @@ class BiModule extends bmjh.BM {
     return returnValue;
   }
 
+  /**
+   * 장치 타입 종류 가져옴
+   * @param {string} deviceType 장치 타입
+   */
+  async getDeviceList(deviceType) {
+    let returnValue = [];
+    deviceType = deviceType ? deviceType : 'all';
+    if (deviceType === 'all' || deviceType === 'inverter') {
+      let inverterList = await this.getTable('inverter');
+      _.each(inverterList, info => {
+        returnValue.push({type: 'inverter', seq: info.inverter_seq, target_name: info.target_name});
+      });
+    }
+    // 인버터 이름순으로 정렬
+    returnValue = _.sortBy(returnValue, 'target_name');
+    
+    if (deviceType === 'all' || deviceType === 'connector') {
+      let connectorList = await this.getTable('connector');
+      _.each(connectorList, info => {
+        returnValue.push({type: 'connector', seq: info.connector_seq, target_name: info.target_name});
+      });
+    }
+    // 모든 셀렉트 박스 정리 끝낸 후 최상단에 보일 셀렉트 박스 정의
+    returnValue.unshift({
+      type: 'all',
+      seq: 'all',
+      target_name: '전체'
+    });
+    return returnValue;
+  }
+
+
 
   
   /**
@@ -174,8 +206,14 @@ class BiModule extends bmjh.BM {
     case 'hour':
       dateFormat = '%Y-%m-%d %H';
       break;
+    case 'min10':
+      dateFormat = '%Y-%m-%d %H:%i';
+      break;
+    case 'min':
+      dateFormat = '%Y-%m-%d %H:%i';
+      break;
     default:
-      dateFormat = '%Y-%m';
+      dateFormat = '%Y-%m-%d %H:';
       break;
     }
     return dateFormat;
@@ -270,10 +308,10 @@ class BiModule extends bmjh.BM {
           DATE_FORMAT(writedate,"${dateFormat}") AS group_date,
           ROUND(AVG(avg_in_a) / 10, 1) AS avg_in_a,
           ROUND(AVG(avg_in_v) / 10, 1) AS avg_in_v,
-          ROUND(AVG(avg_in_wh) / 10, 1) AS avg_in_wh,
+          ROUND(AVG(avg_in_w) / 10, 1) AS avg_in_w,
           ROUND(AVG(avg_out_a) / 10, 1) AS avg_out_a,
           ROUND(AVG(avg_out_v) / 10, 1) AS avg_out_v,
-          ROUND(AVG(avg_out_wh) / 10, 1) AS avg_out_wh,
+          ROUND(AVG(avg_out_w) / 10, 1) AS avg_out_w,
           ROUND(AVG(avg_p_f) / 10, 1) AS avg_p_f,
           ROUND(MAX(max_c_wh) / 10, 1) AS max_c_wh,
           ROUND(MIN(min_c_wh) / 10, 1) AS min_c_wh,
@@ -285,12 +323,11 @@ class BiModule extends bmjh.BM {
               DATE_FORMAT(writedate,"%H") AS hour_time,
               AVG(in_a) AS avg_in_a,
               AVG(in_v) AS avg_in_v,
-              AVG(in_w) AS avg_in_wh,
+              AVG(in_w) AS avg_in_w,
               AVG(out_a) AS avg_out_a,
               AVG(out_v) AS avg_out_v,
-              AVG(out_w) AS avg_out_wh,
+              AVG(out_w) AS avg_out_w,
               AVG(CASE WHEN p_f > 0 THEN p_f END) AS avg_p_f,
-              AVG(out_a) * AVG(out_v) AS wh,
               MAX(c_wh) AS max_c_wh,
               MIN(c_wh) AS min_c_wh,
               MAX(c_wh) - MIN(c_wh) AS interval_wh
@@ -360,62 +397,91 @@ class BiModule extends bmjh.BM {
   }
 
   /**
+   * 레포트 Date Format 자동 작성
+   * @param {string} searchType 
+   * @return {{groupFormat: string, firstGroupFormat: string, groupDate: string}} 
+   */
+  makeDateFormatForReport(searchType) {
+    const returnValue = {
+      groupFormat: '',
+      firstGroupFormat: '',
+      groupDate: ''
+    };
+
+    let dateFormat = this.convertSearchType2DateFormat(searchType);
+    if(searchType === 'min10'){
+      returnValue.groupDate = 'CONCAT(LEFT(DATE_FORMAT(writedate,"%Y-%m-%d %H:%i"), 15), "0")  AS group_date';
+      returnValue.firstGroupFormat = dateFormat;
+      returnValue.groupFormat = 'LEFT(DATE_FORMAT(writedate,"%Y-%m-%d %H:%i"), 15)';
+    } else {
+      returnValue.groupDate = `DATE_FORMAT(writedate,"${dateFormat}") AS group_date`;
+      returnValue.firstGroupFormat = '%Y-%m-%d %H';
+      returnValue.groupFormat = `DATE_FORMAT(writedate,"${dateFormat}")`;
+    }
+    return returnValue;
+  }
+
+  /**
    * 인버터 Report
-   * @param {Array} inverter_seq [inverter_seq]
-   * @param {Object} searchRange getSearchRange() Return 객체
-   * @return {Object} {betweenDatePointObj, gridPowerInfo}
+   * @param {number=|Array=} inverter_seq [inverter_seq]
+   * @param {searchRange} searchRange getSearchRange() Return 객체
+   * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
    */
   async getInverterReport(inverter_seq, searchRange) {
-    let dateFormat = this.convertSearchType2DateFormat(searchRange.searchInterval);
+    let dateFormat = this.makeDateFormatForReport(searchRange.searchInterval);
     
     let sql = `
-      SELECT *
-      ,ROUND(SUM(sum_wh) / 1000, 2) AS total_s_kwh	
-			,ROUND(SUM(c_wh) / 1000000, 3) AS total_c_mwh
-  FROM
-    (SELECT 
-        inverter_seq,
-        DATE_FORMAT(writedate,"${dateFormat}") AS group_date,
-				ROUND(AVG(avg_in_a) / 10, 1) AS avg_in_a,
-				ROUND(AVG(avg_in_v) / 10, 1) AS avg_in_v,
-				ROUND(AVG(in_wh) / 10, 1) AS avg_in_wh,
-				ROUND(AVG(avg_out_a) / 10, 1) AS avg_out_a,
-				ROUND(AVG(avg_out_v) / 10, 1) AS avg_out_v,
-				ROUND(AVG(out_wh) / 10, 1) AS avg_out_wh,
-				ROUND(AVG(avg_p_f) / 10, 1) AS avg_p_f,
-				ROUND(SUM(wh) / 100, 1) AS sum_wh,
-				ROUND(MAX(max_c_wh) / 10, 1) AS max_c_wh,
-        ROUND(MIN(min_c_wh) / 10, 1) AS min_c_wh,
-        ROUND((MAX(max_c_wh) - MIN(min_c_wh)) / 10, 1) AS interval_wh
+    SELECT
+        group_date,
+        ROUND(AVG(avg_in_a) / 10, 1) AS avg_in_a,
+        ROUND(AVG(avg_in_v) / 10, 1) AS avg_in_v,
+        ROUND(AVG(avg_in_w) / 10, 1) AS avg_in_w,
+        ROUND(AVG(avg_out_a) / 10, 1) AS avg_out_a,
+        ROUND(AVG(avg_out_v) / 10, 1) AS avg_out_v,
+        ROUND(AVG(avg_out_w) / 10, 1) AS avg_out_w,
+        ROUND(AVG(CASE WHEN avg_p_f > 0 THEN avg_p_f END) / 10, 1) AS avg_p_f,
+        ROUND(SUM(interval_wh) / 1000, 2) AS total_s_kwh,
+        ROUND(SUM(max_c_wh) / 1000000, 3) AS total_c_mwh
     FROM
-      (SELECT 
-          id.inverter_seq,
-          writedate,
-          DATE_FORMAT(writedate,"%H") AS hour_time,
-          AVG(in_a) AS avg_in_a,
-					AVG(in_v) AS avg_in_v,
-					AVG(in_w) AS in_wh,
-					AVG(out_a) AS avg_out_a,
-					AVG(out_v) AS avg_out_v,
-					AVG(out_w) AS out_wh,
-          AVG(CASE WHEN p_f > 0 THEN p_f END) AS avg_p_f,
-          AVG(out_a) * AVG(out_v) AS wh,
-          ROUND(MAX(c_wh) / 10, 1) AS max_c_wh,
-          ROUND(MIN(c_wh) / 10, 1) AS min_c_wh,
-          ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_wh
-      FROM inverter_data id
-            WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
-    `;
+      (SELECT
+            inverter_seq,
+            ${dateFormat.groupDate},
+            AVG(avg_in_a) AS avg_in_a,
+            AVG(avg_in_v) AS avg_in_v,
+            AVG(avg_in_w) AS avg_in_w,
+            AVG(avg_out_a) AS avg_out_a,
+            AVG(avg_out_v) AS avg_out_v,
+            AVG(avg_out_w) AS avg_out_w,
+            AVG(CASE WHEN avg_p_f > 0 THEN avg_p_f END) AS avg_p_f,
+            ROUND(MAX(max_c_wh) / 10, 1) AS max_c_wh,
+            ROUND(MIN(min_c_wh) / 10, 1) AS min_c_wh,
+            ROUND((MAX(max_c_wh) - MIN(min_c_wh)) / 10, 1) AS interval_wh
+      FROM
+        (SELECT
+              id.inverter_seq,
+              writedate,
+              DATE_FORMAT(writedate,"%H") AS hour_time,
+              AVG(in_a) AS avg_in_a,
+              AVG(in_v) AS avg_in_v,
+              AVG(in_w) AS avg_in_w,
+              AVG(out_a) AS avg_out_a,
+              AVG(out_v) AS avg_out_v,
+              AVG(out_w) AS avg_out_w,
+              AVG(CASE WHEN p_f > 0 THEN p_f END) AS avg_p_f,
+              MAX(c_wh) AS max_c_wh,
+              MIN(c_wh) AS min_c_wh
+        FROM inverter_data id
+        WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
+        `;
     if (inverter_seq !== 'all') {
       sql += `AND inverter_seq = ${inverter_seq}`;
     }
-    sql += `            
-    GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), inverter_seq
-    ORDER BY inverter_seq, writedate) AS id_group
-  GROUP BY inverter_seq, DATE_FORMAT(writedate,"${dateFormat}")
-  ) AS id_report
-      GROUP BY group_date
-      ORDER BY group_date DESC
+    sql += `  
+        GROUP BY DATE_FORMAT(writedate,"${dateFormat.firstGroupFormat}"), inverter_seq
+        ORDER BY inverter_seq, writedate) AS id_group
+      GROUP BY inverter_seq, ${dateFormat.groupFormat}) AS id_report
+    GROUP BY group_date
+    ORDER BY group_date DESC
     `;
 
     // 총 갯수 구하는 Query 생성
@@ -433,26 +499,75 @@ class BiModule extends bmjh.BM {
     };
   }
 
-
   /**
-   * 경보 내역 리스트
-   * @param {searchRange} searchRange 검색 조건 객체
+   * 경보 페이지. 인버터 접속반 둘다 가져옴.
+   * @param {string} errorStatus 오류 상태 (all, deviceError, systemError)
+   * @param {searchRange} searchRange 
+   * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
    */
-  async getAlarmList(searchRange){
+  async getAlarmReport(errorStatus, searchRange) {
     let sql = `
-      SELECT itd.*
-      , ivt.target_name
-       FROM
-        (
-        SELECT * FROM inverter_trouble_data
-        WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
-        ) AS itd
-      JOIN inverter ivt
-        ON ivt.inverter_seq = itd.inverter_seq 
-      ORDER BY itd.occur_date DESC	
+      SELECT trouble_list.* 
+        FROM
+        ( 
+          SELECT itd_list.*
+          FROM
+            (SELECT 
+                itd.inverter_seq AS device_seq,
+                itd.is_error AS is_error,
+                itd.code AS code,
+                itd.msg AS msg,
+                itd.occur_date AS occur_date,
+                itd.fix_date AS fix_date,
+                ivt.target_name AS target_name,
+                'inverter' AS device_e_name,
+                '인버터' AS device_k_name
+            FROM
+              (SELECT * FROM inverter_trouble_data
+                WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
+                `;
+    if(errorStatus === 'deviceError'){
+      sql += 'AND is_error = "0"';
+    } else if(errorStatus === 'systemError'){
+      sql += 'AND is_error = "1"';
+    }
+    sql += `
+              ) AS itd
+            JOIN inverter ivt
+              ON ivt.inverter_seq = itd.inverter_seq ) AS itd_list
+          UNION
+          SELECT ctd_list.*
+          FROM
+            (SELECT 
+                ctd.connector_seq AS device_seq,
+                ctd.is_error AS is_error,
+                ctd.code AS code,
+                ctd.msg AS msg,
+                ctd.occur_date AS occur_date,
+                ctd.fix_date AS fix_date,
+                cnt.target_name AS target_name,
+                'connector' AS device_e_name,
+                '접속반' AS device_k_name
+            FROM
+              (SELECT * FROM connector_trouble_data
+                WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
+                `;
+    if(errorStatus === 'deviceError'){
+      sql += 'AND is_error = "0"';
+    } else if(errorStatus === 'systemError'){
+      sql += 'AND is_error = "1"';
+    }
+    sql += `
+              ) AS ctd
+            JOIN connector cnt
+              ON cnt.connector_seq = ctd.connector_seq 
+            ) AS ctd_list
+        ) AS trouble_list
+        ORDER BY trouble_list.occur_date DESC
     `;
 
-      // 총 갯수 구하는 Query 생성
+
+    // 총 갯수 구하는 Query 생성
     let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
     // Report 가져오는 Query 생성
       
@@ -465,6 +580,110 @@ class BiModule extends bmjh.BM {
       totalCount,
       report: resMainQuery
     };
+
+  }
+
+
+  /**
+   * 인버터 에러만 가져옴
+   * @param {string} errorStatus 오류 상태 (all, deviceError, systemError)
+   * @param {searchRange} searchRange 
+   * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
+   */
+  async getAlarmReportForInverter(errorStatus, searchRange) {
+    let sql = `
+        SELECT 
+            itd.inverter_seq AS device_seq,
+            itd.is_error AS is_error,
+            itd.code AS code,
+            itd.msg AS msg,
+            itd.occur_date AS occur_date,
+            itd.fix_date AS fix_date,
+            ivt.target_name AS target_name,
+            'inverter' AS device_e_name,
+            '인버터' AS device_k_name
+        FROM
+          (SELECT * FROM inverter_trouble_data
+            WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
+            `;
+    if(errorStatus === 'deviceError'){
+      sql += 'AND is_error = "0"';
+    } else if(errorStatus === 'systemError'){
+      sql += 'AND is_error = "1"';
+    }
+    sql += `
+            ) AS itd
+        JOIN inverter ivt
+          ON ivt.inverter_seq = itd.inverter_seq
+        ORDER BY itd.occur_date DESC	
+    `;
+
+
+    // 총 갯수 구하는 Query 생성
+    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
+    // Report 가져오는 Query 생성
+      
+    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
+    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
+    let totalCount = resTotalCountQuery[0].total_count;
+    let resMainQuery = await this.db.single(mainQuery, '', false);
+
+    return {
+      totalCount,
+      report: resMainQuery
+    };
+
+  }
+
+  /**
+   * 인버터 에러만 가져옴
+   * @param {string} errorStatus 오류 상태 (all, deviceError, systemError)
+   * @param {searchRange} searchRange 
+   * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
+   */
+  async getAlarmReportForConnector(errorStatus, searchRange) {
+    let sql = `
+        SELECT 
+            ctd.connector_seq AS device_seq,
+            ctd.is_error AS is_error,
+            ctd.code AS code,
+            ctd.msg AS msg,
+            ctd.occur_date AS occur_date,
+            ctd.fix_date AS fix_date,
+            cnt.target_name AS target_name,
+            'connector' AS device_e_name,
+            '접속반' AS device_k_name
+        FROM
+            (SELECT * FROM connector_trouble_data
+              WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
+              `;
+    if(errorStatus === 'deviceError'){
+      sql += 'AND is_error = "0"';
+    } else if(errorStatus === 'systemError'){
+      sql += 'AND is_error = "1"';
+    }
+    sql += `
+            ) AS ctd
+        JOIN connector cnt
+          ON cnt.connector_seq = ctd.connector_seq 
+        ORDER BY ctd.occur_date DESC	
+    `;
+
+
+    // 총 갯수 구하는 Query 생성
+    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
+    // Report 가져오는 Query 생성
+      
+    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
+    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
+    let totalCount = resTotalCountQuery[0].total_count;
+    let resMainQuery = await this.db.single(mainQuery, '', false);
+
+    return {
+      totalCount,
+      report: resMainQuery
+    };
+
   }
 
 
@@ -566,7 +785,7 @@ class BiModule extends bmjh.BM {
       break;
     case 'hour':
       xAxisTitle = '시간(시)';
-      yAxisTitle = '발전량(Wh)';
+      yAxisTitle = '발전량(wh)';
       break;
     default:
       break;

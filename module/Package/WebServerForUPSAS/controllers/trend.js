@@ -37,7 +37,7 @@ module.exports = function (app) {
   // Get
   router.get('/', wrap(async(req, res) => {
     // 장비 종류 여부 (전체, 인버터, 접속반)
-    let deviceType = req.query.device_type === 'inverter' || req.query.device_type === 'connector' ? req.query.device_type : 'all';
+    let deviceType = req.query.device_type === 'inverter' || req.query.device_type === 'connector' ? req.query.device_type : req.query.device_type === undefined ? 'inverter' : 'all';
     // 장비 선택 타입 (전체, 인버터, 접속반)
     let deviceListType = req.query.device_list_type === 'inverter' || req.query.device_list_type === 'connector' ? req.query.device_list_type : 'all';
     // 장비 선택 seq (all, number)
@@ -48,7 +48,7 @@ module.exports = function (app) {
     searchRange.searchType = searchType === 'range' ? biModule.convertSearchTypeWithCompareDate(searchRange.strEndDate, searchRange.strStartDate) : searchType;
 
     // 장비 선택 리스트 가져옴
-    let deviceList = await getDeviceList(deviceType);
+    let deviceList = await biModule.getDeviceList(deviceType);
 
     let device_type_list = [
       {type: 'all', name: '전체'},
@@ -94,42 +94,10 @@ module.exports = function (app) {
   /** 장비 종류에 맞는 장비 선택 Select Box 돌려줌 */
   router.get('/sub-list/:devicetype', wrap(async (req, res) => {
     const devicetype = req.params.devicetype ? req.params.devicetype : 'all';
-    let deviceList =  await getDeviceList(devicetype);
+    let deviceList =  await biModule.getDeviceList(devicetype);
 
     return res.status(200).send(deviceList);
   }));
-
-  /**
-   * 장치 타입 종류 가져옴
-   * @param {string} deviceType 장치 타입
-   */
-  async function getDeviceList(deviceType) {
-    let returnValue = [];
-    deviceType = deviceType ? deviceType : 'all';
-    if (deviceType === 'all' || deviceType === 'inverter') {
-      let inverterList = await biModule.getTable('inverter');
-      _.each(inverterList, info => {
-        returnValue.push({type: 'inverter', seq: info.inverter_seq, target_name: info.target_name});
-      });
-    }
-    // 인버터 이름순으로 정렬
-    returnValue = _.sortBy(returnValue, 'target_name');
-    
-    if (deviceType === 'all' || deviceType === 'connector') {
-      let connectorList = await biModule.getTable('connector');
-      _.each(connectorList, info => {
-        returnValue.push({type: 'connector', seq: info.connector_seq, target_name: info.target_name});
-      });
-    }
-    // 모든 셀렉트 박스 정리 끝낸 후 최상단에 보일 셀렉트 박스 정의
-    returnValue.unshift({
-      type: 'all',
-      seq: 'all',
-      target_name: '전체'
-    });
-    return returnValue;
-  }
-
 
   /**
    * 인버터 차트 반환

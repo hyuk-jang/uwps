@@ -12,21 +12,55 @@
     <div class="jumbotron text-center  jumbotron_line">
       <div class="row  row_st_line min_h_780">
         <div class="row row_width top_box">
-          <div class="col-xs-2 pad sel_box">
-            장비 타입
-            <select class="form-control form-control_st" id="ivt_list_sel" name="connector_seq">
-                <option>모두</option>
-                <option>접속반</option>
-                <option>인버터</option>
-            </select>
-          </div>
+            <div class="col-xs-2 sel_box">
+                장비 종류
+              <select class="form-control form-control_st" id="device_type_sel" name="">
+                <%
+                  for(var i = 0 ; i < searchOption.device_type_list.length ; i++){
+                    var deviceTypeInfo = searchOption.device_type_list[i];
+                    var deviceType = deviceTypeInfo.type;
+                    var deviceName = deviceTypeInfo.name;
+                    var selected = '';
+                    if(deviceType === searchOption.device_type){
+                    selected = 'selected';
+                  }
+                %>
+                <option  value="<%= deviceType %>" <%=selected %> >
+                  <%= deviceName %>
+                </option>
+                <%
+                  }
+                %>
+              </select>
+            </div>
           <div class="col-xs-2 pad sel_box">
             오류 상태
-            <select class="form-control form-control_st" id="ivt_list_sel" name="connector_seq">
-                <option>모두</option>
-                <option>해결된 오류</option>
-                <option>미해결 오류</option>
-            </select>
+            <select class="form-control form-control_st" id="error_status_sel" name="">
+                <%
+                  for(var i = 0 ; i < searchOption.error_status_list.length ; i++){
+                    var errorStatusInfo = searchOption.error_status_list[i];
+                    var errorType = errorStatusInfo.type;
+                    var errorName = errorStatusInfo.name;
+                    var selected = '';
+                    if(errorType === searchOption.error_status){
+                    selected = 'selected';
+                  }
+                %>
+                <option  value="<%= errorType %>" <%=selected %> >
+                  <%= errorName %>
+                </option>
+                <%
+                  }
+                %>
+              </select>
+
+
+
+            <!-- <select class="form-control form-control_st" id="ivt_list_sel" name="connector_seq">
+                <option>전체</option>
+                <option>장치 오류</option>
+                <option>시스템 오류</option>
+            </select> -->
           </div>
           
           <div class="pad serch_st sel_box_data" style="margin-top:5px;">
@@ -86,7 +120,7 @@
                   <td class="td1 td1_num">
                     <%= startListNum + count %>
                   </td>
-                  <td>인버터</td>
+                  <td><%= eleInfo.device_k_name %></td>
                   <td>
                     <%= eleInfo.target_name %>
                   </td>
@@ -117,17 +151,24 @@
 
 
       <script>
-        var searchRange = <%- JSON.stringify(searchRange)  %>;
+        var searchRange = <%- JSON.stringify(searchOption.search_range)  %>;
         // 검색 클릭 시
         function searchReport() {
+          var device_type = document.querySelector('#device_type_sel option:checked').value;
+          var error_status = document.querySelector('#error_status_sel option:checked').value;
+
           var startDate = document.getElementById('start_date_input').value;
           var endDate = document.getElementById('end_date_input').value;
           if (startDate > endDate) {
             return alert('종료일이 시작일보다 빠를 수 없습니다.');
           }
 
+          var locationHref = "alarm?device_type=" + encodeURIComponent(device_type) + "&error_status=" + encodeURIComponent(error_status) + "&start_date=" + encodeURIComponent(startDate) + "&end_date=" + encodeURIComponent(endDate);
+
+          return location.href = locationHref;
+
           // return;
-          return location.href = "/alarm?start_date=" + startDate + "&end_date=" + endDate;
+          // return location.href = "/alarm?start_date=" + startDate + "&end_date=" + endDate;
           // return location.href = `/alarm?start_date=${startDate}&end_date=${endDate}`;
         }
 

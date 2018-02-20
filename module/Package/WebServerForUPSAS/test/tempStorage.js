@@ -134,6 +134,41 @@ class Temp extends bmjh.BM {
   }
 
 
+  /**
+   * 경보 내역 리스트
+   * @param {searchRange} searchRange 검색 조건 객체
+   * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
+   */
+  async getAlarmList(searchRange){
+    let sql = `
+      SELECT itd.*
+      , ivt.target_name
+       FROM
+        (
+        SELECT * FROM inverter_trouble_data
+        WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
+        ) AS itd
+      JOIN inverter ivt
+        ON ivt.inverter_seq = itd.inverter_seq 
+      ORDER BY itd.occur_date DESC	
+    `;
+
+    // 총 갯수 구하는 Query 생성
+    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
+    // Report 가져오는 Query 생성
+      
+    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
+    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
+    let totalCount = resTotalCountQuery[0].total_count;
+    let resMainQuery = await this.db.single(mainQuery, '', false);
+
+    return {
+      totalCount,
+      report: resMainQuery
+    };
+  }
+
+
 
 }
 module.exports = Temp;

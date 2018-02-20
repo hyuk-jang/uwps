@@ -34,8 +34,7 @@ module.exports = function (app) {
 
     let inverterList = await biModule.getTable('inverter');
     let reportList = await biModule.getInverterReport(param_inverter_seq, searchRange);
-
-    // BU.CLI(reportList)
+    // BU.CLI(reportList);
 
     let queryString = {
       inverter_seq: param_inverter_seq,
@@ -51,6 +50,9 @@ module.exports = function (app) {
     // BU.CLI(searchRange)
     // BU.CLI(reportList.totalCount);
 
+    let deviceList =  await biModule.getDeviceList('inverter');
+
+
     inverterList.unshift({
       inverter_seq: 'all',
       target_name: '모두'
@@ -58,7 +60,7 @@ module.exports = function (app) {
 
     // BU.CLI(gridChartReport)
     req.locals.inverter_seq = param_inverter_seq;
-    req.locals.inverterList = inverterList;
+    req.locals.device_list = deviceList;
     req.locals.searchRange = searchRange;
     req.locals.reportList = reportList.report;
     req.locals.paginationInfo = paginationInfo;
@@ -67,7 +69,7 @@ module.exports = function (app) {
     return res.render('./report/report.html', req.locals);
   }));
 
-  router.use(wrap(async(err, req, res, next) => {
+  router.use(wrap(async(err, req, res) => {
     console.log('Err', err);
     res.status(500).send(err);
   }));

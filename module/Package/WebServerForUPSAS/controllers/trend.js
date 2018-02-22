@@ -8,16 +8,18 @@ const BiModule = require('../models/BiModule.js');
 let webUtil = require('../models/web.util');
 
 /**
- * searchRange Type
- * @typedef {Object} searchRange
- * @property {string} searchType day, month, year, range
- * @property {string} strStartDate sql writedate range 사용
- * @property {string} strEndDate sql writedate range 사용
- * @property {string} rangeStart Chart 위에 표시될 시작 날짜
- * @property {string} rangeEnd Chart 위에 표시될 종료 날짜
- * @property {string} strStartDateInputValue input[type=text] 에 표시될 시작 날짜
- * @property {string} strEndDateInputValue input[type=text] 에 표시될 종료 날짜
- */
+   * searchRange Type
+   * @typedef {Object} searchRange
+   * @property {string} searchType day, month, year, range
+   * @property {string} strStartDate sql writedate range 사용
+   * @property {string} strEndDate sql writedate range 사용
+   * @property {string} rangeStart Chart 위에 표시될 시작 날짜
+   * @property {string} rangeEnd Chart 위에 표시될 종료 날짜
+   * @property {string} strStartDateInputValue input[type=text] 에 표시될 시작 날짜
+   * @property {string} strEndDateInputValue input[type=text] 에 표시될 종료 날짜
+   * @property {string} strBetweenStart static chart 범위를 표현하기 위한 시작 날짜
+   * @property {string} strBetweenEnd static chart 범위를 표현하기 위한 종료 날짜
+   */
 
 /**
  * @typedef {{range: [], series: Array.<{name: string, data: []}>}} chartData 차트 그리기 위한 데이터 형태
@@ -29,10 +31,14 @@ module.exports = function (app) {
   const biModule = new BiModule(initSetter.dbInfo);
 
   // server middleware
-  router.use(function (req, res, next) {
+  router.use(wrap(async (req, res, next) => {
     req.locals = DU.makeBaseHtml(req, 5);
+    let currWeatherCastList = await biModule.getCurrWeatherCast();
+    let currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
+    let weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
+    req.locals.weatherCastInfo = weatherCastInfo;
     next();
-  });
+  }));
 
   // Get
   router.get('/', wrap(async(req, res) => {
@@ -45,6 +51,8 @@ module.exports = function (app) {
     // BU.CLIS(deviceType, deviceListType, deviceSeq);
     let searchType = req.query.search_type ? req.query.search_type : 'hour';
     let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
+
+    // BU.CLIS(req.query, searchRange);
     searchRange.searchType = searchType === 'range' ? biModule.convertSearchTypeWithCompareDate(searchRange.strEndDate, searchRange.strStartDate) : searchType;
 
     // 장비 선택 리스트 가져옴
@@ -69,7 +77,7 @@ module.exports = function (app) {
     // BU.CLI(searchOption);
     
     /** searchRange를 기준으로 검색 Column Date를 정함  */
-    let betweenDatePoint =  BU.getBetweenDatePoint(searchRange.strEndDate, searchRange.strStartDate, searchRange.searchType);
+    let betweenDatePoint =  BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchType);
     // 인버터 차트
     let inverterChart = await getInverterChart(searchOption, searchRange, betweenDatePoint);
     // BU.CLI(inverterChart);
@@ -126,7 +134,7 @@ module.exports = function (app) {
     let viewInverterStatus = await biModule.getTable('v_inverter_status');
     // 인버터 차트 데이터 불러옴
     let inverterTrend = await biModule.getInverterTrend(device_seq, searchRange);
-    // BU.CLI(inverterReport);
+    // BU.CLI(inverterTrend);
 
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
     chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, 'interval_wh', 'group_date', 'inverter_seq');

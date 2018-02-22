@@ -63,12 +63,16 @@ function matchingMenu(base,target) {
             var week = new Array('일', '월', '화', '수', '목', '금', '토');
             $('#today').html(today.getFullYear() + '.' + (today.getMonth() + 1) + '.' + today.getDate() + '(' + week[
               today.getDay()] + ')');
+
+            
           </script>
           <span>날씨</span>
-          <img src="image/con_w.png" />
+          
+          <img src="image/weather_<%- weatherCastInfo.wf %>.png" />
+          <!-- <img src="image/weather_1.png" /> -->
 
-          <input type="text" class="form-control" style="text-align: center" value="">
-          <span class="Temperature"> ℃</span>
+          <input type="text" class="form-control" style="text-align: center" value="<%- weatherCastInfo.temp %>">
+          <span class="Temperature">℃</span>
         </div>
       </div>
     </div>

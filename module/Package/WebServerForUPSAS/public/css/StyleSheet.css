@@ -54,7 +54,7 @@ ul li{list-style:none;}
 .nav_row_st_img{width:400px; margin:0; float:left;}
 .nav_row_st_img>span{color:#fff; font-weight:500;  margin-top:15px; font-size:15px; margin-left:5px;}
 .nav_row_st_right{width:370px; float:right; color:#fff;}
-.nav_row_st_right>img{float:left; margin-right:10px;}
+.nav_row_st_right>img{float:left; margin-right:10px; margin-top: 10px;}
 .nav_row_st_right>span{float:left; margin-top:17px; margin-right:10px;}
 .nav_row_st_right>input{height:30px; width:100px; float:left; margin-top:9px; border-radius:15px;}
 .Temperature{float:left; margin-top:17px; margin-left:10px; font-size:17px;}
@@ -294,4 +294,7 @@ table>tbody>tr:last-child{border-bottom:1px solid #ddd;}
 
 .pad{padding:0px;}
 
-.highcharts-background{height:125px;}
+.highcharts-background{height:185px;}
+
+.re_p{font-size: 13px !important; color:green; text-align: left;}
+.re_p>span{color:red;}

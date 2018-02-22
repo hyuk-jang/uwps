@@ -12,15 +12,21 @@ module.exports = function (app) {
   const biModule = new BiModule(initSetter.dbInfo);
 
   // server middleware
-  router.use(function (req, res, next) {
+  router.use(wrap(async (req, res, next) => {
     req.locals = DU.makeBaseHtml(req, 1);
+    let currWeatherCastList = await biModule.getCurrWeatherCast();
+    let currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
+    let weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
+    req.locals.weatherCastInfo = weatherCastInfo;
     next();
-  });
+  }));
 
   // Get
   router.get('/', wrap(async (req, res) => {
     // NOTE : SQL문의 수정이 잦아지는 관계로 대표 Method로 처리. 성능을 위해서라면 차후 튜닝 필요
     // 당월 발전량을 구하기 위한 옵션 설정 (strStartDate, strEndDate 를 당월로 설정하기 위함)
+
+    
     // console.time('0');
     let searchRange = biModule.getSearchRange('day');
     // 검색 조건이 일 당으로 검색되기 때문에 금월 날짜로 date Format을 지정하기 위해 day --> month 로 변경
@@ -85,6 +91,7 @@ module.exports = function (app) {
     req.locals.dailyPowerChartData = chartData;
     req.locals.moduleStatusList = validModuleStatusList ;
     req.locals.powerGenerationInfo = powerGenerationInfo;
+    
 
     return res.render('./main/index.html', req.locals);
   }));

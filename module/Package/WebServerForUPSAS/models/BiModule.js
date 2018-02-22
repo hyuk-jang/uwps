@@ -73,6 +73,21 @@ class BiModule extends bmjh.BM {
   }
 
 
+  /** 
+   * 기상청 날씨를 가져옴
+   * @return {Array.<{temp: number, pty: number, wf_kor: string, wf_en: string, pop: number, r12: number, ws:number, wd: number, reh: number, applydate: Date}>} 날씨 정보
+   */
+  getCurrWeatherCast() {
+    let sql = `
+      SELECT *, 
+              ABS(CURRENT_TIMESTAMP() - applydate) AS cur_interval 
+       FROM kma_data
+      ORDER BY cur_interval 
+      LIMIT 1
+    `;
+    return this.db.single(sql, '', false);
+  }
+
 
 
   /**
@@ -86,6 +101,7 @@ class BiModule extends bmjh.BM {
     // BU.CLIS(searchType, start_date, end_date);
     let startDate = start_date ? BU.convertTextToDate(start_date) : new Date();
     let endDate = searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : new Date(startDate);
+    let convertEndDate = null;
     // BU.CLI(BU.convertDateToText(startDate), endDate);
     let returnValue = {
       searchType,
@@ -95,23 +111,31 @@ class BiModule extends bmjh.BM {
       rangeEnd: '', // Chart 위에 표시될 종료 날짜
       strStartDateInputValue: '', // input에 표시될 시작 날짜
       strEndDateInputValue: '', // input에 표시될 종료 날짜
+      strBetweenStart: '',
+      strBetweenEnd: '',
     };
 
     let spliceIndex = 0;
 
     // 검색 시작 시분초 초기화
-    startDate.setHours(0, 0, 0);
+    startDate.setHours(0, 0, 0, 0);
     if (searchType === 'hour' || searchType === '') {
       spliceIndex = 2;
-      endDate = (new Date(startDate)).addDays(1);
+      convertEndDate = endDate = (new Date(startDate)).addDays(1);
+      // 검색 종료날짜가 현재 날짜라면 시간단위로 지정
+      let currDate = new Date().setHours(0, 0, 0, 0);
+      currDate = new Date(currDate).addDays(1);
+      if(BU.convertDateToText(currDate) === BU.convertDateToText(endDate)){
+        convertEndDate = new Date(new Date().setMinutes(0, 0, 0));
+      }
     } else if (searchType === 'day') {
       spliceIndex = 1;
       startDate.setDate(1);
-      endDate = (new Date(startDate)).addMonths(1);
+      convertEndDate = endDate = (new Date(startDate)).addMonths(1);
     } else if (searchType === 'month') {
       spliceIndex = 0;
       startDate.setMonth(0, 1);
-      endDate = (new Date(startDate)).addYear(1);
+      convertEndDate = endDate = (new Date(startDate)).addYear(1);
     } else if (searchType === 'range') {
       spliceIndex = 2;
       // endDate = end_date ? new Date(end_date) : new Date();
@@ -120,12 +144,15 @@ class BiModule extends bmjh.BM {
       // 검색 조건 input value txt 설정
       returnValue.strEndDateInputValue = BU.convertDateToText(endDate, '', spliceIndex, 0);
       // SQL 날짜 검색에 사용할 범위를 위하여 하루 증가
-      endDate = (new Date(endDate)).addDays(1);
+      convertEndDate = endDate = (new Date(endDate)).addDays(1);
     }
     returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', spliceIndex, 0);
     returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', spliceIndex, 0);
     returnValue.strStartDate = BU.convertDateToText(startDate);
-    returnValue.strEndDate = BU.convertDateToText(endDate);
+    returnValue.strEndDate = BU.convertDateToText(convertEndDate);
+
+    returnValue.strBetweenStart = returnValue.strStartDate;
+    returnValue.strBetweenEnd = BU.convertDateToText(endDate);
     // BU.CLI(returnValue)
     return returnValue;
   }
@@ -230,8 +257,9 @@ class BiModule extends bmjh.BM {
    * @property {string} rangeEnd Chart 위에 표시될 종료 날짜
    * @property {string} strStartDateInputValue input[type=text] 에 표시될 시작 날짜
    * @property {string} strEndDateInputValue input[type=text] 에 표시될 종료 날짜
+   * @property {string} strBetweenStart static chart 범위를 표현하기 위한 시작 날짜
+   * @property {string} strBetweenEnd static chart 범위를 표현하기 위한 종료 날짜
    */
-
 
   /**
    * 인버터 총 누적 발전량을 구함

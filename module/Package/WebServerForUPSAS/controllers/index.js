@@ -1,4 +1,4 @@
-const path = require('path')
+const path = require('path');
 let BU = require('base-util-jh').baseUtil;
 let DU = require('base-util-jh').domUtil;
 let SU = require('base-util-jh').salternUtil;
@@ -6,14 +6,14 @@ let SU = require('base-util-jh').salternUtil;
 
 
 module.exports = function (app) {
-  BU.CLI(__dirname)
+  BU.CLI(__dirname);
   // SU.ChainingControllers(path.join(process.cwd(), '/controllers'), app);
   SU.ChainingControllers(__dirname, app);
 
   app.get('/', function (req, res, next) {
     // if (!req.user) {
 
-    BU.CLI('@@@@')
+    BU.CLI('@@@@');
     return res.redirect('/main');
     // }
     // next();
@@ -45,14 +45,14 @@ module.exports = function (app) {
           // BU.CLI('Success', body);
           return res.send(body);
         }
-      })
+      });
     } else {
       return res.redirect(307, '/api/app/reggcm');
     }
   });
 
   app.post('/delgcm', function (req, res, next) {
-    BU.CLI('@@delgcm@@')
+    BU.CLI('@@delgcm@@');
     const request = require('request');
     let locals = BU.param2Lowercase(req);
 
@@ -76,7 +76,7 @@ module.exports = function (app) {
           // BU.CLI('Success', body);
           return res.send(body);
         }
-      })
+      });
     } else {
       return res.redirect(307, '/api/app/delgcm');
     }
@@ -84,4 +84,4 @@ module.exports = function (app) {
 
 
 
-}
+};

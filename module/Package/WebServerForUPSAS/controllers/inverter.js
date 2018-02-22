@@ -12,10 +12,15 @@ module.exports = function (app) {
   const biModule = new BiModule(initSetter.dbInfo);
 
   // server middleware
-  router.use(function (req, res, next) {
+  router.use(wrap(async (req, res, next) => {
     req.locals = DU.makeBaseHtml(req, 4);
+    let currWeatherCastList = await biModule.getCurrWeatherCast();
+    let currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
+    let weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
+    req.locals.weatherCastInfo = weatherCastInfo;
     next();
-  });
+  }));
+
   // Array.<{photovoltaic_seq:number, connector_ch: number, pv_target_name:string, pv_manufacturer: string, cnt_target_name: string, ivt_target_name: string, install_place: string, writedate: Date, amp: number, vol: number, hasOperation: boolean }>
   // Get
   router.get('/', wrap(async (req, res) => {

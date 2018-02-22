@@ -3,6 +3,51 @@ const BU = require('base-util-jh').baseUtil;
 
 
 /**
+ * 기상청 날씨 변경
+ * @param {{temp: number, pty: number, wf_kor: string, wf_en: string, pop: number, r12: number, ws:number, wd: number, reh: number, applydate: Date}} weatherCastInfo 
+ * @return {{temp: number, wf: number}} 
+ */
+function convertWeatherCast(weatherCastInfo) {
+  let returnValue = {temp: 0, wf: 0};
+
+  if(_.isEmpty(weatherCastInfo)){
+    return returnValue;
+  }
+
+  returnValue.temp = weatherCastInfo.temp;
+
+  switch (weatherCastInfo.wf_en) {
+  case 'Clear':
+    returnValue.wf = 1;
+    break;
+  case 'Partly Cloudy':
+    returnValue.wf = 2;
+    break;
+  case 'Mostly Cloudy':
+    returnValue.wf = 3;
+    break;
+  case 'Cloudy':
+    returnValue.wf = 4;
+    break;
+  case 'Rain':
+    returnValue.wf = 5;
+    break;
+  case 'Snow/Rain':
+    returnValue.wf = 6;
+    break;
+  case 'Snow':
+    returnValue.wf = 7;
+    break;
+  default:
+    returnValue.wf = 0;
+    break;
+  }
+
+  return returnValue;
+}
+exports.convertWeatherCast = convertWeatherCast;
+
+/**
  * searchRange Type
  * @typedef {Object} searchRange
  * @property {string} searchType day, month, year, range

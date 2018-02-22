@@ -14,10 +14,14 @@ module.exports = function (app) {
   const maxModuleViewNum = 8;
 
   // server middleware
-  router.use(function (req, res, next) {
+  router.use(wrap(async (req, res, next) => {
     req.locals = DU.makeBaseHtml(req, 3);
+    let currWeatherCastList = await biModule.getCurrWeatherCast();
+    let currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
+    let weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
+    req.locals.weatherCastInfo = weatherCastInfo;
     next();
-  });
+  }));
 
   // Get
   router.get('/', wrap(async (req, res) => {

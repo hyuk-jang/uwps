@@ -519,7 +519,7 @@ class BiModule extends bmjh.BM {
 
     let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
     let totalCount = resTotalCountQuery[0].total_count;
-    let resMainQuery = await this.db.single(mainQuery, '', false);
+    let resMainQuery = await this.db.single(mainQuery, '', true);
 
     return {
       totalCount,

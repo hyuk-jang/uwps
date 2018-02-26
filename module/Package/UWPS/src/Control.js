@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
 const Promise = require('bluebird');
-
+const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
 
 const Model = require('./Model.js');
@@ -113,7 +113,7 @@ class Control extends EventEmitter {
         let upsasDataGroup = this.model.onMeasureDeviceList(new Date(), measureDataList, 'inverter');
         // BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.processMeasureData('inverter');
-        BU.CLI(upsasDataGroup);
+        // BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.applyingMeasureDataToDb(upsasDataGroup);
         // BU.CLI(upsasDataGroup);
 
@@ -130,9 +130,15 @@ class Control extends EventEmitter {
         let upsasDataGroup = this.model.onMeasureDeviceList(new Date(), measureDataList, 'connector');
         // BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.processMeasureData('connector');
+        // BU.CLI(upsasDataGroup);
+        // 전류가 들어온 데이터만 유효한 데이터로 처리하여 DB에 저장
+        let validDataList = [];
+        upsasDataGroup.insertDataList.forEach(obj => { 
+          obj.amp > 0 ? validDataList.push(obj) : '';
+        });
+        upsasDataGroup.insertDataList = validDataList;
         BU.CLI(upsasDataGroup);
         upsasDataGroup = await this.model.applyingMeasureDataToDb(upsasDataGroup);
-        // BU.CLI(upsasDataGroup);
 
         // Measure Connector 종료 이벤트 발생
         this.emit('completeProcessConnectorData', upsasDataGroup);

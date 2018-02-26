@@ -210,7 +210,7 @@
             // console.log('dataList', dataList)
             var resultData = dataList;
             var html = '';
-            resultData.forEach(data => {
+            resultData.forEach(function(data){
               var seq = data.seq;
               var target_name = data.target_name;
               html += '<option value="' + seq + '">' + target_name + '</option>';

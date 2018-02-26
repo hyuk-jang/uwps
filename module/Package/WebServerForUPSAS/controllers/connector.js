@@ -53,10 +53,9 @@ module.exports = function (app) {
       findIt.vol = hasOperation ? vol  : '';
       findIt.power = hasOperation && _.isNumber(amp) && _.isNumber(vol) ? webUtil.calcValue(amp * vol, 1, 1)   : '';
     });
-    // refinedConnectorList = _.sortBy(refinedConnectorList, 'ivt_target_name');
+    refinedConnectorList = _.sortBy(refinedConnectorList, 'ivt_target_name');
     
     let connectorStatusData = webUtil.convertColumn2Rows(refinedConnectorList, ['connector_ch', 'install_place', 'ivt_target_name', 'pv_target_name', 'pv_manufacturer', 'amp', 'vol', 'power', 'temperature', 'hasOperation'], maxModuleViewNum);
-    
     let totalAmp = webUtil.reduceDataList(refinedConnectorList, 'amp');
     totalAmp = _.isNumber(totalAmp) ? totalAmp.scale(1, 1) : '';
     let avgVol = webUtil.reduceDataList(refinedConnectorList, 'vol');
@@ -70,6 +69,11 @@ module.exports = function (app) {
     // let searchRange = biModule.getSearchRange('hour', '2018-02-13');
     let connectorPowerList = await biModule.getConnectorPower(searchRange, moduleSeqList);
     let chartData = webUtil.makeDynamicChartData(connectorPowerList, 'wh', 'hour_time', 'photovoltaic_seq');
+    // Data Table 순서와 같게 정렬
+    chartData.series = _.map(refinedConnectorList, refinedObj => {
+      let findObj = _.findWhere(chartData.series, {name: refinedObj.inverter_seq.toString()});
+      return _.isEmpty(findObj) ? {name: '', data:[]} : findObj;
+    });
     webUtil.applyScaleChart(chartData, 'hour');
     webUtil.mappingChartDataNameForModule(chartData, upsasProfile);
 
@@ -78,7 +82,7 @@ module.exports = function (app) {
       connector_seq: 'all',
       target_name: '모두'
     });
-
+    // BU.CLI(chartData);
     /** 실시간 접속반 데이터 리스트 */
     req.locals.connectorStatusData = connectorStatusData;
     /** 접속반 SelectBox  */

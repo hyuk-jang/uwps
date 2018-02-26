@@ -227,6 +227,12 @@
             title: {
               text: ""
             },
+            // plotOptions: {
+            //   series: {
+            //     color: '#FF0000',
+            //     // color: ['#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655']
+            //   }
+            // },
             xAxis: {
               title: {
                 text: "시간(시)"
@@ -246,7 +252,8 @@
               layout: "vertical",
               align: "right",
               verticalAlign: "middle",
-              borderWidth: 0
+              borderWidth: 0,
+              floating: false
             },
             series: chartDataObj.series,
             credits: {

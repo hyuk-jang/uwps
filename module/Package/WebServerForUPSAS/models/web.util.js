@@ -164,6 +164,7 @@ function refineSelectedConnectorList(viewUpsasProfile, connector_seq) {
       pv_manufacturer: info.pv_manufacturer,
       cnt_target_name: info.cnt_target_name,
       ivt_target_name: info.ivt_target_name,
+      inverter_seq: info.inverter_seq,
       install_place: info.sb_target_name ? info.sb_target_name : '외부',
       writedate: '',
       amp: '',

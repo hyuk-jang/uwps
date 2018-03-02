@@ -15,3 +15,7 @@ control.on('updateWeatherCast', (err, weatherCastObj) => {
   BU.CLI(err, weatherCastObj)
 });
 
+
+if (require !== undefined && require.main === module) {
+
+}

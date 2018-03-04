@@ -1,9 +1,13 @@
+'use strict';
+const _ = require('underscore');
 const serialport = require('serialport');
 const eventToPromise = require('event-to-promise');
 
-const AbstractDeviceController = require('../AbstractDeviceController');
+const AbstController = require('../AbstController');
 
-class SerialDeviceControllerWithParser extends AbstractDeviceController{
+/** @type {Array.<{id: string, instance: SerialDeviceController}>} */
+let instanceList = [];
+class SerialWithParser extends AbstController{
   /**
    * Serial Port 객체를 생성하기 위한 설정 정보
    * @param {{port: string, baud_rate: number, parser: {type: string, option: *}}} config {port, baud_rate, raget_name}
@@ -14,6 +18,13 @@ class SerialDeviceControllerWithParser extends AbstractDeviceController{
     this.port = config.port;
     this.baud_rate = config.baud_rate;
     this.parser = config.parser;
+
+    let foundInstance = _.findWhere(instanceList, {id: this.port});
+    if(_.isEmpty(foundInstance)){
+      instanceList.push({id: this.port, instance: this});
+    } else {
+      return foundInstance.instance;
+    }
   }
 
   /**
@@ -68,6 +79,10 @@ class SerialDeviceControllerWithParser extends AbstractDeviceController{
 
   async connect() {
     // BU.CLI('connect');
+    /** 접속 중인 상태라면 접속 시도하지 않음 */
+    if(!_.isEmpty(this.client)){
+      throw new Error(`이미 접속중입니다. ${this.port}`);
+    }
     this.client = new serialport(this.port, {
       baudRate: this.baud_rate,
     });
@@ -88,4 +103,4 @@ class SerialDeviceControllerWithParser extends AbstractDeviceController{
     return this.client;
   }
 }
-module.exports = SerialDeviceControllerWithParser;
+module.exports = SerialWithParser;

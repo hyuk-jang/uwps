@@ -1,9 +1,13 @@
 
 
-class AbstractDeviceCommander {
-  constructor(config) {
+class AbstCommander {
+  constructor() {
     this.protocolConverter = {};
+    this.id = null;
+    this.mediator = null;
   }
+
+  setMediator() {}
 
   updateDcConnect(){
   }
@@ -20,4 +24,4 @@ class AbstractDeviceCommander {
   updateDcTimeout(){
   }
 }
-module.exports = AbstractDeviceCommander;
+module.exports = AbstCommander;

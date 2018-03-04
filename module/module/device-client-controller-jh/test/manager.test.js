@@ -12,12 +12,12 @@ global._ = _;
 global.BU = BU;
 
 
-const SerialDeviceController = require('../src/serial/SerialDeviceController');
-const SerialDeviceControllerWithParser = require('../src/serial/SerialDeviceControllerWithParser');
-const SocketDeviceController = require('../src/socket/SocketDeviceController');
+const SerialDeviceController = require('../src/device-controller/serial/Serial');
+const SerialDeviceControllerWithParser = require('../src/device-controller/serial/SerialWithParser');
+const SocketDeviceController = require('../src/device-controller/socket/Socket');
 
 // console.log(uuidv4());
-const DeviceManager = require('../src/manager/DeviceManager');
+const DeviceManager = require('../src/device-manager/Manager');
 
 describe('Device Manager Test', () => {
   describe('Manager Test', () => {

@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * @class AbstractDeviceController
+ * @class AbstController
  */
-class AbstractDeviceController {
+class AbstController {
   constructor() {
     this.observers = [];
   }
@@ -51,4 +51,4 @@ class AbstractDeviceController {
   }
 }
 
-module.exports = AbstractDeviceController;
+module.exports = AbstController;

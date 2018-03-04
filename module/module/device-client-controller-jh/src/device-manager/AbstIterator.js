@@ -1,6 +1,6 @@
 'use strict';
 
-class AbstractDeviceIterator {
+class AbstIterator {
   constructor() {
   }
 
@@ -19,4 +19,4 @@ class AbstractDeviceIterator {
   currentItem (){
   }
 }
-module.exports = AbstractDeviceIterator;
+module.exports = AbstIterator;

@@ -25,9 +25,10 @@ if (require !== undefined && require.main === module) {
   const config = {
     'target_id': 'testId',
     'target_name': '인버터 1',
-    'connect_type': 'serial',
+    'connect_type': 'socket',
     'ip': 'localhost',
-    'port': 'COM13',
+    // 'port': 'COM13',
+    'port': 8080,
     'baud_rate': 9600,
     parser: {
       type: 'readLineParser',

@@ -3,7 +3,7 @@ const _ = require('underscore');
 
 require('../format/define');
 
-class DeviceIterator {
+class Iterator {
   /** @param {DeviceManager} deviceManager */
   constructor(deviceManager) {
     /**
@@ -80,4 +80,4 @@ class DeviceIterator {
     return this.aggregate.process;
   }
 }
-module.exports = DeviceIterator;
+module.exports = Iterator;

@@ -21,6 +21,7 @@ class Serial extends AbstController{
     
     let foundInstance = _.findWhere(instanceList, {id: this.port});
     if(_.isEmpty(foundInstance)){
+      this.config = {port: config.port, baud_rate: config.baud_rate};
       instanceList.push({id: this.port, instance: this});
     } else {
       return foundInstance.instance;

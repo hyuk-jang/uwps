@@ -87,7 +87,7 @@ class Commander extends AbstCommander {
    */
   updateDcData(processItem, data, manager){
     // BU.CLIN(processItem, 3);
-    // BU.CLIN(data.toString(), 3);
+    BU.CLIN(data.toString(), 3);
     let rainBuffer = data.slice(data.length - 6 - 8, data.length - 6);
 
     let rain = parseInt(rainBuffer, 16);

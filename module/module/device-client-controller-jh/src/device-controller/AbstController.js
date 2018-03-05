@@ -11,6 +11,7 @@ class AbstController {
     /** @type {Array.<AbstManager>}  */
     this.observers = [];
     this.id = uuidv4();
+    this.config = null;
   }
 
   setInit(){}
@@ -41,21 +42,21 @@ class AbstController {
 
 
   notifyConnect(){
-    console.log('notifyConnect');
-    BU.CLI(this.observers.length);
+    console.log('notifyConnect', this.config);
+    // BU.CLI(this.observers.length);
 
     this.observers.forEach(currentItem => {
       currentItem.updateDcConnect();
     });
   }
   notifyClose(){
-    console.log('notifyClose');
+    console.log('notifyClose', this.config);
     this.observers.forEach(currentItem => {
       currentItem.updateDcClose();
     });
   }
   notifyError(error){
-    console.log('notifyError', error);
+    console.log('notifyError', error, this.config);
     this.observers.forEach(currentItem => {
       currentItem.updateDcError(error);
     });

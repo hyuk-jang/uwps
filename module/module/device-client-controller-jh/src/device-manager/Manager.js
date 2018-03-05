@@ -2,7 +2,7 @@
 
 const _ = require('underscore');
 const Promise = require('bluebird');
-
+const eventToPromise = require('event-to-promise');
 
 const AbstManager = require('./AbstManager');
 const Iterator = require('./Iterator');
@@ -85,6 +85,7 @@ class Manager extends AbstManager {
 
   async write(){
     BU.log('Device write');
+    BU.CLI(this.controlStatus.sendMsgTimeOutSec);
     const processItem = this.getProcessItem();
     if(_.isEmpty(this.getProcessItem())){
       throw new Error(`현재 진행중인 명령이 존재하지 않습니다. ${this.id}`);
@@ -92,10 +93,11 @@ class Manager extends AbstManager {
       let timeout = {};
       await Promise.race(
         [
-          this.deviceController.write(processItem.cmdList[processItem.currCmdIndex]),
+          this.writeCommandController(processItem.cmdList[processItem.currCmdIndex]),
+          // this.deviceController.write(processItem.cmdList[processItem.currCmdIndex]),
           new Promise((_, reject) => {
             timeout = setTimeout(() => {
-              // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
+              BU.CLI(this.controlStatus.sendMsgTimeOutSec);
               // 명전 전송 후 제한시간안에 응답이 안올 경우 에러 
               this.updateDcTimeout();
               reject(new Error('timeout'));
@@ -109,27 +111,49 @@ class Manager extends AbstManager {
     }
   }
 
+  /**
+   * 장치로 명령 발송 --> 명령 수행 후 응답 결과 timeout 처리를 위함
+   * @param {*} cmd 
+   * @param {Promise} 정상 처리라면 true, 아닐 경우 throw error
+   */
+  async writeCommandController(cmd) {
+    // BU.CLI('msgSendController', this.model.controlStatus)
+    if (cmd === '' || BU.isEmpty(cmd)) {
+      return new Error('수행할 명령이 없습니다.');
+    }
+    // 장치로 명령 전송
+    // BU.CLI(this.config.deviceSavedInfo);
+    await this.deviceController.write(cmd);
+    // 수신된 메시지의 유효성 검증
+    await eventToPromise.multi(this, ['successReceive'], ['failReceive']);
+    
+    return true;
+  }
+
+
   /** 장치에서 원하는 응답 시간을 초과할 경우 Timeout 발생 */
   writeToDevice(){
+    BU.CLI('writeToDevice');
     this.write()
       .then(() => {
       })
       .catch(err => {
+        BU.CLI('time out');
         this.updateDcTimeout(err);
       });
   }
 
   // 응답받은 데이터에 문제가 있거나 다른 사유로 명령을 재 전송하고자 할 경우(3회까지 가능)
   retryWrite(){
-    BU.CLI('retryWrite', this.controlStatus.retryChance);
+    // BU.CLI('retryWrite', this.controlStatus.retryChance);
     this.controlStatus.retryChance -= 1;
     if (this.controlStatus.retryChance > 0) {
       return Promise.delay(30).then(() => {
-        this.writeToDevice();
+        this.write();
       });
     } else if(this.controlStatus.retryChance === 0){  // 3번 재도전 실패시 다음 명령 수행
       // 해당 에러 발송
-      BU.CLI('retryWrite Max Error');
+      // BU.CLI('retryWrite Max Error');
       this.getReceiver().updateDcError(this.getProcessItem(), new Error('retryWrite Max Error'));
       // 다음 명령 수행
       this.nextCommand();
@@ -139,28 +163,24 @@ class Manager extends AbstManager {
 
   /** @param {commandFormat} cmdInfo */
   addCommand(cmdInfo) {
-    BU.CLIN(cmdInfo);
+    // BU.CLIN(cmdInfo);
     this.iterator.addCmd(cmdInfo);
-    BU.CLIN(this.commandStorage, 4);
+    // BU.CLIN(this.commandStorage, 4);
     // 현재 진행 중인 명령이 없다면 즉시 해당 명령 실행
     if(_.isEmpty(this.commandStorage.process)){
-      // this.iterator.nextRank();
       this.nextCommand();
-      // this.controlStatus.retryChance = 3;
-      // this.writeToDevice();
     }
-    // BU.CLIN(this.commandStorage, 3);
   }
 
   /** 다음 명령을 수행 */
   nextCommand(){
     BU.CLI('nextCommand');
-    BU.CLIN(this.commandStorage, 4);
+    // BU.CLIN(this.commandStorage, 4);
     this.controlStatus.retryChance = 3;
     
     // 다음 가져올 명령이 존재한다면
     if(this.iterator.nextCmd()){
-      return this.writeToDevice();
+      return this.write();
     } else {
       BU.CLI('모든 명령을 수행하였습니다.');
     }

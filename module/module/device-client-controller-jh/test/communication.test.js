@@ -19,10 +19,11 @@ for(let i = 0; i < 1; i += 1){
   /** @type {deviceClientFormat} */
   let addObj = {};
   addObj.target_id = `device_${i}`;
-  addObj.connect_type = 'serial';
+  addObj.connect_type = 'socket';
+  // addObj.connect_type = 'serial';
   addObj.host = '';
-  // addObj.port = Number(`900${_.random(0,2)}`);
-  addObj.port = `COM1${3 + i}`;
+  addObj.port = Number(`900${_.random(0,2)}`);
+  // addObj.port = `COM1${3 + i}`;
   addObj.baud_rate = 9600;
   addObj.parser = {
     // type: 'delimiterParser',
@@ -46,7 +47,7 @@ config.forEach(currentItem => {
       commander.executeCommand('hi^^', this);
       commander.executeCommand('Retry Test^^', this);
   
-      commander.mediator.getDeviceManager(commander).write();
+      // commander.mediator.getDeviceManager(commander).write();
     })
     .catch((err) => {
       console.error(err);

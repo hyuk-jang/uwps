@@ -19,9 +19,10 @@ class SerialWithParser extends AbstController{
     this.port = config.port;
     this.baud_rate = config.baud_rate;
     this.parser = config.parser;
-    
+
     let foundInstance = _.findWhere(instanceList, {id: this.port});
     if(_.isEmpty(foundInstance)){
+      this.config = {port: config.port, baud_rate: config.baud_rate, parser: config.parser };
       instanceList.push({id: this.port, instance: this});
     } else {
       return foundInstance.instance;

@@ -20,17 +20,17 @@ class Iterator {
   addCmd(cmdInfo) {
     let rank = cmdInfo.rank;
 
-    BU.CLIN(cmdInfo);
+    // BU.CLIN(cmdInfo);
     // 명령 rank가 등록되어있지 않다면 신규로 등록
     if(!_.contains(_.pluck(this.aggregate.rankList, 'rank'), rank)){
-      BU.CLI('what ?ASDasdasdlkjas');
+      // BU.CLI('what ?ASDasdasdlkjas');
       this.aggregate.rankList.push({rank, list: [cmdInfo] });
-      BU.CLIN(this.aggregate, 4);
+      // BU.CLIN(this.aggregate, 4);
     } else { // 저장된 rank 객체 배열에 삽입
       let foundRank = _.findWhere(this.aggregate.rankList, {rank});
       foundRank.list.push(cmdInfo);
     }
-    BU.CLIN(this.aggregate, 4);
+    // BU.CLIN(this.aggregate, 4);
   }
 
   /** 

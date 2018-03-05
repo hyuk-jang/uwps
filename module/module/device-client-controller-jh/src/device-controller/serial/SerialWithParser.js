@@ -3,6 +3,7 @@ const _ = require('underscore');
 const serialport = require('serialport');
 const eventToPromise = require('event-to-promise');
 
+
 const AbstController = require('../AbstController');
 
 /** @type {Array.<{id: string, instance: SerialDeviceController}>} */
@@ -18,7 +19,7 @@ class SerialWithParser extends AbstController{
     this.port = config.port;
     this.baud_rate = config.baud_rate;
     this.parser = config.parser;
-
+    
     let foundInstance = _.findWhere(instanceList, {id: this.port});
     if(_.isEmpty(foundInstance)){
       instanceList.push({id: this.port, instance: this});
@@ -75,6 +76,20 @@ class SerialWithParser extends AbstController{
         break;
       }
     }
+  }
+
+  /**
+   * Serial Device로 메시지 전송
+   * @param {Buffer|string} 전송 데이터
+   * @return {Promise} Promise 반환 객체
+   */
+  write(msg) {
+    return new Promise((resolve, reject) => {
+      this.client.write(msg, err => {
+        reject(err);
+      });
+      resolve();
+    });
   }
 
   async connect() {

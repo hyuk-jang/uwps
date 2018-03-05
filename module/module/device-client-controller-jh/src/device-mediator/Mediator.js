@@ -73,10 +73,9 @@ class Mediator extends AbstMediator {
   /**
    * 명령 추가
    * @param {commandFormat} cmdInfo 
-   * @param {AbstCommander} deviceCommander
    */
-  requestAddCommand(cmdInfo, deviceCommander){
-    const deviceManager = this.getDeviceManager(deviceCommander);
+  requestAddCommand(cmdInfo){
+    const deviceManager = this.getDeviceManager(cmdInfo.commander);
     deviceManager.addCommand(cmdInfo);
   }
 
@@ -117,14 +116,26 @@ class Mediator extends AbstMediator {
 
   spreadDeviceToObserver(){}
 
+  /**
+   * @param {AbstManager} deviceManager 
+   */
   updateDcConnect(){
-    console.log('updateDcConnect');
+    console.log('Mediator --> updateDcConnect');
   }
+
+  /**
+   * @param {AbstManager} deviceManager 
+   */
   updateDcClose(){
-    console.log('updateDcClose');
+    console.log('Mediator --> updateDcClose');
   }
-  updateDcError(){
-    console.log('updateDcError');
+
+  /**
+   * @param {Object} error 
+   * @param {AbstManager} deviceManager 
+   */
+  updateDcError(error){
+    console.log('Mediator --> updateDcError', error);
   }
 }
 

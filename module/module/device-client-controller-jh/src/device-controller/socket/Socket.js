@@ -7,7 +7,6 @@ const AbstController = require('../AbstController');
 
 /** @type {Array.<{id: {host: string, port: number}, instance: Socket}>} */
 let instanceList = [];
-
 /** Class Socket 접속 클라이언트 클래스 */
 class Socket extends AbstController {
   /**
@@ -19,7 +18,7 @@ class Socket extends AbstController {
     this.client = {};
     this.port = config.port;
     this.host = config.host || 'localhost';
-
+    
     this.config = {host: this.host, port: this.port};
 
     let foundInstance = _.find(instanceList, instanceInfo => {
@@ -32,6 +31,21 @@ class Socket extends AbstController {
       return foundInstance.instance;
     }
 
+  }
+
+  /**
+   * Socket Server로 메시지 전송
+   * @param {Buffer|String} 전송 데이터
+   * @return {promise} Promise 반환 객체
+   */
+  write(msg) {
+    // console.trace(msg)
+    let res = this.client.write(msg);
+    if(res){
+      return Promise.resolve();
+    } else {
+      return Promise.reject(res);
+    }
   }
 
   /** 장치 접속 시도 */

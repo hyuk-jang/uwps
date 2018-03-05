@@ -5,6 +5,7 @@
  * @property {string} name
  * @property {string} uuid
  * @property {Object} observer
+ * @property {AbstCommander} commander
  * @property {Array} cmdList
  * @property {number} currCmdIndex
  */

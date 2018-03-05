@@ -16,45 +16,85 @@ const ClientBuilder = require('../src/builder/ClientBuilder');
 
 require('../src/format/define');
 
+// BU.CLI(process);
+
+process.on('exit', (code) => {
+  console.log(`About to exit with code: ${code}`);
+});
+
 describe('Builder Test', () => {
-  it('create Test ', done => {
-    let config = [];
+  if(false){
+    it('singleton test ', done => {
+      let config = [];
 
-    for(let i = 0; i < 5; i += 1){
+      for(let i = 0; i < 2; i += 1){
       /** @type {deviceClientFormat} */
-      let addObj = {};
-      addObj.target_id = `device_${i}`;
-      addObj.connect_type = 'socket';
-      addObj.host = '';
-      addObj.port = Number(`900${_.random(0,2)}`);
-      config.push(addObj);
-    }
+        let addObj = {};
+        addObj.target_id = `device_${i}`;
+        addObj.connect_type = 'socket';
+        addObj.host = '';
+        addObj.port = 9000;
+        config.push(addObj);
+      }
 
-    let builder = new ClientBuilder();
+      let builder = new ClientBuilder();
+      var result = null;
+      config.forEach(currentItem => {
+        result = builder.addDeviceClient(currentItem);
+        
+        
+      });
 
-    config.forEach(currentItem => {
-      let result = builder.addDeviceClient(currentItem);
-
-      let findTest = result.mediator.getDeviceManager(result);
-      console.dir(findTest);
-
-      
-      
-      // BU.CLI(result);
-      // result.connect()
-      //   .then(result => {
-      //     console.log('connenct');
-      //   })
-      //   .catch(err => {
-      //     console.error(err);
-      //   });
+      // BU.CLI(result.mediator.deviceManagerList);
+      expect(result.mediator.deviceManagerList.length).to.be.equal(1);
+      done();
     });
-    
+  }
+
+  if(true){
+    it('addCommand Test ', done => {
+      let config = [];
+  
+      for(let i = 0; i < 1; i += 1){
+        /** @type {deviceClientFormat} */
+        let addObj = {};
+        addObj.target_id = `device_${i}`;
+        addObj.connect_type = 'serial';
+        addObj.host = '';
+        // addObj.port = Number(`900${_.random(0,2)}`);
+        addObj.port = `COM1${3 + i}`;
+        addObj.baud_rate = 9600;
+        addObj.parser = {
+          type: 'readLineParser',
+          option: '\r\n'
+        };
+        config.push(addObj);
+      }
+  
+      let builder = new ClientBuilder();
+  
+      config.forEach(currentItem => {
+        let commander = builder.addDeviceClient(currentItem);
+        
+        commander.mediator.getDeviceManager(commander).connect();
+
+
+        commander.executeCommand('hi^^', this);
+        
 
 
 
-    done();
-  });
+
+
+      });
+      
+  
+  
+  
+      done();
+    });
+
+  }
 
 
 });

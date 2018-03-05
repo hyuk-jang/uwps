@@ -18,7 +18,7 @@ class Serial extends AbstController{
     this.client = {};
     this.port = config.port;
     this.baud_rate = config.baud_rate;
-
+    
     let foundInstance = _.findWhere(instanceList, {id: this.port});
     if(_.isEmpty(foundInstance)){
       instanceList.push({id: this.port, instance: this});
@@ -26,6 +26,21 @@ class Serial extends AbstController{
       return foundInstance.instance;
     }
   }
+
+  /**
+   * Serial Device로 메시지 전송
+   * @param {Buffer|string} 전송 데이터
+   * @return {Promise} Promise 반환 객체
+   */
+  write(msg) {
+    return new Promise((resolve, reject) => {
+      this.client.write(msg, err => {
+        reject(err);
+      });
+      resolve();
+    });
+  }
+
 
   /** 장치 접속 시도 */
   async connect() {
@@ -40,10 +55,17 @@ class Serial extends AbstController{
     });
 
     this.client.on('data', bufferData => {
+      // BU.CLI('bufferData', bufferData);
       this.notifyData(bufferData);
     });
 
     this.client.on('close', () => {
+      this.client = {};
+      this.notifyClose();
+    });
+
+    this.client.on('end', () => {
+      BU.CLI('Close');
       this.client = {};
       this.notifyClose();
     });

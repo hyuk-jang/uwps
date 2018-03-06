@@ -17,7 +17,7 @@ for(let i = 0; i < 3; i += 1){
     let port = Number(`900${i}`);
 
     socket.on('data', data => {
-      // return socket.write('this.is.my.socket\r\ngogogogo' + port);
+      return socket.write('this.is.my.socket\r\ngogogogo' + port);
     });
 
   }).on('error', (err) => {

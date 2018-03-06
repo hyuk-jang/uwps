@@ -230,6 +230,9 @@
       var chartOption = <%- JSON.stringify(chartOption) %>;
       if(chartData.series.length){
         $('#moduleChart_1').highcharts({
+              chart: {
+                  type: "spline"
+                },
               title: {
                 text: chartOption.mainTitle
               },

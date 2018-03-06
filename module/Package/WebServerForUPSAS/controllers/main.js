@@ -91,6 +91,8 @@ module.exports = function (app) {
     req.locals.dailyPowerChartData = chartData;
     req.locals.moduleStatusList = validModuleStatusList ;
     req.locals.powerGenerationInfo = powerGenerationInfo;
+
+    // BU.CLI(validModuleStatusList);
     
 
     return res.render('./main/index.html', req.locals);

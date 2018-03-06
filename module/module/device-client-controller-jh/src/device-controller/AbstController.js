@@ -11,7 +11,7 @@ class AbstController {
     /** @type {Array.<AbstManager>}  */
     this.observers = [];
     this.id = uuidv4();
-    this.config = null;
+    this.configInfo = null;
   }
 
   setInit(){}
@@ -40,27 +40,13 @@ class AbstController {
     });
   }
 
+  notifyEvent(eventName, eventMsg){
+    console.log('notifyEvent', eventName, eventMsg, this.configInfo);
+    this.observers.forEach(currentItem => {
+      currentItem.updateDcEvent(eventName, eventMsg);
+    });
+  }
 
-  notifyConnect(){
-    console.log('notifyConnect', this.config);
-    // BU.CLI(this.observers.length);
-
-    this.observers.forEach(currentItem => {
-      currentItem.updateDcConnect();
-    });
-  }
-  notifyClose(){
-    console.log('notifyClose', this.config);
-    this.observers.forEach(currentItem => {
-      currentItem.updateDcClose();
-    });
-  }
-  notifyError(error){
-    console.log('notifyError', error, this.config);
-    this.observers.forEach(currentItem => {
-      currentItem.updateDcError(error);
-    });
-  }
   notifyData(data){
     // console.log('notifyData', data);
     this.observers.forEach(currentItem => {

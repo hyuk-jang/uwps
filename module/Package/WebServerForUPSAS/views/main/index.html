@@ -176,7 +176,7 @@
 
 
         <template id="moduleStatusTemplate">
-          <div class="col-xs-3 con_b_c" style="margin-left:18px;">
+          <div class="col-xs-3 con_b_c" style="margin-left:5px;">
             <ul class="con_b_d">
               <li class="con_b_d_f">
                 <p data-type="name" data-name="">
@@ -186,17 +186,17 @@
               </li>
               <li class="con_b_d_la">
                 <p>전류</p>
-                <input type="text" data-type="amp" name="amp" style="margin-left:40px; margin-right:12px;">
+                <input type="text" data-type="amp" name="amp" style="margin-left:10px; margin-right:2px;">
                 <p>A</p>
               </li>
               <li class="con_b_d_la">
                 <p>전압</p>
-                <input type="text" data-type="vol" name="vol" style="margin-left:40px; margin-right:12px;">
+                <input type="text" data-type="vol" name="vol" style="margin-left:10px; margin-right:2px;">
                 <p>V</p>
               </li>
               <li class="con_b_d_la">
                 <p>출력</p>
-                <input type="text" data-type="kw" name="kw" style="margin-left:40px; margin-right:12px;">
+                <input type="text" data-type="kw" name="kw" style="margin-left:10px; margin-right:2px;">
                 <p>kW</p>
               </li>
               <!-- <li class="con_b_d_la">
@@ -210,11 +210,11 @@
         <div id="moduleStatus">
         </div>
         <div class="col-xs-3 con_b_2">
-          <b style="position: absolute; top:22px; left:16px">
+          <b style="position: absolute; top:22px; left:14px">
             <span id="pageNumCount" data-count="1"> 1</span>
             <span>/</span>
             <span id="pageNumLimit" data-count="<%=  Math.ceil(moduleStatusList.length / 4) %>">
-              <%=  Math.ceil(moduleStatusList.length / 4) %>
+              <%=  Math.ceil(moduleStatusList.length / 6) %>
             </span>
           </b>
           <i class="fa fa-sort-asc arrow " aria-hidden="true" onclick=changeModuleInfo(-1); id="up"></i>
@@ -236,7 +236,7 @@
         // 수중 태양광 모듈 현황
         var moduleStatusList = <%- JSON.stringify(moduleStatusList) %>;
         // 한번에 보여줄려는 갯수
-        var moduleViewSizeCount = 4;
+        var moduleViewSizeCount = 6;
         // 수중 태양광 목록 updown 이벤트 발생 시
         function changeModuleInfo(changeValue) {
           // 목록 리스트 초기화
@@ -427,6 +427,9 @@
   console.log('chartDataObj', chartDataObj)
   if (chartDataObj.series.length) {
       $('#dailyPowerChart').highcharts({
+      chart: {
+        type: "spline"
+      },
       title: {
         text: ''
       },

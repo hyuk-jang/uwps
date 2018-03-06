@@ -1,21 +1,19 @@
 'use strict';
 const _ = require('underscore');
 
+const AbstCommander = require('../device-commander/AbstCommander');
+
 require('../format/define');
 
 class Iterator {
   /** @param {DeviceManager} deviceManager */
   constructor(deviceManager) {
-    /**
-     * @type {{process:commandFormat, rankList: Array.<{rank: number, list: Array.<commandFormat>} }>]  }
-     */
+    /** @type {commandStorage}*/
     this.aggregate = deviceManager.commandStorage;
-
   }
 
   /** 
-   * @param {commandFormat} cmdInfo
-   * @return {boolean}
+   * @param {commandFormat} cmdInfo 추가할 명령
    */
   addCmd(cmdInfo) {
     let rank = cmdInfo.rank;
@@ -23,7 +21,6 @@ class Iterator {
     // BU.CLIN(cmdInfo);
     // 명령 rank가 등록되어있지 않다면 신규로 등록
     if(!_.contains(_.pluck(this.aggregate.rankList, 'rank'), rank)){
-      // BU.CLI('what ?ASDasdasdlkjas');
       this.aggregate.rankList.push({rank, list: [cmdInfo] });
       // BU.CLIN(this.aggregate, 4);
     } else { // 저장된 rank 객체 배열에 삽입
@@ -36,14 +33,14 @@ class Iterator {
   /** 
    * 현재 진행 중인 명령 리스트 Index 1 증가하고 다음 진행해야할 명령 반환 
    * @return {boolean} 다음 진행해야할 명령이 존재한다면 true, 없다면 false
-   * */
+   */
   nextCmd (){
     const processInfo = this.aggregate.process;
     // 현재 진행중인 명령이 비어있다면 다음 순위 명령을 가져옴
     if(_.isEmpty(processInfo)){
       // 다음 명령이 존재하지 않는다면 false
       if(this.nextRank()){
-        BU.CLI('next rank 존재');
+        // BU.CLI('next rank 존재');
         return true;
       } else {
         return false;
@@ -81,6 +78,10 @@ class Iterator {
     }
   }
 
+  /** 
+   * 현재 진행중인 명령 초기화
+   * @return {undefined}
+   */
   clear (){
     this.aggregate.process = {};
   }
@@ -90,17 +91,28 @@ class Iterator {
     return null;
   }
 
-  currentCmd() {
+
+  /** @return {commandFormat} */
+  getCurrentItem (){
+    return this.aggregate.process;
+  }
+
+  /** @return {commandStorage} */
+  getAllItem() {
+    return this.aggregate;
+  }
+
+  /** @return {*=} */
+  getCurrentCmd() {
     return this.aggregate.process.cmdList[this.aggregate.process.currCmdIndex];
   }
 
-  currentReceiver() {
-    let currItem = this.currentItem();
+  /** @return {AbstCommander} */
+  getCurrentReceiver() {
+    let currItem = this.getCurrentItem();
     return _.isEmpty(currItem) ? null : currItem.commander;
   }
 
-  currentItem (){
-    return this.aggregate.process;
-  }
+  
 }
 module.exports = Iterator;

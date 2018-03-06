@@ -224,13 +224,17 @@
         if (chartDataObj.series.length) {
           var yMax = 1500;
           $("#chart_div").highcharts({
+            chart: {
+              type: "spline"
+            },
             title: {
               text: ""
             },
             // plotOptions: {
-            //   series: {
-            //     color: '#FF0000',
-            //     // color: ['#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655']
+            //   spline: {
+            //     marker: {
+            //       enabled: true
+            //     }
             //   }
             // },
             xAxis: {

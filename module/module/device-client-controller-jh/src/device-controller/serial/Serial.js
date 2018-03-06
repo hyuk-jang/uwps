@@ -11,7 +11,7 @@ let instanceList = [];
 class Serial extends AbstController{
   /**
    * Serial Port 객체를 생성하기 위한 설정 정보
-   * @param {{port: string, baud_rate: number }} config {port, baud_rate}
+   * @param {deviceConfigSerial} config {port, baud_rate}
    */
   constructor(config) {
     super();
@@ -21,7 +21,7 @@ class Serial extends AbstController{
     
     let foundInstance = _.findWhere(instanceList, {id: this.port});
     if(_.isEmpty(foundInstance)){
-      this.config = {port: config.port, baud_rate: config.baud_rate};
+      this.configInfo = {port: this.port, baud_rate: this.baud_rate};
       instanceList.push({id: this.port, instance: this});
     } else {
       return foundInstance.instance;
@@ -60,23 +60,23 @@ class Serial extends AbstController{
       this.notifyData(bufferData);
     });
 
-    this.client.on('close', () => {
+    this.client.on('close', err => {
       this.client = {};
-      this.notifyClose();
+      this.notifyEvent('dcClose', err);
     });
 
     this.client.on('end', () => {
       BU.CLI('Close');
       this.client = {};
-      this.notifyClose();
+      this.notifyEvent('dcClose');
     });
 
     this.client.on('error', error => {
-      this.notifyError(error);
+      this.notifyEvent('dcError', error);
     });
 
     await eventToPromise.multi(this.client, ['open'], ['error', 'close']);
-    this.notifyConnect();
+    this.notifyEvent('dcConnect');
     return this.client;
   }
 }

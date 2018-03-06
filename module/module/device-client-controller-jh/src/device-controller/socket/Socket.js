@@ -4,14 +4,15 @@ const net = require('net');
 const eventToPromise = require('event-to-promise');
 
 const AbstController = require('../AbstController');
+require('../../format/deviceConfig');
 
-/** @type {Array.<{id: {host: string, port: number}, instance: Socket}>} */
+/** @type {Array.<{id: deviceConfigSocket, instance: Socket}>} */
 let instanceList = [];
 /** Class Socket 접속 클라이언트 클래스 */
 class Socket extends AbstController {
   /**
    * Socket Client 접속 설정 정보
-   * @param {{port: number, ip: string|undefinded}} config Socket Port
+   * @param {deviceConfigSocket} config Socket Port
    */
   constructor(config) {
     super();
@@ -19,14 +20,14 @@ class Socket extends AbstController {
     this.port = config.port;
     this.host = config.host || 'localhost';
     
-    this.config = {host: this.host, port: this.port};
+    this.configInfo = {host: this.host, port: this.port};
 
     let foundInstance = _.find(instanceList, instanceInfo => {
-      return _.isEqual(instanceInfo.id, this.config);
+      return _.isEqual(instanceInfo.id, this.configInfo);
     });
     
     if(_.isEmpty(foundInstance)){
-      instanceList.push({id: this.config, instance: this});
+      instanceList.push({id: this.configInfo, instance: this});
     } else {
       return foundInstance.instance;
     }
@@ -52,7 +53,7 @@ class Socket extends AbstController {
   async connect() {
     /** 접속 중인 상태라면 접속 시도하지 않음 */
     if(!_.isEmpty(this.client)){
-      throw new Error(`이미 접속중입니다. ${this.config.port}`);
+      throw new Error(`이미 접속중입니다. ${this.port}`);
     }
 
     this.client = net.createConnection(this.port, this.host);
@@ -63,20 +64,20 @@ class Socket extends AbstController {
 
     this.client.on('close', () => {
       this.client = {};
-      this.notifyClose();
+      this.notifyEvent('dcClose');
     });
 
-    this.client.on('end', () => {
-      // console.log('Client disconnected');
-      // this.client = {};
-      // this._onClose('err');
-    });
+    // this.client.on('end', () => {
+    //   // console.log('Client disconnected');
+    //   // this.client = {};
+    //   // this._onClose('err');
+    // });
 
     this.client.on('error', error => {
-      this.notifyError(error);
+      this.notifyEvent('dcError', error);
     });
     await eventToPromise.multi(this.client, ['connect', 'connection', 'open'], ['close, error']);
-    this.notifyConnect();
+    this.notifyEvent('dcConnect');
     return this.client;
   }
 }

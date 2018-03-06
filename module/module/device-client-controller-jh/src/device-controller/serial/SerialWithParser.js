@@ -22,7 +22,7 @@ class SerialWithParser extends AbstController{
 
     let foundInstance = _.findWhere(instanceList, {id: this.port});
     if(_.isEmpty(foundInstance)){
-      this.config = {port: config.port, baud_rate: config.baud_rate, parser: config.parser };
+      this.configInfo = {port: this.port, baud_rate: this.baud_rate, parser: this.parser };
       instanceList.push({id: this.port, instance: this});
     } else {
       return foundInstance.instance;
@@ -107,15 +107,15 @@ class SerialWithParser extends AbstController{
 
     this.client.on('close', err => {
       this.client = {};
-      this.notifyClose(err);
+      this.notifyEvent('dcClose', err);
     });
 
     this.client.on('error', error => {
-      this.notifyError(error);
+      this.notifyEvent('dcError', error);
     });
 
     await eventToPromise.multi(this.client, ['open'], ['error', 'close']);
-    this.notifyConnect();
+    this.notifyEvent('dcConnect');
     return this.client;
   }
 }

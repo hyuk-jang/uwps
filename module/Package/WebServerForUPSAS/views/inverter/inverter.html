@@ -143,10 +143,13 @@
     <script type="text/javascript">
     var chartDataObj = <%- JSON.stringify (chartDataObj) %>;
     if (chartDataObj.series.length) {
-      console.log("@@@", chartDataObj.range, chartDataObj.series)
+      // console.log("@@@", chartDataObj.range, chartDataObj.series)
       var yMax = 1500;
 
       $('#chart_div').highcharts({
+        chart: {
+          type: "spline"
+        },
         title: {
           text: ''
         },

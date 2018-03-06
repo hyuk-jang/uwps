@@ -3,14 +3,10 @@
 const _ = require('underscore');
 
 const AbstMediator = require('./AbstMediator');
-
-const Commander = require('../device-commander/Commander');
-require('../format/define');
-
-
 const AbstCommander = require('../device-commander/AbstCommander');
 const AbstManager = require('../device-manager/AbstManager');
 
+require('../format/define');
 
 
 let instance;
@@ -31,7 +27,7 @@ class Mediator extends AbstMediator {
     }
 
   }
-
+  /* Builder에서 요청하는 부분 */
   /**
    * Device Commander 와 Device Manager 간의 관계를 맺음
    * @param {AbstCommander} commander 
@@ -70,6 +66,10 @@ class Mediator extends AbstMediator {
     } 
   }
 
+
+
+
+  /* Commander에서 요청하는 부분 */
   /**
    * 명령 추가
    * @param {commandFormat} cmdInfo 
@@ -77,12 +77,13 @@ class Mediator extends AbstMediator {
   requestAddCommand(cmdInfo){
     const deviceManager = this.getDeviceManager(cmdInfo.commander);
     deviceManager.addCommand(cmdInfo);
+    return true;
   }
-
 
   /**
    * Commander와 물려있는 Manager를 가져옴
    * @param {AbstCommander} deviceCommander
+   * @return {AbstManager}
    */
   getDeviceManager(deviceCommander){
     const foundIt = _.findWhere(this.relationList, {commander: deviceCommander});
@@ -93,8 +94,34 @@ class Mediator extends AbstMediator {
   }
 
   /**
+   * 현재 Commander와 물려있는 장치의 모든 명령을 가져옴
+   * @param {AbstCommander} deviceCommander
+   * @return {commandStorage} Manager
+   */
+  getCommandStatus(deviceCommnader) {
+
+  }
+
+  /* Device Manager에서 요청하는 부분  */
+  /**
+   * Device Manager에서 새로운 이벤트가 발생되었을 경우 알림
+   * @param {AbstManager} deviceManager 
+   * @param {string} eventName 
+   * @param {*=} eventMsg 
+   */
+  updateDcEvent(deviceManager, eventName, eventMsg){
+    const deviceCommanderList = this.getDeviceCommander(deviceManager);
+
+    deviceCommanderList.forEach(commander => {
+      commander.updateDcEvent(eventName, eventMsg);
+    });
+  }
+
+  
+  /**
    * Manager와 물려있는 장치 리스트를 전부 가져옴
    * @param {AbstManager} deviceManager 
+   * @return {Array.<AbstCommander>}
    */
   getDeviceCommander(deviceManager){
     const foundIt = _.where(this.relationList, {manager: deviceManager});
@@ -106,37 +133,6 @@ class Mediator extends AbstMediator {
 
   }
 
-
-  /**
-   * 명령 추가
-   * @param {Commander} deviceCommnader
-   */
-  getCurrentCommandStatus(deviceCommnader){
-  }
-
-  spreadDeviceToObserver(){}
-
-  /**
-   * @param {AbstManager} deviceManager 
-   */
-  updateDcConnect(){
-    console.log('Mediator --> updateDcConnect');
-  }
-
-  /**
-   * @param {AbstManager} deviceManager 
-   */
-  updateDcClose(){
-    console.log('Mediator --> updateDcClose');
-  }
-
-  /**
-   * @param {Object} error 
-   * @param {AbstManager} deviceManager 
-   */
-  updateDcError(error){
-    console.log('Mediator --> updateDcError', error);
-  }
 }
 
 module.exports = Mediator;

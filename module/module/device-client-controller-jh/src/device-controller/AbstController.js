@@ -1,17 +1,24 @@
 'use strict';
 
+const uuidv4 = require('uuid/v4');
+const BU = require('base-util-jh').baseUtil;
+
 const AbstManager = require('../device-manager/AbstManager');
 
-const uuidv4 = require('uuid/v4');
-/**
- * @class AbstController
- */
+
 class AbstController {
   constructor() {
     /** @type {Array.<AbstManager>}  */
     this.observers = [];
     this.id = uuidv4();
     this.configInfo = null;
+
+    this.eventStauts = {
+      hasConnect: null,
+      hasError: false,
+      connectTimer: null
+
+    };
   }
 
   setInit(){}
@@ -26,13 +33,13 @@ class AbstController {
   async write(msgInfo){}
 
   attach(observer){
+    // BU.log('Observer attached');
     this.observers.push(observer);
-    console.log('Observer attached');
   }
 
   /** @param {AbstManager} observer */
   dettach(observer){
-    console.log('dettach');
+    // BU.log('dettach');
     this.observers.forEach((currentItem, index) => {
       if(currentItem === observer){
         this.observers.splice(index, 1);
@@ -41,10 +48,51 @@ class AbstController {
   }
 
   notifyEvent(eventName, eventMsg){
-    console.log('notifyEvent', eventName, eventMsg, this.configInfo);
+    // BU.CLI('notifyEvent', eventName, eventMsg, this.configInfo);
     this.observers.forEach(currentItem => {
       currentItem.updateDcEvent(eventName, eventMsg);
     });
+  }
+
+  /** 장치와의 연결이 수립되었을 경우 */
+  notifyConnect() {
+    // 이미 연결된 상태였다면 이벤트를 보내지 않음
+    if(!this.eventStauts.hasConnect){
+      this.notifyEvent('dcConnect');
+    }
+
+    // 만약 재접속 타이머가 돌아가고 있다면 해제
+    clearTimeout(this.eventStauts.connectTimer);
+
+    this.eventStauts.hasConnect = true;
+    this.eventStauts.hasError = false;
+  }
+
+  /** 장치와의 연결이 해제되었을 경우 */
+  notifyClose() {
+    // 장치와의 연결이 계속해제된 상태였다면 이벤트를 보내지 않음
+    if(this.eventStauts.hasConnect){
+      this.notifyEvent('dcClose');
+    }
+        
+    this.eventStauts.hasConnect = false;
+
+    // 일정 시간에 한번씩 장치에 접속 시도
+    this.eventStauts.connectTimer =  setTimeout(() => {
+      this.connect();
+    }, 1000 * 60);
+  }
+
+  /**
+   * 장치에서 에러가 발생하였다면
+   * @param {*} error 
+   */
+  notifyError(error) {
+    // 장치에서 이미 에러 내역을 발송한 상태라면 이벤트를 보내지 않음
+    if(!this.eventStauts.hasError){
+      this.notifyEvent('dcError', error);
+    }
+    this.eventStauts.hasError = true;
   }
 
   notifyData(data){

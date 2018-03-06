@@ -1,7 +1,10 @@
 'use strict';
+
 const _ = require('underscore');
 const net = require('net');
 const eventToPromise = require('event-to-promise');
+
+// const BU = require('base-util-jh').baseUtil;
 
 const AbstController = require('../AbstController');
 require('../../format/deviceConfig');
@@ -51,6 +54,7 @@ class Socket extends AbstController {
 
   /** 장치 접속 시도 */
   async connect() {
+    // BU.CLI('connect');
     /** 접속 중인 상태라면 접속 시도하지 않음 */
     if(!_.isEmpty(this.client)){
       throw new Error(`이미 접속중입니다. ${this.port}`);
@@ -62,22 +66,26 @@ class Socket extends AbstController {
       this.notifyData(bufferData);
     });
 
-    this.client.on('close', () => {
+    this.client.on('close', err => {
       this.client = {};
-      this.notifyEvent('dcClose');
+      this.notifyClose(err);
+      // this.notifyEvent('dcClose', err);
     });
 
-    // this.client.on('end', () => {
-    //   // console.log('Client disconnected');
-    //   // this.client = {};
-    //   // this._onClose('err');
-    // });
+    this.client.on('end', () => {
+      console.log('Client disconnected');
+      // this.client = {};
+      // this.notifyError(error);
+      // // this.notifyEvent('dcError', error);
+    });
 
     this.client.on('error', error => {
-      this.notifyEvent('dcError', error);
+      this.notifyError(error);
+      // this.notifyEvent('dcError', error);
     });
     await eventToPromise.multi(this.client, ['connect', 'connection', 'open'], ['close, error']);
-    this.notifyEvent('dcConnect');
+    this.notifyConnect();
+    // this.notifyEvent('dcConnect');
     return this.client;
   }
 }

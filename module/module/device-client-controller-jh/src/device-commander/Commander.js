@@ -3,6 +3,8 @@
 const _ = require('underscore');
 const uuidv4 = require('uuid/v4');
 
+const BU = require('base-util-jh').baseUtil;
+
 const AbstCommander = require('./AbstCommander');
 const AbstMediator = require('../device-mediator/AbstMediator');
 const AbstManager = require('../device-manager/AbstManager');
@@ -72,6 +74,20 @@ class Commander extends AbstCommander {
     }
 
     this.mediator.requestAddCommand(commandInfo, this);
+
+  }
+
+
+  /**
+   * Commander와 연결된 장비에서 진행중인 저장소의 모든 명령을 가지고 옴 
+   */
+  getCommandStatus() {
+    try {
+      const commandStorage = this.mediator.getCommandStatus(this);
+      BU.CLIN(commandStorage, 3);
+    } catch (error) {
+      throw error;
+    }
   }
 
   /* 장치에서 일괄 이벤트 발생 */
@@ -82,7 +98,7 @@ class Commander extends AbstCommander {
    * @return {undefined}
    */
   updateDcEvent(eventName, eventMsg) {
-    console.error('updateDcEvent', eventName, eventMsg);
+    BU.log('updateDcEvent', eventName);
   }
 
 
@@ -93,7 +109,7 @@ class Commander extends AbstCommander {
    * @param {Error} err 
    */
   updateDcError(processItem, err){
-    console.error(err);
+    BU.log('updateDcError', err);
   }
 
   // TODO Converter 붙이거나 세분화 작업, 예외 처리 필요
@@ -104,12 +120,12 @@ class Commander extends AbstCommander {
    * @param {AbstManager} manager 장치 관리 매니저
    */
   updateDcData(processItem, data, manager){
-    BU.CLIN(processItem, 3);
+    // BU.CLIN(processItem, 3);
     BU.CLIN(data.toString(), 3);
     let rainBuffer = data.slice(data.length - 6 - 8, data.length - 6);
 
     let rain = parseInt(rainBuffer, 16);
-    BU.log(rain);
+    // BU.log(rain);
 
     if(rain > 100){
       manager.nextCommand();

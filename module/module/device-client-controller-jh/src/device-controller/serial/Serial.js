@@ -3,6 +3,8 @@ const _ = require('underscore');
 const serialport = require('serialport');
 const eventToPromise = require('event-to-promise');
 
+const BU = require('base-util-jh').baseUtil;
+
 const AbstController = require('../AbstController');
 
 /** @type {Array.<{id: string, instance: Serial}>} */
@@ -62,21 +64,25 @@ class Serial extends AbstController{
 
     this.client.on('close', err => {
       this.client = {};
-      this.notifyEvent('dcClose', err);
+      this.notifyClose(err);
+      // this.notifyEvent('dcClose', err);
     });
 
     this.client.on('end', () => {
       BU.CLI('Close');
       this.client = {};
-      this.notifyEvent('dcClose');
+      this.notifyClose(err);
+      // this.notifyEvent('dcClose', err);
     });
 
     this.client.on('error', error => {
-      this.notifyEvent('dcError', error);
+      this.notifyError(error);
+      // this.notifyEvent('dcError', error);
     });
 
     await eventToPromise.multi(this.client, ['open'], ['error', 'close']);
-    this.notifyEvent('dcConnect');
+    this.notifyConnect();
+    // this.notifyEvent('dcConnect');
     return this.client;
   }
 }

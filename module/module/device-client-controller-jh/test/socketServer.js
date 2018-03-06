@@ -22,13 +22,27 @@ for(let i = 0; i < 3; i += 1){
 
   }).on('error', (err) => {
     // handle errors here
-    console.error('@@@@', err);
-    throw err;
+    console.error('@@@@', err, server.address());
+    // throw err;
   });
   
   // grab an arbitrary unused port.
   server.listen(Number(`900${i}`), () => {
     console.log('opened server on', server.address());
   });
+
+  server.on('close', () => {
+    console.log('clonse');
+  });
+
+  server.on('error', (err) => {
+    console.error(err);
+  });
     
 }
+
+process.on('uncaughtException', function (err) {
+  console.error(err.stack);
+  console.log(err.message);
+  console.log('Node NOT Exiting...');
+});

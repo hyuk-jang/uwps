@@ -2,6 +2,8 @@
 const _ = require('underscore');
 const eventToPromise = require('event-to-promise');
 
+const BU = require('base-util-jh').baseUtil;
+
 const AbstCommander = require('../device-commander/AbstCommander');
 const AbstMediator = require('../device-mediator/AbstMediator');
 
@@ -61,7 +63,7 @@ class AbstManager extends EventEmitter {
    * @param {Buffer} data 
    */
   updateDcData(data){
-    BU.log('AbstManager --> updateDcData', data);
+    // BU.log('AbstManager --> updateDcData', data);
     if(_.isEmpty(this.getReceiver())){
       // BU.log('Completed Data', data);
     } else {
@@ -71,7 +73,7 @@ class AbstManager extends EventEmitter {
 
   /** 명령을 보냈으나 일정시간(1초) 응답이 없을 경우 해당 명령을 내린 Commander에게 알려줌 */
   updateDcTimeout(){
-    console.log('AbstManager --> updateDcTimeout');
+    BU.log('AbstManager --> updateDcTimeout');
     if(_.isEmpty(this.getReceiver())){
       BU.log('Clear command', this.id);
     } else {

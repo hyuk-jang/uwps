@@ -30,7 +30,6 @@ class ClientBuilder extends AbstClientBuilder {
 
     mediator.setColleague(deviceCommander, deviceManager);
 
-
     return deviceCommander;
   }
   /** @param {deviceClientFormat} config */

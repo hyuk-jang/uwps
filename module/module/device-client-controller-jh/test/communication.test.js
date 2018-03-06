@@ -19,11 +19,11 @@ for(let i = 0; i < 1; i += 1){
   /** @type {deviceClientFormat} */
   let addObj = {};
   addObj.target_id = `device_${i}`;
-  // addObj.connect_type = 'socket';
-  addObj.connect_type = 'serial';
+  addObj.connect_type = 'socket';
+  // addObj.connect_type = 'serial';
   addObj.host = '';
   addObj.port = Number(`900${_.random(0,2)}`);
-  addObj.port = `COM1${3 + i}`;
+  // addObj.port = `COM1${3 + i}`;
   addObj.baud_rate = 9600;
   addObj.parser = {
     // type: 'delimiterParser',
@@ -45,9 +45,10 @@ config.forEach(currentItem => {
   connet(commander)
     .then(() => {
       BU.CLI('@@@@@@@@@@@@@@@@@@@@');
-      commander.executeCommand(Buffer.from(''), this);
-      // commander.executeCommand('hi^^', this);
-      // commander.executeCommand('Retry Test^^', this);
+      // commander.executeCommand(Buffer.from(''), this);
+      commander.executeCommand('hi^^', this);
+      commander.executeCommand('Retry Test^^', this);
+      commander.getCommandStatus();
   
       // commander.mediator.getDeviceManager(commander).write();
     })
@@ -61,3 +62,9 @@ async function connet(commander) {
   BU.CLI('Connected');
   return true;
 }
+
+process.on('uncaughtException', function (err) {
+  console.error(err.stack);
+  console.log(err.message);
+  console.log('Node NOT Exiting...');
+});

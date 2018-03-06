@@ -1,6 +1,8 @@
 'use strict';
 const _ = require('underscore');
 
+const BU = require('base-util-jh').baseUtil;
+
 const AbstCommander = require('../device-commander/AbstCommander');
 
 require('../format/define');

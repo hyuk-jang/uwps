@@ -75,9 +75,13 @@ class Mediator extends AbstMediator {
    * @param {commandFormat} cmdInfo 
    */
   requestAddCommand(cmdInfo){
-    const deviceManager = this.getDeviceManager(cmdInfo.commander);
-    deviceManager.addCommand(cmdInfo);
-    return true;
+    try {
+      const deviceManager = this.getDeviceManager(cmdInfo.commander);
+      deviceManager.addCommand(cmdInfo);
+      return true;
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -99,7 +103,13 @@ class Mediator extends AbstMediator {
    * @return {commandStorage} Manager
    */
   getCommandStatus(deviceCommnader) {
-
+    try {
+      const deviceManager = this.getDeviceManager(deviceCommnader);
+      return deviceManager.iterator.getAllItem();
+      
+    } catch (error) {
+      throw error;
+    }
   }
 
   /* Device Manager에서 요청하는 부분  */

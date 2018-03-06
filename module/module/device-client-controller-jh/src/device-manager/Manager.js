@@ -4,6 +4,8 @@ const _ = require('underscore');
 const Promise = require('bluebird');
 const eventToPromise = require('event-to-promise');
 
+const BU = require('base-util-jh').baseUtil;
+
 const AbstCommander = require('../device-commander/AbstCommander');
 const AbstMediator = require('../device-mediator/AbstMediator');
 const AbstManager = require('./AbstManager');
@@ -51,12 +53,7 @@ class Manager extends AbstManager {
       return foundInstance.instance;
     }
 
-    this.controlStatus = {
-      retryChance: 3, // 데이터 유효성 검사가 실패, 데이터 수신 에러가 있을 경우 3회까지 ProcessCmd 재전송
-      reconnectDeviceInterval: 1000 * 60, // 인버터 접속 해제가 이뤄졌을 경우 재 접속 인터벌 1분
-      sendMsgTimeOutSec: 1000 * 1 // 해당 초안에 응답메시지 못 받을 경우 해당 에러처리
-    };
-
+    this.retryChance = 3; // 데이터 유효성 검사가 실패, 데이터 수신 에러가 있을 경우 3회까지 ProcessCmd 재전송
     /**
      * @type {{process:commandFormat, rankList: Array.<{rank: number, list: Array.<commandFormat>} }>]  }
      */
@@ -80,14 +77,14 @@ class Manager extends AbstManager {
 
 
   async write(){
-    BU.log('Device write');
-    // BU.CLI(this.controlStatus.sendMsgTimeOutSec);
+    // BU.log('Device write');
+    // BU.CLI(this.sendMsgTimeOutSec);
     const processItem = this.getProcessItem();
     if(_.isEmpty(processItem)){
       throw new Error(`현재 진행중인 명령이 존재하지 않습니다. ${this.id}`);
     } else {
       let currCmd = processItem.cmdList[processItem.currCmdIndex];
-      BU.CLI('명령 발송 테스트 시작', currCmd);
+      // BU.CLI('명령 발송 테스트 시작', currCmd);
       // 장치와의 연결을 계속 수립하겠다면
       if(processItem.hasOneAndOne){
         BU.CLI('OneAndOne 진행');
@@ -99,18 +96,17 @@ class Manager extends AbstManager {
         return true;
       } else {
         this.timeout = {};
-        BU.CLI(processItem.timeoutMs);
-        
+        // BU.CLI(processItem.timeoutMs);
         await Promise.race(
           [
             this.writeCommandController(processItem.cmdList[processItem.currCmdIndex]),
             // this.deviceController.write(processItem.cmdList[processItem.currCmdIndex]),
             
             new Promise((_, reject) => {
-              BU.CLI('타이머 가동');
-              console.time('timeout');
+              // BU.CLI('타이머 가동');
+              // console.time('timeout');
               this.timeout = setTimeout(() => {
-                console.timeEnd('timeout');
+                // console.timeEnd('timeout');
                 // 명전 전송 후 제한시간안에 응답이 안올 경우 에러 
                 reject(new Error('timeout'));
               }, processItem.timeoutMs);
@@ -162,7 +158,7 @@ class Manager extends AbstManager {
    * @param {AbstCommander} commander 
    */
   retryWrite(commander){
-    BU.CLI('retryWrite');
+    // BU.CLI('retryWrite');
     let processItem = this.getProcessItem();
 
     if(_.isEmpty(processItem)){
@@ -170,15 +166,15 @@ class Manager extends AbstManager {
     }
 
     if(_.isEqual(processItem.commander, commander)){
-      // BU.CLI('retryWrite', this.controlStatus.retryChance);
-      this.controlStatus.retryChance -= 1;
+      // BU.CLI('retryWrite', this.retryChance);
+      this.retryChance -= 1;
       // 명령을 재요청할 경우 진행중인 timeout 처리는 해제
       clearTimeout(this.timeout);
-      if (this.controlStatus.retryChance > 0) {
+      if (this.retryChance > 0) {
         return Promise.delay(30).then(() => {
           this.requestWrite();
         });
-      } else if(this.controlStatus.retryChance === 0){  // 3번 재도전 실패시 다음 명령 수행
+      } else if(this.retryChance === 0){  // 3번 재도전 실패시 다음 명령 수행
         // 해당 에러 발송
         // BU.CLI('retryWrite Max Error');
         this.getReceiver().updateDcError(this.getProcessItem(), new Error('retryMaxError'));
@@ -193,8 +189,8 @@ class Manager extends AbstManager {
 
   /** @param {commandFormat} cmdInfo */
   addCommand(cmdInfo) {
-    BU.log('addCommand');
-    BU.CLIN(cmdInfo);
+    // BU.log('addCommand');
+    // BU.CLIN(cmdInfo);
     this.iterator.addCmd(cmdInfo);
     // BU.CLIN(this.commandStorage, 4);
     // 현재 진행 중인 명령이 없다면 즉시 해당 명령 실행
@@ -207,7 +203,7 @@ class Manager extends AbstManager {
   nextCommand(){
     BU.CLI('nextCommand');
     // BU.CLIN(this.commandStorage, 4);
-    this.controlStatus.retryChance = 3;
+    this.retryChance = 3;
 
     let currCommander =  this.getReceiver();
     
@@ -220,10 +216,12 @@ class Manager extends AbstManager {
     }
   }
 
+  /** @return {commandFormat} */
   getProcessItem() {
     return this.iterator.getCurrentItem();
   }
 
+  /** @return {AbstCommander} */
   getReceiver() {
     return this.iterator.getCurrentReceiver();
   }

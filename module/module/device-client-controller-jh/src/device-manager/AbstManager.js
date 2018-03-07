@@ -25,10 +25,9 @@ class AbstManager extends EventEmitter {
 
   /** 장치와 연결을 하고자 할 경우 */
   async connect(){
-    this.deviceController.connect();
+    await this.deviceController.connect();
 
-    await eventToPromise(this, 'dcConnect');
-
+    // await eventToPromise(this, 'dcConnect');
     return true;
   }
 
@@ -55,7 +54,7 @@ class AbstManager extends EventEmitter {
    */
   updateDcEvent(eventName, eventMsg){
     // BU.log(`AbstManager --> ${eventName}`);
-    this.emit(eventName, eventMsg);
+    // this.emit(eventName, eventMsg);
     this.mediator.updateDcEvent(this, eventName, eventMsg);
   }
 
@@ -73,14 +72,14 @@ class AbstManager extends EventEmitter {
   }
 
   /** 명령을 보냈으나 일정시간(1초) 응답이 없을 경우 해당 명령을 내린 Commander에게 알려줌 */
-  updateDcTimeout(){
-    // BU.log('AbstManager --> updateDcTimeout');
-    if(_.isEmpty(this.getReceiver())){
-      BU.log('Clear command', this.id);
-    } else {
-      this.getReceiver().updateDcError(this.getProcessItem());
-    }
-  }
+  // updateDcTimeout(){
+  //   // BU.log('AbstManager --> updateDcTimeout');
+  //   if(_.isEmpty(this.getReceiver())){
+  //     BU.log('Clear command', this.id);
+  //   } else {
+  //     this.getReceiver().updateDcError(this.getProcessItem(), new Error('timeOut'));
+  //   }
+  // }
 }
 
 module.exports = AbstManager;

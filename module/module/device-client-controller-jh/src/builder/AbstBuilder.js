@@ -2,6 +2,7 @@
 
 const AbstCommander = require('../device-commander/AbstCommander');
 const AbstManager = require('../device-manager/AbstManager');
+const AbstMediator  = require('../device-mediator/AbstMediator');
 require('../format/define');
 
 /** @abstract */
@@ -28,6 +29,11 @@ class AbstBuilder {
    */
   addDeviceClientGroup(config, idList){
   
+  }
+
+  /** @return {AbstMediator} */
+  getMediator(){
+    
   }
 
   // /**

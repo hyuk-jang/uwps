@@ -125,8 +125,9 @@ class Commander extends AbstCommander {
 
     let rain = parseInt(rainBuffer, 16);
     // BU.log(rain);
-
-    manager.nextCommand();
+    // manager.emit('failReceive');
+    // manager.emit('successReceive');
+    // manager.nextCommand();
     // if(rain > 100){
     //   manager.nextCommand();
     // } else {

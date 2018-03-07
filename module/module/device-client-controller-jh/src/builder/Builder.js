@@ -67,6 +67,11 @@ class Builder extends AbstBuilder {
     }
   }
 
+  /** @return {AbstMediator} */
+  getMediator(){
+    return this.mediator;
+  }
+
 
   /**
    * Create 'Commander'

@@ -151,8 +151,13 @@ class Manager extends AbstManager {
     this.write()
       .then(() => this.nextCommand())
       .catch(err => {
-        BU.log(err);
-        this.updateDcTimeout();
+        // BU.CLIS(err.message, err.stack, err.event, err.name);
+
+        /** 명령을 보냈으나 일정시간 응답이 없을 경우 해당 명령을 내린 Commander에게 알려줌 */
+        if(err.message === 'timeout'){
+          this.getReceiver().updateDcError(this.getProcessItem(), err);
+        }
+
         this.nextCommand();
       });
   }

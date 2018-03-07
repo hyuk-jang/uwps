@@ -44,7 +44,7 @@ class Commander extends AbstCommander {
    * 장치로 명령을 내림
    * @param {Buffer|string|commandFormat|null} cmd 
    * @param {*=} observer 명령 처리 후 결과를 전달받을 객체
-   * @return {undefined}
+   * @return {boolean} 명령 추가 성공 or 실패. 연결된 장비의 연결이 끊어진 상태라면 명령 실행 불가
    */
   executeCommand(cmd, observer){
     /** @type {commandFormat} */
@@ -52,7 +52,7 @@ class Commander extends AbstCommander {
     // commandFormat 형식을 따르지 않을 경우 자동으로 구성
     if(Buffer.isBuffer(cmd) || typeof cmd  === 'string' ){
       commandInfo.rank = 2;
-      commandInfo.name = 'Temp';
+      commandInfo.name = this.id;
       commandInfo.uuid = uuidv4();
       commandInfo.hasOneAndOne = false;
       commandInfo.observer = observer || null;
@@ -73,8 +73,7 @@ class Commander extends AbstCommander {
       commandInfo.timeoutMs = commandInfo.timeoutMs <= 0 ? 1000 : commandInfo.timeoutMs;
     }
 
-    this.mediator.requestAddCommand(commandInfo, this);
-
+    return this.mediator.requestAddCommand(commandInfo, this);
   }
 
 
@@ -83,7 +82,7 @@ class Commander extends AbstCommander {
    */
   getCommandStatus() {
     try {
-      const commandStorage = this.mediator.getCommandStatus(this);
+      const commandStorage = this.mediator.getCommandStorage(this);
       BU.CLIN(commandStorage, 3);
     } catch (error) {
       throw error;
@@ -109,7 +108,7 @@ class Commander extends AbstCommander {
    * @param {Error} err 
    */
   updateDcError(processItem, err){
-    BU.log('updateDcError', err);
+    BU.log('updateDcError', processItem, err);
   }
 
   // TODO Converter 붙이거나 세분화 작업, 예외 처리 필요
@@ -121,21 +120,22 @@ class Commander extends AbstCommander {
    */
   updateDcData(processItem, data, manager){
     // BU.CLIN(processItem, 3);
-    BU.CLIN(data.toString(), 3);
+    // BU.CLIN(data.toString(), 3);
     let rainBuffer = data.slice(data.length - 6 - 8, data.length - 6);
 
     let rain = parseInt(rainBuffer, 16);
     // BU.log(rain);
 
-    if(rain > 100){
-      manager.nextCommand();
-    } else {
-      manager.retryWrite(this);
-    }
+    manager.nextCommand();
+    // if(rain > 100){
+    //   manager.nextCommand();
+    // } else {
+    //   manager.retryWrite(this);
+    // }
   }
 
   updateDcComplete() {
-    BU.CLI('모든 명령이 수행 되었다고 수신 받음.');
+    BU.CLI('모든 명령이 수행 되었다고 수신 받음.', this.id);
   }
 }
 

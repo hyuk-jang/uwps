@@ -143,6 +143,11 @@ class Manager extends AbstManager {
 
   /** write의 후속 결과 처리를 담당하는 컨트롤러 */
   requestWrite(){
+    // DeviceController 의 client가 빈 객체라면 연결이 해제된걸로 판단
+    if(_.isEmpty(this.deviceController.client)){
+      return false;
+    } 
+    
     this.write()
       .then(() => this.nextCommand())
       .catch(err => {
@@ -176,7 +181,7 @@ class Manager extends AbstManager {
         });
       } else if(this.retryChance === 0){  // 3번 재도전 실패시 다음 명령 수행
         // 해당 에러 발송
-        // BU.CLI('retryWrite Max Error');
+        BU.CLI('retryWrite Max Error');
         this.getReceiver().updateDcError(this.getProcessItem(), new Error('retryMaxError'));
         // 다음 명령 수행
         this.nextCommand();
@@ -187,8 +192,15 @@ class Manager extends AbstManager {
   }
 
 
-  /** @param {commandFormat} cmdInfo */
+  /**
+   * @param {commandFormat} cmdInfo 
+   * @return {boolean} 명령 추가 성공 or 실패. 연결된 장비의 연결이 끊어진 상태라면 명령 실행 불가
+   */
   addCommand(cmdInfo) {
+    // DeviceController 의 client가 빈 객체라면 연결이 해제된걸로 판단
+    if(_.isEmpty(this.deviceController.client)){
+      return false;
+    } 
     // BU.log('addCommand');
     // BU.CLIN(cmdInfo);
     this.iterator.addCmd(cmdInfo);
@@ -197,22 +209,37 @@ class Manager extends AbstManager {
     if(_.isEmpty(this.commandStorage.process)){
       this.nextCommand();
     }
+    return true;
+  }
+
+
+  /**
+   * 현재 랭크 데이터 가져옴
+   * @param {number} rank 
+   */
+  getCommandStorageByRank(rank){
+    return _.findWhere(this.commandStorage.rankList, {rank});
   }
 
   /** 다음 명령을 수행 */
   nextCommand(){
     BU.CLI('nextCommand');
-    // BU.CLIN(this.commandStorage, 4);
+    // BU.CLIN(this.commandStorage, 2);
+    if(this.iterator.isDone()){
+      this.getReceiver().updateDcComplete();
+    }
+    
     this.retryChance = 3;
 
-    let currCommander =  this.getReceiver();
+    let hasNext = this.iterator.nextCmd();
+
+    // BU.CLI(this.iterator.getCurrentCmd());
     
     // 다음 가져올 명령이 존재한다면
-    if(this.iterator.nextCmd()){
+    if(hasNext){
       return this.requestWrite();
     } else {
       BU.CLI('모든 명령을 수행하였습니다.');
-      return currCommander.updateDcComplete();
     }
   }
 

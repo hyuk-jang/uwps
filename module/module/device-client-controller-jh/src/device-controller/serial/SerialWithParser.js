@@ -16,7 +16,6 @@ class SerialWithParser extends AbstController{
    */
   constructor(config) {
     super();
-    this.client = {};
     this.port = config.port;
     this.baud_rate = config.baud_rate;
     this.parser = config.parser;
@@ -100,24 +99,25 @@ class SerialWithParser extends AbstController{
     if(!_.isEmpty(this.client)){
       throw new Error(`이미 접속중입니다. ${this.port}`);
     }
-    this.client = new serialport(this.port, {
+    const client = new serialport(this.port, {
       baudRate: this.baud_rate,
     });
 
-    this.settingParser(this.client);
+    this.settingParser(client);
 
-    this.client.on('close', err => {
+    client.on('close', err => {
       this.client = {};
       this.notifyClose(err);
       // this.notifyEvent('dcClose', err);
     });
 
-    this.client.on('error', error => {
+    client.on('error', error => {
       this.notifyError(error);
       // this.notifyEvent('dcError', error);
     });
 
-    await eventToPromise.multi(this.client, ['open'], ['error', 'close']);
+    await eventToPromise.multi(client, ['open'], ['error', 'close']);
+    this.client = client;
     this.notifyConnect();
     // this.notifyEvent('dcConnect');
     return this.client;

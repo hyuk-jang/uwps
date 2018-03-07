@@ -88,9 +88,16 @@ class Iterator {
     this.aggregate.process = {};
   }
 
+  /**
+   * 현재 진행중인 명령이 끝났는지 여부
+   * @return {boolean} 
+   */
   isDone (){
-    console.trace('is Done');
-    return null;
+    const processInfo = this.aggregate.process;
+
+    const nextIndex = processInfo.currCmdIndex + 1;
+
+    return _.isEmpty(processInfo) || nextIndex < processInfo.cmdList.length ? false : true;
   }
 
 
@@ -106,6 +113,7 @@ class Iterator {
 
   /** @return {*=} */
   getCurrentCmd() {
+    BU.CLIN(this.aggregate.process);
     return this.aggregate.process.cmdList[this.aggregate.process.currCmdIndex];
   }
 

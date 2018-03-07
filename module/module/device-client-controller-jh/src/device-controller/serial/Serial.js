@@ -17,7 +17,6 @@ class Serial extends AbstController{
    */
   constructor(config) {
     super();
-    this.client = {};
     this.port = config.port;
     this.baud_rate = config.baud_rate;
     
@@ -53,25 +52,25 @@ class Serial extends AbstController{
       throw new Error(`이미 접속중입니다. ${this.port}`);
     }
     
-    this.client = new serialport(this.port, {
+    const client = new serialport(this.port, {
       baudRate: this.baud_rate,
     });
 
-    this.client.on('data', bufferData => {
+    client.on('data', bufferData => {
       // BU.CLI('bufferData', bufferData);
       this.notifyData(bufferData);
     });
 
-    this.client.on('close', err => {
+    client.on('close', err => {
       this.client = {};
       this.notifyClose(err);
       // this.notifyEvent('dcClose', err);
     });
 
-    this.client.on('end', () => {
+    client.on('end', () => {
       BU.CLI('Close');
       this.client = {};
-      this.notifyClose(err);
+      this.notifyClose();
       // this.notifyEvent('dcClose', err);
     });
 
@@ -80,7 +79,8 @@ class Serial extends AbstController{
       // this.notifyEvent('dcError', error);
     });
 
-    await eventToPromise.multi(this.client, ['open'], ['error', 'close']);
+    await eventToPromise.multi(client, ['open'], ['error', 'close']);
+    this.client = client;
     this.notifyConnect();
     // this.notifyEvent('dcConnect');
     return this.client;

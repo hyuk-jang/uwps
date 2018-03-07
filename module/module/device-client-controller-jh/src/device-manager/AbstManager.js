@@ -44,6 +44,7 @@ class AbstManager extends EventEmitter {
   /**
    * 명령 추가
    * @param {commandFormat} cmdInfo 
+   * @return {boolean} 명령 추가 성공 or 실패. 연결된 장비의 연결이 끊어진 상태라면 명령 실행 불가
    */
   addCommand(cmdInfo) {}
 
@@ -53,7 +54,7 @@ class AbstManager extends EventEmitter {
    * @param {*=} eventMsg 
    */
   updateDcEvent(eventName, eventMsg){
-    BU.log(`AbstManager --> ${eventName}`);
+    // BU.log(`AbstManager --> ${eventName}`);
     this.emit(eventName, eventMsg);
     this.mediator.updateDcEvent(this, eventName, eventMsg);
   }
@@ -73,7 +74,7 @@ class AbstManager extends EventEmitter {
 
   /** 명령을 보냈으나 일정시간(1초) 응답이 없을 경우 해당 명령을 내린 Commander에게 알려줌 */
   updateDcTimeout(){
-    BU.log('AbstManager --> updateDcTimeout');
+    // BU.log('AbstManager --> updateDcTimeout');
     if(_.isEmpty(this.getReceiver())){
       BU.log('Clear command', this.id);
     } else {

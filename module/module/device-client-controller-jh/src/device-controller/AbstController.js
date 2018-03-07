@@ -1,5 +1,7 @@
 'use strict';
 
+const Promise = require('bluebird');
+
 const uuidv4 = require('uuid/v4');
 const BU = require('base-util-jh').baseUtil;
 
@@ -12,6 +14,7 @@ class AbstController {
     this.observers = [];
     this.id = uuidv4();
     this.configInfo = null;
+    this.client = {};
 
     this.eventStauts = {
       hasConnect: null,
@@ -19,6 +22,10 @@ class AbstController {
       connectTimer: null
 
     };
+
+    // 생성자와 동시에 접속하면 Test 연동된 Server의 EADDRNOTAVAIL 발생하여 딜래이 줌.
+    Promise.delay(10)
+      .then(() => this.connect().catch(() => {}));
   }
 
   setInit(){}
@@ -48,7 +55,7 @@ class AbstController {
   }
 
   notifyEvent(eventName, eventMsg){
-    // BU.CLI('notifyEvent', eventName, eventMsg, this.configInfo);
+    BU.CLI('notifyEvent', eventName, eventMsg, this.configInfo);
     this.observers.forEach(currentItem => {
       currentItem.updateDcEvent(eventName, eventMsg);
     });
@@ -79,7 +86,7 @@ class AbstController {
 
     // 일정 시간에 한번씩 장치에 접속 시도
     this.eventStauts.connectTimer =  setTimeout(() => {
-      this.connect();
+      this.connect().catch(() => {});
     }, 1000 * 60);
   }
 

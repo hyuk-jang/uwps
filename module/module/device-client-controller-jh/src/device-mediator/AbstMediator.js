@@ -39,7 +39,13 @@ class AbstMediator {
    * @param {AbstCommander} deviceCommander
    * @return {commandStorage} Manager
    */
-  getCommandStatus(deviceCommander){}
+  getCommandStorage(deviceCommander){}
+
+  /**
+   * 현재 모든 장비에서 진행되고 있는 명령정보를 가져옴. 
+   * @return {Array.<commandStorage>}
+   */
+  getAllCommandStorage() {}
 
 
   /* Device Manager에서 요청하는 부분  */

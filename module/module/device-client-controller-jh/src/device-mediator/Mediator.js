@@ -73,12 +73,12 @@ class Mediator extends AbstMediator {
   /**
    * 명령 추가
    * @param {commandFormat} cmdInfo 
+   * @return {boolean} 성공 or 실패
    */
   requestAddCommand(cmdInfo){
     try {
       const deviceManager = this.getDeviceManager(cmdInfo.commander);
-      deviceManager.addCommand(cmdInfo);
-      return true;
+      return deviceManager.addCommand(cmdInfo);
     } catch (error) {
       throw error;
     }
@@ -102,14 +102,31 @@ class Mediator extends AbstMediator {
    * @param {AbstCommander} deviceCommander
    * @return {commandStorage} Manager
    */
-  getCommandStatus(deviceCommnader) {
+  getCommandStorage(deviceCommnader) {
     try {
       const deviceManager = this.getDeviceManager(deviceCommnader);
+      BU.CLIN(deviceManager, 3);
       return deviceManager.iterator.getAllItem();
-      
     } catch (error) {
       throw error;
     }
+  }
+
+  /**
+   * 현재 모든 장비에서 진행되고 있는 명령정보를 가져옴. 
+   * @return {Array.<commandStorage>}
+   */
+  getAllCommandStorage() {
+    const commandStorageList = [];
+    /** @type {Array.<AbstManager>} */
+    const managerList = _.union( _.pluck(this.relationList, 'manager')) ;
+
+    managerList.forEach(manager => {
+      const commandStorage = manager.iterator.getAllItem();
+      commandStorageList.push(commandStorage);
+    });
+
+    return commandStorageList;
   }
 
   /* Device Manager에서 요청하는 부분  */
@@ -142,6 +159,11 @@ class Mediator extends AbstMediator {
     return commanderList;
 
   }
+
+
+  /** Manager 에게 요청하는 내용 */
+
+
 
 }
 

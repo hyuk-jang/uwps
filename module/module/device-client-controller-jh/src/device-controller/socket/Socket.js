@@ -1,5 +1,7 @@
 'use strict';
 
+const BU = require('base-util-jh').baseUtil;
+
 const _ = require('underscore');
 const net = require('net');
 const eventToPromise = require('event-to-promise');
@@ -19,7 +21,6 @@ class Socket extends AbstController {
    */
   constructor(config) {
     super();
-    this.client = {};
     this.port = config.port;
     this.host = config.host || 'localhost';
     
@@ -43,7 +44,7 @@ class Socket extends AbstController {
    * @return {promise} Promise 반환 객체
    */
   write(msg) {
-    // console.trace(msg)
+    // BU.CLI(msg);
     let res = this.client.write(msg);
     if(res){
       return Promise.resolve();
@@ -54,36 +55,36 @@ class Socket extends AbstController {
 
   /** 장치 접속 시도 */
   async connect() {
-    // BU.CLI('connect');
+    BU.CLI('connect', this.port);
     /** 접속 중인 상태라면 접속 시도하지 않음 */
     if(!_.isEmpty(this.client)){
       throw new Error(`이미 접속중입니다. ${this.port}`);
     }
 
-    this.client = net.createConnection(this.port, this.host);
-
-    this.client.on('data', bufferData => {
+    const client = net.createConnection(this.port, this.host);
+    client.on('data', bufferData => {
       this.notifyData(bufferData);
     });
-
-    this.client.on('close', err => {
+    
+    client.on('close', err => {
       this.client = {};
       this.notifyClose(err);
       // this.notifyEvent('dcClose', err);
     });
 
-    this.client.on('end', () => {
+    client.on('end', () => {
       console.log('Client disconnected');
       // this.client = {};
       // this.notifyError(error);
       // // this.notifyEvent('dcError', error);
     });
 
-    this.client.on('error', error => {
+    client.on('error', error => {
       this.notifyError(error);
       // this.notifyEvent('dcError', error);
     });
-    await eventToPromise.multi(this.client, ['connect', 'connection', 'open'], ['close, error']);
+    await eventToPromise.multi(client, ['connect', 'connection', 'open'], ['close, error']);
+    this.client = client;
     this.notifyConnect();
     // this.notifyEvent('dcConnect');
     return this.client;

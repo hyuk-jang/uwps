@@ -20,5 +20,8 @@
     "eslint": "^4.15.0",
     "jsdoc": "^3.5.5",
     "mocha": "^4.1.0"
+  },
+  "dependencies": {
+    "device-client-controller-jh": "^0.1.1"
   }
 }

@@ -3,10 +3,48 @@ const BU = require('base-util-jh').baseUtil;
 require('../src/format/define');
 const AbstCommander = require('../device-commander/AbstCommander');
 
-class InterfaceClient {
+class AbstDeviceClient {
   constructor() {
     /** @type {AbstCommander} */
     this.commander = {};
+  }
+
+  /**
+   * Device와 연결을 수립하고 제어하고자 하는 컨트롤러를 생성하기 위한 생성 설정 정보를 가져옴
+   *  @return {deviceClientFormat} */
+  getDefaultCreateDeviceConfig(){
+    /** @type {deviceClientFormat} */
+    const generationConfigInfo = {
+      target_id: '',
+      connect_type: '',
+      port: null,
+      host: '',
+      baud_rate: null,
+      parser: {},
+      
+    };
+ 
+    return generationConfigInfo;
+  }
+  
+  /**
+   * Commander로 명령을 내릴 기본 형태를 가져옴 
+   * @return {commandFormat} */
+  getDefaultCommandFormat(){
+    /** @type {commandFormat} */
+    const commandFormatInfo = {
+      rank: 2,
+      name: '',
+      uuid: uuidv4(),
+      hasOneAndOne: false,
+      observer: {},
+      commander: {},
+      cmdList: [],
+      currCmdIndex: 0,
+      timeoutMs: 1000,
+    };
+ 
+    return commandFormatInfo;
   }
 
   /**
@@ -50,4 +88,4 @@ class InterfaceClient {
 
 }
 
-module.exports = InterfaceClient;
+module.exports = AbstDeviceClient;

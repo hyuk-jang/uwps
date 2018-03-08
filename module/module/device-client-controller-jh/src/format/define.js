@@ -22,11 +22,11 @@
  * @property {string} host 접속 경로(socket 일 경우 사용)
  * @property {number} baud_rate serial 일 경우 
  * @property {{type: string, option: *}=} parser serial 일 경우 pipe 처리할 parser option
- * @property {string} target_category inverter, connector
- * @property {string} target_protocol s_hex, dm_v2, ...
- * @property {} protocol 프로토콜 변환기 ID
  */
 
+// * @property {string} target_category inverter, connector
+// * @property {string} target_protocol s_hex, dm_v2, ...
+// * @property {} protocol 프로토콜 변환기 ID
 /**
  * @typedef {Object} commandStorage 장치를 제어할 명령 저장소
  * @property {commandFormat} process 현재 진행중인 명령

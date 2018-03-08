@@ -2,7 +2,6 @@
 
 const _ = require('underscore');
 const Promise = require('bluebird');
-const eventToPromise = require('event-to-promise');
 
 const BU = require('base-util-jh').baseUtil;
 
@@ -95,26 +94,18 @@ class Manager extends AbstManager {
         } 
         return true;
       } else {
-        this.timeout = {};
-        // BU.CLI(processItem.timeoutMs);
-        await Promise.race(
-          [
-            this.writeCommandController(processItem.cmdList[processItem.currCmdIndex]),
-            // this.deviceController.write(processItem.cmdList[processItem.currCmdIndex]),
-            
-            new Promise((_, reject) => {
-              // BU.CLI('타이머 가동');
-              // console.time('timeout');
-              this.timeout = setTimeout(() => {
-                // console.timeEnd('timeout');
-                // 명전 전송 후 제한시간안에 응답이 안올 경우 에러 
-                reject(new Error('timeout'));
-              }, processItem.timeoutMs);
-            })
-          ]
-        );
-        clearTimeout(this.timeout);
-        // await this.deviceController.write(processItem.cmdList[processItem.currCmdIndex]);
+        await this.writeCommandController(processItem.cmdList[processItem.currCmdIndex]);
+
+        // let testId = this.getReceiver().id;
+        // BU.CLI('명령 요청', this.getReceiver().id, processItem.timeoutMs);
+        // console.time(`timeout ${testId}`);
+        this.getProcessItem().timer = setTimeout(() => {
+          // console.timeEnd(`timeout ${testId}`);
+          this.getReceiver().updateDcError(this.getProcessItem(), new Error('timeout'));
+          this.nextCommand();
+          // 명전 전송 후 제한시간안에 응답이 안올 경우 에러 
+        }, processItem.timeoutMs);
+
         return true;
       }
     }
@@ -131,12 +122,7 @@ class Manager extends AbstManager {
       return new Error('수행할 명령이 없습니다.');
     }
     // 장치로 명령 전송
-    // BU.CLI(this.config.deviceSavedInfo);
     await this.deviceController.write(cmd);
-    // BU.CLI('유효성 검증 기다림');
-    // 수신된 메시지의 유효성 검증
-    await eventToPromise.multi(this, ['successReceive'], ['failReceive']);
-    
     return true;
   }
 
@@ -145,54 +131,66 @@ class Manager extends AbstManager {
   requestWrite(){
     // DeviceController 의 client가 빈 객체라면 연결이 해제된걸로 판단
     if(_.isEmpty(this.deviceController.client)){
+      BU.log('DeviceController Client Is Empty');
       return false;
     } 
     
-    this.write()
-      .then(() => this.nextCommand())
-      .catch(err => {
-        // BU.CLIS(err.message, err.stack, err.event, err.name);
-
-        /** 명령을 보냈으나 일정시간 응답이 없을 경우 해당 명령을 내린 Commander에게 알려줌 */
-        if(err.message === 'timeout'){
-          this.getReceiver().updateDcError(this.getProcessItem(), err);
-        }
-
-        this.nextCommand();
-      });
+    return this.write();
   }
 
 
   /**
+   * updateData를 통해 전달받은 데이터에 대한 Commander의 응답을 받을 메소드
    * 응답받은 데이터에 문제가 있거나 다른 사유로 명령을 재 전송하고자 할 경우(3회까지 가능)
    * @param {AbstCommander} commander 
+   * @param {string} msg 'isOk', 'retry'
    */
-  retryWrite(commander){
-    // BU.CLI('retryWrite');
+  responseToDataFromCommander(commander, msg){
+    // BU.CLI('responseToDataFromCommander');
     let processItem = this.getProcessItem();
 
     if(_.isEmpty(processItem)){
       throw new Error('현재 진행중인 명령은 없습니다.');
     }
 
+    // 현재 진행중인 명령 객체와 일치해야지만 가능
     if(_.isEqual(processItem.commander, commander)){
-      // BU.CLI('retryWrite', this.retryChance);
-      this.retryChance -= 1;
-      // 명령을 재요청할 경우 진행중인 timeout 처리는 해제
-      clearTimeout(this.timeout);
-      if (this.retryChance > 0) {
-        return Promise.delay(30).then(() => {
-          this.requestWrite();
-        });
-      } else if(this.retryChance === 0){  // 3번 재도전 실패시 다음 명령 수행
-        // 해당 에러 발송
-        BU.CLI('retryWrite Max Error');
-        this.getReceiver().updateDcError(this.getProcessItem(), new Error('retryMaxError'));
-        // 다음 명령 수행
-        this.nextCommand();
-      } 
+      switch (msg) {
+      case 'isOk':
+        BU.CLI('isOk', this.getReceiver().id);
+        // BU.CLIN(this.getProcessItem().timer);
+        clearTimeout(this.getProcessItem().timer);
+        // BU.CLIN(this.getProcessItem().timer);
+        // console.timeEnd('gogogo');
+        this.nextCommand();          
+        break;
+      case 'retry':
+        clearTimeout(this.getProcessItem().timer);
+        this.retryWrite();
+        break;
+      default:
+        break;
+      }
     } else {
       throw new Error('현재 진행중인 명령의 Commander와 일치하지 않습니다.');
+    }
+  }
+
+  retryWrite(){
+    BU.CLI('retryWrite');
+    this.retryChance -= 1;
+    // 명령을 재요청할 경우 진행중인 timeout 처리는 해제
+    
+    if (this.retryChance > 0) {
+      return Promise.delay(30).then(() => {
+        this.requestWrite();
+      });
+    } else if(this.retryChance === 0){  // 3번 재도전 실패시 다음 명령 수행
+      // 해당 에러 발송
+      BU.CLI('retryWrite Max Error');
+      this.getReceiver().updateDcError(this.getProcessItem(), new Error('retryMaxError'));
+      // 다음 명령 수행
+      this.nextCommand();
     }
   }
 
@@ -226,12 +224,16 @@ class Manager extends AbstManager {
     return _.findWhere(this.commandStorage.rankList, {rank});
   }
 
-  /** 다음 명령을 수행 */
+
+  /**
+   * 다음 명령을 수행
+   * @param {AbstCommander=} commander 
+   */
   nextCommand(){
     BU.CLI('nextCommand');
     // BU.CLIN(this.commandStorage, 2);
     if(this.iterator.isDone()){
-      this.getReceiver().updateDcComplete();
+      this.getReceiver().updateDcComplete(this.getProcessItem());
     }
     
     this.retryChance = 3;

@@ -26,6 +26,11 @@ class Commander extends AbstCommander {
       throw new Error(`같은 ID를 가진 장치가 있습니다.${config.target_id}`);
       // return foundInstance.instance;
     }
+
+    /** @type {AbstManager} */
+    this.manager;
+
+    // this.once = true;
   }
 
   /* Mediator에서 Set 함 */
@@ -59,7 +64,14 @@ class Commander extends AbstCommander {
       commandInfo.commander = this;
       commandInfo.cmdList = [cmd];
       commandInfo.currCmdIndex = 0;
-      commandInfo.timeoutMs = 5000;
+      
+      commandInfo.timeoutMs = 4000;
+      // if(this.id === 'id_0'){
+      //   commandInfo.timeoutMs = 4000;
+      // } else {
+        
+      //   commandInfo.timeoutMs = 5000;
+      // }
 
       // 아무런 명령을 내리지 않는다면 해당 장치와의 통신을 끊지 않는다고 봄
       if(cmd.length === 0){
@@ -97,7 +109,8 @@ class Commander extends AbstCommander {
    * @return {undefined}
    */
   updateDcEvent(eventName, eventMsg) {
-    BU.log('updateDcEvent', eventName);
+    // BU.log(`updateDcEvent ${this.id}\t`, eventName);
+    this.manager = {};
   }
 
 
@@ -108,7 +121,8 @@ class Commander extends AbstCommander {
    * @param {Error} err 
    */
   updateDcError(processItem, err){
-    BU.log('updateDcError', processItem, err);
+    // BU.log(`updateDcError ${this.id}\t`, processItem, err);
+    this.manager = {};
   }
 
   // TODO Converter 붙이거나 세분화 작업, 예외 처리 필요
@@ -119,24 +133,48 @@ class Commander extends AbstCommander {
    * @param {AbstManager} manager 장치 관리 매니저
    */
   updateDcData(processItem, data, manager){
-    // BU.CLIN(processItem, 3);
-    // BU.CLIN(data.toString(), 3);
-    let rainBuffer = data.slice(data.length - 6 - 8, data.length - 6);
-
-    let rain = parseInt(rainBuffer, 16);
-    // BU.log(rain);
-    // manager.emit('failReceive');
-    // manager.emit('successReceive');
-    // manager.nextCommand();
-    // if(rain > 100){
-    //   manager.nextCommand();
-    // } else {
-    //   manager.retryWrite(this);
-    // }
+    // console.time('gogogo');
+    // BU.log(data.toString());
+    this.manager = manager;
+    
+    processItem.observer.updateDcData(processItem, data);
   }
 
-  updateDcComplete() {
-    BU.CLI('모든 명령이 수행 되었다고 수신 받음.', this.id);
+  requestNextCommand(){
+    BU.CLI(`requestNextCommand ${this.id}`);
+    if(_.isEmpty(this.manager)){
+      throw new Error(`Manager의 현재 수행명령이 현재 Commander ${this.id}와 관련이 없습니다.`);
+    }
+
+    const manager = this.manager;
+    this.manager = {};
+
+    manager.responseToDataFromCommander(this, 'isOk');
+  }
+
+  requestRetryCommand(){
+    BU.CLI('requestRetryCommand', this.id);
+    // BU.CLIN(this.manager);
+    if(_.isEmpty(this.manager)){
+      throw new Error(`Manager의 현재 수행명령이 현재 Commander ${this.id}와 관련이 없습니다.`);
+    }
+
+    const manager = this.manager;
+    this.manager = {};
+
+    manager.responseToDataFromCommander(this, 'retry');
+  }
+
+
+
+  
+  /**
+   * 명령 객체 리스트 수행 종료
+   * @param {commandFormat} processItem 현재 장비에서 실행되고 있는 명령 객체
+   */
+  updateDcComplete(processItem) {
+    // BU.CLI('모든 명령이 수행 되었다고 수신 받음.', this.id);
+    return processItem.observer.updateDcComplete(processItem);
   }
 }
 

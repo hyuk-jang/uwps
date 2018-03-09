@@ -10,7 +10,7 @@ class ControlVantagePro2 extends InterfaceClient {
     this.builder = new Builder();
 
 
-    this.builder.addCommander();
+    this.builder.addDeviceClient()
 
     
 

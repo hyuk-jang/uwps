@@ -171,7 +171,7 @@ class BiModule extends bmjh.BM {
       });
     }
     // 인버터 이름순으로 정렬
-    returnValue = _.sortBy(returnValue, 'target_name');
+    // returnValue = _.sortBy(returnValue, 'target_name');
     
     if (deviceType === 'all' || deviceType === 'connector') {
       let connectorList = await this.getTable('connector');
@@ -509,7 +509,7 @@ class BiModule extends bmjh.BM {
         ORDER BY inverter_seq, writedate) AS id_group
       GROUP BY inverter_seq, ${dateFormat.groupFormat}) AS id_report
     GROUP BY group_date
-    ORDER BY group_date DESC
+    ORDER BY group_date ASC
     `;
 
     // 총 갯수 구하는 Query 생성

@@ -467,7 +467,7 @@ exports.makeChartOption = makeChartOption;
  * @param {string} mappingKey matchingKey
  * @return {chartData} Name 처리 한 후 반환
  */
-function mappingChartDataName(chartData, mappingTarget, matchingKey, mappingKey) {
+function mappingChartDataName(chartData, mappingTarget, matchingKey, mappingKey, hasSort) {
   // BU.CLIS(mappingTarget, matchingKey);
   chartData.series.forEach(chart => {
     let chartKey = chart.name;
@@ -486,7 +486,7 @@ function mappingChartDataName(chartData, mappingTarget, matchingKey, mappingKey)
     }
   });
   // Name을 새로이 입력했으므로 이름순으로 정렬
-  chartData.series = _.sortBy(chartData.series, 'name');
+  chartData.series = hasSort ? _.sortBy(chartData.series, 'name') : chartData.series;
 
   return chartData;
 }
@@ -505,7 +505,8 @@ function mappingChartDataNameForModule(chartData, mappingTarget) {
     let upsasInfo = _.findWhere(mappingTarget, {
       photovoltaic_seq: Number(chart.name)
     });
-    chart.name = `${upsasInfo.cnt_target_name} CH ${upsasInfo.connector_ch} `;
+    chart.name = `${upsasInfo.cnt_target_name} ${upsasInfo.pv_target_name} (${upsasInfo.pv_manufacturer.slice(0, 2)})`;
+    // chart.name = `${upsasInfo.cnt_target_name} ${upsasInfo.pv_target_name} CH ${upsasInfo.connector_ch} `;
   });
   chartData.series = _.sortBy(chartData.series, 'ivt_target_name');
   return chartData;

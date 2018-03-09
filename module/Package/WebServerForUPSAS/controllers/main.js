@@ -64,8 +64,12 @@ module.exports = function (app) {
     let moduleStatus = await biModule.getModuleStatus();
     // 접속반 발전 현황 데이터 검증
     let validModuleStatusList = webUtil.checkDataValidation(moduleStatus, new Date(), 'writedate');
+    validModuleStatusList.forEach(moduleInfo => {
+      let moduleData = moduleInfo.data;
+      moduleData.module_name = `${moduleData.install_place} ${moduleData.target_name} (${moduleData.manufacturer.slice(0, 2)})`;
+    });
     // console.timeEnd('1');
-
+    // BU.CLI(validModuleStatusList);
     // console.time('2');
     let v_upsas_profile = await biModule.getTable('v_upsas_profile');
     // console.timeEnd('2');

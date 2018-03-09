@@ -166,7 +166,7 @@
         <div class="col-xs-3 con_b_1">
           <p style="margin: 20px auto 0px;">
             실시간
-            <br />수중 태양광
+            <br />태양광
             <br />모듈 현황
           </p>
 
@@ -284,9 +284,10 @@
               var moduleInfo = moduleInfo.data;
 
               var deviceName = moduleInfo.target_name;
-              var chName = "CH " + moduleInfo.connector_ch;
+              // var chName = "CH " + moduleInfo.connector_ch;
+              var chName = moduleInfo.module_name;
               $findIt = $(clone).find('[data-type=name]');
-              $findIt.html(chName + " (" + deviceName + ")")
+              $findIt.html(chName)
 
               // 만약 유효한 데이터가 아니라면 에러 표현
               if (!hasValidData) {

@@ -57,6 +57,7 @@ module.exports = function (app) {
 
     // 장비 선택 리스트 가져옴
     let deviceList = await biModule.getDeviceList(deviceType);
+    // BU.CLI(deviceList);
 
     let device_type_list = [
       {type: 'all', name: '전체'},
@@ -134,13 +135,15 @@ module.exports = function (app) {
     let viewInverterStatus = await biModule.getTable('v_inverter_status');
     // 인버터 차트 데이터 불러옴
     let inverterTrend = await biModule.getInverterTrend(device_seq, searchRange);
-    // BU.CLI(inverterTrend);
+
+    webUtil.addKeyToReport(inverterTrend, viewInverterStatus, 'target_id', 'inverter_seq');
+    
 
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
-    chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, 'interval_wh', 'group_date', 'inverter_seq');
+    chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, 'interval_wh', 'group_date', 'target_id');
     // BU.CLI(chartData);
     /** Grouping Chart에 의미있는 이름을 부여함. */
-    webUtil.mappingChartDataName(chartData, viewInverterStatus, 'inverter_seq', 'target_name');
+    webUtil.mappingChartDataName(chartData, viewInverterStatus, 'target_id', 'target_name');
     /** searchRange 조건에 따라서 Chart Data의 비율을 변경 */
     webUtil.applyScaleChart(chartData, searchRange.searchType);
     // BU.CLI(chartData);

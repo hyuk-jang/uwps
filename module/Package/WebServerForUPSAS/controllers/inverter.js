@@ -33,14 +33,18 @@ module.exports = function (app) {
     /** 인버터 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
     let refinedInverterStatus = webUtil.refineSelectedInverterStatus(validInverterStatus);
     // BU.CLI(refinedInverterStatus);
-    refinedInverterStatus.dataList = _.sortBy(refinedInverterStatus.dataList, data => data.inverter_seq);
+    refinedInverterStatus.dataList = _.sortBy(refinedInverterStatus.dataList, data => data.target_id);
+    // BU.CLI(refinedInverterStatus);
+
 
     let searchRange = biModule.getSearchRange('hour');
     // let searchRange = biModule.getSearchRange('hour', '2018-02-14');
     let inverterPowerList = await biModule.getInverterPower(searchRange);
-    let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'out_w', 'hour_time', 'inverter_seq');
+    // BU.CLI(inverterPowerList);
+    // let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'out_w', 'hour_time', 'inverter_seq');
+    let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'out_w', 'hour_time', 'ivt_target_id');
     // BU.CLI(chartData);
-    webUtil.mappingChartDataName(chartData, viewInverterStatus, 'inverter_seq', 'target_name');
+    webUtil.mappingChartDataName(chartData, viewInverterStatus, 'target_id', 'target_name');
     
     req.locals.inverterStatus = refinedInverterStatus;
     req.locals.chartDataObj = chartData;

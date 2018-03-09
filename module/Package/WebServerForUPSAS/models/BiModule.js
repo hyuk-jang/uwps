@@ -35,9 +35,9 @@ class BiModule extends bmjh.BM {
     } else if (Array.isArray(photovoltatic_seq)) {
       sql += `WHERE pv.photovoltaic_seq IN (${photovoltatic_seq})`;
     }
-    sql += 'ORDER BY ru.connector_seq, ru.connector_ch';
+    sql += 'ORDER BY pv.target_id';
 
-    return this.db.single(sql);
+    return this.db.single(sql, '', false);
   }
 
 
@@ -166,6 +166,7 @@ class BiModule extends bmjh.BM {
     deviceType = deviceType ? deviceType : 'all';
     if (deviceType === 'all' || deviceType === 'inverter') {
       let inverterList = await this.getTable('inverter');
+      inverterList = _.sortBy(inverterList, 'target_id');
       _.each(inverterList, info => {
         returnValue.push({type: 'inverter', seq: info.inverter_seq, target_name: info.target_name});
       });
@@ -175,6 +176,7 @@ class BiModule extends bmjh.BM {
     
     if (deviceType === 'all' || deviceType === 'connector') {
       let connectorList = await this.getTable('connector');
+      connectorList = _.sortBy(connectorList, 'target_id');
       _.each(connectorList, info => {
         returnValue.push({type: 'connector', seq: info.connector_seq, target_name: info.target_name});
       });
@@ -293,8 +295,14 @@ class BiModule extends bmjh.BM {
     let dateFormat = this.convertSearchType2DateFormat(searchRange.searchType);
 
     let sql = `
+    SELECT
+			main.*,
+			 (SELECT iv.target_id FROM inverter iv WHERE iv.inverter_seq = main.inverter_seq LIMIT 1) AS ivt_target_id
+    FROM
+      (
       SELECT
         inverter_seq,
+        (SELECT ivt.target_id FROM inverter ivt WHERE ivt.inverter_seq = inverter_seq LIMIT 1) AS target_id,
         writedate, 
         DATE_FORMAT(writedate,'%H') AS hour_time,
         DATE_FORMAT(writedate,'${dateFormat}') AS group_date,
@@ -317,6 +325,7 @@ class BiModule extends bmjh.BM {
     }
     sql += `        
       GROUP BY DATE_FORMAT(writedate,'${dateFormat}'), inverter_seq
+    ) AS main
       `;
     return this.db.single(sql, '', false);
   }

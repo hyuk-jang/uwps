@@ -62,6 +62,7 @@ module.exports = function (app) {
     // console.time('1');
     // 접속반 현재 발전 현황
     let moduleStatus = await biModule.getModuleStatus();
+    // BU.CLI(moduleStatus);
     // 접속반 발전 현황 데이터 검증
     let validModuleStatusList = webUtil.checkDataValidation(moduleStatus, new Date(), 'writedate');
     validModuleStatusList.forEach(moduleInfo => {

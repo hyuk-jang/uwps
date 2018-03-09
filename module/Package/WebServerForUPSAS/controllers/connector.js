@@ -53,7 +53,7 @@ module.exports = function (app) {
       findIt.vol = hasOperation ? vol  : '';
       findIt.power = hasOperation && _.isNumber(amp) && _.isNumber(vol) ? webUtil.calcValue(amp * vol, 1, 1)   : '';
     });
-    refinedConnectorList = _.sortBy(refinedConnectorList, 'inerter_seq');
+    refinedConnectorList = _.sortBy(refinedConnectorList, 'ivt_target_id');
     // BU.CLI(refinedConnectorList);
     
     let connectorStatusData = webUtil.convertColumn2Rows(refinedConnectorList, ['connector_ch', 'install_place', 'ivt_target_name', 'pv_target_name', 'pv_manufacturer', 'amp', 'vol', 'power', 'temperature', 'hasOperation'], maxModuleViewNum);

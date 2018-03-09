@@ -163,9 +163,10 @@ function refineSelectedConnectorList(viewUpsasProfile, connector_seq) {
       pv_target_name: info.pv_target_name,
       pv_manufacturer: info.pv_manufacturer,
       cnt_target_name: info.cnt_target_name,
+      ivt_target_id: info.ivt_target_id,
       ivt_target_name: info.ivt_target_name,
       inverter_seq: info.inverter_seq,
-      install_place: info.sb_target_name ? info.sb_target_name : '외부',
+      install_place: info.sb_target_name ? info.sb_target_name : '육상',
       writedate: '',
       amp: '',
       vol: '',
@@ -215,6 +216,7 @@ function refineSelectedInverterStatus(viewInverterStatus) {
     let data = info.data;
     let addObj = {
       inverter_seq: data.inverter_seq,
+      target_id: data.target_id,
       target_name: data.target_name,
       in_a: '',
       in_v: '',
@@ -298,6 +300,9 @@ function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey) {
       });
       return addObj;
     });
+
+    returnValue.series = _.sortBy(returnValue.series, obj => obj.name );
+
   } else {  
     let addObj = {
       name: '',
@@ -356,6 +361,7 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
       // });
       return addObj;
     });
+    returnValue.series = _.sortBy(returnValue.series, obj => obj.name );
   } else {
     let addObj = {
       name: '',
@@ -512,6 +518,27 @@ function mappingChartDataNameForModule(chartData, mappingTarget) {
   return chartData;
 }
 exports.mappingChartDataNameForModule = mappingChartDataNameForModule;
+
+
+/**
+ * DB 긁어온 내용에 key 추가
+ * @param {Object[]} sourceList 
+ * @param {Object[]} referenceList 
+ * @param {string} addKey 
+ * @param {string} referenceKey 
+ */
+function addKeyToReport(sourceList, referenceList, addKey, referenceKey){
+  // BU.CLIS(sourceList, referenceList);
+  sourceList.forEach(currentItem => {
+    const findIt = _.findWhere(referenceList, {[referenceKey]: currentItem[referenceKey]});
+
+    currentItem[addKey] = _.isEmpty(findIt) ? '' : findIt[addKey]; 
+  });
+
+  return sourceList;
+
+}
+exports.addKeyToReport = addKeyToReport;
 
 // /**
 //  * Range에 맞는 차트 데이터 구성

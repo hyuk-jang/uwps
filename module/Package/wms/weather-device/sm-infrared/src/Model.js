@@ -2,19 +2,18 @@
 
 const BU = require('base-util-jh').baseUtil;
 const NU = require('base-util-jh').newUtil;
-global.BU = BU;
-const SmInfraredControl = require('./SmInfraredControl');
 
-class SmInfraredModel {
+const Control = require('./Control');
+
+class Model {
   /**
    * 
-   * @param {SmInfraredControl} controller 
+   * @param {Control} controller 
    */
   constructor(controller) {
+    this.averageCalculator = new NU.CalculateAverage(controller.config.calculateOption);
 
-    this.averageCalculator = new NU.CalculateAverage(controller.config.current.calculateOption);
-
-    this.rainAlarmBoundaryList = controller.config.current.rainAlarmBoundaryList;
+    this.rainAlarmBoundaryList = controller.config.rainAlarmBoundaryList;
 
   }
 
@@ -121,4 +120,4 @@ class SmInfraredModel {
 
 }
 
-module.exports = SmInfraredModel;
+module.exports = Model;

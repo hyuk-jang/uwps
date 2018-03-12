@@ -2,14 +2,14 @@ const {
   expect
 } = require('chai');
 
-const SmInfraredControl = require('../src/SmInfraredControl');
+const Control = require('../src/Control');
 const config = require('../src/config');
 
 describe('UPSAS Connector Controller Test', () => {
 
   it('rainData Step 1', done => {
-    const smInfraredControl = new SmInfraredControl(config);
-    smInfraredControl.on('updateSmRainSensor', data => {
+    const control = new Control(config);
+    control.on('updateSmRainSensor', data => {
       console.dir(data);
     });
     let dataList = [];
@@ -32,12 +32,12 @@ describe('UPSAS Connector Controller Test', () => {
     ];
 
     dataList.forEach(currentItem => {
-      smInfraredControl.updateDcData({}, Buffer.from(currentItem) );
+      control.updateDcData({}, Buffer.from(currentItem) );
     });
 
     
 
-    expect(smInfraredControl.model.averageCalculator.averageStorage.smInfrared.storage.length).to.be.equal(10);
+    expect(control.model.averageCalculator.averageStorage.smInfrared.storage.length).to.be.equal(10);
 
     done();
   });

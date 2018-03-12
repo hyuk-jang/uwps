@@ -1,20 +1,14 @@
 
 
 
-const SmInfraredControl = require('../src/SmInfraredControl');
+const Control = require('../src/Control');
 
 
 const config = require('../src/config');
 
 
-const smInfraredControl = new SmInfraredControl(config);
-smInfraredControl.setDeviceClient(smInfraredControl.config.current.deviceInfo);
-// smInfraredControl.executeCommand();
-
-
-// console.dir(smInfraredControl.getDefaultCreateDeviceConfig());
-
-
+const control = new Control(config);
+control.setDeviceClient(control.config.deviceInfo);
 
 
 process.on('uncaughtException', function (err) {

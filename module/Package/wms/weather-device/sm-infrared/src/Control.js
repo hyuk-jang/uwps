@@ -5,21 +5,19 @@ const BU = require('base-util-jh').baseUtil;
 
 const AbstDeviceClient = require('device-client-controller-jh');
 
-const SmInfraredModel = require('./SmInfraredModel');
+const Model = require('./Model');
 
-let si_config = require('./config');
+let config = require('./config');
 
-class SmInfraredControl extends AbstDeviceClient {
-  /** @param {Object} */
+class Control extends AbstDeviceClient {
+  /** @param {config} config */
   constructor(config) {
     super();
-    
-    /** @type {si_config} */
-    this.config = config;
+    this.config = config.current;
 
-    // this.setDeviceClient(this.config.current.deviceInfo);
+    // this.setDeviceClient(this.config.deviceInfo);
 
-    this.model = new SmInfraredModel(this);
+    this.model = new Model(this);
   }
 
   /**
@@ -54,4 +52,4 @@ class SmInfraredControl extends AbstDeviceClient {
     }
   }
 }
-module.exports = SmInfraredControl;
+module.exports = Control;

@@ -1,8 +1,8 @@
 
+const SmInfraredControl = require('./src/SmInfraredControl');
 
 
-
-module.exports = null;
+module.exports = SmInfraredControl;
 
 // if __main process
 if (require !== undefined && require.main === module) {

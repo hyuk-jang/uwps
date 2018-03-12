@@ -1,12 +1,7 @@
 
-const InterfaceClient = require('./src/client/InterfaceClient');
-const Builder = require('./src/builder/Builder');
+const AbstDeviceClient = require('./src/device-client/AbstDeviceClient');
 
-
-module.exports = {
-  Builder,
-  InterfaceClient
-};
+module.exports = AbstDeviceClient;
 
 // if __main process
 if (require !== undefined && require.main === module) {

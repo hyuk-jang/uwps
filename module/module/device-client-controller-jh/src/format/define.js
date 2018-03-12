@@ -6,7 +6,6 @@
  * @property {string} name 별칭
  * @property {string} uuid uuid
  * @property {boolean} hasOneAndOne 계속하여 연결을 수립할지 여부
- * @property {Object} observer Commander에게 명령을 지시한 객체
  * @property {AbstCommander} commander 명령을 요청한 Commander
  * @property {Array} cmdList 명령을 보낼 배열
  * @property {number} currCmdIndex cmdList Index
@@ -16,7 +15,10 @@
 
 /**
  * @typedef {Object} deviceClientFormat Device Client 생성 자료 구조
+ * @property {Object=} user Device Client 주체. (최종적으로 데이터를 수신할 대상)
  * @property {string} target_id device ID
+ * @property {string} target_category inverter, connector 등등 장치 타입
+ * @property {string} target_protocol s_hex, dm_v2, ... 장치의 프로토콜
  * @property {string} connect_type 'socket', 'serial', ...
  * @property {number|string} port socket --> number, serial --> string, ...
  * @property {string} host 접속 경로(socket 일 경우 사용)
@@ -24,8 +26,6 @@
  * @property {{type: string, option: *}=} parser serial 일 경우 pipe 처리할 parser option
  */
 
-// * @property {string} target_category inverter, connector
-// * @property {string} target_protocol s_hex, dm_v2, ...
 // * @property {} protocol 프로토콜 변환기 ID
 /**
  * @typedef {Object} commandStorage 장치를 제어할 명령 저장소

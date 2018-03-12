@@ -3,13 +3,13 @@ const Promise = require('bluebird');
 // const eventToPromise = require('event-to-promise');
 
 const BU = require('base-util-jh').baseUtil;
-const AbstCommander = require('../device-commander/AbstCommander');
+const AbstCommander = require('../src/device-commander/AbstCommander');
 
 global._ = _;
 global.BU = BU;
 
 // console.log(uuidv4());
-const Builder = require('../src/builder/Builder');
+const Builder = require('../src/device-builder/Builder');
 
 require('../src/format/define');
 
@@ -101,7 +101,7 @@ class TestClass {
 if(false){
   config.forEach(currentItem => {
     BU.CLI(currentItem);
-    let commander = builder.addDeviceClient(currentItem);
+    let commander = builder.setDeviceClient(currentItem);
     let storageInfo;
 
     Promise.delay(500)

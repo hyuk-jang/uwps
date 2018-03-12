@@ -31,12 +31,22 @@ class AbstManager extends EventEmitter {
     return true;
   }
 
+  /**
+   * Device가 접속되어 있는지 체크
+   * @return {boolean} 
+   */
+  get hasConnected() {
+    return _.isEmpty(this.deviceController.client) ? false : true;
+  }
+
+
+
   // TODO
   /** 장치와 연결을 해제하고자 할 경우 */
   disconnect(){}
 
   /** 장치에 메시지를 보내고자 할 경우 */
-  async write(){}
+  async writeCmdToDevice(){}
 
   setMediator() {}
 
@@ -63,10 +73,12 @@ class AbstManager extends EventEmitter {
    * @param {Buffer} data 
    */
   updateDcData(data){
-    // BU.log('AbstManager --> updateDcData', data);
+    // BU.CLI('AbstManager --> updateDcData', data);
+    // BU.CLIN(this.getProcessItem());
     if(_.isEmpty(this.getReceiver())){
       // BU.log('Completed Data', data);
     } else {
+      // const copyProcessItem = JSON.parse(JSON.stringify(this.getProcessItem()));
       this.getReceiver().updateDcData(this.getProcessItem(), data, this); 
     }
   }

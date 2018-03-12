@@ -1,9 +1,10 @@
 class CalculateAverage {
   // 부모 객체, [{key:{averageCount, ciriticalRange}}]
-  constructor(calculateOption = {
-    averageCount,
-    criticalObj
-  }) {
+  /**
+   * 
+   * @param {{averageCount: number, cycleCount: number, criticalObj: Object }} calculateOption 
+   */
+  constructor(calculateOption) {
     this.averageCount = calculateOption.averageCount;
     this.cycleCount = calculateOption.cycleCount;
     this.criticalObj = calculateOption.criticalObj;

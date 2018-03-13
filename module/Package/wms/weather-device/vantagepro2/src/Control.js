@@ -9,7 +9,7 @@ const Model = require('./Model');
 
 let config = require('./config');
 
-const Converter = require('../../../../../module/device-protocol-converter-jh');
+const {AbstConverter, weathercastProtocolFormat} = require('device-protocol-converter-jh');
 
 class Control extends AbstDeviceClient {
   /** @param {config} config */
@@ -18,14 +18,28 @@ class Control extends AbstDeviceClient {
     
     this.config = config.current;
 
-    // this.setDeviceClient(this.config.current.deviceInfo);
-
     this.model = new Model(this);
 
-    this.converter = new Converter(this.config.deviceInfo);
+    this.converter = new AbstConverter(this.config.deviceInfo);
 
     this.executeCommandInterval = null;
   }
+
+
+  /**
+   * 장치의 현재 데이터 및 에러 내역을 가져옴
+   * @return {{id: string, data: weathercastProtocolFormat, systemErrorList: Array, troubleList: Array}} 
+   */
+  getDeviceStatus() {
+    return {
+      id: this.config.deviceInfo.target_id,
+      data: this.model.deviceData,
+      systemErrorList: this.systemErrorList,
+      troubleList: []
+    };
+  }
+
+
 
   /**
    * Device Controller 변화가 생겨 관련된 전체 Commander에게 뿌리는 Event
@@ -40,7 +54,7 @@ class Control extends AbstDeviceClient {
       var cmdList = this.converter.generationCommand();
       this.executeCommand(cmdList);
       this.executeCommandInterval = setInterval(() => {
-        this.executeCommand('LOOP\n');
+        this.executeCommand(cmdList);
         this.requestNextCommand();
       }, 1000 * 60);
       break;
@@ -59,20 +73,14 @@ class Control extends AbstDeviceClient {
    * @param {Buffer} data 명령 수행 결과 데이터
    */
   updateDcData(processItem, data){
-    
-    // BU.CLI(data.toString());
-    // const resultData = this.model.onData(data);
-
+    BU.CLI('data');
     const resultParsing = this.converter.parsingUpdateData(processItem.cmdList[processItem.currCmdIndex], data);
+    if(resultParsing.eventCode === 'done'){
+      this.requestTakeAction('wait');
+    }
+    this.model.onData(resultParsing.data);
 
-    BU.CLI(resultParsing);
-    
-
-
-    // // 현재 내리는 비가 변화가 생긴다면 이벤트 발생
-    // if(!_.isEmpty(resultData)){
-    //   this.emit('updateSmRainSensor', resultData);
-    // }
+    BU.CLIN(this.getDeviceStatus());
   }
 }
 module.exports = Control;

@@ -35,6 +35,10 @@ class Commander extends AbstCommander {
     /** @type {AbstManager} */
     this.manager;
 
+    /** 
+     * 현재 발생되고 있는 시스템 에러 리스트
+     * @type {Array.<{code: string, msg: string, occur_date: Date }>} 
+     * */
     this.systemErrorList = [];
 
     this.currCmd = null;
@@ -51,15 +55,9 @@ class Commander extends AbstCommander {
   }
 
   /** 장치의 연결이 되어있는지 여부 @return {boolean} */
-  getHasConnectedDevice(){
+  get hasConnectedDevice(){
     return _.isEmpty(this.mediator.getDeviceManager().deviceController.client) ? false : true;
   }
-
-  /** 현재 발생되고 있는 시스템 에러 리스트 @return {Array.<{code: string, msg: string, occur_date: Date }>} */
-  getSystemErrorList(){
-    return this.systemErrorList;
-  }
-
 
   /* Client가 요청 */
   /**
@@ -85,6 +83,8 @@ class Commander extends AbstCommander {
     if(Buffer.isBuffer(cmdInfo) || typeof cmdInfo  === 'string' ){
       // 아무런 명령을 내리지 않는다면 해당 장치와의 통신을 끊지 않는다고 봄
       commandInfo.cmdList = [cmdInfo];
+    } else if (Array.isArray(cmdInfo)) {
+      commandInfo.cmdList = cmdInfo;
     } else {
       _.each(commandInfo, (info, key) => {
         commandInfo[key] = _.has(cmdInfo, key) ? cmdInfo[key] : commandInfo[key];
@@ -198,16 +198,8 @@ class Commander extends AbstCommander {
   /** Manager에게 다음 명령을 수행하도록 요청 */
   requestNextCommand(){
     BU.CLI(`requestNextCommand ${this.id}`);
-    // BU.CLIN(this.manager);
-    // if(_.isEmpty(this.manager)){
-    //   throw new Error('Manager의 현재 수행명령이 현재 Commander 와 관련이 없습니다.', this.id);
-    // }
-
     try {
-      // const manager = this.manager;
-      // this.manager = {};
-  
-      this.manager.responseToDataFromCommander(this, 'isOk');
+      this.manager.responseToDataFromCommander(this, 'next');
     } catch (error) {
       throw error;
     }
@@ -216,16 +208,21 @@ class Commander extends AbstCommander {
   /** Manager에게 현재 실행중인 명령을 재 전송하도록 요청 */
   requestRetryCommand(){
     BU.CLI('requestRetryCommand', this.id);
-    // BU.CLIN(this.manager);
-    // if(_.isEmpty(this.manager)){
-    //   throw new Error('Manager의 현재 수행명령이 현재 Commander 와 관련이 없습니다.', this.id);
-    // }
-
     try {
-      // const manager = this.manager;
-      // this.manager = {};
-  
       this.manager.responseToDataFromCommander(this, 'retry');
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Manager에게 Msg를 보내어 명령 진행 의사 결정을 취함
+   * @param {string} key 요청 key
+   */
+  requestTakeAction(key){
+    BU.CLI('requestRetryCommand', this.id);
+    try {
+      this.manager.responseToDataFromCommander(this, key);
     } catch (error) {
       throw error;
     }

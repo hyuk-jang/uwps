@@ -58,6 +58,8 @@ class Manager extends AbstManager {
      */
     this.commandStorage = {process: {}, rankList: []};
     this.createIterator();
+
+    this.timeoutTimer = null;
   }
 
   /** Iterator 정의 */
@@ -81,20 +83,28 @@ class Manager extends AbstManager {
    */
   async writeCmdToDevice(cmd, timeoutMs){
     // BU.log('Device write');
-    // BU.CLI('장치로 명령 발송 요청', cmd);
+    BU.CLI('장치로 명령 발송 요청', cmd);
     await this.deviceController.write(cmd);
-    // BU.CLI('장치로 명령 발송 완료');
+    BU.CLI('장치로 명령 발송 완료');
     // let testId = this.getReceiver().id;
     // BU.CLI('명령 요청', this.getReceiver().id, timeoutMs);
     // console.time(`timeout ${testId}`);
-    this.getProcessItem().timer = setTimeout(() => {
+    this.clearTimeoutTimer();
+    this.timeoutTimer = setTimeout(() => {
       // console.timeEnd(`timeout ${testId}`);
+      // BU.CLIN(this.getProcessItem())
       this.getReceiver().updateDcError(this.getProcessItem(),new Error('Timeout'), cmd);
       this.nextCommand(false);
       // 명전 전송 후 제한시간안에 응답이 안올 경우 에러 
     }, timeoutMs);
 
     return true;
+  }
+
+  clearTimeoutTimer(){
+    if(this.timeoutTimer){
+      clearTimeout(this.timeoutTimer);
+    }
   }
 
   /** 
@@ -142,16 +152,19 @@ class Manager extends AbstManager {
 
     // 현재 진행중인 명령 객체와 일치해야지만 가능
     if(_.isEqual(processItem.commander, commander)){
-
       try {
         switch (msg) {
-        case 'isOk':
-          clearTimeout(this.getProcessItem().timer);
+        case 'next':
+          this.clearTimeoutTimer();
+          BU.CLIN(this.timeoutTimer);
           this.nextCommand(true);          
           break;
         case 'retry':
-          clearTimeout(this.getProcessItem().timer);
+          this.clearTimeoutTimer();
           this.retryWrite(commander);
+          break;
+        case 'wait':
+          this.clearTimeoutTimer();
           break;
         default:
           break;
@@ -171,7 +184,7 @@ class Manager extends AbstManager {
    * 현재 수행했던 명령을 재 전송. 
    */
   retryWrite(commander){
-    BU.CLI('retryWrite');
+    // BU.CLI('retryWrite');
     this.retryChance -= 1;
     // 명령을 재요청할 경우 진행중인 timeout 처리는 해제
 
@@ -232,11 +245,11 @@ class Manager extends AbstManager {
    */
   nextCommand(hasForce){
     // BU.debugConsole(5);
-    // BU.CLI('nextCommand');
+    BU.CLI('nextCommand');
     // BU.CLIN(this.commandStorage, 2);
     // 현재 ProcessItem의 CmdList를 전부 수행하였을 경우
     if(this.iterator.isDone()){
-      // BU.CLI('updateDcComplete');
+      BU.CLI('updateDcComplete');
       // 1:1 통신을 지속하고자 한다면 다음 명령을 수행하지 않음
       if(!hasForce && this.getProcessItem().commander.hasOneAndOne){
         BU.CLI('OneAndOne 진행');
@@ -254,7 +267,7 @@ class Manager extends AbstManager {
     if(hasNext){
       return this.requestWrite();
     } else {
-      BU.CLI('모든 명령을 수행하였습니다.');
+      // BU.CLI('모든 명령을 수행하였습니다.');
     }
   }
 

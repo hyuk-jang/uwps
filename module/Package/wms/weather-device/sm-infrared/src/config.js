@@ -8,7 +8,7 @@ module.exports = {
       target_category: 'weather',
       hasOneAndOne: true,
       connect_type: 'serial',
-      port: 'COM13', // Port를 직접 지정하고자 할때 사용
+      port: 'COM4', // Port를 직접 지정하고자 할때 사용
       baud_rate: 9600,
       parser: {
         type: 'byteLengthParser',

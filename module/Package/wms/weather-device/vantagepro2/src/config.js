@@ -9,7 +9,7 @@ module.exports = {
       target_category: 'weathercast',
       target_protocol: 'vantagepro2',
       connect_type: 'serial',
-      port: 'COM3', // Port를 직접 지정하고자 할때 사용
+      port: 'COM6', // Port를 직접 지정하고자 할때 사용
       baud_rate: 19200,
       // parser: {
       //   type: 'byteLengthParser',
@@ -22,37 +22,6 @@ module.exports = {
       criticalInfo: {
         smInfrared: 10 // 적외선 감지 센서
       }
-    },
-    rainAlarmBoundaryList: [{
-      status: '화창',
-      keyword: 'sun',
-      predictAmount: 0,
-      boundary: 100,
-      msg: ''
-    }, {
-      status: '이슬비',
-      keyword: 'drizzle',
-      predictAmount: 0,
-      boundary: 200,
-      msg: '이슬비가 내립니다.\r\n염전을 점검하세요.'
-    }, {
-      status: '약한비',
-      keyword: 'lightRain',
-      predictAmount: 0,
-      boundary: 300,
-      msg: '약한비(0.5~2.5mm)가 내립니다.\r\n염전을 점검하세요.'
-    }, {
-      status: '보통비',
-      keyword: 'middleRain',
-      predictAmount: 0,
-      boundary: 400,
-      msg: '보통(2.5~7.6mm)가 내립니다.\r\n염전을 점검하세요.'
-    }, {
-      status: '폭우',
-      keyword: 'heavyRain',
-      predictAmount: 0,
-      boundary: 10000,
-      msg: '폭우가 내립니다.\r\n염전을 점검하세요.'
-    }]
-  },
+    }
+  }
 };

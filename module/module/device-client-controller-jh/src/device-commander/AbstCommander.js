@@ -26,10 +26,7 @@ class AbstCommander {
   setMediator(deviceMediator) {}
 
   /** 장치의 연결이 되어있는지 여부 @return {boolean} */
-  getHasConnectedDevice(){}
-
-  /** 현재 발생되고 있는 시스템 에러 리스트 @return {Array.<{code: string, msg: string, occur_date: Date }>} */
-  getSystemErrorList(){}
+  get hasConnectedDevice(){}
 
   /**
    * Commander와 연결된 장비에서 진행중인 저장소의 모든 명령을 가지고 옴 
@@ -82,5 +79,11 @@ class AbstCommander {
 
   /** Manager에게 현재 실행중인 명령을 재 전송하도록 요청 */
   requestRetryCommand(){}
+
+  /**
+  * Manager에게 Msg를 보내어 명령 진행 의사 결정을 취함
+  * @param {string} key 요청 key
+  */
+  requestTakeAction(key){}
 }
 module.exports = AbstCommander;

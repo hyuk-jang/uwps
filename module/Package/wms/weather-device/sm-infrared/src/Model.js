@@ -1,4 +1,5 @@
 'use strict';
+const _ = require('underscore');
 
 const BU = require('base-util-jh').baseUtil;
 const NU = require('base-util-jh').newUtil;
@@ -14,6 +15,10 @@ class Model {
     this.averageCalculator = new NU.CalculateAverage(controller.config.calculateOption);
 
     this.rainAlarmBoundaryList = controller.config.rainAlarmBoundaryList;
+
+    this.deviceData = {
+      smInfrared: null
+    };
 
   }
 
@@ -48,20 +53,36 @@ class Model {
     let rainData = parseInt(rainBufferData, 16);
 
     // BU.CLI(rainData);
+    
 
     let dataObj = {
       smInfrared: rainData
     };
 
-    let resCalcObj = this.averageCalculator.onData(dataObj);
+    let resultAverageData = this.averageCalculator.onData(dataObj);
+
+    _.each(resultAverageData.averageStorage, (value, key) => {
+      // 정의한 Key 안에서 들어온 데이터일 경우
+      if (value !== null && _.has(this.deviceData, key)) {
+        this.deviceData[key] = value.average;
+      }
+    });
+
+
+
     
     // BU.CLI(resCalcObj.hasOccurEvent, this.averageRain);
-    if(resCalcObj.hasOccurEvent){
+    if(resultAverageData.hasOccurEvent){
       return this.checkRain();
     } else {
       return {};
     }
   }
+
+  applyDeviceDataFromAverage(){
+
+  }
+
 
   /**
    * 현재 레인 센서 값에따라 비오는 여부 체크

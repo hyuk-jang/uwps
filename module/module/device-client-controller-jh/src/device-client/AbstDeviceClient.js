@@ -83,13 +83,15 @@ class AbstDeviceClient extends EventEmitter {
   }
 
   /** 장치의 연결이 되어있는지 여부 @return {boolean} */
-  getHasConnectedDevice(){
-    return this.commander.getHasConnectedDevice;
+  get hasConnectedDevice(){
+    return this.commander.hasConnectedDevice;
   }
 
-  /** 현재 발생되고 있는 시스템 에러 리스트 @return {Array.<{code: string, msg: string, occur_date: Date }>} */
-  getSystemErrorList(){
-    return this.commander.getSystemErrorList;
+  /** 현재 발생되고 있는 시스템 에러 리스트 
+   * @return {Array.<{code: string, msg: string, occur_date: Date }>}
+   */
+  get systemErrorList(){
+    return this.commander.systemErrorList;
   }
 
 
@@ -114,6 +116,18 @@ class AbstDeviceClient extends EventEmitter {
   /** Manager에게 현재 실행중인 명령을 재 전송하도록 요청 */
   requestRetryCommand(){
     this.commander.requestRetryCommand();
+  }
+
+  /**
+  * Manager에게 Msg를 보내어 명령 진행 의사 결정을 취함
+  * @param {string} key 요청 key
+  */
+  requestTakeAction(key){
+    try {
+      this.commander.requestTakeAction(key);
+    } catch (error) {
+      console.error(error);     
+    }
   }
 
 

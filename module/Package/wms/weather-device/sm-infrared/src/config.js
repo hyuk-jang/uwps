@@ -6,6 +6,7 @@ module.exports = {
       target_id: 'SI1',
       target_name: 'SmRainSensor',
       target_category: 'weather',
+      hasOneAndOne: true,
       connect_type: 'serial',
       port: 'COM13', // Port를 직접 지정하고자 할때 사용
       baud_rate: 9600,

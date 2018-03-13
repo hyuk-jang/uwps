@@ -20,5 +20,10 @@
     "eslint": "^4.15.0",
     "jsdoc": "^3.5.5",
     "mocha": "^4.1.0"
+  },
+  "dependencies": {
+    "base-util-jh": "^1.0.18",
+    "device-client-controller-jh": "^0.1.8",
+    "underscore": "^1.8.3"
   }
 }

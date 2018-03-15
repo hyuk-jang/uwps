@@ -9,7 +9,7 @@ module.exports = {
       target_category: 'weathercast',
       target_protocol: 'vantagepro2',
       connect_type: 'serial',
-      port: 'COM6', // Port를 직접 지정하고자 할때 사용
+      port: 'COM8', // Port를 직접 지정하고자 할때 사용
       baud_rate: 19200,
       // parser: {
       //   type: 'byteLengthParser',

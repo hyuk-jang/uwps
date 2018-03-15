@@ -13,25 +13,45 @@ class P_WeatherCast {
     this.locationX = controller.config.locationInfo.x;
     this.locationY = controller.config.locationInfo.y;
 
-    this.cronJob = null;
+    this.cronScheduler = null;
   }
 
   // Cron 구동시킬 시간
-  runCronWeatherCast(eachHour, eachMin) {
-    let applyHour = parseInt(eachHour) >= 0 && parseInt(eachHour) < 24 ? parseInt(eachHour) : 0;
-    let applyMin = parseInt(eachMin) >= 0 && parseInt(eachMin) < 60 ? parseInt(eachMin) : 0;
-
-    if (this.cronJob !== null) {
-      this.cronJob.stop();
+  runCronWeatherCast() {
+    try {
+      if (this.cronScheduler !== null) {
+        // BU.CLI('Stop')
+        this.cronScheduler.stop();
+      }
+      // 10분마다 요청
+      this.cronScheduler = new cron.CronJob({
+        cronTime: '0 */30 * * * *',
+        onTick: () => {
+          this.requestWeatherCast();
+        },
+        start: true,
+      });
+      return true;
+    } catch (error) {
+      throw error;
     }
 
-    this.cronJob = cron.job(applyHour + ' ' + applyMin + ' * * * *', () => {
-      this.requestWeatherCast();
-    });
+    // let applyHour = parseInt(eachHour) >= 0 && parseInt(eachHour) < 24 ? parseInt(eachHour) : 0;
+    // let applyMin = parseInt(eachMin) >= 0 && parseInt(eachMin) < 60 ? parseInt(eachMin) : 0;
+
+    // if (this.cronJob !== null) {
+    //   this.cronJob.stop();
+    // }
+
+    // this.cronJob = cron.job(applyHour + ' ' + applyMin + ' * * * *', () => {
+    //   this.requestWeatherCast();
+    // });
   }
 
   // 날씨 정보 요청
   requestWeatherCast(callback) {
+    BU.CLI('requestWeatherCast');
+    BU.debugConsole();
     let options = {
       host: 'www.kma.go.kr',
       path: '/wid/queryDFS.jsp?gridx=' + this.locationX + '&gridy=' + this.locationY

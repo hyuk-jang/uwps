@@ -39,8 +39,6 @@ class Control extends AbstDeviceClient {
     };
   }
 
-
-
   /**
    * Device Controller 변화가 생겨 관련된 전체 Commander에게 뿌리는 Event
    * @param {string} eventName 'dcConnect', 'dcClose', 'dcError'
@@ -62,9 +60,6 @@ class Control extends AbstDeviceClient {
       break;
     }
   }
-
-
-
 
   /**
    * 장치로부터 데이터 수신

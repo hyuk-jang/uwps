@@ -20,7 +20,6 @@ class Model {
 
     // 원데이터는 아님. {x, y, announceData, weathercast} 내장
     this.weatherCastData = {};
-
     this.biModule = new BiModule(controller.config.dbInfo);
   }
 

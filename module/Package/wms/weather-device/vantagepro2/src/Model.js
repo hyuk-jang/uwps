@@ -9,7 +9,6 @@ const {weathercastProtocolFormat} = require('device-protocol-converter-jh');
 
 class Model {
   /**
-   * 
    * @param {Control} controller 
    */
   constructor(controller) {

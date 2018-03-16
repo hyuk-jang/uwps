@@ -21,6 +21,17 @@ class Control extends AbstDeviceClient {
   }
 
   /**
+   * 개발 버젼일 경우 장치 연결 수립을 하지 않고 가상 데이터를 생성
+   */
+  init(){
+    if(!this.config.hasDev){
+      this.setDeviceClient(this.config.deviceInfo);
+    } else {
+      require('./dummy')(this);
+    }
+  }
+
+  /**
    * 장치의 현재 데이터 및 에러 내역을 가져옴
    * @return {{id: string, data: {smRain: number}, systemErrorList: Array, troubleList: Array}} 
    */
@@ -56,10 +67,10 @@ class Control extends AbstDeviceClient {
    * @param {Buffer} data 명령 수행 결과 데이터
    */
   updateDcData(processItem, data){
-    BU.CLI(data.toString());
+    // BU.CLI(data.toString());
     const resultData = this.model.onData(data);
 
-    BU.CLI(this.getDeviceStatus()); 
+    // BU.CLI(this.getDeviceStatus().data); 
 
     // 현재 내리는 비가 변화가 생긴다면 이벤트 발생
     if(!_.isEmpty(resultData)){

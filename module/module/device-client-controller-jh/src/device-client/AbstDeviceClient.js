@@ -126,7 +126,7 @@ class AbstDeviceClient extends EventEmitter {
     try {
       this.commander.requestTakeAction(key);
     } catch (error) {
-      console.error(error);     
+      throw error;     
     }
   }
 

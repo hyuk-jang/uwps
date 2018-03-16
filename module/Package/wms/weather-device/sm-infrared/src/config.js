@@ -1,7 +1,7 @@
 
 module.exports = {
   current: {
-    hasDev: false, // 장치 연결을 실제로 하는지 여부
+    hasDev: true, // 장치 연결을 실제로 하는지 여부
     deviceInfo: {
       target_id: 'SI1',
       target_name: 'SmRainSensor',
@@ -23,30 +23,35 @@ module.exports = {
       }
     },
     rainAlarmBoundaryList: [{
+      rainLevel: 0,
       status: '화창',
       keyword: 'sun',
       predictAmount: 0,
       boundary: 100,
       msg: ''
     }, {
+      rainLevel: 1,
       status: '이슬비',
       keyword: 'drizzle',
       predictAmount: 0,
       boundary: 200,
       msg: '이슬비가 내립니다.\r\n염전을 점검하세요.'
     }, {
+      rainLevel: 2,
       status: '약한비',
       keyword: 'lightRain',
       predictAmount: 0,
       boundary: 300,
       msg: '약한비(0.5~2.5mm)가 내립니다.\r\n염전을 점검하세요.'
     }, {
+      rainLevel: 3,
       status: '보통비',
       keyword: 'middleRain',
       predictAmount: 0,
       boundary: 400,
       msg: '보통(2.5~7.6mm)가 내립니다.\r\n염전을 점검하세요.'
     }, {
+      rainLevel: 4,
       status: '폭우',
       keyword: 'heavyRain',
       predictAmount: 0,

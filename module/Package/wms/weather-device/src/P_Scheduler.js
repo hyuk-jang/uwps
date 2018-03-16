@@ -2,22 +2,20 @@ const Promise = require('bluebird');
 const EventEmitter = require('events');
 const cron = require('cron');
 
+const Control = require('./Control');
 
 class P_Scheduler extends EventEmitter {
+  /** @param {Control} controller */
   constructor(controller) {
     super();
     this.controller = controller;
 
-    this.config = controller.config;
-    this.cronJobMeasureInverter = null;
-    this.cronJobMeasureConnector = null;
-
+    this.scheduler = null;
     this.scheduleIntervalMin = 1; // 10 분마다
-
   }
 
   runCronForMeasureConnector(controllerList) {
-    this._measureConnector(new Date(), controllerList);
+    this._measureWeatherDevice(new Date(), controllerList);
     try {
       if (this.cronJobMeasureConnector !== null) {
         // BU.CLI('Stop')
@@ -27,7 +25,7 @@ class P_Scheduler extends EventEmitter {
       this.cronJobMeasureConnector = new cron.CronJob({
         cronTime: `0 */${this.scheduleIntervalMin} * * * *`,
         onTick: () => {
-          this._measureConnector(new Date(), controllerList);
+          this._measureWeatherDevice(new Date());
         },
         start: true,
       });
@@ -38,8 +36,14 @@ class P_Scheduler extends EventEmitter {
   }
 
   // 정기적인 접속반 데이터 요청 메시지 이벤트 발생
-  async _measureConnector(measureTime, connectorControllerList) {
+  async _measureWeatherDevice(measureTime) {
     // BU.CLI('_measureConnector', measureTime);
+
+    let returnValue = {
+      vantagepro2Data: this.controller.vantagepro2.getDeviceStatus(),
+      smInfraredData: this.controller.vantagepro2.getDeviceStatus(),
+    };
+
 
     let connectorListData = await Promise.map(connectorControllerList, connectorController => {
       return connectorController.measureDevice();

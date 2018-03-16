@@ -13,7 +13,13 @@ if (require !== undefined && require.main === module) {
 
 
   const control = new Control(config);
-  control.setDeviceClient(control.config.deviceInfo);
+
+
+  control.on('updateSmRainSensor', data => {
+    BU.CLI(data);
+  });
+
+  control.init();
 
 
   process.on('uncaughtException', function (err) {

@@ -20,6 +20,10 @@ class Model {
       smInfrared: null
     };
 
+    /** @property {Object} rainStatus */
+    this.rainStatus = this.rainAlarmBoundaryList[0];
+    this.lastestRainLevel = 0;
+    // this.rainAlarmBoundaryList.reverse();
   }
 
   getDeviceData() {
@@ -83,62 +87,40 @@ class Model {
 
   }
 
-
   /**
    * 현재 레인 센서 값에따라 비오는 여부 체크
-   * @return {{sendStatus: string, currRainLevel: number, currPredictAmount: number, msg: string, averageRain: number}}
+   * @return {{rainLevel: number, status: string, keyword: string,  predictAmount: number, msg: string, averageRain: number}}
    */
   checkRain() {
-    // console.log('manageList',manageList)
-    if (this.rainAlarmBoundaryList.length === 0) {
-      return {};
-    }
-
-    let currTime = BU.convertDateToText(new Date(), 'kor', 4, 1);
-    let sendObj = {
-      sendStatus: 'rain_0',
-      currRainLevel: 0,
-      currPredictAmount: 0,
-      averageRain: this.averageRain,
-      msg: ''
-    };
-
-
-    // BU.CLI('this.averageRain',this.averageRain)
-    // 설정한 범위를 돌면서 값이 일치할 경우 계속해서 초기화
-    let hasFind = false;
-    this.rainAlarmBoundaryList.forEach((element, index) => {
-      // 적절한 상태를 찾았다면 수행 X
-      if (hasFind) {
-        return;
-      }
-      // BU.CLIS(element.boundary, this.averageRain, index)
-      // 비가 안올 경우 RainLevel 초기화
-      if (index === 0 && element.boundary > this.averageRain && this.currRainLevel !== -1) {
-        this.currRainLevel = 0;
-      }
-
-      // 현재 우천 센서 데이터 평균 값의 Config 범위에 따라 전송알림 객체 설정
-      if (element.boundary > this.averageRain) {
-        hasFind = true;
-
-        sendObj.sendStatus = 'rain_' + (index);
-        sendObj.currRainLevel = index;
-        sendObj.currPredictAmount = element.predictAmount;
-        sendObj.msg = index === 0 ? '' : currTime + '부터 ' + element.msg;
+    // BU.CLI('this.averageRain', this.averageRain);
+    let foundIndex = 0;
+    // 현재 기상 값의 범위에 들어있는 조건 탐색
+    _.find(this.rainAlarmBoundaryList, (currItem, index) => {
+      // 찾은 조건식 상 다음 Index가 실제 데이터이므로 1 증가
+      if(currItem.boundary < this.averageRain){
+        foundIndex = index + 1;
+        return true;
       }
     });
-    // 현재 비오는 단계보다 강도가 약하다면 무시
-    if (this.currRainLevel < sendObj.currRainLevel) {
-      // BU.CLIS(sendObj, this.averageObj);
-      this.currRainLevel = sendObj.currRainLevel;
-      return sendObj;
+    
+    let foundRainAlarm = this.rainAlarmBoundaryList[foundIndex];
+
+    // 날씨가 더 나빠질 경우 알람 필요
+    if(foundRainAlarm.rainLevel > this.lastestRainLevel  ){
+      let currTime = BU.convertDateToText(new Date(), 'kor', 4, 1);
+      this.lastestRainLevel = foundRainAlarm.rainLevel;
+      this.rainStatus = Object.assign({}, foundRainAlarm);
+      this.rainStatus.averageRain = this.averageRain;
+      this.rainStatus.msg = currTime + '부터 ' + foundRainAlarm.msg;
+
+      return true;
     } else {
-      return {};
+      if(foundRainAlarm.rainLevel === 0){
+        this.lastestRainLevel = 0;
+      }
+      return false;
     }
   }
-
-
 }
 
 module.exports = Model;

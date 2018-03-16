@@ -5,9 +5,12 @@ const _ = require('underscore');
 
 const BU = require('base-util-jh').baseUtil;
 
+const Control = require('./Control');
+
 require('./format');
 
 class P_WeatherCast {
+  /** @param {Control} controller */
   constructor(controller) {
     this.controller = controller;
     this.locationX = controller.config.locationInfo.x;

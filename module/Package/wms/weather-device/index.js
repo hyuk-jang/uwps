@@ -8,8 +8,10 @@ module.exports = Control;
 if (require !== undefined && require.main === module) {
   console.log('__main__');
 
+  const config = require('./src/config');
 
-
+  const control = new Control(config);
+  control.init();
 
 
   process.on('uncaughtException', function (err) {

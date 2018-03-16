@@ -25,6 +25,23 @@ class Control extends AbstDeviceClient {
     this.executeCommandInterval = null;
   }
 
+  get id(){
+    return this.config.deviceInfo.target_id;
+  }
+
+  /**
+   * 개발 버젼일 경우 장치 연결 수립을 하지 않고 가상 데이터를 생성
+   */
+  init(){
+    if(!this.config.hasDev){
+      this.setDeviceClient(this.config.deviceInfo);
+    } else {
+      BU.CLI('생성기 호출', this.id);
+      require('./dummy')(this);
+    }
+    this.converter.setProtocolConverter(this.config.deviceInfo);
+  }
+
 
   /**
    * 장치의 현재 데이터 및 에러 내역을 가져옴
@@ -61,6 +78,7 @@ class Control extends AbstDeviceClient {
     }
   }
 
+
   /**
    * 장치로부터 데이터 수신
    * @interface
@@ -69,14 +87,16 @@ class Control extends AbstDeviceClient {
    */
   updateDcData(processItem, data){
     // BU.CLI('data');
-    BU.logFile('receive data: ' + data.toString('hex'));
+    // BU.logFile('receive data: ' + data.toString('hex'));
     const resultParsing = this.converter.parsingUpdateData(processItem.cmdList[processItem.currCmdIndex], data);
     if(resultParsing.eventCode === 'done'){
-      this.requestTakeAction('wait');
+      if(!this.config.hasDev){
+        this.requestTakeAction('wait');
+      }
     }
     this.model.onData(resultParsing.data);
 
-    BU.CLIN(this.getDeviceStatus());
+    // BU.CLIN(this.getDeviceStatus());
   }
 }
 module.exports = Control;

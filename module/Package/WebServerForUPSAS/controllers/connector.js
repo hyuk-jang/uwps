@@ -99,13 +99,21 @@ module.exports = function (app) {
     });
 
 
-
-    // Data Table 순서와 같게 정렬
-    chartData.series = _.map(refinedConnectorList, refinedObj => {
-      let findObj = _.findWhere(chartData.series, {name: refinedObj.inverter_seq.toString()});
-      return _.isEmpty(findObj) ? {name: '', data:[]} : findObj;
+    // FIXME 정렬때문에 이렇게 함.
+    let sortIndexList = [5, 6, 1, 2, 3, 4];
+    chartData.series = _.sortBy(chartData.series, item => {
+      return _.indexOf(sortIndexList, Number(item.name));
     });
+
+
+    // chartData.series = _.map(refinedConnectorList, refinedObj => {
+    //   let findObj = _.findWhere(chartData.series, {name: refinedObj.inverter_seq.toString()});
+    //   return _.isEmpty(findObj) ? {name: '', data:[]} : findObj;
+    // });
+    // BU.CLI(chartData);
     webUtil.applyScaleChart(chartData, 'hour');
+    // BU.CLI(chartData);
+    // BU.CLI(upsasProfile);
     webUtil.mappingChartDataNameForModule(chartData, upsasProfile);
 
     let connectorList = await biModule.getTable('connector');

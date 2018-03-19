@@ -7,6 +7,9 @@ const DU = require('base-util-jh').domUtil;
 const BiModule = require('../models/BiModule.js');
 let webUtil = require('../models/web.util');
 
+// TEST
+const tempSacle = require('../temp/tempSacle');   
+
 /**
    * searchRange Type
    * @typedef {Object} searchRange
@@ -141,7 +144,19 @@ module.exports = function (app) {
 
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
     chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, 'interval_wh', 'group_date', 'target_id');
-    // BU.CLI(chartData);
+    // BU.CLI(chartData.series[3]);
+
+    // TEST
+    chartData.series.forEach(currentItem => {
+      let foundIt = _.findWhere(tempSacle.inverterScale, {target_id: currentItem.name}); 
+      currentItem.data.forEach((data, index) => {
+        currentItem.data[index] = Number((data * foundIt.scale).scale(1, 1));
+      });
+    });
+
+    // BU.CLI(chartData.series[3]);
+
+
     /** Grouping Chart에 의미있는 이름을 부여함. */
     webUtil.mappingChartDataName(chartData, viewInverterStatus, 'target_id', 'target_name');
     /** searchRange 조건에 따라서 Chart Data의 비율을 변경 */
@@ -194,6 +209,24 @@ module.exports = function (app) {
     let connectorTrend =  await biModule.getConnectorTrend(moduleSeqList, searchRange);
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
     chartData = webUtil.makeStaticChartData(connectorTrend, betweenDatePoint, 'total_wh', 'group_date', 'photovoltaic_seq');
+
+
+    // TEST
+    chartData.series.forEach(currentItem => {
+      let foundIt = _.findWhere(tempSacle.moduleScale, {photovoltaic_seq: Number(currentItem.name)}); 
+      currentItem.data.forEach((data, index) => {
+        currentItem.data[index] = Number((data * foundIt.scale).scale(1, 1));
+      });
+    });
+
+
+    // FIXME 정렬때문에 이렇게 함.
+    let sortIndexList = [5, 6, 1, 2, 3, 4];
+    chartData.series = _.sortBy(chartData.series, item => {
+      return _.indexOf(sortIndexList, Number(item.name));
+    });
+
+    
     // BU.CLI(chartData);
     /** Grouping Chart에 의미있는 이름을 부여함. */
     webUtil.mappingChartDataNameForModule(chartData, upsasProfile);

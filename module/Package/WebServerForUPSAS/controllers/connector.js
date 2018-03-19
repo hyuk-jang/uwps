@@ -7,6 +7,11 @@ const DU = require('base-util-jh').domUtil;
 const BiModule = require('../models/BiModule.js');
 let webUtil = require('../models/web.util');
 
+
+
+// TEST
+const tempSacle = require('../temp/tempSacle');   
+
 module.exports = function (app) {
   const initSetter = app.get('initSetter');
   const biModule = new BiModule(initSetter.dbInfo);
@@ -36,17 +41,16 @@ module.exports = function (app) {
     let moduleSeqList = _.pluck(refinedConnectorList, 'photovoltaic_seq');
     // 모듈 현황
     let moduleStatusList = await biModule.getTable('v_module_status', 'photovoltaic_seq', moduleSeqList);
-    BU.CLI(moduleStatusList);
+    // BU.CLI(moduleStatusList);
 
 
-    // Temp 구간
-    const tempSacle = require('../temp/tempSacle');    
+    // TEST 구간
     moduleStatusList.forEach(currentItem => {
       let foundIt = _.findWhere(tempSacle.moduleScale, {photovoltaic_seq: currentItem.photovoltaic_seq}); 
       currentItem.vol = foundIt.scale * currentItem.vol;
     });
 
-    BU.CLI(moduleStatusList);
+    // BU.CLI(moduleStatusList);
 
 
     
@@ -80,9 +84,22 @@ module.exports = function (app) {
 
     // 금일 접속반 발전량 현황
     let searchRange = biModule.getSearchRange('hour');
-    // let searchRange = biModule.getSearchRange('hour', '2018-02-13');
+    // let searchRange = biModule.getSearchRange('hour', '2018-03-10');
     let connectorPowerList = await biModule.getConnectorPower(searchRange, moduleSeqList);
     let chartData = webUtil.makeDynamicChartData(connectorPowerList, 'wh', 'hour_time', 'photovoltaic_seq');
+
+
+
+    // TEST
+    chartData.series.forEach(currentItem => {
+      let foundIt = _.findWhere(tempSacle.moduleScale, {photovoltaic_seq: Number(currentItem.name)}); 
+      currentItem.data.forEach((data, index) => {
+        currentItem.data[index] = Number((data * foundIt.scale).scale(1, 1));
+      });
+    });
+
+
+
     // Data Table 순서와 같게 정렬
     chartData.series = _.map(refinedConnectorList, refinedObj => {
       let findObj = _.findWhere(chartData.series, {name: refinedObj.inverter_seq.toString()});

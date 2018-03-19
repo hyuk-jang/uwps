@@ -7,6 +7,9 @@ const DU = require('base-util-jh').domUtil;
 const BiModule = require('../models/BiModule.js');
 let webUtil = require('../models/web.util');
 
+// TEST
+const tempSacle = require('../temp/tempSacle');   
+
 module.exports = function (app) {
   const initSetter = app.get('initSetter');
   const biModule = new BiModule(initSetter.dbInfo);
@@ -27,6 +30,24 @@ module.exports = function (app) {
     // BU.CLI('inverter', req.locals)
     // console.time('getTable')
     let viewInverterStatus = await biModule.getTable('v_inverter_status');
+    // BU.CLI(viewInverterStatus);
+
+    // TEST 구간
+    viewInverterStatus.forEach(currentItem => {
+      let foundIt = _.findWhere(tempSacle.inverterScale, {inverter_seq: currentItem.inverter_seq}); 
+      currentItem.in_a = Number((foundIt.scale * currentItem.in_a).scale(1, 0));
+      currentItem.in_w = Number((foundIt.scale * currentItem.in_w).scale(1, 0));
+      currentItem.out_a = Number((foundIt.scale * currentItem.out_a).scale(1, 0));
+      currentItem.out_w = Number((foundIt.scale * currentItem.out_w).scale(1, 0));
+      currentItem.d_wh = Number((foundIt.scale * currentItem.d_wh).scale(1, 0));
+      currentItem.c_wh = Number((foundIt.scale * currentItem.c_wh).scale(1, 0));
+      currentItem.daily_power_wh = Number((foundIt.scale * currentItem.daily_power_wh).scale(1, 0));
+    });
+
+    // BU.CLI(moduleStatusList);
+
+
+
     // 데이터 검증
     let validInverterStatus = webUtil.checkDataValidation(viewInverterStatus, new Date(), 'writedate');
     // BU.CLI(validInverterStatus);
@@ -38,11 +59,24 @@ module.exports = function (app) {
 
 
     let searchRange = biModule.getSearchRange('hour');
-    // let searchRange = biModule.getSearchRange('hour', '2018-02-14');
+    // let searchRange = biModule.getSearchRange('hour', '2018-03-10');
     let inverterPowerList = await biModule.getInverterPower(searchRange);
     // BU.CLI(inverterPowerList);
     // let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'out_w', 'hour_time', 'inverter_seq');
     let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'out_w', 'hour_time', 'ivt_target_id');
+
+
+
+    // TEST
+    chartData.series.forEach(currentItem => {
+      let foundIt = _.findWhere(tempSacle.inverterScale, {target_id: currentItem.name}); 
+      currentItem.data.forEach((data, index) => {
+        currentItem.data[index] = Number((data * foundIt.scale).scale(1, 1));
+      });
+    });
+
+
+
     // BU.CLI(chartData);
     webUtil.mappingChartDataName(chartData, viewInverterStatus, 'target_id', 'target_name');
     

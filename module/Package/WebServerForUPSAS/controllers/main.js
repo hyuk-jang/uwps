@@ -36,7 +36,7 @@ module.exports = function (app) {
 
     // 오늘자 발전 현황을 구할 옵션 설정(strStartDate, strEndDate 를 오늘 날짜로 설정하기 위함)
     searchRange = biModule.getSearchRange('hour');
-    // searchRange = biModule.getSearchRange('hour', '2018-02-14');
+    // searchRange = biModule.getSearchRange('hour', '2018-03-10');
     // 검색 조건이 시간당으로 검색되기 때문에 금일 날짜로 date Format을 지정하기 위해 hour --> day 로 변경
     searchRange.searchType = 'day';
     // 오늘 계측 데이터
@@ -63,6 +63,18 @@ module.exports = function (app) {
     // 접속반 현재 발전 현황
     let moduleStatus = await biModule.getModuleStatus();
     // BU.CLI(moduleStatus);
+
+
+    // TEST
+    const tempSacle = require('../temp/tempSacle');   
+    // TEST 구간
+    moduleStatus.forEach(currentItem => {
+      let foundIt = _.findWhere(tempSacle.moduleScale, {photovoltaic_seq: currentItem.photovoltaic_seq}); 
+      currentItem.vol = foundIt.scale * currentItem.vol;
+    });
+
+
+
     // 접속반 발전 현황 데이터 검증
     let validModuleStatusList = webUtil.checkDataValidation(moduleStatus, new Date(), 'writedate');
     validModuleStatusList.forEach(moduleInfo => {

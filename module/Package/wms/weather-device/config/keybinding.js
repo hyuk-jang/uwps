@@ -2,7 +2,7 @@
 // const connectorBaseFormat = require('../ConnectorController/Converter').baseFormat;
 module.exports = {
   binding: [{
-    deviceType: 'weatherDevice',
+    deviceCategory: 'weatherDevice',
     dataTableName: 'weather_device_data',
     troubleTableName: '',
     dateParam: 'writedate',

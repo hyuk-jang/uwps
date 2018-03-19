@@ -1,9 +1,11 @@
 SELECT 
-		(SELECT ivt.target_name FROM inverter ivt WHERE ivt.inverter_seq = final_report.inverter_seq LIMIT 1 )  AS 인버텨명, 
+		(SELECT ivt.target_name FROM inverter ivt WHERE ivt.inverter_seq = final_report.inverter_seq LIMIT 1 )  AS 인버터명, 
 		(SELECT vup.sb_target_name FROM v_upsas_profile vup WHERE vup.inverter_seq = final_report.inverter_seq LIMIT 1 )  AS 설치장소, 
 		(SELECT vup.pv_manufacturer FROM v_upsas_profile vup WHERE vup.inverter_seq = final_report.inverter_seq LIMIT 1 )  AS 제조회사, 
 		(SELECT vup.pv_target_name FROM v_upsas_profile vup WHERE vup.inverter_seq = final_report.inverter_seq LIMIT 1 )  AS 모듈타입, 		
-		final_report.*  
+		final_report.*,
+		ROUND(final_report.total_s_kwh * final_report.scale, 3) AS scale_total_s_kwh,
+		ROUND(final_report.total_kwh * final_report.scale, 3) AS scale_total_kwh
  FROM
 (
  SELECT
@@ -16,7 +18,18 @@ SELECT
         ROUND(AVG(avg_out_v) / 10, 1) AS avg_out_v,
         ROUND(AVG(avg_out_w) / 10, 1) AS avg_out_w,
 		  ROUND(SUM(interval_wh) / 1000, 3) AS total_s_kwh,
-        ROUND(SUM(max_c_wh) / 1000, 3) AS total_kwh
+        ROUND(SUM(max_c_wh) / 1000, 3) AS total_kwh,
+        CASE
+			WHEN inverter_seq = 1
+			THEN 1.008242
+			WHEN inverter_seq = 2
+			THEN 1.1026609
+			WHEN inverter_seq = 3
+			THEN 0.9998
+			WHEN inverter_seq = 4
+			THEN 1.026412
+			ELSE 1
+		END AS scale
     FROM
       (SELECT
             inverter_seq,
@@ -46,7 +59,7 @@ SELECT
               MAX(c_wh) AS max_c_wh,
               MIN(c_wh) AS min_c_wh
         FROM inverter_data id
-        WHERE writedate>= "2018-03-06 00:00:00" and writedate<"2018-03-07 00:00:00"
+        WHERE writedate>= "2018-03-12 00:00:00" and writedate<"2018-03-19 00:00:00"
 
         GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H:%i"), inverter_seq
         ORDER BY inverter_seq, writedate) AS id_group

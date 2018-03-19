@@ -7,6 +7,8 @@ const Control = require('./Control');
 
 const keybinding = require('../config/keybinding');
 
+const DeviceDataStorage = require('./DeviceDataStorage');
+
 class Model {
   /**
    * 
@@ -14,7 +16,12 @@ class Model {
    */
   constructor(controller) {
     this.controller = controller;
-    this.deviceType = 'weatherDevice';
+    this.dataStroageConfig = this.controller.config.controllerInfo;
+    // this.deviceCategory = this.controller.config.controllerInfo.target_category;
+
+    this.deviceDataStorage = new DeviceDataStorage(keybinding.binding);
+
+    this.deviceDataStorage.setDevice(this.dataStroageConfig.target_category, this.controller.config.controllerInfo, {id: 'target_id', dbDataTableName: 'data_table_name' });
   }
 
 
@@ -39,18 +46,29 @@ class Model {
     }
 
 
+    this.deviceData = Object.assign(smInfraredData.data, vantagepro2Data.data);
 
-    let weatherDeviceData = Object.assign(smInfraredData.data, vantagepro2Data.data);
+    // let weatherDeviceData = Object.assign(smInfraredData.data, vantagepro2Data.data);
 
-    BU.CLI(weatherDeviceData);
+    // BU.CLI(weatherDeviceData);
 
     // 데이터에 null이 포함되어있다면 아직 준비가 안된것으로 판단
-    if(_.contains(weatherDeviceData, null)){
+    if(_.contains(this.deviceData, null)){
       BU.logFile('장치의 데이터 수집이 준비가 안되었습니다.');
       return false;
     }
+
+    let returnValue =  this.deviceDataStorage.onMeasureDeviceList(new Date(), this.controller.getDeviceStatus(), this.dataStroageConfig.target_category);
+
+    BU.CLIN(returnValue, 3);
+
+
+
+
     
-    const convertDataList = this.processDeviceDataList(weatherDeviceData, null, this.deviceType);
+    
+    // const convertDataList = this.processDeviceDataList(weatherDeviceData, null, this.deviceType);
+    // BU.CLI(convertDataList);
   }
 
 
@@ -58,22 +76,22 @@ class Model {
    * 장치 데이터 리스트 keyBinding 처리하여 반환
    * @param {Object|Array} deviceData 
    * @param {Object} deviceSavedInfo 
-   * @param {string} deviceType 장치 타입 (inverter, connector)
+   * @param {string} deviceCategory 장치 타입 (inverter, connector)
    */
-  processDeviceDataList(deviceData, deviceSavedInfo, deviceType) {
+  processDeviceDataList(deviceData, deviceSavedInfo, deviceCategory) {
     // BU.CLI('processDeviceDataList', deviceData);
     // 배열 일 경우에는 재귀
     if (_.isArray(deviceData)) {
       let convertDataList = [];
 
       deviceData.forEach(data => {
-        let result = this.processDeviceDataList(data, deviceSavedInfo, deviceType);
+        let result = this.processDeviceDataList(data, deviceSavedInfo, deviceCategory);
         convertDataList = convertDataList.concat(result);
       });
       return convertDataList;
     } else if (_.isObject(deviceData)) {
       let bindingObj = _.findWhere(keybinding.binding, {
-        deviceType
+        deviceCategory
       });
 
 

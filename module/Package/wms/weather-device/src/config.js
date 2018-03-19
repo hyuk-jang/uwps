@@ -10,6 +10,12 @@ module.exports = {
       password: process.env.SALTERN_PW ? process.env.SALTERN_PW : 'root',
       // database: process.env.SALTERN_DB ? process.env.SALTERN_DB : 'uwps'
       database: 'upsas'
+    },
+    controllerInfo: {
+      target_id: 'wds_01',
+      target_category: 'weatherDevice',
+      data_table_name: 'weather_device_data',
+      trouble_table_name: null
     }
   },
   smInfrared:{

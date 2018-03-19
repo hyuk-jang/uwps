@@ -36,7 +36,20 @@ module.exports = function (app) {
     let moduleSeqList = _.pluck(refinedConnectorList, 'photovoltaic_seq');
     // 모듈 현황
     let moduleStatusList = await biModule.getTable('v_module_status', 'photovoltaic_seq', moduleSeqList);
-    // BU.CLI(moduleStatusList);
+    BU.CLI(moduleStatusList);
+
+
+    // Temp 구간
+    const tempSacle = require('../temp/tempSacle');    
+    moduleStatusList.forEach(currentItem => {
+      let foundIt = _.findWhere(tempSacle.moduleScale, {photovoltaic_seq: currentItem.photovoltaic_seq}); 
+      currentItem.vol = foundIt.scale * currentItem.vol;
+    });
+
+    BU.CLI(moduleStatusList);
+
+
+    
     // 모듈 발전 현황 데이터 검증
     let validModuleStatusList = webUtil.checkDataValidation(moduleStatusList, new Date(), 'writedate');
 

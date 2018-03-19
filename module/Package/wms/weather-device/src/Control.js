@@ -32,7 +32,7 @@ class Control {
 
   runScheduler(){
     const scheduleIntervalSec = 10;
-    const scheduleIntervalMin = 1;
+    // const scheduleIntervalMin = 1;
     try {
       if (this.scheduler !== null) {
         // BU.CLI('Stop')
@@ -50,6 +50,19 @@ class Control {
     } catch (error) {
       throw error;
     }
+  }
+
+
+  /**
+   * 장치의 현재 데이터 및 에러 내역을 가져옴
+   */
+  getDeviceStatus() {
+    return {
+      id: this.config.controllerInfo.target_id,
+      data: this.model.deviceData,
+      systemErrorList: [],
+      troubleList: []
+    };
   }
 
 

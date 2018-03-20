@@ -58,9 +58,9 @@ class Model {
       return false;
     }
 
-    // let returnValue =  this.deviceDataStorage.onMeasureDeviceList(new Date(), this.controller.getDeviceStatus(), this.dataStroageConfig.target_category);
+    let returnValue =  this.deviceDataStorage.onMeasureDeviceList(new Date(), this.controller.getDeviceStatus(), this.deviceCategory);
 
-    // BU.CLIN(returnValue, 3);
+    BU.CLIN(returnValue, 3);
 
 
     // const convertDataList = this.deviceDataStorage.processMeasureData(this.deviceCategory);

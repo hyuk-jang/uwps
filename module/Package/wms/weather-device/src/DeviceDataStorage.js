@@ -1,28 +1,29 @@
 'use strict';
 
 const _ = require('underscore');
+
 const BU = require('base-util-jh').baseUtil;
 
 /**
- * @typedef {Object} dataStorage
- * @property {string} id
- * @property {Object} config
- * @property {Object|Array} data
- * @property {Array} troubleList
- * @property {Array} systemErrorList
- * @property {Date} measureDate
- * @property {Object|Array} convertedData
+ * @typedef {Object} dataStorage Device Controller 현재 장치의 계측 및 오류 데이터를 관리하는 상위 주체
+ * @property {string} id Device Controller ID
+ * @property {Object} config Device Controller를 구동하기 위한 설정
+ * @property {Object|Array} data Controller에서 측정한 데이터
+ * @property {Array} troubleList 장치와 약속한 프로토콜 상에서 발생한 에러
+ * @property {Array} systemErrorList Controller를 구동하고 장치와 연결을 수립하고 통신하는 중간에 생기는 에러
+ * @property {Date} measureDate 현재 데이터들의 측정 시간 (DeviceContainer에서 처리)
+ * @property {Object|Array} convertedData data를 {keyChangeConfig}를 통해서 변경한 데이터 (DeviceContainer에서 처리)
  */
 
 /**
- * @typedef {Object} dataStorageContainer
- * @property {string} deviceCategory
- * @property {string=} dbDataTableName
- * @property {string=} dbTroubleTableName
- * @property {Array} insertTroubleList
- * @property {Array} updateTroubleList
- * @property {Array} insertDataList
- * @property {Array.<dataStorage>} storage
+ * @typedef {Object} dataStorageContainer Device Category별로 dataStorage를 관리하는 주체
+ * @property {string} deviceCategory 장치 카테고리 (inverter, connector, weatherDevice, ...etc)
+ * @property {string=} dbDataTableName 계측 data를 반영할 DB Table Name. dataStorage.convertedData를 저장할 DB Table. 이 값이 없을 경우 DB에 기록하지 않는다고 판단
+ * @property {string=} dbTroubleTableName 오류 data를 반영할 DB Table Name. dataStorage.troubleList, dataStorage.systemErrorList 를 저장할 DB Table. 이 값이 없을 경우 DB에 기록하지 않는다고 판단
+ * @property {Array} insertTroubleList 신규 오류 리스트
+ * @property {Array} updateTroubleList 기존 DB의 오류 내역을 수정할 리스트
+ * @property {Array} insertDataList 저장할 계측 데이터 리스트
+ * @property {Array.<dataStorage>} storage 관리하고 있는 Device Controller 계측 데이터 객체 리스트
  */
 
 /**
@@ -42,12 +43,12 @@ const BU = require('base-util-jh').baseUtil;
  */
 
 /**
- * @typedef {Object} measureData
- * @property {string} id 
- * @property {Object} config
- * @property {Array|Object} data
- * @property {Array} systemErrorList
- * @property {Array} troubleList
+ * @typedef {Object} measureData Device Controller 현재 장치의 계측 및 오류 데이터
+ * @property {string} id Device Controller ID
+ * @property {Object} config Device Controller를 구동하기 위한 설정
+ * @property {Array|Object} data Controller에서 측정한 데이터
+ * @property {Array} systemErrorList 장치와 약속한 프로토콜 상에서 발생한 에러
+ * @property {Array} troubleList Controller를 구동하고 장치와 연결을 수립하고 통신하는 중간에 생기는 에러
  */
 
 
@@ -88,8 +89,7 @@ class DeviceDataStorage {
     let foundStorageData = this.getMatchingCategoryFromDataList(deviceConfigInfo[keySetInfo.deviceCategory]);
     // 없다면 새로 생성
     if(foundStorageData === undefined){
-      /** @type {dataStorageContainer} */
-      let newStorageData = {
+      foundStorageData = {
         deviceCategory: deviceConfigInfo[keySetInfo.deviceCategory],
         dbDataTableName: deviceConfigInfo[keySetInfo.dbDataTableName] ? deviceConfigInfo[keySetInfo.dbDataTableName] : null,
         dbTroubleTableName: deviceConfigInfo[keySetInfo.dbTroubleTableName] ? deviceConfigInfo[keySetInfo.dbTroubleTableName] : null,
@@ -100,8 +100,7 @@ class DeviceDataStorage {
         storage: []
       };
 
-      this.deviceDataStorageList.push(newStorageData);
-      foundStorageData = newStorageData;
+      this.deviceDataStorageList.push(foundStorageData);
     }
     
     let foundIt = this.getMatchingIdFromDataList(deviceConfigInfo[keySetInfo.id], deviceConfigInfo[keySetInfo.deviceCategory]);
@@ -117,9 +116,7 @@ class DeviceDataStorage {
         measureDate: null
       };
       foundStorageData.storage.push(addDataStorageObj);
-
-
-      BU.CLI(this.deviceDataStorageList);
+      // BU.CLI(this.deviceDataStorageList);
     } else {
       throw new Error('해당 장치는 이미 등록되어 있습니다.');
     }
@@ -128,14 +125,13 @@ class DeviceDataStorage {
   /**
    * 장치 카테고리에 맞는 타입을 가져옴
    * @param {string} deviceCategory 장치 카테고리 'inverter', 'connector' ... etc
+   * @return {dataStorageContainer}
    */
   getMatchingCategoryFromDataList(deviceCategory) {
-    BU.CLI(deviceCategory);
-    BU.CLI(this.deviceDataStorageList);
-    const foundIt = _.findWhere(this.deviceDataStorageList, {
+    // BU.CLI(this.deviceDataStorageList);
+    return _.findWhere(this.deviceDataStorageList, {
       deviceCategory
     });
-    return foundIt;
   }
 
   /**
@@ -144,17 +140,14 @@ class DeviceDataStorage {
    * @param {string=} deviceCategory 장치 ID
    */
   getMatchingIdFromDataList(deviceId, deviceCategory) {
-    BU.CLI(deviceId, deviceCategory);
+    // BU.CLI(deviceId, deviceCategory);
     try {
       if(deviceCategory.length){
-        let returnValue = {};
         let storageData = this.getMatchingCategoryFromDataList(deviceCategory);
-
         if(storageData){
-          returnValue = _.findWhere(storageData.storage, { id: deviceId });
-          return returnValue;
+          return _.findWhere(storageData.storage, { id: deviceId });
         } else {
-          return returnValue;
+          return {};
         }
 
       } else {

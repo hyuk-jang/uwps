@@ -6,7 +6,10 @@ module.exports = {
     dataTableName: 'weather_device_data',
     troubleTableName: '',
     dateParam: 'writedate',
-    addParamList: [],
+    addParamList: [{
+      baseKey: 'addTemp',
+      updateKey: 'changeTemp',
+    }],
     matchingList: [{
       baseKey: 'smInfrared',
       updateKey: 'sm_infrared',

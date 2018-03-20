@@ -17,11 +17,11 @@ class Model {
   constructor(controller) {
     this.controller = controller;
     this.dataStroageConfig = this.controller.config.controllerInfo;
-    // this.deviceCategory = this.controller.config.controllerInfo.target_category;
+    this.deviceCategory = this.dataStroageConfig.target_category;
 
     this.deviceDataStorage = new DeviceDataStorage(keybinding.binding);
 
-    this.deviceDataStorage.setDevice(this.dataStroageConfig.target_category, this.controller.config.controllerInfo, {id: 'target_id', dbDataTableName: 'data_table_name' });
+    this.deviceDataStorage.setDevice(this.dataStroageConfig, {id: 'target_id', deviceCategory: 'target_category',  dbDataTableName: 'data_table_name' });
   }
 
 
@@ -58,16 +58,18 @@ class Model {
       return false;
     }
 
-    let returnValue =  this.deviceDataStorage.onMeasureDeviceList(new Date(), this.controller.getDeviceStatus(), this.dataStroageConfig.target_category);
+    // let returnValue =  this.deviceDataStorage.onMeasureDeviceList(new Date(), this.controller.getDeviceStatus(), this.dataStroageConfig.target_category);
 
-    BU.CLIN(returnValue, 3);
-
-
+    // BU.CLIN(returnValue, 3);
 
 
-    
-    
+    // const convertDataList = this.deviceDataStorage.processMeasureData(this.deviceCategory);
+    // BU.CLI(convertDataList);
     // const convertDataList = this.processDeviceDataList(weatherDeviceData, null, this.deviceType);
+
+
+    
+    
     // BU.CLI(convertDataList);
   }
 

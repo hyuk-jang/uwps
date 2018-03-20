@@ -6,13 +6,12 @@ const BU = require('base-util-jh').baseUtil;
 /**
  * @typedef {Object} dataStorage
  * @property {string} id
- * @property {string=} tableId
- * @property {Object} deviceSavedInfo
- * @property {Date} measureDate
+ * @property {Object} config
  * @property {Object|Array} data
- * @property {Object|Array} convertedData
- * @property {Array} systemErrorList
  * @property {Array} troubleList
+ * @property {Array} systemErrorList
+ * @property {Date} measureDate
+ * @property {Object|Array} convertedData
  */
 
 /**
@@ -45,6 +44,7 @@ const BU = require('base-util-jh').baseUtil;
 /**
  * @typedef {Object} measureData
  * @property {string} id 
+ * @property {Object} config
  * @property {Array|Object} data
  * @property {Array} systemErrorList
  * @property {Array} troubleList
@@ -68,34 +68,29 @@ class DeviceDataStorage {
 
     /** @type {Array.<dataStorageContainer>} */
     this.deviceDataStorageList = [];
-    /** @type {Array.<controllerStorageContainer>} */
-    this.deviceControllerStorageList = [];
+    // /** @type {Array.<controllerStorageContainer>} */
+    // this.deviceControllerStorageList = [];
   }
 
   /**
    * 
-   * @param {string} deviceCategory 
    * @param {Object|Object[]} deviceConfigInfo 
-   * @param {{id: string, dbDataTableName: string, dbTroubleTableName: string}} keySetInfo 
+   * @param {{id: string, deviceCategory: string, dbDataTableName: string, dbTroubleTableName: string}} keySetInfo 
    */
-  setDevice(deviceCategory, deviceConfigInfo, keySetInfo){
+  setDevice(deviceConfigInfo, keySetInfo){
     if(Array.isArray(deviceConfigInfo)){
       deviceConfigInfo.forEach(currentItem => {
-        return this.setDevice(deviceCategory, currentItem);
+        return this.setDevice(currentItem, keySetInfo);
       });
     }
 
     // Category에 맞는 StorageData를 가져옴
-    let foundStorageData = this.getMatchingCategoryFromDataList(deviceCategory);
-    // let foundStorageController = this.getMatchingCategoryFromControllerList(deviceCategory);
-
-
-    BU.CLI(keySetInfo);
+    let foundStorageData = this.getMatchingCategoryFromDataList(deviceConfigInfo[keySetInfo.deviceCategory]);
     // 없다면 새로 생성
     if(foundStorageData === undefined){
       /** @type {dataStorageContainer} */
       let newStorageData = {
-        deviceCategory,
+        deviceCategory: deviceConfigInfo[keySetInfo.deviceCategory],
         dbDataTableName: deviceConfigInfo[keySetInfo.dbDataTableName] ? deviceConfigInfo[keySetInfo.dbDataTableName] : null,
         dbTroubleTableName: deviceConfigInfo[keySetInfo.dbTroubleTableName] ? deviceConfigInfo[keySetInfo.dbTroubleTableName] : null,
         measureDate: null,
@@ -107,54 +102,37 @@ class DeviceDataStorage {
 
       this.deviceDataStorageList.push(newStorageData);
       foundStorageData = newStorageData;
-
-      // let newStorageController = {
-      //   deviceCategory,
-      //   storage: []
-      // };
-      // this.deviceControllerStorageList.push(newStorageController);
-      // foundStorageController = newStorageController;
     }
-
-    let foundIt = this.getMatchingIdFromDataList(keySetInfo.id, deviceCategory);
+    
+    let foundIt = this.getMatchingIdFromDataList(deviceConfigInfo[keySetInfo.id], deviceConfigInfo[keySetInfo.deviceCategory]);
     if(_.isEmpty(foundIt)){
-      // let addControllerObj = {
-      //   deviceCategory,
-      //   storage: []
-      // };
-  
+      /** @type {dataStorage} */
       const addDataStorageObj = {
         id: deviceConfigInfo[keySetInfo.id],
-        tableId: deviceConfigInfo[keySetInfo.tableId] || null,
-        systemErrorList: [],
+        config: deviceConfigInfo,
         data: null,
-        convertData: null,
-        troubleList: []
+        systemErrorList: [],
+        troubleList: [],
+        convertedData: null,
+        measureDate: null
       };
       foundStorageData.storage.push(addDataStorageObj);
+
+
+      BU.CLI(this.deviceDataStorageList);
     } else {
       throw new Error('해당 장치는 이미 등록되어 있습니다.');
     }
   }
-
 
   /**
    * 장치 카테고리에 맞는 타입을 가져옴
    * @param {string} deviceCategory 장치 카테고리 'inverter', 'connector' ... etc
    */
   getMatchingCategoryFromDataList(deviceCategory) {
+    BU.CLI(deviceCategory);
+    BU.CLI(this.deviceDataStorageList);
     const foundIt = _.findWhere(this.deviceDataStorageList, {
-      deviceCategory
-    });
-    return foundIt;
-  }
-
-  /**
-   * 장치 카테고리에 맞는 타입을 가져옴
-   * @param {string} deviceCategory 장치 카테고리 'inverter', 'connector' ... etc
-   */
-  getMatchingCategoryFromControllerList(deviceCategory) {
-    const foundIt = _.findWhere(this.deviceControllerStorageList, {
       deviceCategory
     });
     return foundIt;
@@ -163,33 +141,43 @@ class DeviceDataStorage {
   /**
    * 장치 ID를 가진 Data Model 객체 반환
    * @param {string} deviceId 장치 ID
-   * @param {string} deviceCategory 장치 ID
+   * @param {string=} deviceCategory 장치 ID
    */
   getMatchingIdFromDataList(deviceId, deviceCategory) {
-    // BU.CLI(deviceId, deviceType);
+    BU.CLI(deviceId, deviceCategory);
     try {
-      let storageData = this.getMatchingCategoryFromDataList(deviceCategory);
-      let returnValue = _.findWhere(storageData.storage, { id: deviceId });
-      return returnValue;
+      if(deviceCategory.length){
+        let returnValue = {};
+        let storageData = this.getMatchingCategoryFromDataList(deviceCategory);
+
+        if(storageData){
+          returnValue = _.findWhere(storageData.storage, { id: deviceId });
+          return returnValue;
+        } else {
+          return returnValue;
+        }
+
+      } else {
+        let foundIt = {};
+        _.find(this.deviceDataStorageList, deviceDataStorage => {
+          let foundStorage = _.findWhere(deviceDataStorage.storage, {id: deviceId});
+          if(_.isEmpty(foundStorage)){
+            return false;
+          } else {
+            foundIt = foundStorage;
+            return true;
+          }
+        });
+        return foundIt;
+      }
+
     } catch (error) {
       throw error;
     }
   }
 
-  /**
-   * 장치 ID를 가진 Controller Object 객체 반환
-   * @param {string} deviceId 장치 ID
-   * @param {string} deviceCategory 장치 카테고리 (인버터, 접속반, ...etc)
-   */
-  getMatchingIdFromControllerList(deviceId, deviceCategory) {
-    try {
-      let storageController = this. getMatchingCategoryFromControllerList(deviceCategory);
-      let returnValue = _.findWhere(storageController.storage, { id: deviceId });
-      return returnValue;
-    } catch (error) {
-      throw error;
-    }
-  }
+  
+
 
 
   /**
@@ -210,6 +198,7 @@ class DeviceDataStorage {
       dataStorage.data = measureData.data;
       dataStorage.systemErrorList = measureData.systemErrorList;
       dataStorage.troubleList = measureData.troubleList;
+      dataStorage.config = measureData.config;
 
       return dataStorage;
     } catch (error) {
@@ -244,14 +233,14 @@ class DeviceDataStorage {
 
 
   /**
-   * 실제 계측한 데이터 처리
+   * 지정한 카테고리의 모든 데이터를 순회하면서 db에 적용할 데이터를 정제함.
    * @param {string} deviceCategory  장치 Type 'inverter', 'connector'
    * @return {Promise} upsasDataGroup
    */
   async processMeasureData(deviceCategory) {
     // BU.CLI('processMeasureData', deviceType);
     let dataStorageContainer = this.getMatchingCategoryFromDataList(deviceCategory);
-    
+    BU.CLI(dataStorageContainer);
     let foundKeyChangeConfig = _.findWhere(this.keyChangeConfigList, {
       deviceCategory
     });
@@ -269,8 +258,9 @@ class DeviceDataStorage {
     dataStorageContainer.storage.forEach(storage => {
       // const contollerInfo = this.findUpsasController(storage.id, deviceCategory);
       // 
-      const deviceSavedInfo = storage.deviceSavedInfo;
-      // BU.CLI(deviceSavedInfo);
+      // BU.CLI(storage);
+      const dataStorageConfig = storage.config;
+      // BU.CLI(dataStorageConfig);
       
       let resultProcessError;
       
@@ -290,9 +280,9 @@ class DeviceDataStorage {
 
       // Trouble 이나 System Error가 발생한 계측 데이터는 사용하지 않음.
       if (!hasError) {
-        const convertDataList = this.processDeviceDataList(storage.data, deviceSavedInfo, deviceCategory);
-        storage.convertData = convertDataList;
-        dataStorageContainer.insertDataList = dataStorageContainer.insertDataList.concat(convertDataList);
+        const convertedDataList = this.processDeviceDataList(storage.data, dataStorageConfig, deviceCategory);
+        storage.convertedData = convertedDataList;
+        dataStorageContainer.insertDataList = dataStorageContainer.insertDataList.concat(convertedDataList);
       }
     });
 
@@ -382,27 +372,29 @@ class DeviceDataStorage {
    * 장치 데이터 리스트 keyBinding 처리하여 반환
    * @param {Object|Array} deviceData 
    * @param {Object} deviceSavedInfo 
-   * @param {string} deviceType 장치 타입 (inverter, connector)
+   * @param {string} deviceCategory 장치 타입 (inverter, connector)
    */
-  processDeviceDataList(deviceData, deviceSavedInfo, deviceType) {
+  processDeviceDataList(deviceData, deviceSavedInfo, deviceCategory) {
     // BU.CLI('processDeviceDataList', deviceData);
     // 배열 일 경우에는 재귀
     if (_.isArray(deviceData)) {
       let convertDataList = [];
 
       deviceData.forEach(data => {
-        let result = this.processDeviceDataList(data, deviceSavedInfo, deviceType);
+        let result = this.processDeviceDataList(data, deviceSavedInfo, deviceCategory);
         convertDataList = convertDataList.concat(result);
       });
       return convertDataList;
     } else if (_.isObject(deviceData)) {
-      let bindingObj = _.findWhere(keybinding.binding, {
-        deviceType
+      let keyChangeConfig = _.findWhere(this.keyChangeConfigList, {
+        deviceCategory
       });
 
+      BU.CLI(keyChangeConfig);
+
       let convertData = {};
-      const addParamList = bindingObj.addParamList;
-      const matchingList = bindingObj.matchingList;
+      const addParamList = keyChangeConfig.addParamList;
+      const matchingList = keyChangeConfig.matchingList;
 
       // 계산식 반영
       matchingList.forEach(matchingObj => {

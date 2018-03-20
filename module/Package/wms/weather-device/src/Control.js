@@ -59,6 +59,7 @@ class Control {
   getDeviceStatus() {
     return {
       id: this.config.controllerInfo.target_id,
+      config: this.config.controllerInfo,
       data: this.model.deviceData,
       systemErrorList: [],
       troubleList: []

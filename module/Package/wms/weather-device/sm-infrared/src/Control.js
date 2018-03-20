@@ -33,11 +33,12 @@ class Control extends AbstDeviceClient {
 
   /**
    * 장치의 현재 데이터 및 에러 내역을 가져옴
-   * @return {{id: string, data: {smRain: number}, systemErrorList: Array, troubleList: Array}} 
+   * @return {{id: string, config: Object, data: {smRain: number}, systemErrorList: Array, troubleList: Array}} 
    */
   getDeviceStatus() {
     return {
       id: this.config.deviceInfo.target_id,
+      config: this.config.deviceInfo,
       data: this.model.deviceData,
       systemErrorList: this.systemErrorList,
       troubleList: []

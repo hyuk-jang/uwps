@@ -12,6 +12,7 @@ module.exports = {
       database: 'upsas'
     },
     controllerInfo: {
+      addTemp: 555,
       target_id: 'wds_01',
       target_category: 'weatherDevice',
       data_table_name: 'weather_device_data',

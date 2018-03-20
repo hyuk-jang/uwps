@@ -47,7 +47,7 @@ module.exports = function (app) {
     // TEST 구간
     moduleStatusList.forEach(currentItem => {
       let foundIt = _.findWhere(tempSacle.moduleScale, {photovoltaic_seq: currentItem.photovoltaic_seq}); 
-      currentItem.vol = foundIt.scale * currentItem.vol;
+      currentItem.vol = currentItem.vol === '' ? '' :  Number((currentItem.vol * foundIt.scale).scale(1, 1));
     });
 
     // BU.CLI(moduleStatusList);

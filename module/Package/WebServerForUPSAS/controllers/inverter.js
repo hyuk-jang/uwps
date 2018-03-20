@@ -71,7 +71,7 @@ module.exports = function (app) {
     chartData.series.forEach(currentItem => {
       let foundIt = _.findWhere(tempSacle.inverterScale, {target_id: currentItem.name}); 
       currentItem.data.forEach((data, index) => {
-        currentItem.data[index] = Number((data * foundIt.scale).scale(1, 1));
+        currentItem.data[index] = data === '' ? '' : Number((data * foundIt.scale).scale(1, 1));
       });
     });
 

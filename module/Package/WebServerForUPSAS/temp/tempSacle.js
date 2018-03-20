@@ -9,7 +9,8 @@ exports.moduleScale = [{
   scale: 1.026608762
 },{
   photovoltaic_seq: 3,
-  scale: 0.999800133
+  scale: 1
+  // scale: 0.999800133
 },{
   photovoltaic_seq: 4,
   scale: 1.026412107

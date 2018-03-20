@@ -21,13 +21,13 @@ SELECT
         ROUND(SUM(max_c_wh) / 1000, 3) AS total_kwh,
         CASE
 			WHEN inverter_seq = 1
-			THEN 1.008242
+			THEN 1.008241553
 			WHEN inverter_seq = 2
-			THEN 1.1026609
+			THEN 1.026608762
 			WHEN inverter_seq = 3
-			THEN 0.9998
+			THEN 0.999800133
 			WHEN inverter_seq = 4
-			THEN 1.026412
+			THEN 1.026412107
 			ELSE 1
 		END AS scale
     FROM

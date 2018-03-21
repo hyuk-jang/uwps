@@ -266,7 +266,7 @@ exports.refineSelectedInverterStatus = refineSelectedInverterStatus;
 
 
 /**
- * @typedef {{range: [], series: Array.<{name: string, data: []}>}} chartData 차트 그리기 위한 데이터 형태
+ * @typedef {{range: [], series: Array.<{name: string, color: string=, data: []}>}} chartData 차트 그리기 위한 데이터 형태
  */
 
 /**
@@ -275,15 +275,22 @@ exports.refineSelectedInverterStatus = refineSelectedInverterStatus;
  * @param {string} dataKey Chart에 표현할 Key
  * @param {string} rangeKey 차트 리스트 범위를 참조할 Key
  * @param {string} groupKey rowDataPacketList를 Group 처리 할 Key
+ * @param {{colorKey: string, sortKey: string}=} option color 및 정렬 옵션
  * @return {chartData}
  */
-function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey) {
+function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey, option) {
   // BU.CLI(rowDataPacketList);
+
   // 반환 데이터 유형
   let returnValue = {
-    range: _.sortBy(_.union(_.pluck(rowDataPacketList, rangeKey)), rangeKey),
+    range: _.sortBy(_.union(_.pluck(rowDataPacketList, rangeKey))),
     series: []
   };
+
+  // 색상키가 정해져있찌 않다면 색상 없이 반환
+  const hasColor = _.isEmpty(option) || _.isEmpty(option.colorKey) ? false : true;
+  const hasSort = _.isEmpty(option) || _.isEmpty(option.sortKey) ? false : true;
+
   // BU.CLI(returnValue.range);
   // 같은 Key 끼리 그루핑
   if (groupKey) {
@@ -294,6 +301,15 @@ function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey) {
         name: gKey,
         data: []
       };
+
+      let dataRow =  _.first(groupObj);
+      if(hasColor){
+        addObj.color = dataRow[option.colorKey];
+      }
+      if(hasSort){
+        addObj.sort = dataRow[option.sortKey];
+      }
+
       _.each(groupObj, gInfo => {
         let index = _.indexOf(returnValue.range, gInfo[rangeKey]);
         addObj.data[index] = gInfo[dataKey];
@@ -301,8 +317,11 @@ function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey) {
       return addObj;
     });
 
-    returnValue.series = _.sortBy(returnValue.series, obj => obj.name );
-
+    if(hasSort){
+      returnValue.series = _.sortBy(returnValue.series, obj => obj.sort );
+    } else {
+      returnValue.series = _.sortBy(returnValue.series, obj => obj.name );
+    }
   } else {  
     let addObj = {
       name: '',
@@ -327,14 +346,20 @@ exports.makeDynamicChartData = makeDynamicChartData;
  * @param {string} dataKey Chart에 표현할 Key
  * @param {string} rangeKey 차트 리스트 범위를 참조할 Key
  * @param {string} groupKey rowDataPacketList를 Group 처리 할 Key
+ * @param {{colorKey: string, sortKey: string}=} option color 및 정렬 옵션
  * @return {chartData}
  */
-function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, groupKey) {
+function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, groupKey, option) {
   // 반환 데이터 유형
   let returnValue = {
     range: baseRange.shortTxtPoint,
     series: []
   };
+
+  
+  // 색상키가 정해져있찌 않다면 색상 없이 반환
+  const hasColor = _.isEmpty(option) || _.isEmpty(option.colorKey) ? false : true;
+  const hasSort = _.isEmpty(option) || _.isEmpty(option.sortKey) ? false : true;
 
   // 같은 Key 끼리 그루핑
   if (groupKey) {
@@ -345,6 +370,15 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
         name: gKey,
         data: []
       };
+
+      let dataRow =  _.first(groupObj);
+      if(hasColor){
+        BU.CLI('@@@@@@@@');
+        addObj.color = dataRow[option.colorKey];
+      }
+      if(hasSort){
+        addObj.sort = dataRow[option.sortKey];
+      }
 
       baseRange.fullTxtPoint.forEach(fullTxtDate => {
         let resultFind = _.findWhere(groupObj, {
@@ -361,7 +395,12 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
       // });
       return addObj;
     });
-    returnValue.series = _.sortBy(returnValue.series, obj => obj.name );
+
+    if(hasSort){
+      returnValue.series = _.sortBy(returnValue.series, obj => obj.sort );
+    } else {
+      returnValue.series = _.sortBy(returnValue.series, obj => obj.name );
+    }
   } else {
     let addObj = {
       name: '',

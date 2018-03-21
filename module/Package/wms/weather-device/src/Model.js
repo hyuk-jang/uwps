@@ -5,7 +5,7 @@ const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
 const Control = require('./Control');
 
-const keybinding = require('../config/keybinding');
+const refinedDeviceDataConfig = require('../config/refinedDeviceDataConfig');
 
 const DeviceDataStorage = require('./DeviceDataStorage');
 
@@ -19,9 +19,9 @@ class Model {
     this.dataStroageConfig = this.controller.config.controllerInfo;
     this.deviceCategory = this.dataStroageConfig.target_category;
 
-    this.deviceDataStorage = new DeviceDataStorage(keybinding.binding);
+    this.deviceDataStorage = new DeviceDataStorage(refinedDeviceDataConfig);
 
-    this.deviceDataStorage.setDevice(this.dataStroageConfig, {id: 'target_id', deviceCategory: 'target_category',  dbDataTableName: 'data_table_name' });
+    this.deviceDataStorage.setDevice(this.dataStroageConfig, {id: 'target_id', deviceCategory: 'target_category'});
   }
 
 
@@ -48,7 +48,7 @@ class Model {
 
     this.deviceData = Object.assign(smInfraredData.data, vantagepro2Data.data);
 
-    // let weatherDeviceData = Object.assign(smInfraredData.data, vantagepro2Data.data);
+    let weatherDeviceData = Object.assign(smInfraredData.data, vantagepro2Data.data);
 
     // BU.CLI(weatherDeviceData);
 
@@ -58,13 +58,13 @@ class Model {
       return false;
     }
 
-    let returnValue =  this.deviceDataStorage.onMeasureDeviceList(new Date(), this.controller.getDeviceStatus(), this.deviceCategory);
+    let returnValue =  this.deviceDataStorage.onMeasureDevice(new Date(), this.controller.getDeviceStatus(), this.deviceCategory);
 
     BU.CLIN(returnValue, 3);
 
 
-    // const convertDataList = this.deviceDataStorage.processMeasureData(this.deviceCategory);
-    // BU.CLI(convertDataList);
+    const convertDataList = this.deviceDataStorage.processMeasureData(this.deviceCategory);
+    BU.CLI(convertDataList);
     // const convertDataList = this.processDeviceDataList(weatherDeviceData, null, this.deviceType);
 
 
@@ -92,7 +92,7 @@ class Model {
       });
       return convertDataList;
     } else if (_.isObject(deviceData)) {
-      let bindingObj = _.findWhere(keybinding.binding, {
+      let bindingObj = _.findWhere(refinedDeviceDataConfig.binding, {
         deviceCategory
       });
 

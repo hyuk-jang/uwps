@@ -83,11 +83,11 @@ module.exports = function (app) {
 
 
     // 금일 접속반 발전량 현황
-    let searchRange = biModule.getSearchRange('hour');
-    // let searchRange = biModule.getSearchRange('hour', '2018-03-10');
+    // let searchRange = biModule.getSearchRange('hour');
+    let searchRange = biModule.getSearchRange('hour', '2018-03-10');
     let connectorPowerList = await biModule.getConnectorPower(searchRange, moduleSeqList);
-    let chartData = webUtil.makeDynamicChartData(connectorPowerList, 'wh', 'hour_time', 'photovoltaic_seq');
-
+    // BU.CLI(connectorPowerList);
+    let chartData = webUtil.makeDynamicChartData(connectorPowerList, 'wh', 'hour_time', 'photovoltaic_seq', {colorKey: 'chart_color', sortKey: 'chart_sort_rank'});
 
 
     // TEST
@@ -98,18 +98,9 @@ module.exports = function (app) {
       });
     });
 
-
-    // FIXME 정렬때문에 이렇게 함.
-    let sortIndexList = [5, 6, 1, 2, 3, 4];
-    chartData.series = _.sortBy(chartData.series, item => {
-      return _.indexOf(sortIndexList, Number(item.name));
-    });
+    // BU.CLI(chartData);
 
 
-    // chartData.series = _.map(refinedConnectorList, refinedObj => {
-    //   let findObj = _.findWhere(chartData.series, {name: refinedObj.inverter_seq.toString()});
-    //   return _.isEmpty(findObj) ? {name: '', data:[]} : findObj;
-    // });
     // BU.CLI(chartData);
     webUtil.applyScaleChart(chartData, 'hour');
     // BU.CLI(chartData);

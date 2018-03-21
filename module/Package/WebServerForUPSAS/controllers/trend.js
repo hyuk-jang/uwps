@@ -82,6 +82,7 @@ module.exports = function (app) {
     
     /** searchRange를 기준으로 검색 Column Date를 정함  */
     let betweenDatePoint =  BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchType);
+    BU.CLI(betweenDatePoint);
     // 인버터 차트
     let inverterChart = await getInverterChart(searchOption, searchRange, betweenDatePoint);
     // BU.CLI(inverterChart);
@@ -140,11 +141,10 @@ module.exports = function (app) {
     let inverterTrend = await biModule.getInverterTrend(device_seq, searchRange);
 
     webUtil.addKeyToReport(inverterTrend, viewInverterStatus, 'target_id', 'inverter_seq');
-    
 
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
-    chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, 'interval_wh', 'group_date', 'target_id');
-    // BU.CLI(chartData.series[3]);
+    chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, 'interval_wh', 'group_date', 'target_id', {colorKey: 'chart_color', sortKey: 'chart_sort_rank'});
+    // BU.CLI(chartData);
 
     // TEST
     chartData.series.forEach(currentItem => {
@@ -209,7 +209,7 @@ module.exports = function (app) {
     /** 모듈 데이터 가져옴 */
     let connectorTrend =  await biModule.getConnectorTrend(moduleSeqList, searchRange);
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
-    chartData = webUtil.makeStaticChartData(connectorTrend, betweenDatePoint, 'total_wh', 'group_date', 'photovoltaic_seq');
+    chartData = webUtil.makeStaticChartData(connectorTrend, betweenDatePoint, 'total_wh', 'group_date', 'photovoltaic_seq', {colorKey: 'chart_color', sortKey: 'chart_sort_rank'});
 
 
     // TEST

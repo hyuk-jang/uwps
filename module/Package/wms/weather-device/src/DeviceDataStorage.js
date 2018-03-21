@@ -9,17 +9,31 @@ const BU = require('base-util-jh').baseUtil;
  * @property {string} id Device Controller ID
  * @property {Object} config Device Controller를 구동하기 위한 설정
  * @property {Object|Array} data Controller에서 측정한 데이터
- * @property {Array} troubleList 장치와 약속한 프로토콜 상에서 발생한 에러
- * @property {Array} systemErrorList Controller를 구동하고 장치와 연결을 수립하고 통신하는 중간에 생기는 에러
+ * @property {Array.<deviceErrorInfo>} troubleList 장치와 약속한 프로토콜 상에서 발생한 에러
+ * @property {Array.<deviceErrorInfo>} systemErrorList Controller를 구동하고 장치와 연결을 수립하고 통신하는 중간에 생기는 에러
  * @property {Date} measureDate 현재 데이터들의 측정 시간 (DeviceContainer에서 처리)
- * @property {Object|Array} convertedData data를 {keyChangeConfig}를 통해서 변경한 데이터 (DeviceContainer에서 처리)
+ * @property {Object|Array} convertedData data를 {refinedDeviceDataConfig}를 통해서 변경한 데이터 (DeviceContainer에서 처리)
  */
+
+/**
+  * @typedef {Object} deviceErrorInfo
+  * @property {string} code 장치 에러 고유 id
+  * @property {string} msg 세부 오류 정보
+  */
+
+/**
+   * @typedef {Object} defaultDbTroubleTableScheme 필수 장치 에러 테이블 스키마
+   * @property {number} is_error
+   * @property {string} code
+   * @property {string} msg
+   * @property {Date} occur_date
+   * @property {Date} fix_date
+   */
 
 /**
  * @typedef {Object} dataStorageContainer Device Category별로 dataStorage를 관리하는 주체
  * @property {string} deviceCategory 장치 카테고리 (inverter, connector, weatherDevice, ...etc)
- * @property {string=} dbDataTableName 계측 data를 반영할 DB Table Name. dataStorage.convertedData를 저장할 DB Table. 이 값이 없을 경우 DB에 기록하지 않는다고 판단
- * @property {string=} dbTroubleTableName 오류 data를 반영할 DB Table Name. dataStorage.troubleList, dataStorage.systemErrorList 를 저장할 DB Table. 이 값이 없을 경우 DB에 기록하지 않는다고 판단
+ * @property {refinedDeviceDataConfig} refinedDeviceDataConfig 데이터를 가공하기 위한 설정 변수
  * @property {Array} insertTroubleList 신규 오류 리스트
  * @property {Array} updateTroubleList 기존 DB의 오류 내역을 수정할 리스트
  * @property {Array} insertDataList 저장할 계측 데이터 리스트
@@ -32,14 +46,28 @@ const BU = require('base-util-jh').baseUtil;
  * @property {Array} storage
  */
 
+
 /**
- * @typedef {Object} keyChangeConfig
+ * @typedef {Object} addParamKey
+ * @property {string} fromKey 설정 정보에 저장된 Key
+ * @property {string} toKey DB에 입력할 Key
+ */
+
+/**
+ * @typedef {Object} matchingRefinedInfo
+ * @property {string} fromKey 설정 정보에 저장된 Key
+ * @property {string} toKey DB에 입력할 Key
+ * @property {string|number} calculate 데이터 가공할 계산 식. string일 경우 eval(), number 일경우 scale
+ * @property {number} toFixed 소수점 자리수
+ */
+
+
+/**
+ * @typedef {Object} refinedDeviceDataConfig
  * @property {string} deviceCategory
- * @property {string} dataTableName
- * @property {string} troubleTableName
- * @property {string} dateParam
- * @property {Array} addParamList
- * @property {Array.<{baseKey: string, updateKey: string, calculate: number, toFixed: number}>} matchingList
+ * @property {{tableName: string=, addParamList: Array.<addParamKey>=, insertDateKey: string=, updateKey: string=}} troubleTableInfo 장치 에러에 관한 처리 설정 정보
+ * @property {{tableName: string=, addParamList: Array.<addParamKey>=, insertDateKey: string=}} dataTableInfo 장치 계측 데이터에 관한 처리 설정 정보
+ * @property {Array.<matchingRefinedInfo>} matchingList
  */
 
 /**
@@ -47,17 +75,17 @@ const BU = require('base-util-jh').baseUtil;
  * @property {string} id Device Controller ID
  * @property {Object} config Device Controller를 구동하기 위한 설정
  * @property {Array|Object} data Controller에서 측정한 데이터
- * @property {Array} systemErrorList 장치와 약속한 프로토콜 상에서 발생한 에러
- * @property {Array} troubleList Controller를 구동하고 장치와 연결을 수립하고 통신하는 중간에 생기는 에러
+ * @property {Array.<deviceErrorInfo>} systemErrorList 장치와 약속한 프로토콜 상에서 발생한 에러
+ * @property {Array.<deviceErrorInfo>} troubleList Controller를 구동하고 장치와 연결을 수립하고 통신하는 중간에 생기는 에러
  */
 
 
 let instance;
 class DeviceDataStorage {
   /**
-   * @param {Array.<keyChangeConfig>} keyChangeConfigList 
+   * @param {Array.<refinedDeviceDataConfig>} refinedDeviceDataConfigList 
    */
-  constructor(keyChangeConfigList) {
+  constructor(refinedDeviceDataConfigList) {
     if(instance){
       return instance;
     } else {
@@ -65,7 +93,7 @@ class DeviceDataStorage {
     }
 
 
-    this.keyChangeConfigList = keyChangeConfigList; 
+    this.refinedDeviceDataConfigList = refinedDeviceDataConfigList; 
 
     /** @type {Array.<dataStorageContainer>} */
     this.deviceDataStorageList = [];
@@ -76,7 +104,7 @@ class DeviceDataStorage {
   /**
    * 
    * @param {Object|Object[]} deviceConfigInfo 
-   * @param {{id: string, deviceCategory: string, dbDataTableName: string, dbTroubleTableName: string}} keySetInfo 
+   * @param {{id: string, deviceCategory: string} keySetInfo 
    */
   setDevice(deviceConfigInfo, keySetInfo){
     if(Array.isArray(deviceConfigInfo)){
@@ -85,14 +113,17 @@ class DeviceDataStorage {
       });
     }
 
+    const deviceCategory = deviceConfigInfo[keySetInfo.deviceCategory];
+
     // Category에 맞는 StorageData를 가져옴
-    let foundStorageData = this.getMatchingCategoryFromDataList(deviceConfigInfo[keySetInfo.deviceCategory]);
+    let foundStorageData = this.getMatchingCategoryFromDataList(deviceCategory);
     // 없다면 새로 생성
     if(foundStorageData === undefined){
       foundStorageData = {
         deviceCategory: deviceConfigInfo[keySetInfo.deviceCategory],
-        dbDataTableName: deviceConfigInfo[keySetInfo.dbDataTableName] ? deviceConfigInfo[keySetInfo.dbDataTableName] : null,
-        dbTroubleTableName: deviceConfigInfo[keySetInfo.dbTroubleTableName] ? deviceConfigInfo[keySetInfo.dbTroubleTableName] : null,
+        refinedDeviceDataConfig: _.findWhere(this.refinedDeviceDataConfigList, {deviceCategory}),
+        // dbDataTableName: deviceConfigInfo[keySetInfo.dbDataTableName] ? deviceConfigInfo[keySetInfo.dbDataTableName] : null,
+        // dbTroubleTableName: deviceConfigInfo[keySetInfo.dbTroubleTableName] ? deviceConfigInfo[keySetInfo.dbTroubleTableName] : null,
         measureDate: null,
         insertTroubleList: [],
         updateTroubleList: [],
@@ -116,7 +147,7 @@ class DeviceDataStorage {
         measureDate: null
       };
       foundStorageData.storage.push(addDataStorageObj);
-      // BU.CLI(this.deviceDataStorageList);
+      BU.CLIN(this.deviceDataStorageList);
     } else {
       throw new Error('해당 장치는 이미 등록되어 있습니다.');
     }
@@ -138,18 +169,14 @@ class DeviceDataStorage {
    * 장치 ID를 가진 Data Model 객체 반환
    * @param {string} deviceId 장치 ID
    * @param {string=} deviceCategory 장치 ID
+   * @return {dataStorage}
    */
   getMatchingIdFromDataList(deviceId, deviceCategory) {
     // BU.CLI(deviceId, deviceCategory);
     try {
       if(deviceCategory.length){
         let storageData = this.getMatchingCategoryFromDataList(deviceCategory);
-        if(storageData){
-          return _.findWhere(storageData.storage, { id: deviceId });
-        } else {
-          return {};
-        }
-
+        return storageData ? _.findWhere(storageData.storage, { id: deviceId }) : {};
       } else {
         let foundIt = {};
         _.find(this.deviceDataStorageList, deviceDataStorage => {
@@ -163,7 +190,6 @@ class DeviceDataStorage {
         });
         return foundIt;
       }
-
     } catch (error) {
       throw error;
     }
@@ -179,14 +205,14 @@ class DeviceDataStorage {
    * @param {measureData} measureData Device Controller getDeviceStatus() 결과
    * @param {string} deviceCategory 장치 Type 'inverter', 'connector'
    */
-  onDeviceData(measureTime, measureData, deviceCategory) {
+  updateDataStorage(measureTime, measureData, deviceCategory) {
     try {
       let id = measureData.id;
       let dataStorage = this.getMatchingIdFromDataList(id, deviceCategory);
       if (_.isEmpty(dataStorage)) {
         throw Error(`fn(onDeviceData) device ID: ${id}가 이상합니다.`);
       }
-      
+      // 선택한 저장소 데이터 갱신
       dataStorage.measureDate = measureTime;
       dataStorage.data = measureData.data;
       dataStorage.systemErrorList = measureData.systemErrorList;
@@ -202,26 +228,28 @@ class DeviceDataStorage {
   /**
    * 장치 그룹을 DB에 입력
    * @param {Date} measureTime DB에 입력할 계측 날짜
-   * @param {measureData} measureData Device Controller getDeviceStatus() 결과
+   * @param {measureData|Array.<measureData>} measureData Device Controller getDeviceStatus() 결과
    * @param {string} deviceCategory 장치 Type 'inverter', 'connector'
    */
-  onMeasureDeviceList(measureTime, measureData, deviceCategory) {
+  onMeasureDevice(measureTime, measureData, deviceCategory) {
     // BU.CLI('onMeasureDeviceList', deviceControllerMeasureData);
-    let dataStorage = this.getMatchingCategoryFromDataList(deviceCategory);
+    let dataStorageContainer = this.getMatchingCategoryFromDataList(deviceCategory);
     
-    if (_.isEmpty(dataStorage)) {
+    if (_.isEmpty(dataStorageContainer)) {
       throw Error(`deviceType [${deviceCategory}]은 없습니다.`);
     }
-    dataStorage.measureDate = measureTime;
+    // 
+    dataStorageContainer.measureDate = measureTime;
+
     if (typeof measureData === 'object' && Array.isArray(measureData)) {
       measureData.forEach(deviceMeasureData => {
-        this.onDeviceData(measureTime, deviceMeasureData, deviceCategory);
+        this.updateDataStorage(measureTime, deviceMeasureData, deviceCategory);
       });
     } else {
-      this.onDeviceData(measureTime, measureData, deviceCategory);
+      this.updateDataStorage(measureTime, measureData, deviceCategory);
     }
 
-    return dataStorage;
+    return dataStorageContainer;
   }
 
 
@@ -234,36 +262,35 @@ class DeviceDataStorage {
     // BU.CLI('processMeasureData', deviceType);
     let dataStorageContainer = this.getMatchingCategoryFromDataList(deviceCategory);
     BU.CLI(dataStorageContainer);
-    let foundKeyChangeConfig = _.findWhere(this.keyChangeConfigList, {
-      deviceCategory
-    });
-    BU.CLI(foundKeyChangeConfig);
+    
+    // let foundRefinedDeviceDataConfig = _.findWhere(this.refinedDeviceDataConfigList, {
+    //   deviceCategory
+    // });
+    // BU.CLI(foundRefinedDeviceDataConfig);
 
 
     let strMeasureDate = BU.convertDateToText(dataStorageContainer.measureDate);
     let dbTroubleList = [];
 
-    // Trouble을 DB상에 처리할 것이라면
-    if(dataStorageContainer.dbTroubleTableName){
+    // TODO Trouble을 DB상에 처리할 것이라면
+    if(dataStorageContainer.refinedDeviceDataConfig.troubleTableInfo.tableName){
       dbTroubleList = await this.getTroubleList(deviceCategory);
     }
 
-    dataStorageContainer.storage.forEach(storage => {
-      // const contollerInfo = this.findUpsasController(storage.id, deviceCategory);
-      // 
-      // BU.CLI(storage);
-      const dataStorageConfig = storage.config;
+    // 카테고리에 저장되어 있는 저장소의 모든 데이터 점검
+    dataStorageContainer.storage.forEach(measureDataInfo => {
+      const dataStorageConfig = measureDataInfo.config;
       // BU.CLI(dataStorageConfig);
       
       let resultProcessError;
       
       // 시스템 오류나 장치 이상이 발견된다면 오류발생 처리
-      let hasError = storage.systemErrorList.length || storage.troubleList.length ? true : false;
+      let hasError = measureDataInfo.systemErrorList.length || measureDataInfo.troubleList.length ? true : false;
       // 시스템 에러가 있다면 
-      if (storage.systemErrorList.length) {
-        resultProcessError = this.processDeviceErrorList(storage.systemErrorList, dbTroubleList, storage, 1, deviceCategory);
+      if (measureDataInfo.systemErrorList.length) {
+        resultProcessError = this.processDeviceErrorList(measureDataInfo, dataStorageContainer, dbTroubleList);
       } else { // 장치 에러 처리
-        resultProcessError = this.processDeviceErrorList(storage.troubleList, dbTroubleList, storage, 0, deviceCategory);
+        resultProcessError = this.processDeviceErrorList(measureDataInfo.troubleList, dbTroubleList, measureDataInfo, 0, deviceCategory);
       }
 
       // BU.CLI(resultProcessError);
@@ -273,8 +300,8 @@ class DeviceDataStorage {
 
       // Trouble 이나 System Error가 발생한 계측 데이터는 사용하지 않음.
       if (!hasError) {
-        const convertedDataList = this.processDeviceDataList(storage.data, dataStorageConfig, deviceCategory);
-        storage.convertedData = convertedDataList;
+        const convertedDataList = this.processDeviceDataList(measureDataInfo.data, dataStorageConfig, deviceCategory);
+        measureDataInfo.convertedData = convertedDataList;
         dataStorageContainer.insertDataList = dataStorageContainer.insertDataList.concat(convertedDataList);
       }
     });
@@ -289,7 +316,7 @@ class DeviceDataStorage {
 
     // insertDataList에 날짜 추가
     dataStorageContainer.insertDataList = _.map(dataStorageContainer.insertDataList, insertData => {
-      return Object.assign({ [foundKeyChangeConfig.dateParam]: strMeasureDate }, insertData);
+      return Object.assign({ [foundRefinedDeviceDataConfig.dateParam]: strMeasureDate }, insertData);
     });
 
     BU.CLI(dataStorageContainer);
@@ -300,17 +327,82 @@ class DeviceDataStorage {
 
   /**
    * Device Error 처리. 신규 에러라면 insert, 기존 에러라면 dbTroubleList에서 해당 에러 삭제, 최종으로 남아있는 에러는 update
-   * @param {Array.<{code: string, msg: string, occur_date: Date}>} deviceErrorList 장치에서 발생된 시스템 에러 목록
-   * @param {Array} dbTroubleList DB에서 가져온 trouble list.
-   * @param {{seq: number, measureDate: Date}} categoryInfo deviceDataList 요소. 시퀀스 와 측정 날짜
-   * @param {boolean} isSystemError System Error 인지 여부
-   * @param {string} deviceCategory 장치 타입 
+   * @param {measureData} measureData deviceDataList 요소. 시퀀스 와 측정 날짜
+   * @param {dataStorageContainer} dataStorageContainer deviceDataList 요소. 시퀀스 와 측정 날짜
+   * @param {Array.<defaultDbTroubleTableScheme>} dbTroubleList DB에서 가져온 trouble list.
    * @return {{insertTroubleList: Array.<{code: string, msg: string, occur_date: Date}>, updateTroubleList: Array.<{tbName: string, whereObj: {key: string, value: number}, updateObj: {fix_date: Date}}>, dbTroubleList: Array}} 삽입 목록과 수정 목록, 수정한 dbTroubleList 
    */
-  processDeviceErrorList(deviceErrorList, dbTroubleList, categoryInfo, isSystemError, deviceCategory) {
+  processDeviceErrorList(measureData, dataStorageContainer, dbTroubleList) {
     // BU.CLI('processSystemErrorList', deviceErrorList, categoryInfo.seq, deviceType);
-    const seq = categoryInfo.seq;
-    const measureDate = categoryInfo.measureDate;
+
+    // dataStorageContainer.refinedDeviceDataConfig.
+
+    // 에러를 저장할 DB Schema 정보
+    let troubleTableInfo = dataStorageContainer.refinedDeviceDataConfig.troubleTableInfo;
+    
+    // let troubleTableName = dataStorageContainer.refinedDeviceDataConfig.troubleTableInfo.tableName;
+    // // 에러
+    // let troubleTableIdKey = dataStorageContainer.refinedDeviceDataConfig.troubleTableId;
+    // let troubleTableIdValue = measureData.config[troubleTableIdKey];
+
+    // 에러를 처리할 대상 설정
+    /** @type {Array.<deviceErrorInfo>} */
+    let deviceErrorList = [];
+    let isSystemError = 0;
+    
+    if(measureData.systemErrorList.length){
+      isSystemError = 1;
+      deviceErrorList = measureData.systemErrorList;
+    } else if (measureData.troubleList.length){
+      deviceErrorList = measureData.troubleList;
+    }
+    
+    // 에러가 발생한 날짜
+    // const measureDate = measureData.measureDate;
+
+    
+    deviceErrorList.forEach(deviceError => {
+      // BU.CLI(systemError);
+      let hasNewError = true;
+      // // 기존 시스템 에러가 존재한다면 처리할 필요가 없으므로 dbTroubleList에서 삭제
+      dbTroubleList = _.reject(dbTroubleList, dbTrouble => {
+        // TODO 발생한 날짜를 기입하도록 변경 필요
+        // code 가 같다면 설정 변수 값이 같은지 확인
+        if (dbTrouble.code === deviceError.code) {
+          let foundIt = _.find(troubleTableInfo.addParamList, currentItem => {
+            if(dbTrouble[currentItem.toKey] === measureData[currentItem.fromKey]){
+              hasNewError = false;
+              return true;
+            }
+            return false;
+          });
+
+          return _.isEmpty(foundIt);
+
+          // hasNewError = false;
+          // return true;
+        } else {
+          return false;
+        }
+      });
+      // 신규 에러라면 insertList에 추가
+      if (hasNewError) {
+        let addErrorObj = {
+          [keyName]: seq,
+          is_error: isSystemError,
+          code: deviceError.code,
+          msg: deviceError.msg,
+          occur_date: deviceError.occur_date instanceof Date ? BU.convertDateToText(deviceError.occur_date) : BU.convertDateToText(measureDate),
+          fix_date: null
+        };
+
+        insertTroubleList.push(addErrorObj);
+      }
+    });
+
+
+
+    const seq = measureData.seq;
     const insertTroubleList = [];
     const updateTroubleList = [];
     const keyName = `${deviceCategory}_seq`;
@@ -379,15 +471,15 @@ class DeviceDataStorage {
       });
       return convertDataList;
     } else if (_.isObject(deviceData)) {
-      let keyChangeConfig = _.findWhere(this.keyChangeConfigList, {
+      let refinedDeviceDataConfig = _.findWhere(this.refinedDeviceDataConfigList, {
         deviceCategory
       });
 
-      BU.CLI(keyChangeConfig);
+      BU.CLI(refinedDeviceDataConfig);
 
       let convertData = {};
-      const addParamList = keyChangeConfig.addParamList;
-      const matchingList = keyChangeConfig.matchingList;
+      const addParamList = refinedDeviceDataConfig.addParamList;
+      const matchingList = refinedDeviceDataConfig.matchingList;
 
       // 계산식 반영
       matchingList.forEach(matchingObj => {

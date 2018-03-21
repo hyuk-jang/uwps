@@ -3,7 +3,8 @@ SELECT
 DATE_FORMAT(writedate,"%Y-%m-%d") AS group_date,
 ROUND(SUM(avg_amp), 1) AS total_amp,
 ROUND(AVG(avg_vol), 1) AS avg_vol,
-ROUND(SUM(avg_amp) * AVG(avg_vol), 1) AS total_wh
+ROUND(SUM(avg_amp) * AVG(avg_vol), 1) AS total_wh,
+pv.chart_color, pv.chart_sort_rank
  FROM
 	(
 	SELECT
@@ -17,4 +18,6 @@ ROUND(SUM(avg_amp) * AVG(avg_vol), 1) AS total_wh
 	GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), photovoltaic_seq
 	ORDER BY photovoltaic_seq, writedate
 	) md_group
-GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d"), photovoltaic_seq
+LEFT OUTER JOIN photovoltaic pv
+  ON pv.photovoltaic_seq = md_group.photovoltaic_seq	
+GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d"), md_group.photovoltaic_seq

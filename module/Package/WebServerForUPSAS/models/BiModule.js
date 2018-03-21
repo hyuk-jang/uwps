@@ -58,16 +58,20 @@ class BiModule extends bmjh.BM {
         ROUND(AVG(vol / 10), 1) AS vol,
         ROUND(AVG(amp) * AVG(vol) / 100, 1) AS wh,
         DATE_FORMAT(writedate,'%H') AS hour_time,
-        DATE_FORMAT(writedate,'${dataFormat}') AS group_date
+        DATE_FORMAT(writedate,'${dataFormat}') AS group_date,
+        pv.chart_color,
+        pv.chart_sort_rank
         FROM module_data md
+        LEFT OUTER JOIN photovoltaic pv
+        ON pv.photovoltaic_seq = md.photovoltaic_seq        
         WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
     `;
     if (module_seq_list) {
-      sql += `AND photovoltaic_seq IN (${module_seq_list})`;
+      sql += `AND md.photovoltaic_seq IN (${module_seq_list})`;
     }
     sql += `
-          GROUP BY DATE_FORMAT(writedate,'${dataFormat}'), photovoltaic_seq
-          ORDER BY photovoltaic_seq, writedate
+          GROUP BY DATE_FORMAT(writedate,'${dataFormat}'), md.photovoltaic_seq
+          ORDER BY md.photovoltaic_seq, writedate
     `;
     return this.db.single(sql, '', false);
   }
@@ -297,7 +301,8 @@ class BiModule extends bmjh.BM {
     let sql = `
     SELECT
 			main.*,
-			 (SELECT iv.target_id FROM inverter iv WHERE iv.inverter_seq = main.inverter_seq LIMIT 1) AS ivt_target_id
+			 (SELECT iv.target_id FROM inverter iv WHERE iv.inverter_seq = main.inverter_seq LIMIT 1) AS ivt_target_id,
+       ivt.chart_color, ivt.chart_sort_rank
     FROM
       (
       SELECT
@@ -326,6 +331,8 @@ class BiModule extends bmjh.BM {
     sql += `        
       GROUP BY DATE_FORMAT(writedate,'${dateFormat}'), inverter_seq
     ) AS main
+    LEFT OUTER JOIN inverter ivt
+    ON ivt.inverter_seq = main.inverter_seq
       `;
     return this.db.single(sql, '', false);
   }
@@ -341,7 +348,7 @@ class BiModule extends bmjh.BM {
     let dateFormat = this.convertSearchType2DateFormat(searchRange.searchType);
     let sql = `
     SELECT 
-          inverter_seq,
+          id_group.inverter_seq,
           DATE_FORMAT(writedate,"${dateFormat}") AS group_date,
           ROUND(AVG(avg_in_a) / 10, 1) AS avg_in_a,
           ROUND(AVG(avg_in_v) / 10, 1) AS avg_in_v,
@@ -352,7 +359,8 @@ class BiModule extends bmjh.BM {
           ROUND(AVG(avg_p_f) / 10, 1) AS avg_p_f,
           ROUND(MAX(max_c_wh) / 10, 1) AS max_c_wh,
           ROUND(MIN(min_c_wh) / 10, 1) AS min_c_wh,
-          ROUND((MAX(max_c_wh) - MIN(min_c_wh)) / 10, 1) AS interval_wh
+          ROUND((MAX(max_c_wh) - MIN(min_c_wh)) / 10, 1) AS interval_wh,
+          ivt.chart_color, ivt.chart_sort_rank
     FROM
       (SELECT 
               id.inverter_seq,
@@ -372,12 +380,14 @@ class BiModule extends bmjh.BM {
             WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
     `;
     if (inverter_seq !== '' && inverter_seq && inverter_seq !== 'all') {
-      sql += `AND inverter_seq = ${inverter_seq}`;
+      sql += `AND id.inverter_seq = ${inverter_seq}`;
     }
     sql += `            
-      GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), inverter_seq
-      ORDER BY inverter_seq, writedate) AS id_group
-    GROUP BY inverter_seq, DATE_FORMAT(writedate,"${dateFormat}")
+      GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), id.inverter_seq
+      ORDER BY id.inverter_seq, writedate) AS id_group
+      LEFT OUTER JOIN inverter ivt
+      ON ivt.inverter_seq = id_group.inverter_seq
+    GROUP BY id_group.inverter_seq, DATE_FORMAT(writedate,"${dateFormat}")
     `;
 
     return this.db.single(sql, '', false);
@@ -409,7 +419,8 @@ class BiModule extends bmjh.BM {
         DATE_FORMAT(writedate,"${dateFormat}") AS group_date,
         ROUND(SUM(avg_amp), 1) AS total_amp,
         ROUND(AVG(avg_vol), 1) AS avg_vol,
-        ROUND(SUM(avg_amp) * AVG(avg_vol), 1) AS total_wh
+        ROUND(SUM(avg_amp) * AVG(avg_vol), 1) AS total_wh,
+        pv.chart_color, pv.chart_sort_rank
         FROM
         (
         SELECT
@@ -428,7 +439,9 @@ class BiModule extends bmjh.BM {
         GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), photovoltaic_seq
         ORDER BY photovoltaic_seq, writedate
       ) md_group
-      GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), photovoltaic_seq
+      LEFT OUTER JOIN photovoltaic pv
+        ON pv.photovoltaic_seq = md_group.photovoltaic_seq	
+      GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), md_group.photovoltaic_seq
     `;
     return this.db.single(sql, '', false);
   }

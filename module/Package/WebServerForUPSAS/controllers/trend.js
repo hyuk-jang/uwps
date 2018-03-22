@@ -54,9 +54,10 @@ module.exports = function (app) {
     // BU.CLIS(deviceType, deviceListType, deviceSeq);
     let searchType = req.query.search_type ? req.query.search_type : 'hour';
     let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
-
+    
     // BU.CLIS(req.query, searchRange);
     searchRange.searchType = searchType === 'range' ? biModule.convertSearchTypeWithCompareDate(searchRange.strEndDate, searchRange.strStartDate) : searchType;
+    searchRange.searchInterval = searchType === 'hour' ? 'min10' : searchType;
 
     // 장비 선택 리스트 가져옴
     let deviceList = await biModule.getDeviceList(deviceType);
@@ -81,8 +82,8 @@ module.exports = function (app) {
     // BU.CLI(searchOption);
     
     /** searchRange를 기준으로 검색 Column Date를 정함  */
-    let betweenDatePoint =  BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchType);
-    BU.CLI(betweenDatePoint);
+    let betweenDatePoint =  BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchInterval);
+    // BU.CLI(betweenDatePoint);
     // 인버터 차트
     let inverterChart = await getInverterChart(searchOption, searchRange, betweenDatePoint);
     // BU.CLI(inverterChart);
@@ -138,12 +139,22 @@ module.exports = function (app) {
     // TODO 인버터 모듈 이름을 가져오기 위한 테이블. 성능을 위해서라면 다른 쿼리문 작성 사용 필요
     let viewInverterStatus = await biModule.getTable('v_inverter_status');
     // 인버터 차트 데이터 불러옴
-    let inverterTrend = await biModule.getInverterTrend(device_seq, searchRange);
+    let inverterTrend = await biModule.getInverterTrend(searchRange, device_seq);
+    BU.CLI(inverterTrend);
 
+    let calcOption = {
+      calcMaxKey: 'max_c_wh',
+      calcMinKey: 'min_c_wh',
+      groupKey: 'inverter_seq',
+      resultKey: 'real_interval_wh'
+    };
+    webUtil.calcRangePower(inverterTrend, calcOption);
+    
     webUtil.addKeyToReport(inverterTrend, viewInverterStatus, 'target_id', 'inverter_seq');
-
+    // BU.CLI(inverterTrend);
+    // BU.CLI(betweenDatePoint.fullTxtPoint);
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
-    chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, 'interval_wh', 'group_date', 'target_id', {colorKey: 'chart_color', sortKey: 'chart_sort_rank'});
+    chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, 'real_interval_wh', 'group_date', 'target_id', {colorKey: 'chart_color', sortKey: 'chart_sort_rank'});
     // BU.CLI(chartData);
 
     // TEST
@@ -221,11 +232,11 @@ module.exports = function (app) {
     });
 
 
-    // FIXME 정렬때문에 이렇게 함.
-    let sortIndexList = [5, 6, 1, 2, 3, 4];
-    chartData.series = _.sortBy(chartData.series, item => {
-      return _.indexOf(sortIndexList, Number(item.name));
-    });
+    // // FIXME 정렬때문에 이렇게 함.
+    // let sortIndexList = [5, 6, 1, 2, 3, 4];
+    // chartData.series = _.sortBy(chartData.series, item => {
+    //   return _.indexOf(sortIndexList, Number(item.name));
+    // });
 
     
     // BU.CLI(chartData);

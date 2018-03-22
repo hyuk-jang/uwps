@@ -83,11 +83,11 @@ module.exports = function (app) {
 
 
     // 금일 접속반 발전량 현황
-    // let searchRange = biModule.getSearchRange('hour');
-    let searchRange = biModule.getSearchRange('hour', '2018-03-10');
+    let searchRange = biModule.getSearchRange('hour');
+    // let searchRange = biModule.getSearchRange('hour', '2018-03-10');
+    searchRange.searchInterval = 'min10';
     let connectorPowerList = await biModule.getConnectorPower(searchRange, moduleSeqList);
-    // BU.CLI(connectorPowerList);
-    let chartData = webUtil.makeDynamicChartData(connectorPowerList, 'wh', 'hour_time', 'photovoltaic_seq', {colorKey: 'chart_color', sortKey: 'chart_sort_rank'});
+    let chartData = webUtil.makeDynamicChartData(connectorPowerList, 'wh', 'view_date', 'photovoltaic_seq', {colorKey: 'chart_color', sortKey: 'chart_sort_rank'});
 
 
     // TEST
@@ -101,10 +101,7 @@ module.exports = function (app) {
     // BU.CLI(chartData);
 
 
-    // BU.CLI(chartData);
     webUtil.applyScaleChart(chartData, 'hour');
-    // BU.CLI(chartData);
-    // BU.CLI(upsasProfile);
     webUtil.mappingChartDataNameForModule(chartData, upsasProfile);
 
     let connectorList = await biModule.getTable('connector');

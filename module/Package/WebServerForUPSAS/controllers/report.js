@@ -31,7 +31,7 @@ module.exports = function (app) {
     // 조회 범위
     let searchType = req.query.search_type ? req.query.search_type : 'hour';
     // 조회 객체 정의
-    // BU.CLIS(searchType, searchInterval, req.query.start_date, req.query.end_date)
+    BU.CLIS(searchType, searchInterval, req.query.start_date, req.query.end_date);
     let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
     searchRange.searchInterval = searchInterval;
     searchRange.searchType = searchType;

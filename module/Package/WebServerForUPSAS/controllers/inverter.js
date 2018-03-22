@@ -8,7 +8,7 @@ const BiModule = require('../models/BiModule.js');
 let webUtil = require('../models/web.util');
 
 // TEST
-const tempSacle = require('../temp/tempSacle');   
+const tempSacle = require('../temp/tempSacle');
 
 module.exports = function (app) {
   const initSetter = app.get('initSetter');
@@ -34,7 +34,9 @@ module.exports = function (app) {
 
     // TEST 구간
     viewInverterStatus.forEach(currentItem => {
-      let foundIt = _.findWhere(tempSacle.inverterScale, {inverter_seq: currentItem.inverter_seq}); 
+      let foundIt = _.findWhere(tempSacle.inverterScale, {
+        inverter_seq: currentItem.inverter_seq
+      });
       currentItem.in_a = Number((foundIt.scale * currentItem.in_a).scale(1, 0));
       currentItem.in_w = Number((foundIt.scale * currentItem.in_w).scale(1, 0));
       currentItem.out_a = Number((foundIt.scale * currentItem.out_a).scale(1, 0));
@@ -58,18 +60,22 @@ module.exports = function (app) {
     // BU.CLI(refinedInverterStatus);
 
 
-    // let searchRange = biModule.getSearchRange('hour');
-    let searchRange = biModule.getSearchRange('hour', '2018-03-10');
-    let inverterPowerList = await biModule.getInverterPower(searchRange);
-    // BU.CLI(inverterPowerList);
-    // let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'out_w', 'hour_time', 'inverter_seq');
-    let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'out_w', 'hour_time', 'ivt_target_id', {colorKey: 'chart_color', sortKey: 'chart_sort_rank'});
+    let searchRange = biModule.getSearchRange('hour');
+    // let searchRange = biModule.getSearchRange('hour', '2018-03-10');
+    searchRange.searchInterval = 'min10';
+    let inverterPowerList = await biModule.getInverterPower2(searchRange);
+    
+    let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'out_w', 'view_date', 'ivt_target_id', {
+      colorKey: 'chart_color',
+      sortKey: 'chart_sort_rank'
+    });
     // BU.CLI(chartData);
-
 
     // TEST
     chartData.series.forEach(currentItem => {
-      let foundIt = _.findWhere(tempSacle.inverterScale, {target_id: currentItem.name}); 
+      let foundIt = _.findWhere(tempSacle.inverterScale, {
+        target_id: currentItem.name
+      });
       currentItem.data.forEach((data, index) => {
         currentItem.data[index] = data === '' ? '' : Number((data * foundIt.scale).scale(1, 1));
       });
@@ -79,7 +85,7 @@ module.exports = function (app) {
 
     // BU.CLI(chartData);
     webUtil.mappingChartDataName(chartData, viewInverterStatus, 'target_id', 'target_name');
-    
+
     req.locals.inverterStatus = refinedInverterStatus;
     req.locals.chartDataObj = chartData;
     req.locals.powerInfo = {

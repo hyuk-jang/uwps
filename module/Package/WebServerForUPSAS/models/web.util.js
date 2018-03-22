@@ -145,6 +145,41 @@ function calcValue(value, scale, toFixedNumber) {
 exports.calcValue = calcValue;
 
 
+
+
+/**
+ * 
+ * @param {Object[]} rowDataPacketList 
+ * @param {{calcMaxKey: string, calcMinKey: string, resultKey: string, groupKey: string=}} calcOption 
+ * @param {string} calcKey 
+ * @param {string} groupKey
+ */
+function calcRangePower(rowDataPacketList, calcOption){
+  // BU.CLI(returnValue.range);
+  // 같은 Key 끼리 그루핑
+  if (calcOption.groupKey) {
+    // BU.CLI(groupKey);
+    let groupRowDataPacketList = _.groupBy(rowDataPacketList, calcOption.groupKey);
+    
+    _.each(groupRowDataPacketList, rowList => {
+      let prevValue;
+      rowList.forEach((rowData, index) => {
+        if(index === 0){
+          prevValue = _.isEmpty(calcOption.calcMinKey) ? rowData[calcOption.calcMaxKey] : rowData[calcOption.calcMinKey];
+        } 
+        rowData[calcOption.resultKey] = rowData[calcOption.calcMaxKey] - prevValue;
+        prevValue = rowData[calcOption.calcMaxKey];
+      });
+      // rowList.shift();
+    });
+
+    return groupRowDataPacketList;
+    
+  } 
+}
+exports.calcRangePower = calcRangePower;
+
+
 /**
  * 접속반 메뉴에서 사용될 데이터 선언 및 부분 정의
  * @param {Array.<{connector_ch: number, photovoltaic_seq: number, pv_target_name: string, pv_manufacturer: string, cnt_target_name: string, ivt_target_name: string}>} viewUpsasProfile DB에서 
@@ -356,6 +391,7 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
     series: []
   };
 
+  BU.CLI(rangeKey);
   
   // 색상키가 정해져있찌 않다면 색상 없이 반환
   const hasColor = _.isEmpty(option) || _.isEmpty(option.colorKey) ? false : true;
@@ -363,9 +399,9 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
 
   // 같은 Key 끼리 그루핑
   if (groupKey) {
-    let groupDataList = _.groupBy(rowDataPacketList, groupKey);
+    let groupedRowPacketDataList = _.groupBy(rowDataPacketList, groupKey);
 
-    returnValue.series = _.map(groupDataList, (groupObj, gKey) => {
+    returnValue.series = _.map(groupedRowPacketDataList, (groupObj, gKey) => {
       let addObj = {
         name: gKey,
         data: []
@@ -373,7 +409,6 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
 
       let dataRow =  _.first(groupObj);
       if(hasColor){
-        BU.CLI('@@@@@@@@');
         addObj.color = dataRow[option.colorKey];
       }
       if(hasSort){
@@ -389,10 +424,6 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
         let data = _.isEmpty(resultFind) ? '' : resultFind[dataKey];
         addObj.data.push(data);
       });
-      // _.each(groupObj, gInfo => {
-      //   let index = _.indexOf(returnValue.range, gInfo[rangeKey]);
-      //   addObj.data[index] = gInfo[dataKey];
-      // });
       return addObj;
     });
 

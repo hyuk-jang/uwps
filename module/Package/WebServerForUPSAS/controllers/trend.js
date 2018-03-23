@@ -104,6 +104,8 @@ module.exports = function (app) {
     
     // /** 차트를 표현하는데 필요한 Y축, X축, Title Text 설정 객체 생성 */
     let chartOption = webUtil.makeChartOption(searchRange);
+
+    // BU.CLI(chartOption);
     
     // BU.CLI(chartOption);
     req.locals.searchOption = searchOption;
@@ -167,9 +169,9 @@ module.exports = function (app) {
       };
       webUtil.calcRangePower(inverterTrend, calcOption);
     }
-    // BU.CLI(inverterTrend);
     
     webUtil.addKeyToReport(inverterTrend, viewInverterStatus, 'target_id', 'inverter_seq');
+    // BU.CLI(inverterTrend);
 
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
     chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, 'interval_wh', 'group_date', 'target_id', {colorKey: 'chart_color', sortKey: 'chart_sort_rank'});

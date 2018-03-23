@@ -558,6 +558,7 @@ function makeChartOption(searchRange) {
     yAxisTitle = '발전량(kWh)';
     break;
   case 'hour':
+  case 'min10':
     xAxisTitle = '시간(시)';
     yAxisTitle = '발전량(Wh)';
     break;

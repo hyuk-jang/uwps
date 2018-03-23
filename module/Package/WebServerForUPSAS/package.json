@@ -31,7 +31,8 @@
     "passport-local": "^1.0.0",
     "request": "^2.83.0",
     "serve-favicon": "^2.4.5",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "xlsx": "^0.12.6"
   },
   "description": "염전 제어서버",
   "main": "index.js",

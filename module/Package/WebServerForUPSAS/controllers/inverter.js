@@ -37,10 +37,10 @@ module.exports = function (app) {
       let foundIt = _.findWhere(tempSacle.inverterScale, {
         inverter_seq: currentItem.inverter_seq
       });
-      currentItem.in_a = Number((foundIt.scale * currentItem.in_a).scale(1, 0));
-      currentItem.in_w = Number((foundIt.scale * currentItem.in_w).scale(1, 0));
-      currentItem.out_a = Number((foundIt.scale * currentItem.out_a).scale(1, 0));
-      currentItem.out_w = Number((foundIt.scale * currentItem.out_w).scale(1, 0));
+      currentItem.in_a = Number((foundIt.scale * currentItem.in_a).scale(1, 1));
+      currentItem.in_w = Number((foundIt.scale * currentItem.in_w).scale(1, 1));
+      currentItem.out_a = Number((foundIt.scale * currentItem.out_a).scale(1, 1));
+      currentItem.out_w = Number((foundIt.scale * currentItem.out_w).scale(1, 1));
       currentItem.d_wh = Number((foundIt.scale * currentItem.d_wh).scale(1, 0));
       currentItem.c_wh = Number((foundIt.scale * currentItem.c_wh).scale(1, 0));
       currentItem.daily_power_wh = Number((foundIt.scale * currentItem.daily_power_wh).scale(1, 0));

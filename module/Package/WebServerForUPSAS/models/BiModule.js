@@ -73,7 +73,7 @@ class BiModule extends bmjh.BM {
           GROUP BY ${dateFormat.firstGroupByFormat}, md.photovoltaic_seq
           ORDER BY md.photovoltaic_seq, writedate
     `;
-    return this.db.single(sql, '', true);
+    return this.db.single(sql, '', false);
   }
 
 
@@ -288,7 +288,6 @@ class BiModule extends bmjh.BM {
     `;
     return this.db.single(sql, '', false);
   }
-   
 
   /**
    * 인버터 발전량 구해옴
@@ -297,58 +296,6 @@ class BiModule extends bmjh.BM {
    * @return {{inverter_seq: number, group_date: string, }}
    */
   getInverterPower(searchRange, inverter_seq_list) {
-    searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dateFormat = this.convertSearchType2DateFormat(searchRange.searchType);
-    // let dateFormat = this.makeDateFormatForReport(searchRange.searchInterval, 'writedate');
-    BU.CLI(dateFormat);
-    let sql = `
-    SELECT
-			main.*,
-			 (SELECT iv.target_id FROM inverter iv WHERE iv.inverter_seq = main.inverter_seq LIMIT 1) AS ivt_target_id,
-       ivt.chart_color, ivt.chart_sort_rank
-    FROM
-      (
-      SELECT
-        inverter_seq,
-        (SELECT ivt.target_id FROM inverter ivt WHERE ivt.inverter_seq = inverter_seq LIMIT 1) AS target_id,
-        writedate, 
-        DATE_FORMAT(writedate,'%H') AS hour_time,
-        DATE_FORMAT(writedate,'${dateFormat}') AS group_date,
-        ROUND(AVG(in_a) / 10, 1) AS in_a,
-        ROUND(AVG(in_v) / 10, 1) AS in_v,
-        ROUND(AVG(in_w) / 10, 1) AS in_w,
-        ROUND(AVG(out_a) / 10, 1) AS out_a,
-        ROUND(AVG(out_v) / 10, 1) AS out_v,
-        ROUND(AVG(out_w) / 10, 1) AS out_w,
-        ROUND(AVG(p_f) / 10, 1) AS p_f,
-        ROUND(d_wh / 10, 1) AS d_wh,
-        ROUND(MAX(c_wh) / 10, 1) AS max_c_wh,
-        ROUND(MIN(c_wh) / 10, 1) AS min_c_wh,
-        ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_wh
-        FROM inverter_data
-        WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
-        `;
-    if (Array.isArray(inverter_seq_list)) {
-      sql += ` AND inverter_seq IN (${inverter_seq_list})`;
-    }
-    sql += `        
-    GROUP BY DATE_FORMAT(writedate,'${dateFormat}'), inverter_seq
-    ) AS main
-    LEFT OUTER JOIN inverter ivt
-    ON ivt.inverter_seq = main.inverter_seq
-    `;
-    return this.db.single(sql, '', true);
-    // DATE_FORMAT(writedate,'${dateFormat}') AS group_date,
-    // GROUP BY DATE_FORMAT(writedate,'${dateFormat.groupByFormat}'), inverter_seq
-  }
-
-  /**
-   * 인버터 발전량 구해옴
-   * @param {searchRange} searchRange  검색 옵션
-   * @param {number[]=} inverter_seq_list 
-   * @return {{inverter_seq: number, group_date: string, }}
-   */
-  getInverterPower2(searchRange, inverter_seq_list) {
     searchRange = searchRange ? searchRange : this.getSearchRange();
     // let dateFormat = this.convertSearchType2DateFormat(searchRange.searchType);
     let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
@@ -387,7 +334,7 @@ class BiModule extends bmjh.BM {
     LEFT OUTER JOIN inverter ivt
     ON ivt.inverter_seq = main.inverter_seq
     `;
-    return this.db.single(sql, '', true);
+    return this.db.single(sql, '', false);
   }
   
   /**
@@ -399,8 +346,8 @@ class BiModule extends bmjh.BM {
   getInverterTrend(searchRange, inverter_seq) {
     searchRange = searchRange ? searchRange : this.getSearchRange();
     let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
-    BU.CLI(searchRange);
-    BU.CLI(dateFormat);
+    // BU.CLI(searchRange);
+    // BU.CLI(dateFormat);
     let sql = `
     SELECT 
           id_group.inverter_seq,
@@ -415,61 +362,9 @@ class BiModule extends bmjh.BM {
           ROUND(AVG(avg_p_f) / 10, 1) AS avg_p_f,
           ROUND(MAX(max_c_wh) / 10, 1) AS max_c_wh,
           ROUND(MIN(min_c_wh) / 10, 1) AS min_c_wh,
-          ivt.chart_color, ivt.chart_sort_rank
-    FROM
-      (SELECT 
-              id.inverter_seq,
-              writedate,
-              DATE_FORMAT(writedate,"%H") AS hour_time,
-              AVG(in_a) AS avg_in_a,
-              AVG(in_v) AS avg_in_v,
-              AVG(in_w) AS avg_in_w,
-              AVG(out_a) AS avg_out_a,
-              AVG(out_v) AS avg_out_v,
-              AVG(out_w) AS avg_out_w,
-              AVG(CASE WHEN p_f > 0 THEN p_f END) AS avg_p_f,
-              MAX(c_wh) AS max_c_wh,
-              MIN(c_wh) AS min_c_wh
-      FROM inverter_data id
-            WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
-    `;
-    if (inverter_seq !== '' && inverter_seq && inverter_seq !== 'all') {
-      sql += `AND id.inverter_seq = ${inverter_seq}`;
-    }
-    sql += `            
-      GROUP BY ${dateFormat.firstGroupByFormat}, id.inverter_seq
-      ORDER BY id.inverter_seq, writedate) AS id_group
-      LEFT OUTER JOIN inverter ivt
-      ON ivt.inverter_seq = id_group.inverter_seq
-    GROUP BY id_group.inverter_seq, ${dateFormat.groupByFormat}
-    `;
-
-    return this.db.single(sql, '', true);
-  }
-
-  /**
-   * 인버터 발전량 구해옴
-   * @param {number[]=} inverter_seq 
-   * @param {searchRange} searchRange  검색 옵션
-   * @return {{inverter_seq: number, group_date: string, }}
-   */
-  getInverterTrend2(inverter_seq, searchRange) {
-    searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dateFormat = this.convertSearchType2DateFormat(searchRange.searchType);
-    let sql = `
-    SELECT 
-          id_group.inverter_seq,
-          DATE_FORMAT(writedate,"${dateFormat}") AS group_date,
-          ROUND(AVG(avg_in_a) / 10, 1) AS avg_in_a,
-          ROUND(AVG(avg_in_v) / 10, 1) AS avg_in_v,
-          ROUND(AVG(avg_in_w) / 10, 1) AS avg_in_w,
-          ROUND(AVG(avg_out_a) / 10, 1) AS avg_out_a,
-          ROUND(AVG(avg_out_v) / 10, 1) AS avg_out_v,
-          ROUND(AVG(avg_out_w) / 10, 1) AS avg_out_w,
-          ROUND(AVG(avg_p_f) / 10, 1) AS avg_p_f,
-          ROUND(MAX(max_c_wh) / 10, 1) AS max_c_wh,
-          ROUND(MIN(min_c_wh) / 10, 1) AS min_c_wh,
-          ivt.chart_color, ivt.chart_sort_rank
+          ROUND((MAX(max_c_wh) - MIN(min_c_wh)) / 10, 1) AS interval_wh,
+          ivt.chart_color, ivt.chart_sort_rank,
+          SUM(first_count) as total_count
     FROM
       (SELECT 
               id.inverter_seq,
@@ -484,6 +379,7 @@ class BiModule extends bmjh.BM {
               AVG(CASE WHEN p_f > 0 THEN p_f END) AS avg_p_f,
               MAX(c_wh) AS max_c_wh,
               MIN(c_wh) AS min_c_wh,
+              COUNT(*) AS first_count
       FROM inverter_data id
             WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
     `;
@@ -491,11 +387,11 @@ class BiModule extends bmjh.BM {
       sql += `AND id.inverter_seq = ${inverter_seq}`;
     }
     sql += `            
-      GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), id.inverter_seq
+      GROUP BY ${dateFormat.firstGroupByFormat}, id.inverter_seq
       ORDER BY id.inverter_seq, writedate) AS id_group
       LEFT OUTER JOIN inverter ivt
       ON ivt.inverter_seq = id_group.inverter_seq
-    GROUP BY id_group.inverter_seq, DATE_FORMAT(writedate,"${dateFormat}")
+    GROUP BY id_group.inverter_seq, ${dateFormat.groupByFormat}
     `;
 
     return this.db.single(sql, '', false);
@@ -519,12 +415,14 @@ class BiModule extends bmjh.BM {
       searchRange.searchType = this.convertSearchTypeWithCompareDate(searchRange.strEndDate, searchRange.strStartDate);
     }
 
-    let dateFormat = this.convertSearchType2DateFormat(searchRange.searchType);
+    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
 
     let sql = `
       SELECT
         md_group.photovoltaic_seq,
-        DATE_FORMAT(writedate,"${dateFormat}") AS group_date,
+        DATE_FORMAT(writedate,"${dateFormat}") AS group_dates,
+        ${dateFormat.selectViewDate},
+        ${dateFormat.selectGroupDate},
         ROUND(SUM(avg_amp), 1) AS total_amp,
         ROUND(AVG(avg_vol), 1) AS avg_vol,
         ROUND(SUM(avg_amp) * AVG(avg_vol), 1) AS total_wh,
@@ -544,14 +442,14 @@ class BiModule extends bmjh.BM {
       sql += `AND photovoltaic_seq IN (${moduleSeqList})`;
     }
     sql += `
-        GROUP BY DATE_FORMAT(writedate,'%Y-%m-%d %H'), photovoltaic_seq
+        GROUP BY ${dateFormat.firstGroupByFormat}, photovoltaic_seq
         ORDER BY photovoltaic_seq, writedate
       ) md_group
       LEFT OUTER JOIN photovoltaic pv
         ON pv.photovoltaic_seq = md_group.photovoltaic_seq	
-      GROUP BY DATE_FORMAT(writedate,"${dateFormat}"), md_group.photovoltaic_seq
+      GROUP BY ${dateFormat.groupByFormat}, md_group.photovoltaic_seq
     `;
-    return this.db.single(sql, '', false);
+    return this.db.single(sql, '', true);
   }
 
   /**
@@ -570,9 +468,9 @@ class BiModule extends bmjh.BM {
     // BU.CLI(returnValue.selectViewDate);
 
     dateName = dateName == null ? 'writedate' : dateName;
-    BU.CLI(searchRange);
+    // BU.CLI(searchRange);
     let dateFormat = this.convertSearchType2DateFormat(searchRange.searchInterval);
-    BU.CLI(dateFormat);
+    // BU.CLI(dateFormat);
     if(searchRange.searchInterval === 'min10'){
       returnValue.selectGroupDate = `CONCAT(LEFT(DATE_FORMAT(${dateName},"%Y-%m-%d %H:%i"), 15), "0")  AS group_date`;
       returnValue.selectViewDate = `CONCAT(LEFT(DATE_FORMAT(${dateName},"%H:%i"), 4), "0")  AS view_date`;
@@ -612,6 +510,7 @@ class BiModule extends bmjh.BM {
     FROM
       (SELECT
             inverter_seq,
+            ${dateFormat.selectViewDate},
             ${dateFormat.selectGroupDate},
             AVG(avg_in_a) AS avg_in_a,
             AVG(avg_in_v) AS avg_in_v,
@@ -644,7 +543,7 @@ class BiModule extends bmjh.BM {
       sql += `AND inverter_seq = ${inverter_seq}`;
     }
     sql += `  
-        GROUP BY DATE_FORMAT(writedate,"${dateFormat.firstGroupByFormat}"), inverter_seq
+        GROUP BY ${dateFormat.firstGroupByFormat}, inverter_seq
         ORDER BY inverter_seq, writedate) AS id_group
       GROUP BY inverter_seq, ${dateFormat.groupByFormat}) AS id_report
     GROUP BY group_date
@@ -656,7 +555,7 @@ class BiModule extends bmjh.BM {
     // Report 가져오는 Query 생성
     let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
 
-    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
+    let resTotalCountQuery = await this.db.single(totalCountQuery, '', true);
     let totalCount = resTotalCountQuery[0].total_count;
     let resMainQuery = await this.db.single(mainQuery, '', true);
 

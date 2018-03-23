@@ -140,21 +140,31 @@ module.exports = function (app) {
     let viewInverterStatus = await biModule.getTable('v_inverter_status');
     // 인버터 차트 데이터 불러옴
     let inverterTrend = await biModule.getInverterTrend(searchRange, device_seq);
-    BU.CLI(inverterTrend);
+    // BU.CLI(inverterTrend);
 
-    let calcOption = {
-      calcMaxKey: 'max_c_wh',
-      calcMinKey: 'min_c_wh',
-      groupKey: 'inverter_seq',
-      resultKey: 'real_interval_wh'
-    };
-    webUtil.calcRangePower(inverterTrend, calcOption);
+
+    // 하루 데이터(10분 구간)는 특별히 데이터를 정제함.
+    if(searchRange.searchType === 'hour'){
+      let calcOption = {
+        calcMaxKey: 'max_c_wh',
+        calcMinKey: 'min_c_wh',
+        resultKey: 'interval_wh',
+        groupKey: 'inverter_seq',
+        rangeOption: {
+          dateKey: 'group_date',
+          maxRequiredDateSecondValue: 600,
+          minRequiredCountKey: 'total_count',
+          minRequiredCountValue: 9
+        }
+      };
+      webUtil.calcRangePower(inverterTrend, calcOption);
+    }
+    // BU.CLI(inverterTrend);
     
     webUtil.addKeyToReport(inverterTrend, viewInverterStatus, 'target_id', 'inverter_seq');
-    // BU.CLI(inverterTrend);
-    // BU.CLI(betweenDatePoint.fullTxtPoint);
+
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
-    chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, 'real_interval_wh', 'group_date', 'target_id', {colorKey: 'chart_color', sortKey: 'chart_sort_rank'});
+    chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, 'interval_wh', 'group_date', 'target_id', {colorKey: 'chart_color', sortKey: 'chart_sort_rank'});
     // BU.CLI(chartData);
 
     // TEST
@@ -219,9 +229,12 @@ module.exports = function (app) {
 
     /** 모듈 데이터 가져옴 */
     let connectorTrend =  await biModule.getConnectorTrend(moduleSeqList, searchRange);
+    // BU.CLI(connectorTrend);
+
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
     chartData = webUtil.makeStaticChartData(connectorTrend, betweenDatePoint, 'total_wh', 'group_date', 'photovoltaic_seq', {colorKey: 'chart_color', sortKey: 'chart_sort_rank'});
 
+    // BU.CLI(chartData);
 
     // TEST
     chartData.series.forEach(currentItem => {
@@ -230,13 +243,6 @@ module.exports = function (app) {
         currentItem.data[index] = data === '' ? '' : Number((data * foundIt.scale).scale(1, 1));
       });
     });
-
-
-    // // FIXME 정렬때문에 이렇게 함.
-    // let sortIndexList = [5, 6, 1, 2, 3, 4];
-    // chartData.series = _.sortBy(chartData.series, item => {
-    //   return _.indexOf(sortIndexList, Number(item.name));
-    // });
 
     
     // BU.CLI(chartData);

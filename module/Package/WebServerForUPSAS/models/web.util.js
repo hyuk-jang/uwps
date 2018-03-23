@@ -3,6 +3,16 @@ const BU = require('base-util-jh').baseUtil;
 
 
 /**
+ * @typedef {Object} calcRowPacketIntervalOption
+ * @property {string} calcMaxKey
+ * @property {string} calcMinKey
+ * @property {string} resultKey
+ * @property {string} groupKey
+ * @property {{dateKey: string, maxRequiredDateSecondValue: number, minRequiredCountKey: string, minRequiredCountValue: number}} rangeOption
+ */
+
+
+/**
  * 기상청 날씨 변경
  * @param {{temp: number, pty: number, wf_kor: string, wf_en: string, pop: number, r12: number, ws:number, wd: number, reh: number, applydate: Date}} weatherCastInfo 
  * @return {{temp: number, wf: number}} 
@@ -150,25 +160,57 @@ exports.calcValue = calcValue;
 /**
  * 
  * @param {Object[]} rowDataPacketList 
- * @param {{calcMaxKey: string, calcMinKey: string, resultKey: string, groupKey: string=}} calcOption 
- * @param {string} calcKey 
- * @param {string} groupKey
+ * @param {calcRowPacketIntervalOption} calcOption 
  */
 function calcRangePower(rowDataPacketList, calcOption){
-  // BU.CLI(returnValue.range);
+  // BU.CLI(calcOption);
+  
   // 같은 Key 끼리 그루핑
   if (calcOption.groupKey) {
     // BU.CLI(groupKey);
     let groupRowDataPacketList = _.groupBy(rowDataPacketList, calcOption.groupKey);
+
+
+    const hasCalcRange = _.isEmpty(calcOption.rangeOption) ? false : true;
+    const hasCalcDate = hasCalcRange && calcOption.rangeOption.dateKey.length ? true : false;
+    const hasCalcCount = hasCalcRange && calcOption.rangeOption.minRequiredCountKey.length ? true : false;
     
     _.each(groupRowDataPacketList, rowList => {
       let prevValue;
+      let prevDate;
       rowList.forEach((rowData, index) => {
+        let hasError = false;
         if(index === 0){
           prevValue = _.isEmpty(calcOption.calcMinKey) ? rowData[calcOption.calcMaxKey] : rowData[calcOption.calcMinKey];
         } 
-        rowData[calcOption.resultKey] = rowData[calcOption.calcMaxKey] - prevValue;
+        // BU.CLI(prevDate);
+        // 날짜 계산 옵션이 있다면 날짜 임계치를 벗어났는지 체크
+
+        if(hasCalcDate && prevDate instanceof Date){
+          /** @type {Date} */
+          let currDate = rowData[calcOption.rangeOption.dateKey];
+          currDate = typeof currDate === 'string' ? BU.convertTextToDate(currDate) : currDate;
+          // BU.CLI(BU.convertDateToText(prevDate), BU.convertDateToText(currDate));
+          let thisCritical = (currDate.getTime() - prevDate.getTime()) * 0.001;
+          // BU.CLIS(prevDate.getTime(), currDate.getTime(), currDate.getTime() - prevDate.getTime());
+          if(thisCritical > calcOption.rangeOption.maxRequiredDateSecondValue){
+            hasError = true;
+          }
+        } 
+
+        if(hasCalcCount && calcOption.rangeOption.minRequiredCountValue > rowData[calcOption.rangeOption.minRequiredCountKey]){
+          hasError = true;
+        }
+
+        // BU.CLI(hasError);
+        rowData[calcOption.resultKey] = hasError ?  '' : rowData[calcOption.calcMaxKey] - prevValue;
+        // BU.CLI(rowData);
         prevValue = rowData[calcOption.calcMaxKey];
+
+        if(hasCalcDate){
+          prevDate = rowData[calcOption.rangeOption.dateKey];
+          prevDate = typeof prevDate === 'string' ? BU.convertTextToDate(prevDate) : prevDate;
+        }
       });
       // rowList.shift();
     });
@@ -391,7 +433,7 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
     series: []
   };
 
-  BU.CLI(rangeKey);
+  // BU.CLI(rangeKey);
   
   // 색상키가 정해져있찌 않다면 색상 없이 반환
   const hasColor = _.isEmpty(option) || _.isEmpty(option.colorKey) ? false : true;

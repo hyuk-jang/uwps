@@ -52,13 +52,21 @@ module.exports = function (app) {
     // 장비 선택 seq (all, number)
     let deviceSeq = !isNaN(req.query.device_seq) && req.query.device_seq !== '' ? Number(req.query.device_seq) : 'all';
     // BU.CLIS(deviceType, deviceListType, deviceSeq);
-    let searchType = req.query.search_type ? req.query.search_type : 'hour';
+    // Search 타입을 지정
+    let searchType = req.query.search_type ? req.query.search_type : 'min10';
+    // 지정된 SearchType으로 설정 구간 정의
     let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
-    
+    // 검색 조건이 기간 검색이라면 검색 기간의 차를 구하여 실제 searchType을 구함.
+    if(searchType === 'range'){
+      let realSearchType = searchType === 'range' ? biModule.convertSearchTypeWithCompareDate(searchRange.strEndDate, searchRange.strStartDate) : searchType;
+      if(realSearchType === 'hour'){
+        searchRange = biModule.getSearchRange('min10', req.query.start_date, req.query.end_date);
+      } else {
+        searchRange.searchInterval = searchRange.searchType = realSearchType;
+      }
+    }
     // BU.CLIS(req.query, searchRange);
-    searchRange.searchType = searchType === 'range' ? biModule.convertSearchTypeWithCompareDate(searchRange.strEndDate, searchRange.strStartDate) : searchType;
-    searchRange.searchInterval = searchType === 'hour' ? 'min10' : searchType;
-
+    
     // 장비 선택 리스트 가져옴
     let deviceList = await biModule.getDeviceList(deviceType);
     // BU.CLI(deviceList);
@@ -93,7 +101,7 @@ module.exports = function (app) {
     let chartData = {range: betweenDatePoint.shortTxtPoint, series: []};
     // 차트 합침
     chartData.series = inverterChart.series.concat(connectorChart.series);
-   
+    
     // /** 차트를 표현하는데 필요한 Y축, X축, Title Text 설정 객체 생성 */
     let chartOption = webUtil.makeChartOption(searchRange);
     

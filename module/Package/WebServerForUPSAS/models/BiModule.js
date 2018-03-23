@@ -96,7 +96,7 @@ class BiModule extends bmjh.BM {
 
   /**
    * 검색 종류와 검색 기간에 따라 계산 후 검색 조건 객체 반환
-   * @param {string} searchType hour, day, month, year, range
+   * @param {string} searchType min10, hour, day, month, year, range
    * @param {string} start_date '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
    * @param {string} end_date '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'
    * @return {searchRange} 검색 범위
@@ -133,6 +133,16 @@ class BiModule extends bmjh.BM {
       if(BU.convertDateToText(currDate) === BU.convertDateToText(endDate)){
         convertEndDate = new Date(new Date().setMinutes(0, 0, 0));
       }
+    } else if (searchType === 'min' || searchType === 'min10'){
+      spliceIndex = 2;
+      convertEndDate = endDate = (new Date(startDate)).addDays(1);
+      // 검색 종료날짜가 현재 날짜라면 시간단위로 지정
+      let currDate = new Date().setHours(0, 0, 0, 0);
+      currDate = new Date(currDate).addDays(1);
+      if(BU.convertDateToText(currDate) === BU.convertDateToText(endDate)){
+        let fixedMinutes = Math.floor(new Date().getMinutes() * 0.1) * 10; 
+        convertEndDate = new Date(new Date().setMinutes(fixedMinutes, 0, 0));
+      }
     } else if (searchType === 'day') {
       spliceIndex = 1;
       startDate.setDate(1);
@@ -143,7 +153,6 @@ class BiModule extends bmjh.BM {
       convertEndDate = endDate = (new Date(startDate)).addYear(1);
     } else if (searchType === 'range') {
       spliceIndex = 2;
-      // endDate = end_date ? new Date(end_date) : new Date();
       // chart title에 사용될 기간을 설정
       returnValue.rangeEnd = BU.convertDateToText(endDate, 'kor', spliceIndex, 0);
       // 검색 조건 input value txt 설정
@@ -151,6 +160,8 @@ class BiModule extends bmjh.BM {
       // SQL 날짜 검색에 사용할 범위를 위하여 하루 증가
       convertEndDate = endDate = (new Date(endDate)).addDays(1);
     } 
+
+    
     returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', spliceIndex, 0);
     returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', spliceIndex, 0);
     returnValue.strStartDate = BU.convertDateToText(startDate);
@@ -449,7 +460,7 @@ class BiModule extends bmjh.BM {
         ON pv.photovoltaic_seq = md_group.photovoltaic_seq	
       GROUP BY ${dateFormat.groupByFormat}, md_group.photovoltaic_seq
     `;
-    return this.db.single(sql, '', true);
+    return this.db.single(sql, '', false);
   }
 
   /**
@@ -479,7 +490,23 @@ class BiModule extends bmjh.BM {
       returnValue.groupByFormat = `LEFT(DATE_FORMAT(${dateName},"%Y-%m-%d %H:%i"), 15)`;
     } else {
       returnValue.selectGroupDate = `DATE_FORMAT(${dateName},"${dateFormat}") AS group_date`;
-      returnValue.selectViewDate = `DATE_FORMAT(${dateName},"${dateFormat}") AS view_date`;
+      
+
+      let viewFormat = dateFormat;
+      switch (searchRange.searchType) {
+      case 'hour':
+        viewFormat = viewFormat.slice(9, 11);
+        break;
+      case 'day':
+        viewFormat = viewFormat.slice(6, 8);
+        break;
+      case 'month':
+        viewFormat = viewFormat.slice(3, 5);
+        break;
+      default:
+        break;
+      }
+      returnValue.selectViewDate = `DATE_FORMAT(${dateName},"${viewFormat}") AS view_date`;
       returnValue.firstGroupByFormat = `DATE_FORMAT(${dateName},"%Y-%m-%d %H")`;
       returnValue.groupByFormat = `DATE_FORMAT(${dateName},"${dateFormat}")`;
     }
@@ -555,9 +582,9 @@ class BiModule extends bmjh.BM {
     // Report 가져오는 Query 생성
     let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
 
-    let resTotalCountQuery = await this.db.single(totalCountQuery, '', true);
+    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
     let totalCount = resTotalCountQuery[0].total_count;
-    let resMainQuery = await this.db.single(mainQuery, '', true);
+    let resMainQuery = await this.db.single(mainQuery, '', false);
 
     return {
       totalCount,

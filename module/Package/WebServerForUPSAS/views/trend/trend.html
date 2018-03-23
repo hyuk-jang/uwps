@@ -61,7 +61,7 @@
           <div class="col-xs-4 ">
             <div id="sel_type_div_area" class="input_st">
               <label class="radio-inline">
-                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="hour">일일</label>
+                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="min10">일일</label>
               <label class="radio-inline">
                 <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="day">월간</label>
               <label class="radio-inline">
@@ -104,7 +104,8 @@
           <!-- <div class="title_box" id="moduleChart_2"></div> -->
 
           <!-- <p class="re_p">※ 금일 발전량, 누적 발전량, 장치 상태를 제외한 위의 데이터는 모두 해당<span> 검색 기간의 평균 값</span> 입니다. </p> -->
-          <p class="re_p" style="margin-top: 10px">※ 발전량 차트의 각 데이터 포인트는 <span> X축 시간 동안의 (최고 누적발전량 - 최저 누적발전량)</span> 입니다. </p>
+          <p class="re_p" style="margin-top: 10px">※ 인버터 발전량 차트의 각 데이터 포인트는 <span> X축 시간 동안의 (최고 누적발전량 - 최저 누적발전량)</span> 으로 해당 기간 동안의 실제 발전량입니다. </p>
+          <p class="re_p" style="margin-top: 10px">※ 접속반 발전량 차트의 각 데이터 포인트는 <span> X축 시간 동안의 (평균 전류 * 평균 전압)</span> 이며 X축 시간이 일 단위 이상일 경우에는 시간당 입력된 평균 전력의 합산 값으로 참고사항 용입니다 . </p>
         </div>
       </div>
     </div>
@@ -141,6 +142,7 @@
           var endDateDom = document.querySelector('#end_date_input');
 
           var startDate = new Date(searchRange.strStartDateInputValue);
+          console.log('@@@@@', startDate)
           var endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
             'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
 

@@ -60,10 +60,10 @@ module.exports = function (app) {
     // BU.CLI(refinedInverterStatus);
 
 
-    let searchRange = biModule.getSearchRange('hour');
+    let searchRange = biModule.getSearchRange('min10');
     // let searchRange = biModule.getSearchRange('hour', '2018-03-10');
-    searchRange.searchInterval = 'min10';
     let inverterPowerList = await biModule.getInverterPower(searchRange);
+    // BU.CLI(inverterPowerList);
     
     let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'out_w', 'view_date', 'ivt_target_id', {
       colorKey: 'chart_color',

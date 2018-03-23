@@ -433,6 +433,7 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
     series: []
   };
 
+  // BU.CLI(baseRange);
   // BU.CLI(rangeKey);
   
   // 색상키가 정해져있찌 않다면 색상 없이 반환

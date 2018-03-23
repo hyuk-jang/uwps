@@ -52,8 +52,15 @@ module.exports = function (app) {
 
     // 금일 발전 현황 데이터
     searchRange.searchType = 'hour';
+    // searchRange = biModule.getSearchRange('hour', '2018-03-10');
     let inverterPowerList = await biModule.getInverterPower(searchRange);
-    let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'interval_wh', 'hour_time', '');
+    // BU.CLI(inverterPowerList);
+    
+    let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'interval_wh', 'view_date', '');
+
+
+
+    // BU.CLI(inverterPowerList);
     webUtil.applyScaleChart(chartData, 'day');
     webUtil.mappingChartDataName(chartData, '인버터 시간별 발전량');
 

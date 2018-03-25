@@ -96,7 +96,6 @@ class Control extends AbstDeviceClient {
       }
     }
     this.model.onData(resultParsing.data);
-
     // BU.CLIN(this.getDeviceStatus());
   }
 }

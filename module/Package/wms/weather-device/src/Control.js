@@ -23,6 +23,7 @@ class Control {
     this.scheduler = null;
   }
   
+  /** 기상 장치 컨트롤러 객체를 초기화 하고 스케줄러를 호출. (장치 접속 및 프로그램 구동) */
   init(){
     this.smInfrared.init();
     this.vantagepro2.init();
@@ -30,6 +31,7 @@ class Control {
     this.runScheduler();
   }
 
+  /** VantagePro2와 SmInfraredSensor 데이터를 가져올 스케줄러 */
   runScheduler(){
     const scheduleIntervalSec = 10;
     // const scheduleIntervalMin = 1;
@@ -61,8 +63,8 @@ class Control {
       id: this.config.controllerInfo.target_id,
       config: this.config.controllerInfo,
       data: this.model.deviceData,
-      systemErrorList: [],
-      troubleList: []
+      systemErrorList: this.model.systemErrorList,
+      troubleList: this.model.troubleList
     };
   }
 

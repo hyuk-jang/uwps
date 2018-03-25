@@ -16,9 +16,7 @@ class Model {
   }
 
   /**
-   * 
    * @param {weathercastProtocolFormat} weathercastData 
-   * @return {{sendStatus: string, currRainLevel: number, currPredictAmount: number, msg: string, averageRain: number}}
    */
   onData(weathercastData){
     _.each(weathercastData, (value, key) => {
@@ -28,7 +26,6 @@ class Model {
       }
     });
   }
-
 }
 
 module.exports = Model;

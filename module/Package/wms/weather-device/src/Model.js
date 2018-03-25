@@ -22,6 +22,10 @@ class Model {
     this.deviceDataStorage = new DeviceDataStorage(refinedDeviceDataConfig);
 
     this.deviceDataStorage.setDevice(this.dataStroageConfig, {id: 'target_id', deviceCategory: 'target_category'});
+
+
+    this.systemErrorList = [];
+    this.troubleList = [];
   }
 
 
@@ -37,18 +41,21 @@ class Model {
     let vantagepro2Data = this.controller.vantagepro2.getDeviceStatus();
 
     // 기상관측 장치에 문제가 있다면 저장하지 않음.
-    if(smInfraredData.systemErrorList !== undefined &&  smInfraredData.systemErrorList.length){
-      BU.logFile('SM 기상관측 장비에 시스템 에러가 존재하여 저장할 수 없습니다.');
-      return false;
-    } else if(vantagepro2Data.systemErrorList !== undefined && vantagepro2Data.systemErrorList.length){
-      BU.logFile('VantagePro2 기상관측 장비에 시스템 에러가 존재하여 저장할 수 없습니다.');
-      return false;
-    }
+    // if(smInfraredData.systemErrorList !== undefined &&  smInfraredData.systemErrorList.length){
+    //   BU.logFile('SM 기상관측 장비에 시스템 에러가 존재하여 저장할 수 없습니다.');
+    //   return false;
+    // } else if(vantagepro2Data.systemErrorList !== undefined && vantagepro2Data.systemErrorList.length){
+    //   BU.logFile('VantagePro2 기상관측 장비에 시스템 에러가 존재하여 저장할 수 없습니다.');
+    //   return false;
+    // }
+    BU.CLI(smInfraredData);
+    this.systemErrorList = smInfraredData.systemErrorList.concat(vantagepro2Data.systemErrorList);
+    this.troubleList = smInfraredData.troubleList.concat(vantagepro2Data.troubleList);
 
 
+    // SM 적외선 데이터와 VantagePro2 객체 데이터를 합침
     this.deviceData = Object.assign(smInfraredData.data, vantagepro2Data.data);
-
-    let weatherDeviceData = Object.assign(smInfraredData.data, vantagepro2Data.data);
+    // let weatherDeviceData = Object.assign(smInfraredData.data, vantagepro2Data.data);
 
     // BU.CLI(weatherDeviceData);
 

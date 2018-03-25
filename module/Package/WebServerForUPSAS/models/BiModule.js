@@ -20,15 +20,30 @@ class BiModule extends bmjh.BM {
       SELECT
         pv.*,
         ru.connector_ch,
-        (SELECT amp / 10 FROM module_data md WHERE md.photovoltaic_seq = pv.photovoltaic_seq ORDER BY md.writedate DESC LIMIT 1) AS amp,
-        (SELECT vol / 10 FROM module_data md WHERE md.photovoltaic_seq = pv.photovoltaic_seq ORDER BY md.writedate DESC LIMIT 1) AS vol,
-        (SELECT writedate FROM module_data md WHERE md.photovoltaic_seq = pv.photovoltaic_seq ORDER BY md.writedate DESC LIMIT 1) AS writedate
+      curr_data.*	 		  
         FROM
         photovoltaic pv
         JOIN relation_upms ru
           ON ru.photovoltaic_seq = pv.photovoltaic_seq
         LEFT JOIN saltern_block sb
           ON sb.saltern_block_seq = ru.saltern_block_seq
+        LEFT OUTER JOIN 
+        (
+        SELECT 
+            md.photovoltaic_seq,
+          ROUND(md.amp / 10, 1) AS amp,
+          ROUND(md.vol / 10, 1) AS vol,
+          md.writedate
+      FROM module_data md
+      INNER JOIN
+        (
+          SELECT MAX(module_data_seq) AS module_data_seq
+          FROM module_data
+          GROUP BY photovoltaic_seq
+        ) b
+      ON md.module_data_seq = b.module_data_seq
+        ) curr_data
+          ON curr_data.photovoltaic_seq = pv.photovoltaic_seq
     `;
     if (Number.isInteger(photovoltatic_seq)) {
       sql += `WHERE pv.photovoltaic_seq = (${photovoltatic_seq})`;
@@ -431,7 +446,6 @@ class BiModule extends bmjh.BM {
     let sql = `
       SELECT
         md_group.photovoltaic_seq,
-        DATE_FORMAT(writedate,"${dateFormat}") AS group_dates,
         ${dateFormat.selectViewDate},
         ${dateFormat.selectGroupDate},
         ROUND(SUM(avg_amp), 1) AS total_amp,
@@ -820,12 +834,12 @@ class BiModule extends bmjh.BM {
 
     // BU.CLI(trendReportList);
 
-    let chartOptionInfo = this.makeChartOption(searchRange);
+    let chartDecorationInfo = this.makeChartDecorator(searchRange);
     // BU.CLI('moudlePowerReport', moudlePowerReport);
     return {
       hasData: _.isEmpty(moduleReportList.gridPowerInfo) ? false : true,
       columnList: moduleReportList.betweenDatePointObj.shortTxtPoint,
-      chartOptionInfo,
+      chartDecorationInfo,
       series: trendReportList
     };
   }
@@ -859,7 +873,7 @@ class BiModule extends bmjh.BM {
     return Number(returnValue);
   }
 
-  makeChartOption(searchRange) {
+  makeChartDecorator(searchRange) {
     let mainTitle = '';
     let xAxisTitle = '';
     let yAxisTitle = '';

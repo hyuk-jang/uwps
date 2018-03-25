@@ -3,6 +3,7 @@
 
 <head>
   <%- include("../master/head.html") %>
+  <%- include("../master/excel.html") %>
   <script src="js/hichart/highcharts.src.js"></script>
 </head>
 
@@ -58,6 +59,8 @@
                 %>
             </select>
           </div>
+          
+          
           <div class="col-xs-4 ">
             <div id="sel_type_div_area" class="input_st">
               <label class="radio-inline">
@@ -81,7 +84,7 @@
           </div>
         </div>
 
-
+        <div><input type="submit" value="Download Excel" onclick="doit('xlsx');"></div>
 
 
         <div class="row_width">
@@ -110,6 +113,24 @@
       </div>
     </div>
     <%- include("../master/footer.html") %>
+
+    <script>
+      var workBook = <%- JSON.stringify(workBook)  %>;
+      function doit(type, fn, dl) {
+        var fileName = "";
+        if(searchRange.rangeEnd){
+          fileName = searchRange.rangeStart + "~" + searchRange.rangeEnd;
+        } else {
+          fileName = searchRange.rangeStart
+        }
+        // var elt = document.getElementById('data-table');
+        // var wb = XLSX.utils.table_to_book(elt, { sheet: "Sheet JS" });
+        // return dl ?
+          // XLSX.write(workBook, { bookType: type, bookSST: true, type: 'base64' }) :
+          XLSX.writeFile(workBook, fileName + ".xlsx");
+      }
+
+    </script>
 
       <!-- 기본 데이터 세팅 -->
       <script>
@@ -142,7 +163,6 @@
           var endDateDom = document.querySelector('#end_date_input');
 
           var startDate = new Date(searchRange.strStartDateInputValue);
-          console.log('@@@@@', startDate)
           var endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
             'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
 
@@ -229,25 +249,25 @@
       <!-- 모듈 차트 -->
       <script type="text/javascript">
       var chartData = <%- JSON.stringify(chartData) %>;
-      var chartOption = <%- JSON.stringify(chartOption) %>;
+      var chartDecorator = <%- JSON.stringify(chartDecorator) %>;
       if(chartData.series.length){
         $('#moduleChart_1').highcharts({
               chart: {
                   type: "spline"
                 },
               title: {
-                text: chartOption.mainTitle
+                text: chartDecorator.mainTitle
               },
               xAxis: {
                 title: {
-                  text: chartOption.xAxisTitle
+                  text: chartDecorator.xAxisTitle
                 },
                 tickInterval: 1,
                 categories: chartData.range
               },
               yAxis: {
                 title: {
-                  text: chartOption.yAxisTitle
+                  text: chartDecorator.yAxisTitle
                 }
               },
               legend: { //범례

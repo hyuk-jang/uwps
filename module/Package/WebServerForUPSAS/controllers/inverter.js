@@ -64,11 +64,9 @@ module.exports = function (app) {
     // let searchRange = biModule.getSearchRange('hour', '2018-03-10');
     let inverterPowerList = await biModule.getInverterPower(searchRange);
     // BU.CLI(inverterPowerList);
-    
-    let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'out_w', 'view_date', 'ivt_target_id', {
-      colorKey: 'chart_color',
-      sortKey: 'chart_sort_rank'
-    });
+    let chartOption = {selectKey: 'out_w', dateKey: 'view_date', groupKey: 'ivt_target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
+
+    let chartData = webUtil.makeDynamicChartData(inverterPowerList, chartOption);
     // BU.CLI(chartData);
 
     // TEST

@@ -39,7 +39,7 @@ SELECT
               MAX(c_wh) AS max_c_wh,
               MIN(c_wh) AS min_c_wh
         FROM inverter_data id
-        WHERE writedate>= "2018-03-12 00:00:00" and writedate<"2018-03-21 00:00:00"
+        WHERE writedate>= "2018-03-23 00:00:00" and writedate<"2018-03-24 00:00:00"
 
         GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H:%i"), inverter_seq
         ORDER BY inverter_seq, writedate) AS id_group

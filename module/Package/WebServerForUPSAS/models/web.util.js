@@ -12,6 +12,66 @@ const BU = require('base-util-jh').baseUtil;
  */
 
 
+
+/**
+ * searchRange Type
+ * @typedef {Object} searchRange
+ * @property {string} searchType day, month, year, range
+ * @property {string} strStartDate sql writedate range 사용
+ * @property {string} strEndDate sql writedate range 사용
+ * @property {string} rangeStart Chart 위에 표시될 시작 날짜
+ * @property {string} rangeEnd Chart 위에 표시될 종료 날짜
+ * @property {string} strStartDateInputValue input[type=text] 에 표시될 시작 날짜
+ * @property {string} strEndDateInputValue input[type=text] 에 표시될 종료 날짜
+ */
+
+
+ 
+/**
+ * @typedef {Object} chartData 차트 그리기 위한 데이터 형태
+ * @property {Array} range 날짜 범위
+ * @property {Array.<chartSeries>} series 차트를 그리기 위한 각각의 객체 리스트
+ */
+
+/**
+  * @typedef {Object} chartSeries
+  * @property {string} name
+  * @property {number[]} data
+  * @property {string=} color 차트 색상
+  * @property {chartDataOption} option 차트 색상
+  */
+
+  
+/**
+ * @typedef {Object} chartOption
+ * @property {string} selectKey Chart에 표현할 Key
+ * @property {string} dateKey 차트 리스트 범위를 참조할 Key
+ * @property {string=} maxKey 최대 값 구할 키
+ * @property {string=} minKey 최소 값 구할 키
+ * @property {string=} averKey 평균 값 구할 키
+ * @property {string=} groupKey rowDataPacketList를 Group 처리 할 Key
+ * @property {string=} sortKey 정렬 순위를 참조할 Key
+ * @property {string=} colorKey Chart Line 색상
+ */
+
+/**
+ * @typedef {Object} chartDataOption
+ * @property {number=} sort 차트를 정렬 처리할 순서
+ * @property {number} max 해당 RowPacketList 최대 값
+ * @property {number} min 해당 RowPacketList 최소 값
+ * @property {number} aver 해당 RowPacketList 평균 값
+ */
+
+/**
+  * @typedef {Object} chartDecoration
+  * @property {string} mainTitle
+  * @property {string} xAxisTitle
+  * @property {string} yAxisTitle
+  */
+
+
+
+
 /**
  * 기상청 날씨 변경
  * @param {{temp: number, pty: number, wf_kor: string, wf_en: string, pop: number, r12: number, ws:number, wd: number, reh: number, applydate: Date}} weatherCastInfo 
@@ -57,17 +117,7 @@ function convertWeatherCast(weatherCastInfo) {
 }
 exports.convertWeatherCast = convertWeatherCast;
 
-/**
- * searchRange Type
- * @typedef {Object} searchRange
- * @property {string} searchType day, month, year, range
- * @property {string} strStartDate sql writedate range 사용
- * @property {string} strEndDate sql writedate range 사용
- * @property {string} rangeStart Chart 위에 표시될 시작 날짜
- * @property {string} rangeEnd Chart 위에 표시될 종료 날짜
- * @property {string} strStartDateInputValue input[type=text] 에 표시될 시작 날짜
- * @property {string} strEndDateInputValue input[type=text] 에 표시될 종료 날짜
- */
+
 
 
 /**
@@ -342,31 +392,25 @@ function refineSelectedInverterStatus(viewInverterStatus) {
 exports.refineSelectedInverterStatus = refineSelectedInverterStatus;
 
 
-/**
- * @typedef {{range: [], series: Array.<{name: string, color: string=, data: []}>}} chartData 차트 그리기 위한 데이터 형태
- */
 
 /**
  * Range에 맞는 차트 데이터 구성
  * @param {Object[]} rowDataPacketList 
- * @param {string} dataKey Chart에 표현할 Key
- * @param {string} rangeKey 차트 리스트 범위를 참조할 Key
- * @param {string} groupKey rowDataPacketList를 Group 처리 할 Key
- * @param {{colorKey: string, sortKey: string}=} option color 및 정렬 옵션
+ * @param {chartOption} chartOption 
  * @return {chartData}
  */
-function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey, option) {
-  // BU.CLI(rowDataPacketList);
+function makeDynamicChartData(rowDataPacketList, chartOption) {
+  const selectKey = chartOption.selectKey;
+  const dateKey = chartOption.dateKey;
+  const groupKey = chartOption.groupKey;
+  const colorKey = chartOption.colorKey;
+  const sortKey = chartOption.sortKey;
 
   // 반환 데이터 유형
   let returnValue = {
-    range: _.sortBy(_.union(_.pluck(rowDataPacketList, rangeKey))),
+    range: _.sortBy(_.union(_.pluck(rowDataPacketList, dateKey))),
     series: []
   };
-
-  // 색상키가 정해져있찌 않다면 색상 없이 반환
-  const hasColor = _.isEmpty(option) || _.isEmpty(option.colorKey) ? false : true;
-  const hasSort = _.isEmpty(option) || _.isEmpty(option.sortKey) ? false : true;
 
   // BU.CLI(returnValue.range);
   // 같은 Key 끼리 그루핑
@@ -380,21 +424,21 @@ function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey, op
       };
 
       let dataRow =  _.first(groupObj);
-      if(hasColor){
-        addObj.color = dataRow[option.colorKey];
+      if(colorKey){
+        addObj.color = dataRow[chartOption.colorKey];
       }
-      if(hasSort){
-        addObj.sort = dataRow[option.sortKey];
+      if(sortKey){
+        addObj.sort = dataRow[chartOption.sortKey];
       }
 
       _.each(groupObj, gInfo => {
-        let index = _.indexOf(returnValue.range, gInfo[rangeKey]);
-        addObj.data[index] = gInfo[dataKey];
+        let index = _.indexOf(returnValue.range, gInfo[dateKey]);
+        addObj.data[index] = gInfo[selectKey];
       });
       return addObj;
     });
 
-    if(hasSort){
+    if(sortKey){
       returnValue.series = _.sortBy(returnValue.series, obj => obj.sort );
     } else {
       returnValue.series = _.sortBy(returnValue.series, obj => obj.name );
@@ -405,8 +449,8 @@ function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey, op
       data: []
     };
 
-    addObj.data = _.map(_.sortBy(_.groupBy(rowDataPacketList, rangeKey), rangeKey) , dataList => {
-      let resReduce = reduceDataList(dataList, dataKey);
+    addObj.data = _.map(_.sortBy(_.groupBy(rowDataPacketList, dateKey), dateKey) , dataList => {
+      let resReduce = reduceDataList(dataList, selectKey);
       return resReduce;
     });
 
@@ -416,18 +460,25 @@ function makeDynamicChartData(rowDataPacketList, dataKey, rangeKey, groupKey, op
 }
 exports.makeDynamicChartData = makeDynamicChartData;
 
+
+
+
 /**
  * 차트 데이터
  * @param {Object[]} rowDataPacketList 
  * @param {{fullTxtPoint: [], shortTxtPoint: []}} baseRange 고정된 Column 객체
- * @param {string} dataKey Chart에 표현할 Key
- * @param {string} rangeKey 차트 리스트 범위를 참조할 Key
- * @param {string} groupKey rowDataPacketList를 Group 처리 할 Key
- * @param {{colorKey: string, sortKey: string}=} option color 및 정렬 옵션
+ * @param {chartOption} chartOption 
  * @return {chartData}
  */
-function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, groupKey, option) {
+function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
+  const selectKey = chartOption.selectKey;
+  const dateKey = chartOption.dateKey;
+  const groupKey = chartOption.groupKey;
+  const colorKey = chartOption.colorKey;
+  const sortKey = chartOption.sortKey;
+  
   // 반환 데이터 유형
+  /** @type {chartData} */
   let returnValue = {
     range: baseRange.shortTxtPoint,
     series: []
@@ -437,41 +488,42 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
   // BU.CLI(rangeKey);
   
   // 색상키가 정해져있찌 않다면 색상 없이 반환
-  const hasColor = _.isEmpty(option) || _.isEmpty(option.colorKey) ? false : true;
-  const hasSort = _.isEmpty(option) || _.isEmpty(option.sortKey) ? false : true;
 
   // 같은 Key 끼리 그루핑
   if (groupKey) {
     let groupedRowPacketDataList = _.groupBy(rowDataPacketList, groupKey);
 
     returnValue.series = _.map(groupedRowPacketDataList, (groupObj, gKey) => {
+      /** @type {chartSeries} */
       let addObj = {
         name: gKey,
-        data: []
+        data: [],
+        option: {}
       };
 
       let dataRow =  _.first(groupObj);
-      if(hasColor){
-        addObj.color = dataRow[option.colorKey];
+      // 색상 키가 있다면 입력
+      if(colorKey){
+        addObj.color = dataRow[colorKey];
       }
-      if(hasSort){
-        addObj.sort = dataRow[option.sortKey];
-      }
+
+      addObj.option = calcStatisticsReport(groupObj, chartOption);
+
 
       baseRange.fullTxtPoint.forEach(fullTxtDate => {
         let resultFind = _.findWhere(groupObj, {
-          [rangeKey]: fullTxtDate
+          [dateKey]: fullTxtDate
         });
 
         // BU.CLI(findGridObj)
-        let data = _.isEmpty(resultFind) ? '' : resultFind[dataKey];
+        let data = _.isEmpty(resultFind) ? '' : resultFind[selectKey];
         addObj.data.push(data);
       });
       return addObj;
     });
 
-    if(hasSort){
-      returnValue.series = _.sortBy(returnValue.series, obj => obj.sort );
+    if(sortKey){
+      returnValue.series = _.sortBy(returnValue.series, obj => obj.option.sort );
     } else {
       returnValue.series = _.sortBy(returnValue.series, obj => obj.name );
     }
@@ -481,8 +533,8 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
       data: []
     };
 
-    addObj.data = _.map(_.sortBy(_.groupBy(rowDataPacketList, rangeKey), rangeKey) , dataList => {
-      return reduceDataList(dataList, dataKey);
+    addObj.data = _.map(_.sortBy(_.groupBy(rowDataPacketList, dateKey), dateKey) , dataList => {
+      return reduceDataList(dataList, selectKey);
     });
 
     returnValue.series.push(addObj);
@@ -490,6 +542,52 @@ function makeStaticChartData(rowDataPacketList, baseRange, dataKey, rangeKey, gr
   return returnValue;
 }
 exports.makeStaticChartData = makeStaticChartData;
+
+
+/**
+ * 차트 데이터 레포트 통계치 계산
+ * @param {Object[]} rowDataPacketList 
+ * @param {chartOption} chartOption 
+ * @return {chartDataOption}
+ */
+function calcStatisticsReport(rowDataPacketList, chartOption){
+  /** @type {chartDataOption} */
+  const returnValue = {};
+  const sortKey = chartOption.sortKey;
+  const maxKey = chartOption.maxKey;
+  const minKey = chartOption.minKey;
+  const averKey = chartOption.averKey;
+
+  let dataRow =  _.first(rowDataPacketList);
+
+  // 데이터가 없다면 빈 객체 반환
+  if(_.isEmpty(dataRow)){
+    return returnValue;
+  }
+
+  // 정렬 우선 순위가 있다면 입력
+  if(sortKey){
+    returnValue.sort = dataRow[sortKey];
+  }
+  // 최대 값을 구한다면
+  if(maxKey){
+    let row = _.max(rowDataPacketList, rowPacket => rowPacket[maxKey]);
+    returnValue.max = row[maxKey];
+  }
+  // 최소 값을 구한다면
+  if(minKey){
+    let row = _.min(rowDataPacketList, rowPacket => rowPacket[minKey]);
+    returnValue.min = row[minKey];
+  }
+  // TODO 
+  if(averKey){
+    returnValue.aver = 0;
+  }
+
+  return returnValue;
+}
+
+
 
 /**
  * 검색 조건 (year, month, day)에 따라서 비율을 변환하여 반환
@@ -540,7 +638,7 @@ exports.applyScaleChart = applyScaleChart;
  * @param {searchRange} searchRange 검색 옵션
  * @return {{mainTitle: string, xAxisTitle: string, yAxisTitle: string}} x, y, title Text
  */
-function makeChartOption(searchRange) {
+function makeChartDecorator(searchRange) {
   let mainTitle = '';
   let xAxisTitle = '';
   let yAxisTitle = '';
@@ -577,7 +675,7 @@ function makeChartOption(searchRange) {
     yAxisTitle
   };
 }
-exports.makeChartOption = makeChartOption;
+exports.makeChartDecoration = makeChartDecorator;
 
 /**
  * 차트 name을 의미있는 이름으로 변환
@@ -653,6 +751,7 @@ function addKeyToReport(sourceList, referenceList, addKey, referenceKey){
 
 }
 exports.addKeyToReport = addKeyToReport;
+
 
 // /**
 //  * Range에 맞는 차트 데이터 구성

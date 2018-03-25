@@ -54,11 +54,9 @@ module.exports = function (app) {
     searchRange.searchType = 'hour';
     // searchRange = biModule.getSearchRange('hour', '2018-03-10');
     let inverterPowerList = await biModule.getInverterPower(searchRange);
-    // BU.CLI(inverterPowerList);
     
-    let chartData = webUtil.makeDynamicChartData(inverterPowerList, 'interval_wh', 'view_date', '');
-
-
+    let chartOption = { selectKey: 'interval_wh', dateKey: 'view_date' };
+    let chartData = webUtil.makeDynamicChartData(inverterPowerList, chartOption);
 
     // BU.CLI(inverterPowerList);
     webUtil.applyScaleChart(chartData, 'day');

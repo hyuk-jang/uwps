@@ -165,7 +165,7 @@ module.exports = function (app) {
 
 
     // 하루 데이터(10분 구간)는 특별히 데이터를 정제함.
-    if (searchRange.searchType === 'hour') {
+    if (searchRange.searchType === 'min10') {
       let calcOption = {
         calcMaxKey: 'max_c_wh',
         calcMinKey: 'min_c_wh',
@@ -180,6 +180,7 @@ module.exports = function (app) {
       };
       webUtil.calcRangePower(inverterTrend, calcOption);
     }
+    // BU.CLI(inverterTrend);
 
     webUtil.addKeyToReport(inverterTrend, viewInverterStatus, 'target_id', 'inverter_seq');
     webUtil.addKeyToReport(inverterTrend, viewInverterStatus, 'target_name', 'inverter_seq');

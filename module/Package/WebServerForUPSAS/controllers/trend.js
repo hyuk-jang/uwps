@@ -117,7 +117,7 @@ module.exports = function (app) {
 
 
     let excelContents = excelUtil.makeChartDataToWorkBook(createExcelOption);
-
+    // BU.CLI(chartDecoration);
     // BU.CLI(chartOption);
     req.locals.searchOption = searchOption;
     req.locals.chartData = chartData;

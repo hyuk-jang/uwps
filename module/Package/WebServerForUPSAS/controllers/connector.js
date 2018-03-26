@@ -37,6 +37,7 @@ module.exports = function (app) {
     let connector_seq = req.query.connector_seq == null || req.query.connector_seq === 'all' ? 'all' : Number(req.query.connector_seq);
     /** 접속반 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
     let refinedConnectorList = webUtil.refineSelectedConnectorList(upsasProfile, connector_seq);
+    // BU.CLI(refinedConnectorList);
     // 접속반에 물려있는 모듈 seq 정의
     let moduleSeqList = _.pluck(refinedConnectorList, 'photovoltaic_seq');
     // 모듈 현황
@@ -49,9 +50,6 @@ module.exports = function (app) {
       let foundIt = _.findWhere(tempSacle.moduleScale, {photovoltaic_seq: currentItem.photovoltaic_seq}); 
       currentItem.vol = currentItem.vol === '' ? '' :  Number((currentItem.vol * foundIt.scale).scale(1, 1));
     });
-
-    // BU.CLI(moduleStatusList);
-
 
     
     // 모듈 발전 현황 데이터 검증
@@ -70,7 +68,7 @@ module.exports = function (app) {
       findIt.vol = hasOperation ? vol  : '';
       findIt.power = hasOperation && _.isNumber(amp) && _.isNumber(vol) ? webUtil.calcValue(amp * vol, 1, 1)   : '';
     });
-    refinedConnectorList = _.sortBy(refinedConnectorList, 'ivt_target_id');
+    // refinedConnectorList = _.sortBy(refinedConnectorList, 'ivt_target_id');
     // BU.CLI(refinedConnectorList);
     
     let connectorStatusData = webUtil.convertColumn2Rows(refinedConnectorList, ['connector_ch', 'install_place', 'ivt_target_name', 'pv_target_name', 'pv_manufacturer', 'amp', 'vol', 'power', 'temperature', 'hasOperation'], maxModuleViewNum);

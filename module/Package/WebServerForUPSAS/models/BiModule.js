@@ -197,7 +197,7 @@ class BiModule extends bmjh.BM {
     deviceType = deviceType ? deviceType : 'all';
     if (deviceType === 'all' || deviceType === 'inverter') {
       let inverterList = await this.getTable('inverter');
-      inverterList = _.sortBy(inverterList, 'target_id');
+      inverterList = _.sortBy(inverterList, 'chart_sort_rank');
       _.each(inverterList, info => {
         returnValue.push({type: 'inverter', seq: info.inverter_seq, target_name: info.target_name});
       });
@@ -207,7 +207,7 @@ class BiModule extends bmjh.BM {
     
     if (deviceType === 'all' || deviceType === 'connector') {
       let connectorList = await this.getTable('connector');
-      connectorList = _.sortBy(connectorList, 'target_id');
+      connectorList = _.sortBy(connectorList, 'chart_sort_rank');
       _.each(connectorList, info => {
         returnValue.push({type: 'connector', seq: info.connector_seq, target_name: info.target_name});
       });
@@ -337,16 +337,8 @@ class BiModule extends bmjh.BM {
         inverter_seq,
         writedate, 
         ${dateFormat.selectViewDate},
-        ROUND(AVG(in_a) / 10, 1) AS in_a,
-        ROUND(AVG(in_v) / 10, 1) AS in_v,
-        ROUND(AVG(in_w) / 10, 1) AS in_w,
-        ROUND(AVG(out_a) / 10, 1) AS out_a,
-        ROUND(AVG(out_v) / 10, 1) AS out_v,
         ROUND(AVG(out_w) / 10, 1) AS out_w,
-        ROUND(AVG(p_f) / 10, 1) AS p_f,
-        ROUND(d_wh / 10, 1) AS d_wh,
         ROUND(MAX(c_wh) / 10, 1) AS max_c_wh,
-        ROUND(MIN(c_wh) / 10, 1) AS min_c_wh,
         ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_wh
         FROM inverter_data
         WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"

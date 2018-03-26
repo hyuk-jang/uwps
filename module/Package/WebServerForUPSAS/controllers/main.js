@@ -27,7 +27,7 @@ module.exports = function (app) {
     // 당월 발전량을 구하기 위한 옵션 설정 (strStartDate, strEndDate 를 당월로 설정하기 위함)
 
     
-    // console.time('0');
+    // console.time('-1');
     let searchRange = biModule.getSearchRange('day');
     // 검색 조건이 일 당으로 검색되기 때문에 금월 날짜로 date Format을 지정하기 위해 day --> month 로 변경
     searchRange.searchType = 'month';
@@ -45,7 +45,8 @@ module.exports = function (app) {
     let dailyPower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerByToday, 'interval_wh'), 0.001, 1) ;
     // BU.CLI(inverterPowerByToday);
     // let cumulativePower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerByToday, 'max_c_wh'), 0.000001, 3) ;
-
+    // console.timeEnd('-1');
+    // console.time('0');
     let cumulativePowerList = await biModule.getInverterCumulativePower();
     let cumulativePower = webUtil.calcValue(webUtil.reduceDataList(cumulativePowerList, 'max_c_wh'), 0.000001, 3) ;
 

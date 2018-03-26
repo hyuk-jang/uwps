@@ -189,7 +189,7 @@ module.exports = function (app) {
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
     chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, chartOption);
     // BU.CLI(chartData);
-    // TEST
+    /* TEST */
     chartData.series.forEach(currentItem => {
       let foundIt = _.findWhere(tempSacle.inverterScale, { target_id: currentItem.name });
 
@@ -262,7 +262,7 @@ module.exports = function (app) {
 
     // BU.CLI(chartData);
 
-    // TEST
+    /* TEST */
     chartData.series.forEach(currentItem => {
       let foundIt = _.findWhere(tempSacle.moduleScale, { photovoltaic_seq: Number(currentItem.name) });
       currentItem.data.forEach((data, index) => {

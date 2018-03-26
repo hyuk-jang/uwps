@@ -62,8 +62,17 @@ function makeChartDataToReport(resource){
   let powerChartDecoration = resource.powerChartDecoration;
   let searchRange = resource.searchRange;
 
-  const excelTitleList = _.pluck(powerChartData.series, 'name'); 
 
+  let searchList = [];
+  let titleList = [];
+  let realTotalPowerList = [];
+  let totalPowerList = [];
+  let efficiencyList = [];
+
+
+
+  // BU.CLI(searchRange);
+  const excelTitleList = _.pluck(powerChartData.series, 'name'); 
 
   // 데이터 그래프
   const resourceList = powerChartData.series;
@@ -71,29 +80,78 @@ function makeChartDataToReport(resource){
   let rangeStart = searchRange.rangeStart;
   let sheetName = rangeStart + (searchRange.rangeEnd === '' ? '' : ` ~ ${searchRange.rangeEnd}`);
 
-  const searchList = ['검색 기간', powerChartDecoration.mainTitle];
+  searchList = ['검색 기간', powerChartDecoration.mainTitle];
             
   // 메인 제목
-  const titleList = ['시간'].concat(excelTitleList);
-  // 기간 발전량 
-  let accumulateList = [ `누적 ${powerChartDecoration.yAxisTitle}`];
-  const totalPowerList = [`기간 ${powerChartDecoration.yAxisTitle}`];
+  titleList = ['시간'].concat(excelTitleList);
   titleList.push('날씨');
   titleList.push('수심');
-  // 총 발전량
 
+
+  let powerName = '';
+  // 기간 발전량 
+  switch (searchRange.searchType) {
+  case 'hour':
+  case 'min10':
+    powerName = '1일';
+    break;
+  default:
+    powerName = '총';
+    break;
+  }
+
+  totalPowerList = [`${powerName} ${powerChartDecoration.yAxisTitle}`];
+  
+  // 총 발전량
+  
   const optionList = _.map(resourceList, resource => resource.option);
   let maxList = _.pluck(optionList, 'max'); 
   maxList.forEach((currentItem, index) => {
     maxList[index] = isNaN(currentItem) ? '' : currentItem;
   });
-  accumulateList = accumulateList.concat(maxList);
 
+  
+
+
+
+  // let accumulateList = [ `누적 ${powerChartDecoration.yAxisTitle}`];
+  // accumulateList = accumulateList.concat(maxList);
+  realTotalPowerList = ['기간 발전량'];
+  // 검색 기간의 최대 최소 값의 차를 빼서 계산
   optionList.forEach(option => {
     let intervalPower = Number(option.max - option.min); 
     intervalPower = isNaN(intervalPower) ? '' : intervalPower;
-    totalPowerList.push(intervalPower);
+    realTotalPowerList.push(intervalPower);
   });
+  // 각 행들의 합을 계산
+  powerChartData.series.forEach(chartData => {
+    let sum = chartData.data.reduce((prev, curr) => {
+      return Number(prev) + Number(curr);
+    });     
+    totalPowerList.push(sum);
+  });
+  // BU.CLI(powerChartData);
+  efficiencyList = ['비교(%)'];
+  if(totalPowerList.length === 7){
+    totalPowerList.forEach((accumulate, index) => {
+      switch (index) {
+      case 1:
+      case 2:
+        efficiencyList.push(100);
+        break;
+      case 3:
+      case 4:
+        efficiencyList.push((accumulate / totalPowerList[1] * 100).toFixed(1));
+        break;
+      case 5:
+      case 6:
+        efficiencyList.push((accumulate / totalPowerList[2] * 100).toFixed(1));
+        break;
+      default:
+        break;
+      }
+    });
+  }
 
 
   // 차트에 표현된 날짜 기간
@@ -106,13 +164,14 @@ function makeChartDataToReport(resource){
   powerChartData.series.forEach(currentItem => {
     dataResourceList.push(currentItem.data);
   });
-  // BU.CLI(dataResourceList);
-  // Chart Data의 
+
   const excelDataList = [];
+  // 차트를 그리기 위한 데이터 정의
   for (let index = 0; index < dataLength; index++) {
     const row = [];
-    dataResourceList.forEach(currentItem => {
-      row.push(currentItem[index] === undefined ? '' : currentItem[index]); 
+    dataResourceList.forEach((chartColumnList) => {
+      let nowValue = chartColumnList[index] === undefined ? '' : chartColumnList[index];
+      row.push(nowValue); 
     });
     excelDataList.push(row);
   }
@@ -120,7 +179,9 @@ function makeChartDataToReport(resource){
   let powerHeader = [];
   powerHeader.push(searchList);
   powerHeader.push(titleList);
-  powerHeader.push(accumulateList);
+  powerHeader.push(efficiencyList);
+  // powerHeader.push(realTotalPowerList);
+  // powerHeader.push(accumulateList);
   powerHeader.push(totalPowerList);
 
 

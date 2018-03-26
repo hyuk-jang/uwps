@@ -19,3 +19,4 @@ SELECT inverter.*,
 		FROM inverter_data
 		GROUP BY inverter_seq
 	)
+	ORDER BY chart_sort_rank

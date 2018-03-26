@@ -30,7 +30,6 @@ module.exports = function (app) {
     // BU.CLI('inverter', req.locals)
     // console.time('getTable')
     let viewInverterStatus = await biModule.getTable('v_inverter_status');
-    // BU.CLI(viewInverterStatus);
 
     // TEST 구간
     viewInverterStatus.forEach(currentItem => {
@@ -45,7 +44,6 @@ module.exports = function (app) {
       currentItem.c_wh = Number((foundIt.scale * currentItem.c_wh).scale(1, 0));
       currentItem.daily_power_wh = Number((foundIt.scale * currentItem.daily_power_wh).scale(1, 0));
     });
-
     // BU.CLI(moduleStatusList);
 
 
@@ -55,10 +53,6 @@ module.exports = function (app) {
     // BU.CLI(validInverterStatus);
     /** 인버터 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
     let refinedInverterStatus = webUtil.refineSelectedInverterStatus(validInverterStatus);
-    // BU.CLI(refinedInverterStatus);
-    refinedInverterStatus.dataList = _.sortBy(refinedInverterStatus.dataList, data => data.target_id);
-    // BU.CLI(refinedInverterStatus);
-
 
     let searchRange = biModule.getSearchRange('min10');
     // let searchRange = biModule.getSearchRange('hour', '2018-03-10');

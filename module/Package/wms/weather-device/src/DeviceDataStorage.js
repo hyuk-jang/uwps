@@ -274,6 +274,7 @@ class DeviceDataStorage {
 
     // TODO Trouble을 DB상에 처리할 것이라면
     if(dataStorageContainer.refinedDeviceDataConfig.troubleTableInfo.tableName){
+      BU.CLI('DB에서 장치 에러 요소 추출');
       dbTroubleList = await this.getTroubleList(deviceCategory);
     }
 
@@ -290,7 +291,7 @@ class DeviceDataStorage {
       if (measureDataInfo.systemErrorList.length) {
         resultProcessError = this.processDeviceErrorList(measureDataInfo, dataStorageContainer, dbTroubleList);
       } else { // 장치 에러 처리
-        resultProcessError = this.processDeviceErrorList(measureDataInfo.troubleList, dbTroubleList, measureDataInfo, 0, deviceCategory);
+        resultProcessError = this.processDeviceErrorList(measureDataInfo, dataStorageContainer, dbTroubleList);
       }
 
       // BU.CLI(resultProcessError);
@@ -345,6 +346,8 @@ class DeviceDataStorage {
     // let troubleTableIdKey = dataStorageContainer.refinedDeviceDataConfig.troubleTableId;
     // let troubleTableIdValue = measureData.config[troubleTableIdKey];
 
+    let measureDeviceConfig = measureData.config;
+
     // 에러를 처리할 대상 설정
     /** @type {Array.<deviceErrorInfo>} */
     let deviceErrorList = [];
@@ -356,6 +359,14 @@ class DeviceDataStorage {
     } else if (measureData.troubleList.length){
       deviceErrorList = measureData.troubleList;
     }
+
+
+    // 저장할때 추가하는 키
+    let addObjectParam = {};
+    troubleTableInfo.addParamList.forEach(currentItem => {
+      addObjectParam[currentItem.toKey] = measureDeviceConfig[currentItem.fromKey];
+    });
+
     
     // 에러가 발생한 날짜
     // const measureDate = measureData.measureDate;
@@ -376,11 +387,7 @@ class DeviceDataStorage {
             }
             return false;
           });
-
           return _.isEmpty(foundIt);
-
-          // hasNewError = false;
-          // return true;
         } else {
           return false;
         }
@@ -388,13 +395,15 @@ class DeviceDataStorage {
       // 신규 에러라면 insertList에 추가
       if (hasNewError) {
         let addErrorObj = {
-          [keyName]: seq,
           is_error: isSystemError,
           code: deviceError.code,
           msg: deviceError.msg,
           occur_date: deviceError.occur_date instanceof Date ? BU.convertDateToText(deviceError.occur_date) : BU.convertDateToText(measureDate),
           fix_date: null
         };
+
+        addErrorObj = Object.assign(addObjectParam, addErrorObj);
+        
 
         insertTroubleList.push(addErrorObj);
       }

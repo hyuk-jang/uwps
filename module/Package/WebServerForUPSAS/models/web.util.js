@@ -279,11 +279,11 @@ exports.calcRangePower = calcRangePower;
  * @return {Array.<{photovoltaic_seq:number, connector_ch: number, pv_target_name:string, pv_manufacturer: string, cnt_target_name: string, ivt_target_name: string, install_place: string, writedate: Date, amp: number, vol: number, hasOperation: boolean }>}
  */
 function refineSelectedConnectorList(viewUpsasProfile, connector_seq) {
-  let sortedList = _.flatten(_.map(_.groupBy(viewUpsasProfile, profile => profile.connector_seq), group => _.sortBy(group, 'connector_ch')));
-  if (connector_seq !== 'all') {
-    sortedList = _.filter(sortedList, info => info.connector_seq === connector_seq);
-  }
-  return _.map(sortedList, info => {
+  // let sortedList = _.flatten(_.map(_.groupBy(viewUpsasProfile, profile => profile.connector_seq), group => _.sortBy(group, 'connector_ch')));
+  // if (connector_seq !== 'all') {
+  //   sortedList = _.filter(sortedList, info => info.connector_seq === connector_seq);
+  // }
+  return _.map(viewUpsasProfile, info => {
     return {
       photovoltaic_seq: info.photovoltaic_seq,
       connector_ch: `CH ${info.connector_ch}`,
@@ -379,7 +379,7 @@ function refineSelectedInverterStatus(viewInverterStatus) {
     }
     return addObj;
   });
-  currInverterDataList = _.sortBy(currInverterDataList, 'target_name');
+  // currInverterDataList = _.sortBy(currInverterDataList, 'target_name');
   // 인버터 실시간 데이터 테이블
   returnValue.dataList = currInverterDataList;
   returnValue.totalInfo.in_kw = calcValue(reduceDataList(currInverterDataList, 'in_kw'), 1, 3);

@@ -42,6 +42,7 @@ const BU = require('base-util-jh').baseUtil;
  * @property {number} max 해당 RowPacketList 최대 값
  * @property {number} min 해당 RowPacketList 최소 값
  * @property {number} aver 해당 RowPacketList 평균 값
+ * @property {string=} scale 원시 데이터에 곱한 가중치 값
  */
 
 /**
@@ -65,9 +66,11 @@ function makeChartDataToReport(resource){
 
   let searchList = [];
   let titleList = [];
+  let scaleList = [];
   let realTotalPowerList = [];
-  let totalPowerList = [];
+  let scaleTotalPowerList = [];
   let efficiencyList = [];
+  let sumIntervalPowerList = [];
 
 
 
@@ -76,6 +79,8 @@ function makeChartDataToReport(resource){
 
   // 데이터 그래프
   const resourceList = powerChartData.series;
+
+  // BU.CLI(powerChartData.series);
   // 검색 기간
   let rangeStart = searchRange.rangeStart;
   let sheetName = rangeStart + (searchRange.rangeEnd === '' ? '' : ` ~ ${searchRange.rangeEnd}`);
@@ -83,7 +88,7 @@ function makeChartDataToReport(resource){
   searchList = ['검색 기간', powerChartDecoration.mainTitle];
             
   // 메인 제목
-  titleList = ['시간'].concat(excelTitleList);
+  titleList = [''].concat(excelTitleList);
   titleList.push('날씨');
   titleList.push('수심');
 
@@ -100,7 +105,7 @@ function makeChartDataToReport(resource){
     break;
   }
 
-  totalPowerList = [`${powerName} ${powerChartDecoration.yAxisTitle}`];
+  
   
   // 총 발전량
   
@@ -111,29 +116,25 @@ function makeChartDataToReport(resource){
   });
 
   
-
-
-
   // let accumulateList = [ `누적 ${powerChartDecoration.yAxisTitle}`];
   // accumulateList = accumulateList.concat(maxList);
-  realTotalPowerList = ['기간 발전량'];
+  scaleList = ['가중치'].concat(_.pluck(optionList, 'scale'));
+  realTotalPowerList = [`가중치 미적용 ${powerName} ${powerChartDecoration.yAxisTitle}`];
+  scaleTotalPowerList = [`가중치 적용 ${powerName} ${powerChartDecoration.yAxisTitle}`];
   // 검색 기간의 최대 최소 값의 차를 빼서 계산
   optionList.forEach(option => {
     let intervalPower = Number(option.max - option.min); 
     intervalPower = isNaN(intervalPower) ? '' : intervalPower;
     realTotalPowerList.push(intervalPower);
+
+    scaleTotalPowerList.push((intervalPower * option.scale).scale(1, 3));
   });
-  // 각 행들의 합을 계산
-  powerChartData.series.forEach(chartData => {
-    let sum = chartData.data.reduce((prev, curr) => {
-      return Number(prev) + Number(curr);
-    });     
-    totalPowerList.push(sum);
-  });
+
+  // BU.CLI(scaleTotalPowerList);
   // BU.CLI(powerChartData);
   efficiencyList = ['비교(%)'];
-  if(totalPowerList.length === 7){
-    totalPowerList.forEach((accumulate, index) => {
+  if(scaleTotalPowerList.length === 7){
+    scaleTotalPowerList.forEach((accumulate, index) => {
       switch (index) {
       case 1:
       case 2:
@@ -141,18 +142,18 @@ function makeChartDataToReport(resource){
         break;
       case 3:
       case 4:
-        efficiencyList.push((accumulate / totalPowerList[1] * 100).toFixed(1));
+        efficiencyList.push((accumulate / scaleTotalPowerList[1] * 100).scale(1, 1));
         break;
       case 5:
       case 6:
-        efficiencyList.push((accumulate / totalPowerList[2] * 100).toFixed(1));
+        efficiencyList.push((accumulate / scaleTotalPowerList[2] * 100).scale(1, 1));
         break;
       default:
         break;
       }
     });
   }
-
+  // BU.CLI(efficiencyList);
 
   // 차트에 표현된 날짜 기간
   const dataLength = powerChartData.range.length;
@@ -165,7 +166,7 @@ function makeChartDataToReport(resource){
     dataResourceList.push(currentItem.data);
   });
 
-  const excelDataList = [];
+  const excelDataList = [[powerChartDecoration.xAxisTitle]];
   // 차트를 그리기 위한 데이터 정의
   for (let index = 0; index < dataLength; index++) {
     const row = [];
@@ -176,20 +177,32 @@ function makeChartDataToReport(resource){
     excelDataList.push(row);
   }
 
+  // 각 행들의 합을 계산
+  sumIntervalPowerList = [`합산 ${powerName} ${powerChartDecoration.yAxisTitle}`];
+  powerChartData.series.forEach(chartData => {
+    let sum = chartData.data.reduce((prev, curr) => {
+      return Number(prev) + Number(curr);
+    });     
+    sumIntervalPowerList.push(sum);
+  });
+
   let powerHeader = [];
   powerHeader.push(searchList);
   powerHeader.push(titleList);
+  powerHeader.push(realTotalPowerList);
+  powerHeader.push(scaleList);
+  powerHeader.push(scaleTotalPowerList);
   powerHeader.push(efficiencyList);
-  // powerHeader.push(realTotalPowerList);
   // powerHeader.push(accumulateList);
-  powerHeader.push(totalPowerList);
+  // powerHeader.push(sumIntervalPowerList);
 
 
   var wb = XLSX.utils.book_new();
   wb.SheetNames = [sheetName]; 
   let ws = XLSX.utils.aoa_to_sheet([]);
   XLSX.utils.sheet_add_aoa(ws, powerHeader, {origin: 'A2'});
-  XLSX.utils.sheet_add_aoa(ws, excelDataList, {origin: -1});
+  XLSX.utils.sheet_add_aoa(ws, excelDataList, {origin: 'A10'});
+  XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
 
   // BU.CLI(ws);
   wb.Sheets[sheetName] = ws;

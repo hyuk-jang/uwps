@@ -60,6 +60,7 @@ const BU = require('base-util-jh').baseUtil;
  * @property {number} max 해당 RowPacketList 최대 값
  * @property {number} min 해당 RowPacketList 최소 값
  * @property {number} aver 해당 RowPacketList 평균 값
+ * @property {string=} scale 원시 데이터에 곱할 가중치 값
  */
 
 /**
@@ -243,14 +244,14 @@ function calcRangePower(rowDataPacketList, calcOption){
           // BU.CLI(BU.convertDateToText(prevDate), BU.convertDateToText(currDate));
           let thisCritical = (currDate.getTime() - prevDate.getTime()) * 0.001;
           // BU.CLIS(prevDate.getTime(), currDate.getTime(), currDate.getTime() - prevDate.getTime());
-          if(thisCritical > calcOption.rangeOption.maxRequiredDateSecondValue){
+          if(thisCritical >= calcOption.rangeOption.maxRequiredDateSecondValue){
             hasError = true;
           }
         } 
 
-        if(hasCalcCount && calcOption.rangeOption.minRequiredCountValue > rowData[calcOption.rangeOption.minRequiredCountKey]){
-          hasError = true;
-        }
+        // if(hasCalcCount && calcOption.rangeOption.minRequiredCountValue > rowData[calcOption.rangeOption.minRequiredCountKey]){
+        //   hasError = true;
+        // }
 
         // BU.CLI(hasError);
         rowData[calcOption.resultKey] = hasError ?  '' : rowData[calcOption.calcMaxKey] - prevValue;
@@ -624,6 +625,18 @@ exports.convertValueBySearchType = convertValueBySearchType;
 function applyScaleChart(chartData, searchType) {
   // BU.CLI(searchType);
   chartData.series.forEach(chart => {
+    if(chart.option){
+      let option = chart.option;
+      if(option.max){
+        option.max =  _.isNumber(option.max) ? convertValueBySearchType(option.max, searchType) : '';
+      }
+      if(option.min){
+        option.min =  _.isNumber(option.min) ? convertValueBySearchType(option.min, searchType) : '';
+      }
+      if(option.aver){
+        option.aver =  _.isNumber(option.aver) ? convertValueBySearchType(option.aver, searchType) : '';
+      }
+    }
     chart.data.forEach((data, index) => {
       // BU.CLI(data);
       chart.data[index] = _.isNumber(data) ? convertValueBySearchType(data, searchType) : '';

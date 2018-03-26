@@ -104,6 +104,7 @@ module.exports = function (app) {
     // 차트 합침
     chartData.series = inverterChart.series.concat(connectorChart.series);
 
+    // BU.CLI(chartData);
 
     // /** 차트를 표현하는데 필요한 Y축, X축, Title Text 설정 객체 생성 */
     let chartDecoration = webUtil.makeChartDecoration(searchRange);
@@ -142,15 +143,14 @@ module.exports = function (app) {
    * @return {chartData} chartData
    */
   async function getInverterChart(searchOption, searchRange, betweenDatePoint) {
-    let chartData = { range: [], series: [] };
     // 장비 종류가 접속반, 장비 선택이 전체라면 즉시 종료
     if (searchOption.device_type === 'connector' && searchOption.device_list_type === 'all') {
-      return chartData;
+      return { range: [], series: [] };
     }
 
     // 인버터나 전체를 검색한게 아니라면 즉시 리턴
     if (searchOption.device_list_type !== 'all' && searchOption.device_list_type !== 'inverter') {
-      return chartData;
+      return { range: [], series: [] };
     }
 
     let device_seq = !isNaN(searchOption.device_seq) ? Number(searchOption.device_seq) : 'all';
@@ -173,7 +173,7 @@ module.exports = function (app) {
         groupKey: 'inverter_seq',
         rangeOption: {
           dateKey: 'group_date',
-          maxRequiredDateSecondValue: 600,
+          maxRequiredDateSecondValue: 1200, // 간격간의 격차가 20분 이상이라면 사용하지 않음.
           minRequiredCountKey: 'total_count',
           minRequiredCountValue: 9
         }
@@ -187,12 +187,12 @@ module.exports = function (app) {
 
     let chartOption = { selectKey: 'interval_wh', maxKey: 'max_c_wh', minKey: 'min_c_wh', dateKey: 'group_date', groupKey: 'target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
-    chartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, chartOption);
+    let chartData =  webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, chartOption);
     // BU.CLI(chartData);
     /* Scale 적용 */
     chartData.series.forEach(currentItem => {
       let foundIt = _.findWhere(tempSacle.inverterScale, { target_id: currentItem.name });
-
+      currentItem.option.scale = foundIt.scale;
       currentItem.data.forEach((data, index) => {
         currentItem.data[index] = data === '' ? '' : Number((data * foundIt.scale).scale(1, 1));
       });
@@ -265,6 +265,7 @@ module.exports = function (app) {
     /* Scale 적용 */
     chartData.series.forEach(currentItem => {
       let foundIt = _.findWhere(tempSacle.moduleScale, { photovoltaic_seq: Number(currentItem.name) });
+      currentItem.scale = foundIt.scale;
       currentItem.data.forEach((data, index) => {
         currentItem.data[index] = data === '' ? '' : Number((data * foundIt.scale).scale(1, 1));
       });

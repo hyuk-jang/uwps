@@ -63,7 +63,7 @@ module.exports = function (app) {
     let chartData = webUtil.makeDynamicChartData(inverterPowerList, chartOption);
     // BU.CLI(chartData);
 
-    // TEST
+    /* Scale 적용 */
     chartData.series.forEach(currentItem => {
       let foundIt = _.findWhere(tempSacle.inverterScale, {
         target_id: currentItem.name

@@ -90,7 +90,7 @@ module.exports = function (app) {
     let chartData = webUtil.makeDynamicChartData(connectorPowerList, chartOption);
 
 
-    // TEST
+    /* Scale 적용 */
     chartData.series.forEach(currentItem => {
       let foundIt = _.findWhere(tempSacle.moduleScale, {photovoltaic_seq: Number(currentItem.name)}); 
       currentItem.data.forEach((data, index) => {

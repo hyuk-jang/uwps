@@ -10,6 +10,15 @@ class BiModule extends bmjh.BM {
   }
 
   /**
+   * 기상 관측 장비의 최신 데이터 1row를 가져옴.
+   */
+  getWeather() {
+    let sql = 'SELECT * FROM weather_device_data ORDER BY writedate DESC LIMIT 1';
+    return this.db.single(sql, '', false);
+  }
+
+
+  /**
    * 접속반 기준 Module 최신 데이터 가져옴
    *  
    * @param {number|Array} photovoltatic_seq Format => Number or Array or undefinded
@@ -354,6 +363,28 @@ class BiModule extends bmjh.BM {
     `;
     return this.db.single(sql, '', false);
   }
+
+  
+  /**
+   * 기상 관측 데이터 구해옴
+   * @param {searchRange} searchRange  검색 옵션
+   */
+  getWeatherTrend(searchRange) {
+    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
+    let sql = `
+      SELECT
+      ${dateFormat.selectViewDate},
+      ${dateFormat.selectGroupDate},
+        ROUND(AVG(sm_infrared), 1) AS avg_sm_infrared,
+        ROUND(AVG(temp), 1) AS avg_temp,
+        ROUND(AVG(solar), 0) AS avg_solar,
+        ROUND(AVG(ws), 1) AS avg_ws,	
+        ROUND(AVG(uv), 0) AS avg_uv
+       FROM weather_device_data
+       WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
+    `;
+    return this.db.single(sql, '', true);
+  }
   
   /**
    * 인버터 발전량 구해옴
@@ -412,7 +443,7 @@ class BiModule extends bmjh.BM {
     GROUP BY id_group.inverter_seq, ${dateFormat.groupByFormat}
     `;
 
-    return this.db.single(sql, '', false);
+    return this.db.single(sql, '', true);
   }
 
 

@@ -283,6 +283,22 @@ module.exports = function (app) {
   }
 
 
+  /**
+   * 기상 관측 차트 반환
+   * @param {searchRange} searchRange 
+   * @param {{fullTxtPoint: [], shortTxtPoint: []}}
+   * @return {chartData} chartData
+   */
+  async function getWeatherChart(searchRange, betweenDatePoint){
+
+    let weatherTrend = await biModule.getWeatherTrend(searchRange);
+
+    let chartOption = { selectKey: 'avg_solar', maxKey: 'max_solar', minKey: 'min_solar', dateKey: 'group_date', groupKey: 'target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
+    let chartData =  webUtil.makeStaticChartData(weatherTrend, betweenDatePoint, chartOption);
+
+  }
+
+
   router.use(wrap(async (err, req, res) => {
     console.log('Err', err);
     res.status(500).send(err);

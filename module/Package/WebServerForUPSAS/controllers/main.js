@@ -26,8 +26,7 @@ module.exports = function (app) {
     // NOTE : SQL문의 수정이 잦아지는 관계로 대표 Method로 처리. 성능을 위해서라면 차후 튜닝 필요
     // 당월 발전량을 구하기 위한 옵션 설정 (strStartDate, strEndDate 를 당월로 설정하기 위함)
 
-    
-    // console.time('-1');
+    // console.time('0');
     let searchRange = biModule.getSearchRange('day');
     // 검색 조건이 일 당으로 검색되기 때문에 금월 날짜로 date Format을 지정하기 위해 day --> month 로 변경
     searchRange.searchType = 'month';
@@ -35,27 +34,19 @@ module.exports = function (app) {
     let monthPower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerByMonth, 'interval_wh'), 0.001, 1) ;
 
     // 오늘자 발전 현황을 구할 옵션 설정(strStartDate, strEndDate 를 오늘 날짜로 설정하기 위함)
-    searchRange = biModule.getSearchRange('hour');
-    // searchRange = biModule.getSearchRange('hour', '2018-03-10');
     // 검색 조건이 시간당으로 검색되기 때문에 금일 날짜로 date Format을 지정하기 위해 hour --> day 로 변경
-    searchRange.searchType = 'day';
-    // 오늘 계측 데이터
-    let inverterPowerByToday = await biModule.getInverterPower(searchRange);
-    // 각 인버터에서 기록된 데이터 차를 합산
-    let dailyPower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerByToday, 'interval_wh'), 0.001, 1) ;
-    // BU.CLI(inverterPowerByToday);
-    // let cumulativePower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerByToday, 'max_c_wh'), 0.000001, 3) ;
-    // console.timeEnd('-1');
-    // console.time('0');
     let cumulativePowerList = await biModule.getInverterCumulativePower();
     let cumulativePower = webUtil.calcValue(webUtil.reduceDataList(cumulativePowerList, 'max_c_wh'), 0.000001, 3) ;
-
-
+    
+    // console.timeEnd('0');
+    // console.time('0.5');
     // 금일 발전 현황 데이터
-    searchRange.searchType = 'hour';
+    searchRange = biModule.getSearchRange('hour');
     // searchRange = biModule.getSearchRange('hour', '2018-03-10');
     let inverterPowerList = await biModule.getInverterPower(searchRange);
-    
+    // 각 인버터에서 기록된 데이터 차를 합산
+    let dailyPower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerList, 'interval_wh'), 0.001, 1) ;
+    // BU.CLI(inverterPowerList);
     let chartOption = { selectKey: 'interval_wh', dateKey: 'view_date' };
     let chartData = webUtil.makeDynamicChartData(inverterPowerList, chartOption);
 
@@ -63,13 +54,17 @@ module.exports = function (app) {
     webUtil.applyScaleChart(chartData, 'day');
     webUtil.mappingChartDataName(chartData, '인버터 시간별 발전량');
 
-    // console.timeEnd('0');
+    // console.timeEnd('0.5');
 
     // console.time('1');
     // 접속반 현재 발전 현황
     let moduleStatus = await biModule.getModuleStatus();
     // BU.CLI(moduleStatus);
 
+    let weatherDeviceStatus = await biModule.getWeather();
+    // 인버터 발전 현황 데이터 검증
+    let validWeatherDeviceStatus = webUtil.checkDataValidation(weatherDeviceStatus, new Date(), 'writedate');
+    let validWeatherDevice = _.first(validWeatherDeviceStatus);
 
     // TEST
     const tempSacle = require('../temp/tempSacle');   
@@ -107,6 +102,7 @@ module.exports = function (app) {
       monthPower,
       cumulativePower,
       co2: webUtil.calcValue(cumulativePower, 0.424, 3),
+      solarRadiation : validWeatherDevice.hasValidData ? validWeatherDevice.data.solar : '-',
       hasOperationInverter: _.every(_.values(_.map(validInverterDataList, data => data.hasValidData))),
       hasAlarm: false // TODO 알람 정보 작업 필요
     };

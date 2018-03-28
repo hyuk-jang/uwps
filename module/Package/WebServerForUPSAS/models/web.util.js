@@ -122,7 +122,7 @@ exports.convertWeatherCast = convertWeatherCast;
 
 
 /**
- * 기준이 되는 날을 기준으로 해당 데이터의 유효성을 검증. 10분 이상 차이가 나면 유효하지 않는 데이터로 처리.
+ * 기준이 되는 날을 기준으로 해당 데이터의 유효성을 검증. 10분을 초과하면 유효하지 않는 데이터로 처리.
  * @param {Array|Object} targetData 점검하고자 하는 데이터
  * @param {Date} baseDate 기준 날짜
  * @param {string} dateKey 검색 날짜와 매칭되는 키
@@ -144,8 +144,8 @@ function checkDataValidation(targetData, baseDate, dateKey) {
     };
 
     const gapDate = BU.calcDateInterval(baseDate, targetData[dateKey]);
-    // BU.CLIS(gapDate, BU.convertDateToText(baseDate), BU.convertDateToText(targetData[dateKey]))
-    validData.hasValidData = gapDate.remainDay === 0 && gapDate.remainHour === 0 && gapDate.remainMin < 10 ? true : false;
+    // BU.CLIS(gapDate, BU.convertDateToText(baseDate), BU.convertDateToText(targetData[dateKey]));
+    validData.hasValidData = gapDate.remainDay === 0 && gapDate.remainHour === 0 && gapDate.remainMin <= 10 ? true : false;
     validData.data = targetData;
 
     return [validData];

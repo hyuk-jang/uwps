@@ -88,9 +88,10 @@ class Control extends AbstDeviceClient {
    * @param {Buffer} data 명령 수행 결과 데이터
    */
   updateDcData(processItem, data){
-    // BU.CLI('data');
+    BU.CLI('data');
     // BU.logFile('receive data: ' + data.toString('hex'));
     const resultParsing = this.converter.parsingUpdateData(processItem.cmdList[processItem.currCmdIndex], data);
+    BU.CLI(resultParsing);
     if(resultParsing.eventCode === 'done'){
       if(!this.config.hasDev){
         this.requestTakeAction('wait');

@@ -67,10 +67,28 @@ const BU = require('base-util-jh').baseUtil;
 /**
  * @typedef {Object} refinedDeviceDataConfig
  * @property {string} deviceCategory
- * @property {{tableName: string=, addParamList: Array.<addParamKey>=, insertDateKey: string=, indexInfo: {primaryKey: string=, foreignKey: string=} }} troubleTableInfo 장치 에러에 관한 처리 설정 정보
- * @property {{tableName: string=, addParamList: Array.<addParamKey>=, insertDateKey: string=}} dataTableInfo 장치 계측 데이터에 관한 처리 설정 정보
- * @property {Array.<refinedMatchingInfo>} matchingList
+ * @property {troubleTableInfo} troubleTableInfo 장치 에러에 관한 처리 설정 정보
+ * @property {dataTableInfo} dataTableInfo 장치 계측 데이터에 관한 처리 설정 정보
  */
+
+/**
+ * @typedef {Object} troubleTableInfo
+ * @property {string} tableName 장치 에러에 관한 처리 설정 정보
+ * @property {Array.<addParamKey>} addParamList 
+ * @property {{isErrorKey: string, codeKey: string, msgKey: string, occurDateKey: string, fixDateKey: string}} changeColumnKeyInfo 
+ * @property {string=} insertDateKey 
+ * @property {{primaryKey: string=, foreignKey: string=}} indexInfo 
+ */
+
+/**
+ * @typedef {Object} dataTableInfo
+ * @property {string} tableName 
+ * @property {Array.<addParamKey>=} addParamList 
+ * @property {string=} insertDateKey 
+ * @property {Array.<refinedMatchingInfo>} matchingList 
+ 
+ */ 
+
 
 /**
  * @typedef {Object} deviceOperationInfo Device Controller 현재 장치의 계측 및 오류 데이터
@@ -88,7 +106,6 @@ const BU = require('base-util-jh').baseUtil;
  * @property {string} deviceCategoryKey dataStorageContainer 에 소속될 장치 카테고리 key
  */
 
-
 let instance;
 class DeviceDataStorage {
   /**
@@ -100,7 +117,6 @@ class DeviceDataStorage {
     } else {
       instance = this;
     }
-
 
     this.refinedDeviceDataConfigList = refinedDeviceDataConfigList;
 
@@ -226,7 +242,7 @@ class DeviceDataStorage {
       dbTroublePacketList = await this.getTroubleList(dataStorageContainer);
       // BU.CLI(dbTroublePacketList);
     }
-    BU.CLI(dbTroublePacketList);
+    // BU.CLI(dbTroublePacketList);
 
     // 카테고리에 저장되어 있는 저장소의 모든 데이터 점검
     storage.forEach(dataStorage => {
@@ -235,7 +251,7 @@ class DeviceDataStorage {
       // 시스템 에러가 있다면 
       if (hasApplyToDatabaseForError) {
         let resultProcessError = this.processDeviceErrorList(dataStorage, dataStorageContainer, dbTroublePacketList);
-        BU.CLI(resultProcessError);
+        // BU.CLI(resultProcessError);
         // 에러 처리한 결과를 컨테이너에 반영
         dataStorageContainer.insertTroubleList = dataStorageContainer.insertTroubleList.concat(resultProcessError.insertTroubleList);
         dataStorageContainer.updateTroubleList = dataStorageContainer.updateTroubleList.concat(resultProcessError.updateTroubleList);
@@ -461,12 +477,13 @@ class DeviceDataStorage {
 
       // 신규 에러라면 insertList에 추가
       if (!hasExitError) {
+        let changeColumnKeyInfo = troubleTableInfo.changeColumnKeyInfo;
         let addErrorObj = {
-          is_error: isSystemError,
-          code: deviceError.code,
-          msg: deviceError.msg,
-          occur_date: deviceError.occur_date instanceof Date ? BU.convertDateToText(deviceError.occur_date) : BU.convertDateToText(dataStorage.measureDate),
-          fix_date: null
+          [changeColumnKeyInfo.isErrorKey]: isSystemError,
+          [changeColumnKeyInfo.codeKey]: deviceError.code,
+          [changeColumnKeyInfo.msgKey]: deviceError.msg,
+          [changeColumnKeyInfo.occurDateKey]: deviceError.occur_date instanceof Date ? BU.convertDateToText(deviceError.occur_date) : BU.convertDateToText(dataStorage.measureDate),
+          [changeColumnKeyInfo.fixDateKey]: null
         };
 
         addErrorObj = Object.assign(addObjectParam, addErrorObj);
@@ -512,12 +529,8 @@ class DeviceDataStorage {
       config
     } = dataStorage;
 
-    const {
-      refinedDeviceDataConfig
-    } = dataStorageContainer;
-    const {
-      matchingList
-    } = refinedDeviceDataConfig;
+    const refinedDeviceDataConfig = dataStorageContainer.refinedDeviceDataConfig;
+    const matchingList = refinedDeviceDataConfig.dataTableInfo.matchingList;
     const addParamList = refinedDeviceDataConfig.dataTableInfo.addParamList;
 
     // 데이터가 Array.<Object> 형태일 경우
@@ -580,7 +593,8 @@ class DeviceDataStorage {
           resultCalculate = Number((deviceData[fromKey] * calculate).toFixed(toFixed));
           // BU.CLI('resultCalculate', resultCalculate);
         } else {
-          throw Error(`해당 데이터는 숫자가 아님: ${deviceData[fromKey]}`);
+          resultCalculate = deviceData[fromKey];
+          // throw Error(`해당 데이터는 숫자가 아님: ${deviceData[fromKey]}`);
         }
       } else if (typeof calculate === 'string') { // 계산식이 문자일 경우 eval 계산식 생성
         let finalMsg = '';
@@ -622,31 +636,20 @@ class DeviceDataStorage {
    * @param {dataStorageContainer} dataStorageContainer deviceDataList 요소. 시퀀스 와 측정 날짜 
    */
   getTroubleList(dataStorageContainer) {
-    const {
-      troubleTableInfo
-    } = dataStorageContainer.refinedDeviceDataConfig;
-
-    const tableName = troubleTableInfo.tableName;
-    const {
-      foreignKey,
-      primaryKey
-    } = troubleTableInfo.indexInfo;
-
+    const troubleTableInfo = dataStorageContainer.refinedDeviceDataConfig.troubleTableInfo;
+    const {tableName, changeColumnKeyInfo, indexInfo} = troubleTableInfo;
+    const {foreignKey, primaryKey} = indexInfo;
 
     let sql = `
       SELECT o.*
         FROM ${tableName} o                    
           LEFT JOIN ${tableName} b             
-              ON o.${foreignKey} = b.${foreignKey} AND o.code = b.code AND o.${primaryKey} < b.${primaryKey}
-        WHERE b.${primaryKey} is NULL AND o.fix_date is NULL
+              ON o.${foreignKey} = b.${foreignKey} AND o.${changeColumnKeyInfo.codeKey} = b.${changeColumnKeyInfo.codeKey} AND o.${primaryKey} < b.${primaryKey}
+        WHERE b.${primaryKey} is NULL AND o.${changeColumnKeyInfo.fixDateKey} is NULL
         ORDER BY o.${primaryKey} ASC
     `;
 
     return this.BM.db.single(sql);
   }
-
-
-
-
 }
 module.exports = DeviceDataStorage;

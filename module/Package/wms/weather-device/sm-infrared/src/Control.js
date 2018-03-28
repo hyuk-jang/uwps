@@ -40,8 +40,8 @@ class Control extends AbstDeviceClient {
       id: this.config.deviceInfo.target_id,
       config: this.config.deviceInfo,
       data: this.model.deviceData,
-      // systemErrorList: [{code: 'new Code', msg: '에러 테스트 메시지', occur_date: new Date() }],
-      systemErrorList: this.systemErrorList,
+      systemErrorList: [{code: 'new Code', msg: '에러 테스트 메시지', occur_date: new Date() }],
+      // systemErrorList: this.systemErrorList,
       troubleList: []
     };
   }

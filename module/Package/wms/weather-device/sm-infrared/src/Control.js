@@ -35,11 +35,12 @@ class Control extends AbstDeviceClient {
    * 장치의 현재 데이터 및 에러 내역을 가져옴
    * @return {{id: string, config: Object, data: {smRain: number}, systemErrorList: Array, troubleList: Array}} 
    */
-  getDeviceStatus() {
+  getDeviceOperationInfo() {
     return {
       id: this.config.deviceInfo.target_id,
       config: this.config.deviceInfo,
       data: this.model.deviceData,
+      // systemErrorList: [{code: 'new Code', msg: '에러 테스트 메시지', occur_date: new Date() }],
       systemErrorList: this.systemErrorList,
       troubleList: []
     };
@@ -71,7 +72,7 @@ class Control extends AbstDeviceClient {
     // BU.CLI(data.toString());
     const resultData = this.model.onData(data);
 
-    // BU.CLI(this.getDeviceStatus().data); 
+    // BU.CLI(this.getDeviceOperationInfo().data); 
 
     // 현재 내리는 비가 변화가 생긴다면 이벤트 발생
     if(!_.isEmpty(resultData)){

@@ -45,15 +45,16 @@ class Control extends AbstDeviceClient {
 
   /**
    * 장치의 현재 데이터 및 에러 내역을 가져옴
-   * @return {{id: string, config: Object, data: weathercastProtocolFormat, systemErrorList: Array, troubleList: Array}} 
+   * @return {deviceOperationInfo} 
    */
-  getDeviceStatus() {
+  getDeviceOperationInfo() {
     return {
       id: this.config.deviceInfo.target_id,
       config: this.config.deviceInfo,
       data: this.model.deviceData,
       systemErrorList: this.systemErrorList,
-      troubleList: []
+      troubleList: [],
+      measureDate: new Date()
     };
   }
 
@@ -96,7 +97,7 @@ class Control extends AbstDeviceClient {
       }
     }
     this.model.onData(resultParsing.data);
-    // BU.CLIN(this.getDeviceStatus());
+    // BU.CLIN(this.getDeviceOperationInfo());
   }
 }
 module.exports = Control;

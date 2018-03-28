@@ -5,11 +5,15 @@ module.exports = {
   current: {
     dbInfo: {
       host: process.env.SALTERN_HOST ? process.env.SALTERN_HOST : 'localhost',
-      // user: process.env.SALTERN_USER ? process.env.SALTERN_USER : 'root',
       user: 'upsas',
       password: process.env.SALTERN_PW ? process.env.SALTERN_PW : 'root',
-      // database: process.env.SALTERN_DB ? process.env.SALTERN_DB : 'uwps'
       database: 'upsas'
+      // host: process.env.SALTERN_HOST ? process.env.SALTERN_HOST : 'localhost',
+      // user: process.env.SALTERN_USER ? process.env.SALTERN_USER : 'root',
+      // user: 'upsas',
+      // password: process.env.SALTERN_PW ? process.env.SALTERN_PW : 'root',
+      // database: process.env.SALTERN_DB ? process.env.SALTERN_DB : 'uwps'
+      // database: 'upsas'
     },
     controllerInfo: {
       addTemp: 555,

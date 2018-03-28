@@ -57,14 +57,16 @@ class Control {
 
   /**
    * 장치의 현재 데이터 및 에러 내역을 가져옴
+   * @return {deviceOperationInfo} 
    */
-  getDeviceStatus() {
+  getDeviceOperationInfo() {
     return {
       id: this.config.controllerInfo.target_id,
       config: this.config.controllerInfo,
       data: this.model.deviceData,
       systemErrorList: this.model.systemErrorList,
-      troubleList: this.model.troubleList
+      troubleList: this.model.troubleList,
+      measureDate: new Date()
     };
   }
 

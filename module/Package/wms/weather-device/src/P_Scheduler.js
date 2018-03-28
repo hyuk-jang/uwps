@@ -40,8 +40,8 @@ class P_Scheduler extends EventEmitter {
     // BU.CLI('_measureConnector', measureTime);
 
     let returnValue = {
-      vantagepro2Data: this.controller.vantagepro2.getDeviceStatus(),
-      smInfraredData: this.controller.vantagepro2.getDeviceStatus(),
+      vantagepro2Data: this.controller.vantagepro2.getDeviceOperationInfo(),
+      smInfraredData: this.controller.vantagepro2.getDeviceOperationInfo(),
     };
 
 

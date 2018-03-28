@@ -22,8 +22,8 @@
     "mocha": "^4.1.0"
   },
   "dependencies": {
-    "base-util-jh": "^1.0.20",
-    "device-client-controller-jh": "^0.1.12",
+    "base-util-jh": "^1.0.23",
+    "device-client-controller-jh": "^0.1.14",
     "device-protocol-converter-jh": "^0.1.2",
     "underscore": "^1.8.3"
   }

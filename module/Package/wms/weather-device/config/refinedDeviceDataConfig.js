@@ -1,6 +1,3 @@
-// const inverterBaseFormat = require('../InverterController/Converter').baseFormat;
-// const connectorBaseFormat = require('../ConnectorController/Converter').baseFormat;
-
 /**
  * @typedef {Object} tableParamFormat
  * @property {string} fromKey
@@ -10,14 +7,17 @@
 module.exports = [{
   deviceCategory: 'weatherDevice',
   troubleTableInfo: {
-    tableName: '',
+    tableName: 'weather_device_trouble',
     /** @type {Array.<tableParamFormat>} */
     addParamList: [{
       fromKey: 'addTemp',
-      toKey: 'changeTemp',
+      toKey: 'temp_seq',
     }],
     insertDateKey: 'writedate',
-    updateKey: ''
+    indexInfo: {
+      primaryKey: 'weather_device_trouble_seq',
+      foreignKey: 'temp_seq'
+    }
   },
   dataTableInfo: {
     tableName: 'weather_device_data',
@@ -26,57 +26,49 @@ module.exports = [{
     insertDateKey: 'writedate',
   },
   dataTableName: 'weather_device_data',
-  // dataTableId: '',
-  // troubleTableName: '',
-  // troubleTableId: '',
-  // dateParam: 'writedate',
-  // addParamList: [{
-  //   baseKey: 'addTemp',
-  //   updateKey: 'changeTemp',
-  // }],
   matchingList: [{
-    baseKey: 'smInfrared',
-    updateKey: 'sm_infrared',
+    fromKey: 'smInfrared',
+    toKey: 'sm_infrared',
     calculate: 1,
     toFixed: 1
   }, {
-    baseKey: 'OutsideTemperature',
-    updateKey: 'temp',
+    fromKey: 'OutsideTemperature',
+    toKey: 'temp',
     calculate: 1,
     toFixed: 1
   }, {
-    baseKey: 'OutsideHumidity',
-    updateKey: 'reh',
+    fromKey: 'OutsideHumidity',
+    toKey: 'reh',
     calculate: 1,
     toFixed: 0
   },{
-    baseKey: 'WindDirection',
-    updateKey: 'wd',
+    fromKey: 'WindDirection',
+    toKey: 'wd',
     calculate: 1,
     toFixed: 0
   },{
-    baseKey: 'Min10AvgWindSpeed',
-    updateKey: 'ws',
+    fromKey: 'Min10AvgWindSpeed',
+    toKey: 'ws',
     calculate: 1,
     toFixed: 1
   },{
-    baseKey: 'RainRate',
-    updateKey: 'rain_h',
+    fromKey: 'RainRate',
+    toKey: 'rain_h',
     calculate: 1,
     toFixed: 0
   },{
-    baseKey: 'DayRain',
-    updateKey: 'rain_d',
+    fromKey: 'DayRain',
+    toKey: 'rain_d',
     calculate: 1,
     toFixed: 0
   },{
-    baseKey: 'SolarRadiation',
-    updateKey: 'solar',
+    fromKey: 'SolarRadiation',
+    toKey: 'solar',
     calculate: 1,
     toFixed: 0
   },{
-    baseKey: 'UV',
-    updateKey: 'uv',
+    fromKey: 'UV',
+    toKey: 'uv',
     calculate: 1,
     toFixed: 0
   }]

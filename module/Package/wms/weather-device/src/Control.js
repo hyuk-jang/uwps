@@ -25,7 +25,8 @@ class Control {
   
   /** 기상 장치 컨트롤러 객체를 초기화 하고 스케줄러를 호출. (장치 접속 및 프로그램 구동) */
   init(){
-    this.smInfrared.init();
+    // TODO 적외선 센서 달면 활성화 할 것
+    // this.smInfrared.init();
     this.vantagepro2.init();
 
     this.runScheduler();

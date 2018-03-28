@@ -33,7 +33,6 @@
  * @property {Array.<{rank: number, list: Array.<commandFormat>}>} rankList Commander로부터 요청받은 명령을 담을 그릇
  */
 
-
 /**
  * @typedef {Object} deviceError 시스템 에러 형식
  * @property {string} code 오류 ID

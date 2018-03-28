@@ -294,24 +294,23 @@ class DeviceDataStorage {
       throw new Error('해당 deviceCategory는 존재하지 않습니다.' + deviceCategory);
     }
     if (this.hasSaveToDB) {
-
-      BU.CLI(dataStorageContainer);
+      // BU.CLI(dataStorageContainer);
       const dataTableInfo = dataStorageContainer.refinedDeviceDataConfig.dataTableInfo;
       const troubleTableInfo = dataStorageContainer.refinedDeviceDataConfig.troubleTableInfo;
 
       // 입력할 Data와 저장할 DB Table이 있을 경우
       if (dataStorageContainer.insertDataList.length && dataTableInfo.tableName) {
-        await this.BM.setTables(dataTableInfo.tableName, dataStorageContainer.insertDataList, true);
+        await this.BM.setTables(dataTableInfo.tableName, dataStorageContainer.insertDataList, false);
       }
 
       // 입력할 Trouble Data가 있을 경우
       if (dataStorageContainer.insertTroubleList.length) {
-        await this.BM.setTables(troubleTableInfo.tableName, dataStorageContainer.insertTroubleList, true);
+        await this.BM.setTables(troubleTableInfo.tableName, dataStorageContainer.insertTroubleList, false);
       }
 
       // 수정할 Trouble이 있을 경우
       if (dataStorageContainer.updateTroubleList.length) {
-        await this.BM.updateTablesByPool(troubleTableInfo.tableName, troubleTableInfo.indexInfo.primaryKey, dataStorageContainer.updateTroubleList, true);
+        await this.BM.updateTablesByPool(troubleTableInfo.tableName, troubleTableInfo.indexInfo.primaryKey, dataStorageContainer.updateTroubleList, false);
       }
     }
 

@@ -45,10 +45,12 @@ class Model extends DeviceDataStorage {
    */
   async getWeatherDeviceData(measureDate) {
     BU.CLI('getWeatherDeviceData');
+    
     let smInfraredData = this.controller.smInfrared.getDeviceOperationInfo();
     // BU.CLI(smInfraredData);
     let vantagepro2Data = this.controller.vantagepro2.getDeviceOperationInfo();
 
+    BU.CLIN(vantagepro2Data);
     // BU.CLI(smInfraredData);
     this.systemErrorList = smInfraredData.systemErrorList.concat(vantagepro2Data.systemErrorList);
     this.troubleList = smInfraredData.troubleList.concat(vantagepro2Data.troubleList);
@@ -57,11 +59,11 @@ class Model extends DeviceDataStorage {
     // SM 적외선 데이터와 VantagePro2 객체 데이터를 합침
     this.deviceData = Object.assign(smInfraredData.data, vantagepro2Data.data);
 
-    // 데이터에 null이 포함되어있다면 아직 준비가 안된것으로 판단
-    // if (_.contains(this.deviceData, null)) {
-    //   BU.logFile('장치의 데이터 수집이 준비가 안되었습니다.');
-    //   return false;
-    // }
+    /* 데이터에 null이 포함되어있다면 아직 준비가 안된것으로 판단 */
+    if (_.contains(vantagepro2Data.data, null)) {
+      BU.logFile('장치의 데이터 수집이 준비가 안되었습니다.');
+      return false;
+    }
 
     let returnValue = this.onDeviceOperationInfo(this.controller.getDeviceOperationInfo(), this.deviceCategory);
     
@@ -70,7 +72,7 @@ class Model extends DeviceDataStorage {
 
     // DB에 입력
     const convertDataList = await this.refineTheDataToSaveDB(this.deviceCategory, measureDate);
-    // BU.CLI(convertDataList);
+    BU.CLI(convertDataList);
 
     const resultSaveToDB = await this.saveDataToDB(this.deviceCategory);
     // BU.CLI(resultSaveToDB);

@@ -377,13 +377,15 @@ class BiModule extends bmjh.BM {
       ${dateFormat.selectGroupDate},
         ROUND(AVG(sm_infrared), 1) AS avg_sm_infrared,
         ROUND(AVG(temp), 1) AS avg_temp,
+        ROUND(AVG(reh), 1) AS avg_reh,
         ROUND(AVG(solar), 0) AS avg_solar,
         ROUND(AVG(ws), 1) AS avg_ws,	
         ROUND(AVG(uv), 0) AS avg_uv
        FROM weather_device_data
        WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
+       GROUP BY ${dateFormat.groupByFormat}
     `;
-    return this.db.single(sql, '', true);
+    return this.db.single(sql, '', false);
   }
   
   /**
@@ -443,7 +445,7 @@ class BiModule extends bmjh.BM {
     GROUP BY id_group.inverter_seq, ${dateFormat.groupByFormat}
     `;
 
-    return this.db.single(sql, '', true);
+    return this.db.single(sql, '', false);
   }
 
 

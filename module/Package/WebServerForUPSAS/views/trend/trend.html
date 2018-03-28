@@ -97,21 +97,19 @@
           </div>
 
           <div class="title_box2" id="moduleChart_1">
-
-
           </div>
-
-          <!-- <div class="row row_title">
-            <div class="title title_trend">기상 장치 정보</div>
-          </div> -->
-
-          <!-- <div class="title_box" id="moduleChart_2"></div> -->
-
           <!-- <p class="re_p">※ 금일 발전량, 누적 발전량, 장치 상태를 제외한 위의 데이터는 모두 해당<span> 검색 기간의 평균 값</span> 입니다. </p> -->
           <p class="re_p" style="margin-top: 10px">※ 인버터 발전량 차트의 각 데이터 포인트는 <span> <%- chartDecorator.inverterComment %></span> 입니다. </p>
           <p class="re_p" style="margin-top: 10px">※ 접속반 발전량 차트의 각 데이터 포인트는 <span> <%- chartDecorator.connectorComment %></span> 이며 참고사항 용입니다 . </p>
           <!-- <p class="re_p" style="margin-top: 10px">※ 인버터 발전량 차트의 각 데이터 포인트는 <span> X축 시간 동안의 (최고 누적발전량 - 최저 누적발전량)</span> 으로 해당 기간 동안의 실제 발전량입니다. </p>
           <p class="re_p" style="margin-top: 10px">※ 접속반 발전량 차트의 각 데이터 포인트는 <span> X축 시간 동안의 (평균 전류 * 평균 전압)</span> 이며 X축 시간이 일 단위 이상일 경우에는 시간당 입력된 평균 전력의 합산 값으로 참고사항 용입니다 . </p> -->
+
+          <div class="row row_title">
+            <div class="title title_trend">기상 장치 정보</div>
+          </div>
+
+          <div class="title_box2" id="weatherChart"></div>
+
         </div>
       </div>
     </div>
@@ -251,9 +249,9 @@
 
       <!-- 모듈 차트 -->
       <script type="text/javascript">
-      var chartData = <%- JSON.stringify(chartData) %>;
+      var powerChartData = <%- JSON.stringify(powerChartData) %>;
       var chartDecorator = <%- JSON.stringify(chartDecorator) %>;
-      if(chartData.series.length){
+      if(powerChartData.series.length){
         $('#moduleChart_1').highcharts({
               chart: {
                   type: "spline"
@@ -266,7 +264,7 @@
                   text: chartDecorator.xAxisTitle
                 },
                 tickInterval: 1,
-                categories: chartData.range
+                categories: powerChartData.range
               },
               yAxis: {
                 title: {
@@ -279,7 +277,7 @@
                 verticalAlign: 'middle',
                 borderWidth: 0
               },
-              series: chartData.series,
+              series: powerChartData.series,
               credits: {
                 enabled: false
               },
@@ -290,76 +288,90 @@
       </script>
 
       <!-- 날씨 차트 -->
-      <!-- <script>
-      Highcharts.chart('moduleChart_2', {
-        chart: {
-          type: 'column'
-        },
-        title: {
-          text: ' '
-        },
-        xAxis: {
-          categories: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
-            '17', '18', '19', '20', '21', '22', '23'
-          ]
-        },
-        yAxis: [{
-          min: 0,
-          title: {
-            text: '수치'
-          }
-        }, {
-          min: 0,
-          title: {
-            text: '일사량'
+      <script>
+      var weatherChartData = <%- JSON.stringify(weatherChartData) %>;
+      console.log('weatherChartData.series', weatherChartData.series)
+      if(weatherChartData.series.length){
+        Highcharts.chart('weatherChart', {
+          chart: {
+            type: 'spline'
           },
-          opposite: true
-        }],
-
-        plotOptions: {
-          column: {
-            pointPadding: 0.2,
-            borderWidth: 0
-          }
-        },
-        series: [{
-          name: '습도(%)',
-          data: [],
-          // data: moduleChart[0],
-          tooltip: {
-            headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">습도: </td>' +
-              '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
-            useHTML: true
-          }
-        }, {
-          name: '기온(℃)',
-          data: [],
-          tooltip: {
-            headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">기온: </td>' +
-              '<td style="padding:0"><b>{point.y:.1f} ℃</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
-            useHTML: true
-          }
-        }, {
-          name: '일사량',
-          data: [],
-          tooltip: {
-            headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">일사량: </td>' +
-              '<td style="padding:0"><b>{point.y:.1f} W/m2</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
-            useHTML: true
+          title: {
+            text: ''
           },
-          yAxis: 1
-        }]
-      });
-    </script> -->
+          xAxis: {
+            title: {
+              text: chartDecorator.xAxisTitle
+            },
+            tickInterval: 1,
+            categories: weatherChartData.range
+          },
+          yAxis: [{
+            min: 0,
+            max: 100,
+            title: {
+              text: '수치'
+            }
+          }, {
+            min: 0,
+            max: 1200,
+            title: {
+              text: '일사량'
+            },
+            opposite: true
+          }],
+  
+          plotOptions: {
+            column: {
+              pointPadding: 0.2,
+              borderWidth: 0
+            }
+          },
+          series: weatherChartData.series,
+          credits: {
+            enabled: false
+          },
+          // series: [{
+          //   name: '습도(%)',
+          //   data: [],
+          //   // data: moduleChart[0],
+          //   tooltip: {
+          //     headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
+          //     pointFormat: '<tr><td style="color:{series.color};padding:0">습도: </td>' +
+          //       '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+          //     footerFormat: '</table>',
+          //     shared: true,
+          //     useHTML: true
+          //   }
+          // }, {
+          //   name: '기온(℃)',
+          //   data: [],
+          //   tooltip: {
+          //     headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
+          //     pointFormat: '<tr><td style="color:{series.color};padding:0">기온: </td>' +
+          //       '<td style="padding:0"><b>{point.y:.1f} ℃</b></td></tr>',
+          //     footerFormat: '</table>',
+          //     shared: true,
+          //     useHTML: true
+          //   }
+          // }, {
+          //   name: '일사량',
+          //   data: [],
+          //   tooltip: {
+          //     headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
+          //     pointFormat: '<tr><td style="color:{series.color};padding:0">일사량: </td>' +
+          //       '<td style="padding:0"><b>{point.y:.1f} W/m2</b></td></tr>',
+          //     footerFormat: '</table>',
+          //     shared: true,
+          //     useHTML: true
+          //   },
+          //   yAxis: 1
+          // }]
+        });
+      } else {
+        $("#weatherChart").html("기상 관측 내역이 존재하지 않습니다.").css({"line-height": "240px", "font-size": "25px"});
+      }
+    </script>
 
 
 </body>

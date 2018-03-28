@@ -100,19 +100,22 @@ module.exports = function (app) {
     // 접속반 차트
     let connectorChart = await getConnectorChart(searchOption, searchRange, betweenDatePoint);
     // 차트 Range 지정
-    let chartData = { range: betweenDatePoint.shortTxtPoint, series: [] };
+    let powerChartData = { range: betweenDatePoint.shortTxtPoint, series: [] };
     // 차트 합침
-    chartData.series = inverterChart.series.concat(connectorChart.series);
+    powerChartData.series = inverterChart.series.concat(connectorChart.series);
 
     // BU.CLI(chartData);
 
     // /** 차트를 표현하는데 필요한 Y축, X축, Title Text 설정 객체 생성 */
     let chartDecoration = webUtil.makeChartDecoration(searchRange);
 
+    let weatherChartData = await getWeatherChart(searchRange, betweenDatePoint);
+
 
     let createExcelOption = {
-      powerChartData: chartData, 
+      powerChartData, 
       powerChartDecoration: chartDecoration, 
+      weatherChartData, 
       searchRange
     };
 
@@ -121,8 +124,9 @@ module.exports = function (app) {
     // BU.CLI(chartDecoration);
     // BU.CLI(chartOption);
     req.locals.searchOption = searchOption;
-    req.locals.chartData = chartData;
+    req.locals.powerChartData = powerChartData;
     req.locals.chartDecorator = chartDecoration;
+    req.locals.weatherChartData = weatherChartData;
     req.locals.workBook = excelContents;
     return res.render('./trend/trend.html', req.locals);
   }));
@@ -286,16 +290,36 @@ module.exports = function (app) {
   /**
    * 기상 관측 차트 반환
    * @param {searchRange} searchRange 
-   * @param {{fullTxtPoint: [], shortTxtPoint: []}}
+   * @param {{fullTxtPoint: [], shortTxtPoint: []}} betweenDatePoint
    * @return {chartData} chartData
    */
   async function getWeatherChart(searchRange, betweenDatePoint){
 
     let weatherTrend = await biModule.getWeatherTrend(searchRange);
+    // BU.CLI(weatherTrend);
 
-    let chartOption = { selectKey: 'avg_solar', maxKey: 'max_solar', minKey: 'min_solar', dateKey: 'group_date', groupKey: 'target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
-    let chartData =  webUtil.makeStaticChartData(weatherTrend, betweenDatePoint, chartOption);
+    let chartOptionList= [
+      { name: '일사량(W/m²)',color: 'black', yAxis:1,  selectKey: 'avg_solar', dateKey: 'group_date'},
+      { name: '기온(℃)', color: 'red', yAxis:0, selectKey: 'avg_temp', maxKey: 'avg_temp', minKey: 'avg_temp', averKey: 'avg_temp', dateKey: 'group_date'},
+      { name: '풍속(m/s)', color: 'purple', yAxis:0, selectKey: 'avg_ws', dateKey: 'group_date'},
+      { name: '습도(%)', color: 'green', yAxis:0, selectKey: 'avg_reh', dateKey: 'group_date'},
+    ];
 
+    let chartData = { range: betweenDatePoint.shortTxtPoint , series: [] };
+    
+    chartOptionList.forEach(chartOption => {
+      let staicChart =  webUtil.makeStaticChartData(weatherTrend, betweenDatePoint, chartOption);
+      let chart =_.first(staicChart.series); 
+      chart.name = chartOption.name;
+      chart.color = chartOption.color;
+      chart.yAxis = chartOption.yAxis;
+      
+      chartData.series.push(chart);
+    });
+
+   
+    // BU.CLI(chartData);
+    return chartData;
   }
 
 

@@ -485,11 +485,7 @@ function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
     series: []
   };
 
-  // BU.CLI(baseRange);
-  // BU.CLI(rangeKey);
-  
   // 색상키가 정해져있찌 않다면 색상 없이 반환
-
   // 같은 Key 끼리 그루핑
   if (groupKey) {
     let groupedRowPacketDataList = _.groupBy(rowDataPacketList, groupKey);
@@ -529,17 +525,27 @@ function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
       returnValue.series = _.sortBy(returnValue.series, obj => obj.name );
     }
   } else {
+
     let addObj = {
       name: '',
-      data: []
+      data: [],
+      option: calcStatisticsReport(rowDataPacketList, chartOption)
     };
 
-    addObj.data = _.map(_.sortBy(_.groupBy(rowDataPacketList, dateKey), dateKey) , dataList => {
-      return reduceDataList(dataList, selectKey);
+    baseRange.fullTxtPoint.forEach(fullTxtDate => {
+      let resultFind = _.findWhere(rowDataPacketList, {
+        [dateKey]: fullTxtDate
+      });
+
+        // BU.CLI(findGridObj)
+      let data = _.isEmpty(resultFind) ? '' : resultFind[selectKey];
+      addObj.data.push(data);
     });
+
 
     returnValue.series.push(addObj);
   }
+  // BU.CLI(returnValue);
   return returnValue;
 }
 exports.makeStaticChartData = makeStaticChartData;
@@ -582,6 +588,11 @@ function calcStatisticsReport(rowDataPacketList, chartOption){
   }
   // TODO 
   if(averKey){
+    returnValue.aver = 0;
+    let sum = reduceDataList(rowDataPacketList, averKey);
+    if(_.isNumber(sum)){
+      returnValue.aver = sum / rowDataPacketList.length;
+    } 
     returnValue.aver = 0;
   }
 

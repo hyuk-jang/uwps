@@ -7,6 +7,7 @@ const BU = require('base-util-jh').baseUtil;
  * @typedef {Object} createExcelOption
  * @property {chartData} powerChartData
  * @property {chartDecoration} powerChartDecoration
+ * @property {chartData} weatherChartData
  * @property {searchRange} searchRange
  */
 
@@ -61,6 +62,7 @@ const BU = require('base-util-jh').baseUtil;
 function makeChartDataToReport(resource){
   let powerChartData = resource.powerChartData;
   let powerChartDecoration = resource.powerChartDecoration;
+  let weatherChartData = resource.weatherChartData;
   let searchRange = resource.searchRange;
 
 
@@ -75,7 +77,8 @@ function makeChartDataToReport(resource){
 
 
   // BU.CLI(searchRange);
-  const excelTitleList = _.pluck(powerChartData.series, 'name'); 
+  const powerTitleList = _.pluck(powerChartData.series, 'name'); 
+  const weatherTitleList = _.pluck(weatherChartData.series, 'name'); 
 
   // 데이터 그래프
   const resourceList = powerChartData.series;
@@ -88,8 +91,7 @@ function makeChartDataToReport(resource){
   searchList = ['검색 기간', powerChartDecoration.mainTitle];
             
   // 메인 제목
-  titleList = [''].concat(excelTitleList);
-  titleList.push('날씨');
+  titleList = [''].concat(powerTitleList, weatherTitleList);
   titleList.push('수심');
 
 
@@ -165,6 +167,12 @@ function makeChartDataToReport(resource){
   powerChartData.series.forEach(currentItem => {
     dataResourceList.push(currentItem.data);
   });
+
+  // 기상 Chart를 순서대로 Push
+  weatherChartData.series.forEach(currentItem => {
+    dataResourceList.push(currentItem.data);
+  });
+
 
   const excelDataList = [[powerChartDecoration.xAxisTitle]];
   // 차트를 그리기 위한 데이터 정의

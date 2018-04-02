@@ -7,11 +7,29 @@ const Control = require('./Control');
 
 const refinedDeviceDataConfig = require('../config/refinedDeviceDataConfig');
 
-const DeviceDataStorage = require('./DeviceDataStorage');
+const AbstDeviceClientModel = require('../../../../module/device-client-model-jh');
 
-const bmjh = require('base-model-jh');
+/**
+ * Object[] Argument 들을 지정된 unionKey을 기준으로 Union 처리한 후 반환
+ * @param {string} unionKey 묶을 키
+ * @param {Object[]} item 
+ */
+function unionArrayObject(unionKey, ...item) {
+  let returnValue = [];
+  let flatItem = _.flatten([item]);
+  
+  let keyList = [];
+  flatItem.forEach(currentItem => {
+    if(!keyList.includes(currentItem[unionKey])){
+      keyList.push(currentItem[unionKey]);
+      returnValue.push(currentItem);
+    }
+  });
+  return returnValue;
 
-class Model extends DeviceDataStorage {
+}
+
+class Model extends AbstDeviceClientModel {
   /**
    * 
    * @param {Control} controller 
@@ -25,17 +43,18 @@ class Model extends DeviceDataStorage {
     this.systemErrorList = [];
     this.troubleList = [];
 
-    this.BM = new bmjh.BM(this.controller.config.dbInfo);
-
     this.init();
   }
 
   init() {
     // super.hasSaveToDB = true;
-    this.setDevice(this.dataStroageConfig, {
+    this.setDevice( this.dataStroageConfig, {
       idKey: 'target_id',
       deviceCategoryKey: 'target_category'
     });
+
+    this.setDbConnector(this.controller.config.dbInfo);
+    BU.CLI('왓 더');
   }
 
 
@@ -49,12 +68,9 @@ class Model extends DeviceDataStorage {
     let smInfraredData = this.controller.smInfrared.getDeviceOperationInfo();
     // BU.CLI(smInfraredData);
     let vantagepro2Data = this.controller.vantagepro2.getDeviceOperationInfo();
+    this.systemErrorList = unionArrayObject('code', smInfraredData.systemErrorList, vantagepro2Data.systemErrorList);
 
-    BU.CLIN(vantagepro2Data);
-    // BU.CLI(smInfraredData);
-    this.systemErrorList = smInfraredData.systemErrorList.concat(vantagepro2Data.systemErrorList);
-    this.troubleList = smInfraredData.troubleList.concat(vantagepro2Data.troubleList);
-
+    this.troubleList = unionArrayObject('code', smInfraredData.troubleList, vantagepro2Data.troubleList);
 
     // SM 적외선 데이터와 VantagePro2 객체 데이터를 합침
     this.deviceData = Object.assign(smInfraredData.data, vantagepro2Data.data);
@@ -65,10 +81,9 @@ class Model extends DeviceDataStorage {
       return false;
     }
 
-    let returnValue = this.onDeviceOperationInfo(this.controller.getDeviceOperationInfo(), this.deviceCategory);
+    let returnValue = this.onDeviceOperationInfo( this.controller.getDeviceOperationInfo(), this.deviceCategory);
     
-    // BU.CLIN(returnValue, 3);
-
+    BU.CLIN(returnValue, 3);
 
     // DB에 입력
     const convertDataList = await this.refineTheDataToSaveDB(this.deviceCategory, measureDate);

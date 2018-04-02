@@ -1,6 +1,15 @@
 
 
 /**
+ * @typedef weathercastModel
+ * @property {number} x : 위도
+ * @property {number} y : 경도
+ * @property {Date} announceDate : 적용 시각 '2018-03-14 09:00:00',
+ * @property {Array.<weathercast>} weatherCast 기상 정보 리스트
+ * 
+ */
+
+/**
  * @typedef weathercast
  * @property {string} applydate : 적용 시각 '2018-03-14 09:00:00',
  * @property {number} temp : 온도 '12.0',

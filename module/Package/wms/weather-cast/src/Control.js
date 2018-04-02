@@ -15,6 +15,7 @@ class Control extends EventEmitter {
     super();
     // 개발자모드(File load or 기상청 Rss) 좌표 정보, dao 정보, gcm 설정 정보
     this.config = config.current;
+    BU.CLI(this.config);
     
     // Procss
     this.p_WeatherCast = new P_WeatherCast(this);
@@ -29,9 +30,9 @@ class Control extends EventEmitter {
     // TEST: file 로딩
     return new Promise(resolve => {
       if (this.config.hasDev) {
-        this.testRequestWeatherCast();
+        this.p_WeatherCast.TestRequestWeatherCastForFile();
       } else {
-        this.requestWeatherCast();
+        this.p_WeatherCast.requestWeatherCast();
       }
       this.runCronWeatherCast();
 
@@ -50,44 +51,29 @@ class Control extends EventEmitter {
     return this.model.tomorrowPop;
   }
 
-
-  // 기상청 날씨 요청
-  requestWeatherCast() {
-    this.p_WeatherCast.requestWeatherCast((err, result) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
+  /**
+   * 
+   * @param {Error} err 
+   * @param {weathercastModel} weatherCastData 
+   */
+  async processOnData(err, weatherCastData){
+    if(err){
+      BU.logFile(err);
+      BU.CLI('ERROR updateWeatherCast');
+      this.emit('updateWeatherCast', err);
+    } else {
       // 모델에 토스
-      this.model.onData(result)
-        .then(() => {
-          this.emit('updateWeatherCast', err, result);
-        })
-        .catch(err => {
-          BU.errorLog('err_weathercast', err);
-        });
-   
-    });
-  }
-
-  // 기상청 RSS 잦은 사용은 ip ban 처리가 되므로 개발 단계에서는 날씨 요청한 후 파일을 읽는 것으로 대체
-  testRequestWeatherCast() {
-    this.p_WeatherCast.TestRequestWeatherCastForFile((err, result) => {
-      if (err) {
-        console.log(err);
-        return;
+      try {
+        const resultOnData = await this.model.onData(weatherCastData);
+        BU.CLI('DONE updateWeatherCast');
+        this.emit('updateWeatherCast', null, resultOnData);
+      } catch (error) {
+        BU.CLI('ERROR updateWeatherCast');
+        this.emit('updateWeatherCast', error);
+        BU.logFile(error);
       }
-      // 모델에 토스
-      this.model.onData(result)
-        .then(() => {
-          this.emit('updateWeatherCast', err, result);
-        })
-        .catch(err => {
-          BU.errorLog('err_weathercast', err);
-        });
-    });
+    }
   }
-
 }
 
 module.exports = Control;

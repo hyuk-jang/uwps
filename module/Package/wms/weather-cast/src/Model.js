@@ -28,13 +28,14 @@ class Model {
    * @param {{x: number, y: number, announceDate: Date, weatherCast: Array.<weathercast>}} weatherCastData 
    */
   async onData(weatherCastData){
+    BU.CLI('onData');
     let tempStorage = new bcjh.db.TempStorage();
     let prevForecastList = await this.biModule.getPrevWeatherCast(this.locationInfo.x, this.locationInfo.y);
     // BU.CLI(prevForecastList);
     prevForecastList.forEach(currentItem => {
       currentItem.applydate = BU.convertDateToText(currentItem.applydate);
     });
-    // BU.CLI(prevForecastList);
+    BU.CLI('prevForecastList');
     tempStorage.initAlreadyStorage(prevForecastList);
 
     
@@ -52,7 +53,9 @@ class Model {
     });
     // BU.CLI(finalStorage);
 
-    return this.biModule.doQuery(tempStorage, 'kma_data', 'kma_data_seq', false);
+    const resultDoQuery = await this.biModule.doQuery(tempStorage, 'kma_data', 'kma_data_seq', false);
+    BU.CLI(resultDoQuery);
+    return resultDoQuery;
   }
 
 

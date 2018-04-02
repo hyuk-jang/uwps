@@ -18,9 +18,8 @@ class B_Kma extends bmjh.BM {
    */
   async doQuery(storage, tblName, updateKey, hasViewQuery) {
     let finalStorage = storage.getFinalStorage();
-
+    // BU.CLI(finalStorage);
     await this.setTables(tblName, finalStorage.insertObjList, hasViewQuery);
-
     await this.updateTablesByPool(tblName, updateKey, finalStorage.updateObjList);
 
     return true;

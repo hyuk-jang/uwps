@@ -30,7 +30,8 @@ class P_WeatherCast {
       this.cronScheduler = new cron.CronJob({
         cronTime: '0 */30 * * * *',
         onTick: () => {
-          this.requestWeatherCast();
+          this.controller.config.hasDev ? this.TestRequestWeatherCastForFile() : this.requestWeatherCast();
+          // this.requestWeatherCast();
         },
         start: true,
       });
@@ -54,7 +55,7 @@ class P_WeatherCast {
   // 날씨 정보 요청
   requestWeatherCast(callback) {
     BU.CLI('requestWeatherCast');
-    BU.debugConsole();
+    // BU.debugConsole();
     let options = {
       host: 'www.kma.go.kr',
       path: '/wid/queryDFS.jsp?gridx=' + this.locationX + '&gridy=' + this.locationY
@@ -62,7 +63,7 @@ class P_WeatherCast {
 
     http.request(options, res => {
       let output = '';
-      console.log(options.host + ':' + res.statusCode);
+      // BU.CLI(options.host + ':' + res.statusCode);
       res.setEncoding('utf8');
 
       res.on('data', (chunk) => {
@@ -73,27 +74,28 @@ class P_WeatherCast {
         let parser = new xml2js.Parser();
         parser.parseString(output, (err, result) => {
           if (err) {
-            BU.logFile(err);
-            return callback(err);
+            return this.controller.processOnData(err);
           }
           // TestRequestWeatherCastForFile을 사용하기 위한 파일 저장
           // BU.CLI(result)
           BU.writeFile('./log/weathercast.txt', result, 'w');
           // 모델화 시킴
-          return this._makeWeatherCastModel(result, callback);
+          const weatherCastModel = this._makeWeatherCastModel(result, callback);
+          return this.controller.processOnData(null, weatherCastModel);
         });
       });
     }).end();
   }
 
   // TEST: 테스트용 동네예보 파일 읽어오기
-  TestRequestWeatherCastForFile(callback) {
+  TestRequestWeatherCastForFile() {
+    // BU.CLI('TestRequestWeatherCastForFile');
     BU.readFile('./log/weathercast.txt', '', (err, result) => {
       if (err) {
-        BU.CLI(err);
-        return BU.logFile(err);
+        return this.controller.processOnData(err);
       }
-      this._makeWeatherCastModel(JSON.parse(result), callback);
+      const weatherCastModel = this._makeWeatherCastModel(JSON.parse(result));
+      return this.controller.processOnData(null, weatherCastModel);
     });
   }
 
@@ -102,49 +104,39 @@ class P_WeatherCast {
   /**
    * 
    * @param {*} weatherCastInfo 
-   * @param {Function} callback 
-   * @return {{x: number, y: number, announceDate: Date, weatherCast: Array.<weathercast>}}
+   * @return {weathercastModel}
    */
-  _makeWeatherCastModel(weatherCastInfo, callback) {
-    try {
-      let weatherCastObjHeader = weatherCastInfo.wid.header[0];
-      let weatherCastObjBody = weatherCastInfo.wid.body[0];
-      let announceDate = BU.splitStrDate(weatherCastObjHeader.tm);
-      let forecastInfo = {
-        x: weatherCastObjHeader.x[0],
-        y: weatherCastObjHeader.y[0],
-        announceDate,
-        weatherCast: []
+  _makeWeatherCastModel(weatherCastInfo) {
+    let weatherCastObjHeader = weatherCastInfo.wid.header[0];
+    let weatherCastObjBody = weatherCastInfo.wid.body[0];
+    let announceDate = BU.splitStrDate(weatherCastObjHeader.tm);
+    let forecastInfo = {
+      x: weatherCastObjHeader.x[0],
+      y: weatherCastObjHeader.y[0],
+      announceDate,
+      weatherCast: []
+    };
+
+    _.each(weatherCastObjBody.data, (castInfo) => {
+      /** @type {weathercast} */
+      let weatherCastData = {
+        // day: castInfo.day[0], // 발표 날
+        // hour: castInfo.hour[0], // 발표 시 
+        applydate: this._calcApplyDate(announceDate, castInfo), // 적용시간
+        temp: castInfo.temp[0], // 날씨 
+        pty: castInfo.pty[0], // [없음(0), 비(1), 비 / 눈(2), 눈(3)]
+        wf_kor: castInfo.wfKor[0], // 날씨한국어
+        wf_en: castInfo.wfEn[0], // 날씨영어
+        pop: castInfo.pop[0], // 강수확율
+        r12: castInfo.r12[0], // 12시간 예상강수량
+        ws: Number(castInfo.ws[0]).toFixed(2), // 풍속
+        wd: castInfo.wd[0], // 풍향
+        reh: castInfo.reh[0], // 습도
       };
+      forecastInfo.weatherCast.push(weatherCastData);
+    });
 
-      _.each(weatherCastObjBody.data, (castInfo) => {
-        /** @type {weathercast} */
-        let weatherCastData = {
-          // day: castInfo.day[0], // 발표 날
-          // hour: castInfo.hour[0], // 발표 시 
-          applydate: this._calcApplyDate(announceDate, castInfo), // 적용시간
-          temp: castInfo.temp[0], // 날씨 
-          pty: castInfo.pty[0], // [없음(0), 비(1), 비 / 눈(2), 눈(3)]
-          wf_kor: castInfo.wfKor[0], // 날씨한국어
-          wf_en: castInfo.wfEn[0], // 날씨영어
-          pop: castInfo.pop[0], // 강수확율
-          r12: castInfo.r12[0], // 12시간 예상강수량
-          ws: Number(castInfo.ws[0]).toFixed(2), // 풍속
-          wd: castInfo.wd[0], // 풍향
-          reh: castInfo.reh[0], // 습도
-        };
-
-        
-
-        forecastInfo.weatherCast.push(weatherCastData);
-      });
-      // 날씨 정보 반환 
-      if (typeof callback === 'function') {
-        return callback(null, forecastInfo);
-      }
-    } catch (error) {
-      return callback(error);
-    }
+    return forecastInfo;
   }
 
 

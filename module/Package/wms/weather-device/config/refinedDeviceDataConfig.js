@@ -7,7 +7,7 @@
 module.exports = [{
   deviceCategory: 'weatherDevice',
   troubleTableInfo: {
-    tableName: 'weather_device_trouble',
+    tableName: '',
     /** @type {Array.<tableParamFormat>} */
     addParamList: [{
       fromKey: 'addTemp',

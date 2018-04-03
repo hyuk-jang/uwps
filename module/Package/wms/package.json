@@ -26,6 +26,7 @@
     "base-util-jh": "^1.0.23",
     "bluebird": "^3.5.1",
     "device-client-controller-jh": "^0.1.16",
+    "device-client-model-jh": "^0.1.1",
     "device-protocol-converter-jh": "^0.1.2",
     "underscore": "^1.8.3"
   }

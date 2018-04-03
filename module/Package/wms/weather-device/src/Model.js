@@ -7,7 +7,7 @@ const Control = require('./Control');
 
 const refinedDeviceDataConfig = require('../config/refinedDeviceDataConfig');
 
-const AbstDeviceClientModel = require('../../../../module/device-client-model-jh');
+const AbstDeviceClientModel = require('device-client-model-jh');
 
 /**
  * Object[] Argument 들을 지정된 unionKey을 기준으로 Union 처리한 후 반환

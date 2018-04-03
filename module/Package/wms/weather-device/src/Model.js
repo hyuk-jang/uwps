@@ -11,17 +11,30 @@ const AbstDeviceClientModel = require('../../../../module/device-client-model-jh
 
 /**
  * Object[] Argument 들을 지정된 unionKey을 기준으로 Union 처리한 후 반환
- * @param {string} unionKey 묶을 키
+ * @param {string[]} unionKeyList 묶을 키
  * @param {Object[]} item 
  */
-function unionArrayObject(unionKey, ...item) {
+function unionArrayObject(unionKeyList, ...item) {
   let returnValue = [];
+  // 2차원 배열을 1차원으로 
   let flatItem = _.flatten([item]);
-  
   let keyList = [];
   flatItem.forEach(currentItem => {
-    if(!keyList.includes(currentItem[unionKey])){
-      keyList.push(currentItem[unionKey]);
+    let findObj = {};
+    if(_.isArray(unionKeyList)){
+      unionKeyList.forEach(unionKey => {
+        findObj[unionKey] = currentItem[unionKey];
+      });
+    } else if(_.isString(unionKeyList)){
+      findObj[unionKeyList] = currentItem[unionKeyList];
+    } else {
+      throw new Error('unionKeyList 타입을 명확히 하십시오.');
+    }
+    let hasExit = _.findWhere(keyList, findObj);
+
+    // 존재하지 않는다면
+    if(_.isEmpty(hasExit)){
+      keyList.push(findObj);
       returnValue.push(currentItem);
     }
   });
@@ -66,9 +79,9 @@ class Model extends AbstDeviceClientModel {
     BU.CLI('getWeatherDeviceData');
     
     let smInfraredData = this.controller.smInfrared.getDeviceOperationInfo();
-    // BU.CLI(smInfraredData);
     let vantagepro2Data = this.controller.vantagepro2.getDeviceOperationInfo();
-    this.systemErrorList = unionArrayObject('code', smInfraredData.systemErrorList, vantagepro2Data.systemErrorList);
+
+    this.systemErrorList = unionArrayObject(['code'], smInfraredData.systemErrorList, vantagepro2Data.systemErrorList);
 
     this.troubleList = unionArrayObject('code', smInfraredData.troubleList, vantagepro2Data.troubleList);
 
@@ -81,9 +94,9 @@ class Model extends AbstDeviceClientModel {
       return false;
     }
 
-    let returnValue = this.onDeviceOperationInfo( this.controller.getDeviceOperationInfo(), this.deviceCategory);
+    let returnValue = this.onDeviceOperationInfo(this.controller.getDeviceOperationInfo(), this.deviceCategory);
     
-    BU.CLIN(returnValue, 3);
+    // BU.CLIN(returnValue, 3);
 
     // DB에 입력
     const convertDataList = await this.refineTheDataToSaveDB(this.deviceCategory, measureDate);

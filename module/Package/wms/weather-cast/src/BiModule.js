@@ -2,10 +2,11 @@ const BU = require('base-util-jh').baseUtil;
 
 const bmjh = require('base-model-jh');
 
-class B_Kma extends bmjh.BM {
+class BiModule extends bmjh.BM {
   constructor(dbInfo) {
     super(dbInfo);
 
+    this.TempStorage = bmjh.TempStorage;
 
   }
 
@@ -56,4 +57,4 @@ class B_Kma extends bmjh.BM {
   }
 
 }
-module.exports = B_Kma;
+module.exports = BiModule;

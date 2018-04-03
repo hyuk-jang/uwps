@@ -3,8 +3,6 @@
 const _ = require('underscore');
 const BU = require('base-util-jh').baseUtil;
 
-const bcjh = require('base-class-jh');
-
 const BiModule = require('./BiModule');
 
 const Control = require('./Control');
@@ -28,15 +26,15 @@ class Model {
    * @param {{x: number, y: number, announceDate: Date, weatherCast: Array.<weathercast>}} weatherCastData 
    */
   async onData(weatherCastData){
-    BU.CLI('onData');
-    let tempStorage = new bcjh.db.TempStorage();
+    // BU.CLI('onData');
+    let tempStorage = new this.biModule.TempStorage();
     let prevForecastList = await this.biModule.getPrevWeatherCast(this.locationInfo.x, this.locationInfo.y);
     // BU.CLI(prevForecastList);
     prevForecastList.forEach(currentItem => {
       currentItem.applydate = BU.convertDateToText(currentItem.applydate);
     });
-    BU.CLI('prevForecastList');
-    tempStorage.initAlreadyStorage(prevForecastList);
+    // BU.CLI('prevForecastList');
+    tempStorage.setExistStorage(prevForecastList);
 
     
     weatherCastData.weatherCast.forEach(currentItem => {
@@ -54,7 +52,7 @@ class Model {
     // BU.CLI(finalStorage);
 
     const resultDoQuery = await this.biModule.doQuery(tempStorage, 'kma_data', 'kma_data_seq', false);
-    BU.CLI(resultDoQuery);
+    // BU.CLI(resultDoQuery);
     return resultDoQuery;
   }
 

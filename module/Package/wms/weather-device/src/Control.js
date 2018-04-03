@@ -34,7 +34,7 @@ class Control {
 
   /** VantagePro2와 SmInfraredSensor 데이터를 가져올 스케줄러 */
   runScheduler(){
-    const scheduleIntervalSec = 10;
+    // const scheduleIntervalSec = 10;
     const scheduleIntervalMin = 10;
     try {
       if (this.scheduler !== null) {
@@ -43,8 +43,8 @@ class Control {
       }
       // 10분마다 요청
       this.scheduler = new cron.CronJob({
-        // cronTime: `0 */${scheduleIntervalMin} * * * *`,
-        cronTime: `*/${scheduleIntervalSec} * * * * *`,
+        cronTime: `0 */${scheduleIntervalMin} * * * *`,
+        // cronTime: `*/${scheduleIntervalSec} * * * * *`,
         onTick: () => {
           return this.model.getWeatherDeviceData(new Date());
         },

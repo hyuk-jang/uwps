@@ -79,6 +79,8 @@ class Control extends AbstDeviceClient {
       BU.CLI('이벤트 발생', resultData);
       this.emit('updateSmRainSensor', resultData);
     }
+
+    // BU.CLI(this.getDeviceOperationInfo());
   }
 }
 module.exports = Control;

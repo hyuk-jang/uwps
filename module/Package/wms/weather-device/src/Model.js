@@ -67,7 +67,6 @@ class Model extends AbstDeviceClientModel {
     });
 
     this.setDbConnector(this.controller.config.dbInfo);
-    BU.CLI('왓 더');
   }
 
 

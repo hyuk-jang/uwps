@@ -35,7 +35,7 @@ class Control {
   /** VantagePro2와 SmInfraredSensor 데이터를 가져올 스케줄러 */
   runScheduler(){
     // const scheduleIntervalSec = 10;
-    const scheduleIntervalMin = 10;
+    const scheduleIntervalMin = 1;  // 1분마다
     try {
       if (this.scheduler !== null) {
         // BU.CLI('Stop')

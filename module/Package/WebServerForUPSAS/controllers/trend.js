@@ -29,7 +29,7 @@ const tempSacle = require('../temp/tempSacle');
  * @typedef {{range: [], series: Array.<{name: string, data: []}>}} chartData 차트 그리기 위한 데이터 형태
  */
 
-
+const defaultRangeFormat = 'min10';
 module.exports = function (app) {
   const initSetter = app.get('initSetter');
   const biModule = new BiModule(initSetter.dbInfo);
@@ -46,6 +46,7 @@ module.exports = function (app) {
 
   // Get
   router.get('/', wrap(async (req, res) => {
+    
     // 장비 종류 여부 (전체, 인버터, 접속반)
     let deviceType = req.query.device_type === 'inverter' || req.query.device_type === 'connector' ? req.query.device_type : req.query.device_type === undefined ? 'inverter' : 'all';
     // 장비 선택 타입 (전체, 인버터, 접속반)
@@ -54,14 +55,15 @@ module.exports = function (app) {
     let deviceSeq = !isNaN(req.query.device_seq) && req.query.device_seq !== '' ? Number(req.query.device_seq) : 'all';
     // BU.CLIS(deviceType, deviceListType, deviceSeq);
     // Search 타입을 지정
-    let searchType = req.query.search_type ? req.query.search_type : 'min10';
+    let searchType = req.query.search_type ? req.query.search_type : defaultRangeFormat;
     // 지정된 SearchType으로 설정 구간 정의
     let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
+    // BU.CLI(searchRange);
     // 검색 조건이 기간 검색이라면 검색 기간의 차를 구하여 실제 searchType을 구함.
     if (searchType === 'range') {
       let realSearchType = searchType === 'range' ? biModule.convertSearchTypeWithCompareDate(searchRange.strEndDate, searchRange.strStartDate) : searchType;
       if (realSearchType === 'hour') {
-        searchRange = biModule.getSearchRange('min10', req.query.start_date, req.query.end_date);
+        searchRange = biModule.getSearchRange(defaultRangeFormat, req.query.start_date, req.query.end_date);
       } else {
         searchRange.searchInterval = searchRange.searchType = realSearchType;
       }
@@ -169,7 +171,21 @@ module.exports = function (app) {
 
 
     // 하루 데이터(10분 구간)는 특별히 데이터를 정제함.
-    if (searchRange.searchType === 'min10') {
+    if (searchRange.searchType === 'min' || searchRange.searchType === 'min10' || searchRange.searchType === 'hour') {
+      let maxRequiredDateSecondValue = 0;
+      switch (searchRange.searchType) {
+      case 'min':
+        maxRequiredDateSecondValue = 120;
+        break;
+      case 'min10':
+        maxRequiredDateSecondValue = 1200;
+        break;
+      case 'hour':
+        maxRequiredDateSecondValue = 7200;
+        break;
+      default:
+        break;
+      }
       let calcOption = {
         calcMaxKey: 'max_c_wh',
         calcMinKey: 'min_c_wh',
@@ -177,7 +193,7 @@ module.exports = function (app) {
         groupKey: 'inverter_seq',
         rangeOption: {
           dateKey: 'group_date',
-          maxRequiredDateSecondValue: 1200, // 간격간의 격차가 20분 이상이라면 사용하지 않음.
+          maxRequiredDateSecondValue,
           minRequiredCountKey: 'total_count',
           minRequiredCountValue: 9
         }
@@ -296,7 +312,7 @@ module.exports = function (app) {
   async function getWeatherChart(searchRange, betweenDatePoint){
 
     let weatherTrend = await biModule.getWeatherTrend(searchRange);
-    BU.CLI(weatherTrend);
+    // BU.CLI(weatherTrend);
 
     let chartOptionList= [
       { name: '일사량(W/m²)',color: 'black', yAxis:1,  selectKey: 'avg_solar', dateKey: 'group_date'},

@@ -689,11 +689,17 @@ function makeChartDecorator(searchRange) {
     break;
   case 'hour':
   case 'min10':
-    xAxisTitle = '시간(시)';
+    xAxisTitle = '시간';
     yAxisTitle = '발전량(Wh)';
     inverterComment = '10분 동안의 발전량(Wh)';
     connectorComment = '10분 동안의 평균 출력(W)';
     break;
+  case 'min':
+    xAxisTitle = '시간';
+    yAxisTitle = '발전량(Wh)';
+    inverterComment = '1분 동안의 발전량(Wh)';
+    connectorComment = '1분 동안의 평균 출력(W)';
+    break;    
   default:
     break;
   }

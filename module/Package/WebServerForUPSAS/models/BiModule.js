@@ -532,7 +532,12 @@ class BiModule extends bmjh.BM {
       
 
       let viewFormat = dateFormat;
+      let firstGroupFormat = '%Y-%m-%d %H';
       switch (searchRange.searchType) {
+      case 'min':
+        viewFormat = viewFormat.slice(9, 14);
+        firstGroupFormat = '%Y-%m-%d %H:%i';
+        break;
       case 'hour':
         viewFormat = viewFormat.slice(9, 11);
         break;
@@ -546,7 +551,7 @@ class BiModule extends bmjh.BM {
         break;
       }
       returnValue.selectViewDate = `DATE_FORMAT(${dateName},"${viewFormat}") AS view_date`;
-      returnValue.firstGroupByFormat = `DATE_FORMAT(${dateName},"%Y-%m-%d %H")`;
+      returnValue.firstGroupByFormat = `DATE_FORMAT(${dateName},"${firstGroupFormat}")`;
       returnValue.groupByFormat = `DATE_FORMAT(${dateName},"${dateFormat}")`;
     }
     return returnValue;

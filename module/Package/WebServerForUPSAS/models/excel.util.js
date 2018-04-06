@@ -100,6 +100,7 @@ function makeChartDataToReport(resource){
   switch (searchRange.searchType) {
   case 'hour':
   case 'min10':
+  case 'min':
     powerName = '1일';
     break;
   default:

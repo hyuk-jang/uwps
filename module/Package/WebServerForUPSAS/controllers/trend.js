@@ -96,7 +96,7 @@ module.exports = function (app) {
     let betweenDatePoint = BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchInterval);
     // BU.CLI(betweenDatePoint);
     // 인버터 차트
-    let inverterChart = await getInverterChart(searchOption, searchRange, betweenDatePoint);
+    let {gridKwChartData, inverterPowerChartData} = await getInverterChart(searchOption, searchRange, betweenDatePoint);
     
     // BU.CLI(inverterChart);
     // 접속반 차트
@@ -104,7 +104,8 @@ module.exports = function (app) {
     // 차트 Range 지정
     let powerChartData = { range: betweenDatePoint.shortTxtPoint, series: [] };
     // 차트 합침
-    powerChartData.series = inverterChart.series.concat(connectorChart.series);
+    // BU.CLI(inverterPowerChartData);
+    powerChartData.series = inverterPowerChartData.series.concat(connectorChart.series);
 
     // BU.CLI(chartData);
 
@@ -116,6 +117,7 @@ module.exports = function (app) {
 
     let createExcelOption = {
       powerChartData, 
+      gridKwChartData,
       powerChartDecoration: chartDecoration, 
       weatherChartData, 
       searchRange
@@ -146,17 +148,20 @@ module.exports = function (app) {
    * @param {{device_type: string, device_list_type: string, device_type_list: [], device_seq: string, search_type: string}} searchOption
    * @param {searchRange} searchRange
    * @param {{fullTxtPoint: [], shortTxtPoint: []}} betweenDatePoint
-   * @return {chartData} chartData
+   * @return {{inverterPowerChartData: chartData, gridKwChartData: chartData}} chartData
    */
   async function getInverterChart(searchOption, searchRange, betweenDatePoint) {
+    let inverterPowerChartData = { range: [], series: [] };
+    let gridKwChartData = { range: [], series: [] };
+    let returnValue = {inverterPowerChartData, gridKwChartData};
     // 장비 종류가 접속반, 장비 선택이 전체라면 즉시 종료
     if (searchOption.device_type === 'connector' && searchOption.device_list_type === 'all') {
-      return { range: [], series: [] };
+      return returnValue;
     }
 
     // 인버터나 전체를 검색한게 아니라면 즉시 리턴
     if (searchOption.device_list_type !== 'all' && searchOption.device_list_type !== 'inverter') {
-      return { range: [], series: [] };
+      return returnValue;
     }
 
     let device_seq = !isNaN(searchOption.device_seq) ? Number(searchOption.device_seq) : 'all';
@@ -207,28 +212,26 @@ module.exports = function (app) {
 
     let chartOption = { selectKey: 'interval_wh', maxKey: 'max_c_wh', minKey: 'min_c_wh', dateKey: 'group_date', groupKey: 'target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
-    let chartData =  webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, chartOption);
-    // BU.CLI(chartData);
-    /* Scale 적용 */
-    chartData.series.forEach(currentItem => {
-      let foundIt = _.findWhere(tempSacle.inverterScale, { target_id: currentItem.name });
-      currentItem.option.scale = foundIt.scale;
-      currentItem.data.forEach((data, index) => {
-        currentItem.data[index] = data === '' ? '' : Number((data * foundIt.scale).scale(1, 1));
-      });
-    });
+    inverterPowerChartData =  webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, chartOption);
+    tempApplyScaleInverter(inverterPowerChartData);
+    chartOption = { selectKey: 'avg_out_w', maxKey: 'max_c_wh', minKey: 'min_c_wh', dateKey: 'group_date', groupKey: 'target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
+    // BU.CLI(inverterTrend);
+    gridKwChartData =  webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, chartOption);
+    // BU.CLI(gridKwChartData);
+    tempApplyScaleInverter(gridKwChartData);
+
 
     // BU.CLI(chartData.series[3]);
 
     /** Grouping Chart에 의미있는 이름을 부여함. */
-    webUtil.mappingChartDataName(chartData, viewInverterStatus, 'target_id', 'target_name');
+    webUtil.mappingChartDataName(inverterPowerChartData, viewInverterStatus, 'target_id', 'target_name');
     /** searchRange 조건에 따라서 Chart Data의 비율을 변경 */
-    webUtil.applyScaleChart(chartData, searchRange.searchType);
+    webUtil.applyScaleChart(inverterPowerChartData, searchRange.searchType);
     // BU.CLI(chartData);
 
     
     // BU.CLI(excelContents)
-    return chartData;
+    return {inverterPowerChartData, gridKwChartData};
   }
 
   /**
@@ -338,6 +341,20 @@ module.exports = function (app) {
    
     // BU.CLI(chartData);
     return chartData;
+  }
+
+  /**
+   * Scale 적용
+   * @param {chartData} chartData 
+   */
+  function tempApplyScaleInverter(chartData){
+    chartData.series.forEach(currentItem => {
+      let foundIt = _.findWhere(tempSacle.inverterScale, { target_id: currentItem.name });
+      currentItem.option.scale = foundIt.scale;
+      currentItem.data.forEach((data, index) => {
+        currentItem.data[index] = data === '' ? '' : Number((data * foundIt.scale).scale(1, 1));
+      });
+    });
   }
 
 

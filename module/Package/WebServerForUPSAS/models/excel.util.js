@@ -6,6 +6,7 @@ const BU = require('base-util-jh').baseUtil;
 /**
  * @typedef {Object} createExcelOption
  * @property {chartData} powerChartData
+ * @property {chartData} gridKwChartData
  * @property {chartDecoration} powerChartDecoration
  * @property {chartData} weatherChartData
  * @property {searchRange} searchRange
@@ -59,8 +60,13 @@ const BU = require('base-util-jh').baseUtil;
  * 차트 데이터
  * @param {createExcelOption} resource 
  */
-function makeChartDataToReport(resource){
+function makeChartDataToReport(resource) {
+  let ws = XLSX.utils.aoa_to_sheet([]);
+
   let powerChartData = resource.powerChartData;
+  let gridKwChartData = resource.gridKwChartData;
+
+  // BU.CLI(powerChartData);
   let powerChartDecoration = resource.powerChartDecoration;
   let weatherChartData = resource.weatherChartData;
   let searchRange = resource.searchRange;
@@ -77,8 +83,16 @@ function makeChartDataToReport(resource){
 
 
   // BU.CLI(searchRange);
-  const powerTitleList = _.pluck(powerChartData.series, 'name'); 
-  const weatherTitleList = _.pluck(weatherChartData.series, 'name'); 
+  let powerTitleList = [];
+  let tempPowerTitleList = _.pluck(powerChartData.series, 'name');
+  // NOTE 구조 수정 할라다가 말음
+  // tempPowerTitleList.forEach((currentItem, index) => {
+  //   powerTitleList.push(currentItem);
+  //   powerTitleList.push('');
+  // });
+  powerTitleList = tempPowerTitleList;
+  // const gridTitleList = _.pluck(gridKwChartData.series, 'name'); 
+  const weatherTitleList = _.pluck(weatherChartData.series, 'name');
 
   // 데이터 그래프
   const resourceList = powerChartData.series;
@@ -88,11 +102,14 @@ function makeChartDataToReport(resource){
   let rangeStart = searchRange.rangeStart;
   let sheetName = rangeStart + (searchRange.rangeEnd === '' ? '' : ` ~ ${searchRange.rangeEnd}`);
 
+
   searchList = ['검색 기간', powerChartDecoration.mainTitle];
-            
+
   // 메인 제목
   titleList = [''].concat(powerTitleList, weatherTitleList);
   titleList.push('수심');
+
+
 
 
   let powerName = '';
@@ -108,55 +125,56 @@ function makeChartDataToReport(resource){
     break;
   }
 
-  
-  
+
+
   // 총 발전량
-  
+
   const optionList = _.map(resourceList, resource => resource.option);
-  let maxList = _.pluck(optionList, 'max'); 
+  let maxList = _.pluck(optionList, 'max');
   maxList.forEach((currentItem, index) => {
     maxList[index] = isNaN(currentItem) ? '' : currentItem;
   });
 
-  
+
   // let accumulateList = [ `누적 ${powerChartDecoration.yAxisTitle}`];
   // accumulateList = accumulateList.concat(maxList);
   scaleList = ['가중치'].concat(_.pluck(optionList, 'scale'));
   realTotalPowerList = [`가중치 미적용 ${powerName} ${powerChartDecoration.yAxisTitle}`];
   scaleTotalPowerList = [`가중치 적용 ${powerName} ${powerChartDecoration.yAxisTitle}`];
   // 검색 기간의 최대 최소 값의 차를 빼서 계산
-  optionList.forEach(option => {
-    let intervalPower = Number(option.max - option.min); 
+  let columnList = ['B', 'C', 'D', 'E', 'F', 'G'];
+  optionList.forEach((option, index) => {
+    let intervalPower = Number(option.max - option.min);
     intervalPower = isNaN(intervalPower) ? '' : intervalPower;
     realTotalPowerList.push(intervalPower);
-
-    scaleTotalPowerList.push((intervalPower * option.scale).scale(1, 3));
+    let column = columnList[index];
+    ws[column + '6'] = { t: 'n', f: `${column}4*${column}5` };
+    // scaleTotalPowerList.push((intervalPower * option.scale).scale(1, 3));
   });
 
   // BU.CLI(scaleTotalPowerList);
   // BU.CLI(powerChartData);
+
   efficiencyList = ['비교(%)'];
-  if(scaleTotalPowerList.length === 7){
-    scaleTotalPowerList.forEach((accumulate, index) => {
-      switch (index) {
-      case 1:
-      case 2:
-        efficiencyList.push(100);
-        break;
-      case 3:
-      case 4:
-        efficiencyList.push((accumulate / scaleTotalPowerList[1] * 100).scale(1, 1));
-        break;
-      case 5:
-      case 6:
-        efficiencyList.push((accumulate / scaleTotalPowerList[2] * 100).scale(1, 1));
-        break;
-      default:
-        break;
-      }
-    });
-  }
-  // BU.CLI(efficiencyList);
+  columnList.forEach((column, index) => {
+    switch (index) {
+    case 0:
+    case 2:
+    case 3:
+      ws[column + '7'] = { t: 'n', f: `${column}6/B6` };
+      // efficiencyList.push((accumulate / scaleTotalPowerList[1] * 100).scale(1, 1));
+      break;
+    case 1:
+    case 4:
+    case 5:
+      ws[column + '7'] = { t: 'n', f: `${column}6/C6` };
+      // efficiencyList.push((accumulate / scaleTotalPowerList[2] * 100).scale(1, 1));
+      break;
+    default:
+      break;
+    }
+    XLSX.utils.cell_set_number_format(ws[column + '7'], '0.0%');
+  });
 
   // 차트에 표현된 날짜 기간
   const dataLength = powerChartData.range.length;
@@ -165,7 +183,7 @@ function makeChartDataToReport(resource){
   // 날짜를 1순위에 Push
   dataResourceList.push(powerChartData.range);
   // 발전량 Chart를 순서대로 Push
-  powerChartData.series.forEach(currentItem => {
+  gridKwChartData.series.forEach(currentItem => {
     dataResourceList.push(currentItem.data);
   });
 
@@ -175,13 +193,18 @@ function makeChartDataToReport(resource){
   });
 
 
-  const excelDataList = [[powerChartDecoration.xAxisTitle]];
+  ws['A10'] = { t: 's', v: powerChartDecoration.xAxisTitle };
+  ws['!merges'] = [XLSX.utils.decode_range('B10:G10')];
+  ws['B10'] = { t: 's', v: '출력(W)', a: 'c' };
+
+  // const excelDataList = [[powerChartDecoration.xAxisTitle]];
+  const excelDataList = [];
   // 차트를 그리기 위한 데이터 정의
   for (let index = 0; index < dataLength; index++) {
     const row = [];
     dataResourceList.forEach((chartColumnList) => {
       let nowValue = chartColumnList[index] === undefined ? '' : chartColumnList[index];
-      row.push(nowValue); 
+      row.push(nowValue);
     });
     excelDataList.push(row);
   }
@@ -191,7 +214,7 @@ function makeChartDataToReport(resource){
   powerChartData.series.forEach(chartData => {
     let sum = chartData.data.reduce((prev, curr) => {
       return Number(prev) + Number(curr);
-    });     
+    });
     sumIntervalPowerList.push(sum);
   });
 
@@ -207,12 +230,61 @@ function makeChartDataToReport(resource){
 
 
   var wb = XLSX.utils.book_new();
-  wb.SheetNames = [sheetName]; 
-  let ws = XLSX.utils.aoa_to_sheet([]);
-  XLSX.utils.sheet_add_aoa(ws, powerHeader, {origin: 'A2'});
-  XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
-  XLSX.utils.sheet_add_aoa(ws, excelDataList, {origin: 'A10'});
-  XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
+  wb.SheetNames = [sheetName];
+
+  /* TEST: properties */
+  wb.Props = {
+    Title: sheetName,
+    Subject: '6kW TB',
+    Author: 'SmSoft',
+    Manager: 'Kepco',
+    Company: 'SmSoft',
+    Category: 'UPMS',
+    Keywords: 'Power',
+    Comments: 'Nothing to say here',
+    LastAuthor: 'j.hyuk',
+    CreatedDate: new Date()
+  };
+
+
+  ws['!merges'] = [XLSX.utils.decode_range('B2:D2'), XLSX.utils.decode_range('B10:G10')];
+  // ws['!merges'] = [ XLSX.utils.decode_range('B2:D2'),
+  //   XLSX.utils.decode_range('B3:C3'),
+  //   XLSX.utils.decode_range('D3:E3'),
+  //   XLSX.utils.decode_range('F3:G3'),
+  //   XLSX.utils.decode_range('H3:I3'),
+  //   XLSX.utils.decode_range('J3:K3'),
+  //   XLSX.utils.decode_range('L3:M3') ];
+  // ws['!merges'] = [ XLSX.utils.decode_range('B3:C3') ];
+
+  
+  let colsInfoList = [
+    { wch: 28 }, 
+    { wch: 15 }, 
+    { wch: 15 }, 
+    { wch: 15 }, 
+    { wch: 15 }, 
+    { wch: 15 }, 
+    { wch: 15 }, 
+    { wch: 15 }, 
+    { wch: 10 }, 
+    { wch: 10 }, 
+    { wch: 10 }, 
+    { wch: 10 }, 
+    { wch: 10 }, 
+  ];
+
+  /* TEST: column props */
+  ws['!cols'] = colsInfoList;
+
+  /* TEST: row props */
+  // let rowsInfoList = [{ hpt: 20 }, { hpt: 20 }, { hpt: 20}, { hpt: 40 }, { hpt: 20 }, { hpt: 40 }];
+  // ws['!rows'] = rowsInfoList;
+
+  XLSX.utils.sheet_add_aoa(ws, powerHeader, { origin: 'A2' });
+  // XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
+  XLSX.utils.sheet_add_aoa(ws, excelDataList, { origin: 'A11' });
+  // XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
 
   // BU.CLI(ws);
   wb.Sheets[sheetName] = ws;

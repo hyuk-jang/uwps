@@ -379,6 +379,7 @@ class BiModule extends bmjh.BM {
         ROUND(AVG(temp), 1) AS avg_temp,
         ROUND(AVG(reh), 1) AS avg_reh,
         ROUND(AVG(solar), 0) AS avg_solar,
+        ROUND(AVG(wd), 0) AS avg_wd,	
         ROUND(AVG(ws), 1) AS avg_ws,	
         ROUND(AVG(uv), 0) AS avg_uv
        FROM weather_device_data

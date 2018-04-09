@@ -317,8 +317,10 @@ module.exports = function (app) {
     let chartOptionList= [
       { name: '일사량(W/m²)',color: 'black', yAxis:1,  selectKey: 'avg_solar', dateKey: 'group_date'},
       { name: '기온(℃)', color: 'red', yAxis:0, selectKey: 'avg_temp', maxKey: 'avg_temp', minKey: 'avg_temp', averKey: 'avg_temp', dateKey: 'group_date'},
-      // { name: '풍속(m/s)', color: 'purple', yAxis:0, selectKey: 'avg_ws', dateKey: 'group_date'},
-      // { name: '습도(%)', color: 'green', yAxis:0, selectKey: 'avg_reh', dateKey: 'group_date'},
+      { name: '풍향', color: 'brown', yAxis:0, selectKey: 'avg_wd', dateKey: 'group_date'},
+      { name: '풍속(m/s)', color: 'purple', yAxis:0, selectKey: 'avg_ws', dateKey: 'group_date'},
+      { name: '습도(%)', color: 'green', yAxis:0, selectKey: 'avg_reh', dateKey: 'group_date'},
+      { name: '자외선(uv)', color: 'skyblue', yAxis:0, selectKey: 'avg_uv', dateKey: 'group_date'},
     ];
 
     let chartData = { range: betweenDatePoint.shortTxtPoint , series: [] };

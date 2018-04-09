@@ -29,7 +29,7 @@ class Model {
     // BU.CLI('onData');
     let tempStorage = new this.biModule.TempStorage();
     let prevForecastList = await this.biModule.getPrevWeatherCast(this.locationInfo.x, this.locationInfo.y);
-    // BU.CLI(prevForecastList);
+    BU.CLI(prevForecastList);
     prevForecastList.forEach(currentItem => {
       currentItem.applydate = BU.convertDateToText(currentItem.applydate);
     });

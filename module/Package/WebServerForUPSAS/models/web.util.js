@@ -688,6 +688,11 @@ function makeChartDecorator(searchRange) {
     connectorComment = '1일 동안 시간당 평균 출력(kW)의 합';
     break;
   case 'hour':
+    xAxisTitle = '시간';
+    yAxisTitle = '발전량(Wh)';
+    inverterComment = '1시간 동안의 발전량(Wh)';
+    connectorComment = '1시간 동안의 평균 출력(W)';
+    break;
   case 'min10':
     xAxisTitle = '시간';
     yAxisTitle = '발전량(Wh)';

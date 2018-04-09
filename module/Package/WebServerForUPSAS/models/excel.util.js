@@ -210,6 +210,7 @@ function makeChartDataToReport(resource){
   wb.SheetNames = [sheetName]; 
   let ws = XLSX.utils.aoa_to_sheet([]);
   XLSX.utils.sheet_add_aoa(ws, powerHeader, {origin: 'A2'});
+  XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
   XLSX.utils.sheet_add_aoa(ws, excelDataList, {origin: 'A10'});
   XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
 

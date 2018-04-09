@@ -225,7 +225,7 @@ class Manager extends AbstManager {
     if(_.isEmpty(this.commandStorage.process)){
       this.nextCommand(false);
     }
-    return true;
+    return cmdInfo;
   }
 
 

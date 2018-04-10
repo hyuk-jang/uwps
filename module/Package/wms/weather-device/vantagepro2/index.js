@@ -12,8 +12,12 @@ if (require !== undefined && require.main === module) {
   const config = require('./src/config');
 
   const control = new Control(config);
-  control.converter.setProtocolConverter(control.config.deviceInfo);
-  control.setDeviceClient(control.config.deviceInfo);
+
+  control.init();
+
+
+  // control.converter.setProtocolConverter(control.config.deviceInfo);
+  // control.setDeviceClient(control.config.deviceInfo);
 
 
 }

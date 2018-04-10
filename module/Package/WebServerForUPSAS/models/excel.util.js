@@ -5,10 +5,13 @@ const BU = require('base-util-jh').baseUtil;
 
 /**
  * @typedef {Object} createExcelOption
+ * @property {Object[]} inverterTrend
  * @property {chartData} powerChartData
  * @property {chartData} gridKwChartData
  * @property {chartDecoration} powerChartDecoration
  * @property {chartData} weatherChartData
+ * @property {Object[]} weatherTrend
+ * @property {Object[]} weatherChartOptionList
  * @property {searchRange} searchRange
  */
 
@@ -64,35 +67,21 @@ function makeChartDataToReport(resource) {
   let ws = XLSX.utils.aoa_to_sheet([]);
 
   let powerChartData = resource.powerChartData;
-  let gridKwChartData = resource.gridKwChartData;
 
   // BU.CLI(powerChartData);
+  let inverterTrend = resource.inverterTrend;
   let powerChartDecoration = resource.powerChartDecoration;
-  let weatherChartData = resource.weatherChartData;
+  let weatherTrend = resource.weatherTrend;
+  let weatherChartOptionList = resource.weatherChartOptionList;
   let searchRange = resource.searchRange;
 
-
   let searchList = [];
-  let titleList = [];
-  let scaleList = [];
-  let realTotalPowerList = [];
-  let scaleTotalPowerList = [];
-  let efficiencyList = [];
   let sumIntervalPowerList = [];
 
-
-
   // BU.CLI(searchRange);
-  let powerTitleList = [];
-  let tempPowerTitleList = _.pluck(powerChartData.series, 'name');
-  // NOTE 구조 수정 할라다가 말음
-  // tempPowerTitleList.forEach((currentItem, index) => {
-  //   powerTitleList.push(currentItem);
-  //   powerTitleList.push('');
-  // });
-  powerTitleList = tempPowerTitleList;
-  // const gridTitleList = _.pluck(gridKwChartData.series, 'name'); 
-  const weatherTitleList = _.pluck(weatherChartData.series, 'name');
+  
+  // let sssss = (_.pluck(powerChartData.series, 'name').join('@@')).split('@');
+  // BU.CLI(sssss);
 
   // 데이터 그래프
   const resourceList = powerChartData.series;
@@ -106,11 +95,8 @@ function makeChartDataToReport(resource) {
   searchList = ['검색 기간', powerChartDecoration.mainTitle];
 
   // 메인 제목
-  titleList = [''].concat(powerTitleList, weatherTitleList);
-  titleList.push('수심');
-
-
-
+  
+  // titleList.push('수심');
 
   let powerName = '';
   // 기간 발전량 
@@ -130,45 +116,41 @@ function makeChartDataToReport(resource) {
   // 총 발전량
 
   const optionList = _.map(resourceList, resource => resource.option);
-  let maxList = _.pluck(optionList, 'max');
-  maxList.forEach((currentItem, index) => {
-    maxList[index] = isNaN(currentItem) ? '' : currentItem;
-  });
-
-
-  // let accumulateList = [ `누적 ${powerChartDecoration.yAxisTitle}`];
-  // accumulateList = accumulateList.concat(maxList);
-  scaleList = ['가중치'].concat(_.pluck(optionList, 'scale'));
-  realTotalPowerList = [`가중치 미적용 ${powerName} ${powerChartDecoration.yAxisTitle}`];
-  scaleTotalPowerList = [`가중치 적용 ${powerName} ${powerChartDecoration.yAxisTitle}`];
+  let powerTitleList = _.pluck(powerChartData.series, 'name');
+  let titleScaleList = _.pluck(optionList, 'scale');
   // 검색 기간의 최대 최소 값의 차를 빼서 계산
-  let columnList = ['B', 'C', 'D', 'E', 'F', 'G'];
+
+  ws['B4'] = { t: 's', v: `가중치 미적용 ${powerName} ${powerChartDecoration.yAxisTitle}` };
+  ws['B5'] = { t: 's', v: '가중치' };
+  ws['B6'] = { t: 's', v: `가중치 적용 ${powerName} ${powerChartDecoration.yAxisTitle}`};
+  ws['B7'] = { t: 's', v: '비교(%)'};
+  
+  let summeryColumnList = ['C', 'E', 'G', 'I', 'K', 'M'];
+
   optionList.forEach((option, index) => {
     let intervalPower = Number(option.max - option.min);
     intervalPower = isNaN(intervalPower) ? '' : intervalPower;
-    realTotalPowerList.push(intervalPower);
-    let column = columnList[index];
+    let column = summeryColumnList[index];
+
+    ws[column + '3'] = { t: 's', v: powerTitleList[index] };
+    ws[column + '4'] = { t: 'n', v: intervalPower };
+    ws[column + '5'] = { t: 'n', v: titleScaleList[index] };
     ws[column + '6'] = { t: 'n', f: `${column}4*${column}5` };
+    XLSX.utils.cell_set_number_format(ws[column + '6'], '0.00');
     // scaleTotalPowerList.push((intervalPower * option.scale).scale(1, 3));
   });
 
-  // BU.CLI(scaleTotalPowerList);
-  // BU.CLI(powerChartData);
-
-  efficiencyList = ['비교(%)'];
-  columnList.forEach((column, index) => {
+  summeryColumnList.forEach((column, index) => {
     switch (index) {
     case 0:
     case 2:
     case 3:
-      ws[column + '7'] = { t: 'n', f: `${column}6/B6` };
-      // efficiencyList.push((accumulate / scaleTotalPowerList[1] * 100).scale(1, 1));
+      ws[column + '7'] = { t: 'n', f: `${column}6/C6` };
       break;
     case 1:
     case 4:
     case 5:
-      ws[column + '7'] = { t: 'n', f: `${column}6/C6` };
-      // efficiencyList.push((accumulate / scaleTotalPowerList[2] * 100).scale(1, 1));
+      ws[column + '7'] = { t: 'n', f: `${column}6/E6` };
       break;
     default:
       break;
@@ -176,58 +158,59 @@ function makeChartDataToReport(resource) {
     XLSX.utils.cell_set_number_format(ws[column + '7'], '0.0%');
   });
 
-  // 차트에 표현된 날짜 기간
-  const dataLength = powerChartData.range.length;
-  // 데이터 그래프
-  const dataResourceList = [];
-  // 날짜를 1순위에 Push
-  dataResourceList.push(powerChartData.range);
-  // 발전량 Chart를 순서대로 Push
-  gridKwChartData.series.forEach(currentItem => {
-    dataResourceList.push(currentItem.data);
+
+  /** 데이터 레포트를 출력하기 위한 테이블 제목 세팅 */
+  const weatherTitleList = _.pluck(weatherChartOptionList, 'name');
+  ws['B10'] = { t: 's', v: powerChartDecoration.xAxisTitle };
+  let reportTitleList = powerTitleList.concat(weatherTitleList);
+  let reportColumnList = ['C', 'E', 'G', 'I', 'K', 'M', 'O'];
+  let reportSubTitleList = [];
+  reportColumnList.forEach((currentItem, index) => {
+    if(reportColumnList.length === index + 1){
+      ws[currentItem + 10] = { t: 's', v: '기상계측장치' };
+    } else {
+      ws[currentItem + 10] = { t: 's', v: reportTitleList[index] };
+      reportSubTitleList = reportSubTitleList.concat(['출력(W)', powerChartDecoration.yAxisTitle]);
+    }
   });
-
-  // 기상 Chart를 순서대로 Push
-  weatherChartData.series.forEach(currentItem => {
-    dataResourceList.push(currentItem.data);
+  
+  let weatherColumnList = ['O', 'P', 'Q', 'R', 'S'];
+  weatherColumnList.forEach((currentItem, index) => {
+    ws[currentItem + 11] = { t: 's', v: weatherTitleList[index] };
   });
+  /** 데이터 레포트를 출력하기 위한 테이블 제목 세팅 */
 
 
-  ws['A10'] = { t: 's', v: powerChartDecoration.xAxisTitle };
-  ws['!merges'] = [XLSX.utils.decode_range('B10:G10')];
-  ws['B10'] = { t: 's', v: '출력(W)', a: 'c' };
-
-  // const excelDataList = [[powerChartDecoration.xAxisTitle]];
   const excelDataList = [];
-  // 차트를 그리기 위한 데이터 정의
-  for (let index = 0; index < dataLength; index++) {
+  // 차트에 표현된 날짜 기간
+  const defaultRange = powerChartData.range;
+  for (let index = 0; index < defaultRange.length; index++) {
     const row = [];
-    dataResourceList.forEach((chartColumnList) => {
-      let nowValue = chartColumnList[index] === undefined ? '' : chartColumnList[index];
-      row.push(nowValue);
+    row.push(defaultRange[index]);
+    powerTitleList.forEach(powerTitle => {
+      const foundIt = _.findWhere(inverterTrend, {view_date: defaultRange[index], target_name: powerTitle});
+      row.push(_.isEmpty(foundIt) ? '' : foundIt.grid_out_w);
+      row.push(_.isEmpty(foundIt) ? '' : foundIt.interval_wh);
+    });
+
+    weatherChartOptionList.forEach(weatherChartOption => {
+      const foundIt = _.findWhere(weatherTrend, {view_date: defaultRange[index]});
+      row.push(_.isEmpty(foundIt) ? '' : foundIt[weatherChartOption.selectKey]);
     });
     excelDataList.push(row);
   }
 
   // 각 행들의 합을 계산
-  sumIntervalPowerList = [`합산 ${powerName} ${powerChartDecoration.yAxisTitle}`];
+  sumIntervalPowerList = ['', `합산 ${powerName} ${powerChartDecoration.yAxisTitle}`];
   powerChartData.series.forEach(chartData => {
     let sum = chartData.data.reduce((prev, curr) => {
       return Number(prev) + Number(curr);
     });
+    sumIntervalPowerList.push('');
     sumIntervalPowerList.push(sum);
   });
 
-  let powerHeader = [];
-  powerHeader.push(searchList);
-  powerHeader.push(titleList);
-  powerHeader.push(realTotalPowerList);
-  powerHeader.push(scaleList);
-  powerHeader.push(scaleTotalPowerList);
-  powerHeader.push(efficiencyList);
-  // powerHeader.push(accumulateList);
-  // powerHeader.push(sumIntervalPowerList);
-
+  let powerHeader = [searchList];
 
   var wb = XLSX.utils.book_new();
   wb.SheetNames = [sheetName];
@@ -247,46 +230,78 @@ function makeChartDataToReport(resource) {
   };
 
 
-  ws['!merges'] = [XLSX.utils.decode_range('B2:D2'), XLSX.utils.decode_range('B10:G10')];
-  // ws['!merges'] = [ XLSX.utils.decode_range('B2:D2'),
-  //   XLSX.utils.decode_range('B3:C3'),
-  //   XLSX.utils.decode_range('D3:E3'),
-  //   XLSX.utils.decode_range('F3:G3'),
-  //   XLSX.utils.decode_range('H3:I3'),
-  //   XLSX.utils.decode_range('J3:K3'),
-  //   XLSX.utils.decode_range('L3:M3') ];
-  // ws['!merges'] = [ XLSX.utils.decode_range('B3:C3') ];
-
+  ws['!merges'] = [
+    XLSX.utils.decode_range('C2:H2'), 
+    XLSX.utils.decode_range('C3:D3'),
+    XLSX.utils.decode_range('E3:F3'),
+    XLSX.utils.decode_range('G3:H3'),
+    XLSX.utils.decode_range('I3:J3'),
+    XLSX.utils.decode_range('K3:L3'),
+    XLSX.utils.decode_range('M3:N3'),
+    XLSX.utils.decode_range('C4:D4'),
+    XLSX.utils.decode_range('E4:F4'),
+    XLSX.utils.decode_range('G4:H4'),
+    XLSX.utils.decode_range('I4:J4'),
+    XLSX.utils.decode_range('K4:L4'),
+    XLSX.utils.decode_range('M4:N4'),
+    XLSX.utils.decode_range('C5:D5'),
+    XLSX.utils.decode_range('E5:F5'),
+    XLSX.utils.decode_range('G5:H5'),
+    XLSX.utils.decode_range('I5:J5'),
+    XLSX.utils.decode_range('K5:L5'),
+    XLSX.utils.decode_range('M5:N5'),
+    XLSX.utils.decode_range('C6:D6'),
+    XLSX.utils.decode_range('E6:F6'),
+    XLSX.utils.decode_range('G6:H6'),
+    XLSX.utils.decode_range('I6:J6'),
+    XLSX.utils.decode_range('K6:L6'),
+    XLSX.utils.decode_range('M6:N6'),
+    XLSX.utils.decode_range('C7:D7'),
+    XLSX.utils.decode_range('E7:F7'),
+    XLSX.utils.decode_range('G7:H7'),
+    XLSX.utils.decode_range('I7:J7'),
+    XLSX.utils.decode_range('K7:L7'),
+    XLSX.utils.decode_range('M7:N7'),
+    XLSX.utils.decode_range('B10:B11'),
+    XLSX.utils.decode_range('C10:D10'),
+    XLSX.utils.decode_range('E10:F10'),
+    XLSX.utils.decode_range('G10:H10'),
+    XLSX.utils.decode_range('I10:J10'),
+    XLSX.utils.decode_range('K10:L10'),
+    XLSX.utils.decode_range('M10:N10'),
+    XLSX.utils.decode_range('O10:S10'),
+  ];
   
   let colsInfoList = [
-    { wch: 28 }, 
-    { wch: 15 }, 
-    { wch: 15 }, 
-    { wch: 15 }, 
-    { wch: 15 }, 
-    { wch: 15 }, 
-    { wch: 15 }, 
-    { wch: 15 }, 
+    { wch: 3 }, 
     { wch: 10 }, 
     { wch: 10 }, 
     { wch: 10 }, 
     { wch: 10 }, 
     { wch: 10 }, 
+    { wch: 10 }, 
+    { wch: 10 }, 
+    { wch: 10 }, 
+    { wch: 10 }, 
+    { wch: 10 }, 
+    { wch: 10 }, 
+    { wch: 10 }, 
+    { wch: 10 }, 
+    { wch: 13 }, 
   ];
 
   /* TEST: column props */
   ws['!cols'] = colsInfoList;
 
-  /* TEST: row props */
-  // let rowsInfoList = [{ hpt: 20 }, { hpt: 20 }, { hpt: 20}, { hpt: 40 }, { hpt: 20 }, { hpt: 40 }];
-  // ws['!rows'] = rowsInfoList;
 
-  XLSX.utils.sheet_add_aoa(ws, powerHeader, { origin: 'A2' });
-  // XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
-  XLSX.utils.sheet_add_aoa(ws, excelDataList, { origin: 'A11' });
-  // XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
 
+  XLSX.utils.sheet_add_aoa(ws, powerHeader, { origin: 'B2' });
+  XLSX.utils.sheet_add_aoa(ws, [reportSubTitleList], { origin: 'C11' });
+  // XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
   // BU.CLI(ws);
+  XLSX.utils.sheet_add_aoa(ws, excelDataList, { origin: 'B12' });
+  XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
+
   wb.Sheets[sheetName] = ws;
 
   return wb;
@@ -295,3 +310,14 @@ exports.makeChartDataToWorkBook = makeChartDataToReport;
 
 
 
+// 누적 발전량 (쓰이지 않음)
+// let maxList = _.pluck(optionList, 'max');
+// maxList.forEach((currentItem, index) => {
+//   maxList[index] = isNaN(currentItem) ? '' : currentItem;
+// });
+
+
+/* TEST: row props */
+// let rowsInfoList = [{ hpt: 20 }, { hpt: 20 }, { hpt: 20}, { hpt: 40 }, { hpt: 20 }, { hpt: 40 }];
+// ws['!rows'] = rowsInfoList;
+// reportSubTitleList;

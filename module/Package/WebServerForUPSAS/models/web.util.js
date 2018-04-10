@@ -209,7 +209,6 @@ exports.calcValue = calcValue;
 
 
 /**
- * 
  * @param {Object[]} rowDataPacketList 
  * @param {calcRowPacketIntervalOption} calcOption 
  */
@@ -224,7 +223,8 @@ function calcRangePower(rowDataPacketList, calcOption){
 
     const hasCalcRange = _.isEmpty(calcOption.rangeOption) ? false : true;
     const hasCalcDate = hasCalcRange && calcOption.rangeOption.dateKey.length ? true : false;
-    const hasCalcCount = hasCalcRange && calcOption.rangeOption.minRequiredCountKey.length ? true : false;
+    // 데이터 분포군 개수로는 계산하지 않음.
+    // const hasCalcCount = hasCalcRange && calcOption.rangeOption.minRequiredCountKey.length ? true : false;
     
     _.each(groupRowDataPacketList, rowList => {
       let prevValue;
@@ -271,6 +271,46 @@ function calcRangePower(rowDataPacketList, calcOption){
   } 
 }
 exports.calcRangePower = calcRangePower;
+
+/**
+ * 
+ * @param {Object[]} rowDataPacketList 
+ * @param {searchRange} searchRange 
+ * @param {string} cumulativePowerKey
+ */
+function calcRangeGridOutW(rowDataPacketList, searchRange, cumulativePowerKey ){
+  rowDataPacketList.forEach(rowDataPacket => {
+    let cPower = rowDataPacket[cumulativePowerKey];
+    rowDataPacketList.grid_out_w = '';
+    if(typeof cPower === 'number'){
+      switch (searchRange.searchType) {
+      case 'min':
+        rowDataPacket.grid_out_w = cPower * 60;
+        break;
+      case 'min10':
+        rowDataPacket.grid_out_w = cPower * 6;
+        break;
+      case 'hour':
+        rowDataPacket.grid_out_w = cPower;
+        break;
+      case 'day':
+        rowDataPacket.grid_out_w = cPower / 6;
+        break;
+      case 'month':
+        rowDataPacket.grid_out_w = cPower / 6 / 30;
+        break;
+      case 'year':
+        rowDataPacket.grid_out_w = cPower / 6 / 365;
+        break;
+      default:
+        break;
+      }
+      rowDataPacket.grid_out_w = rowDataPacket.grid_out_w.scale(1, 2);
+    } 
+  });
+
+}
+exports.calcRangeGridOutW = calcRangeGridOutW;
 
 
 /**

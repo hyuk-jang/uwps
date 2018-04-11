@@ -20,7 +20,7 @@ module.exports = [{
     insertDateKey: 'writedate',
     indexInfo: {
       primaryKey: 'weather_device_trouble_seq',
-      foreignKey: 'temp_seq'
+      foreignKey: ''
     }
   },
   dataTableInfo: {

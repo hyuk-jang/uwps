@@ -23,7 +23,7 @@ module.exports = {
   },
   smInfrared:{
     current: {
-      hasDev: true, // 장치 연결을 실제로 하는지 여부
+      hasDev: false, // 장치 연결을 실제로 하는지 여부
       deviceInfo: {
         target_id: 'SI1',
         target_name: 'SmRainSensor',
@@ -79,7 +79,7 @@ module.exports = {
   },
   vantagepro2: {
     current: {
-      hasDev: true, // 장치 연결을 실제로 하는지 여부
+      hasDev: false, // 장치 연결을 실제로 하는지 여부
       deviceInfo: {
         target_id: 'VantagePro_1',
         target_name: 'Davis Vantage Pro2',

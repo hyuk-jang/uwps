@@ -96,7 +96,7 @@ module.exports = function (app) {
     let betweenDatePoint = BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchInterval);
     // BU.CLI(betweenDatePoint);
     // 인버터 차트
-    let {gridKwChartData, inverterPowerChartData, inverterTrend} = await getInverterChart(searchOption, searchRange, betweenDatePoint);
+    let {inverterPowerChartData, inverterTrend} = await getInverterChart(searchOption, searchRange, betweenDatePoint);
     
     // BU.CLI(inverterChart);
     // 접속반 차트
@@ -118,14 +118,12 @@ module.exports = function (app) {
     let createExcelOption = {
       inverterTrend,
       powerChartData, 
-      gridKwChartData,
       powerChartDecoration: chartDecoration, 
       weatherChartData, 
       weatherTrend, 
       weatherChartOptionList,
       searchRange
     };
-
 
     let excelContents = excelUtil.makeChartDataToWorkBook(createExcelOption);
     // BU.CLI(chartDecoration);
@@ -151,12 +149,11 @@ module.exports = function (app) {
    * @param {{device_type: string, device_list_type: string, device_type_list: [], device_seq: string, search_type: string}} searchOption
    * @param {searchRange} searchRange
    * @param {{fullTxtPoint: [], shortTxtPoint: []}} betweenDatePoint
-   * @return {{inverterPowerChartData: chartData, gridKwChartData: chartData, inverterTrend: Object[]}} chartData
+   * @return {{inverterPowerChartData: chartData, inverterTrend: Object[]}} chartData
    */
   async function getInverterChart(searchOption, searchRange, betweenDatePoint) {
     let inverterPowerChartData = { range: [], series: [] };
-    let gridKwChartData = { range: [], series: [] };
-    let returnValue = {inverterPowerChartData, gridKwChartData};
+    let returnValue = {inverterPowerChartData, inverterTrend: []};
     // 장비 종류가 접속반, 장비 선택이 전체라면 즉시 종료
     if (searchOption.device_type === 'connector' && searchOption.device_list_type === 'all') {
       return returnValue;
@@ -214,19 +211,12 @@ module.exports = function (app) {
     // 기간 발전량을 기준으로 실제 계통 출력량을 계산하여 추가함(grid_out_w)
     webUtil.calcRangeGridOutW(inverterTrend, searchRange, 'interval_wh');
 
-
-
     let chartOption = { selectKey: 'interval_wh', maxKey: 'max_c_wh', minKey: 'min_c_wh', dateKey: 'group_date', groupKey: 'target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
     inverterPowerChartData =  webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, chartOption);
     tempApplyScaleInverter(inverterPowerChartData);
     chartOption = { selectKey: 'avg_out_w', maxKey: 'max_c_wh', minKey: 'min_c_wh', dateKey: 'group_date', groupKey: 'target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
     // BU.CLI(inverterTrend);
-    gridKwChartData =  webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, chartOption);
-    // BU.CLI(gridKwChartData);
-    tempApplyScaleInverter(gridKwChartData);
-
-
     // BU.CLI(chartData.series[3]);
 
     /** Grouping Chart에 의미있는 이름을 부여함. */
@@ -237,7 +227,7 @@ module.exports = function (app) {
 
     
     // BU.CLI(excelContents)
-    return {inverterPowerChartData, gridKwChartData, inverterTrend};
+    return {inverterPowerChartData, inverterTrend};
   }
 
   /**
@@ -324,10 +314,6 @@ module.exports = function (app) {
     let weatherChartOptionList= [
       { name: '일사량(W/m²)',color: 'black', yAxis:1,  selectKey: 'avg_solar', dateKey: 'group_date'},
       { name: '기온(℃)', color: 'red', yAxis:0, selectKey: 'avg_temp', maxKey: 'avg_temp', minKey: 'avg_temp', averKey: 'avg_temp', dateKey: 'group_date'},
-      { name: '풍향', color: 'brown', yAxis:0, selectKey: 'avg_wd', dateKey: 'group_date'},
-      { name: '풍속(m/s)', color: 'purple', yAxis:0, selectKey: 'avg_ws', dateKey: 'group_date'},
-      { name: '습도(%)', color: 'green', yAxis:0, selectKey: 'avg_reh', dateKey: 'group_date'},
-      // { name: '자외선(uv)', color: 'skyblue', yAxis:0, selectKey: 'avg_uv', dateKey: 'group_date'},
     ];
 
     let weatherChartData = { range: betweenDatePoint.shortTxtPoint , series: [] };
@@ -341,6 +327,15 @@ module.exports = function (app) {
       
       weatherChartData.series.push(chart);
     });
+
+    let addWeatherChartOptionList= [
+      { name: '풍향', color: 'brown', yAxis:0, selectKey: 'avg_wd', dateKey: 'group_date'},
+      { name: '풍속(m/s)', color: 'purple', yAxis:0, selectKey: 'avg_ws', dateKey: 'group_date'},
+      { name: '습도(%)', color: 'green', yAxis:0, selectKey: 'avg_reh', dateKey: 'group_date'},
+      // { name: '자외선(uv)', color: 'skyblue', yAxis:0, selectKey: 'avg_uv', dateKey: 'group_date'},
+    ];
+
+    weatherChartOptionList = weatherChartOptionList.concat(addWeatherChartOptionList);
 
    
     // BU.CLI(chartData);

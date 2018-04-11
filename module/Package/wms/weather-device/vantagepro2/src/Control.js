@@ -52,8 +52,8 @@ class Control extends AbstDeviceClient {
       id: this.config.deviceInfo.target_id,
       config: this.config.deviceInfo,
       data: this.model.deviceData,
-      // systemErrorList: [{code: 'new Code2222', msg: '에러 테스트 메시지22', occur_date: new Date() }],
-      systemErrorList: this.systemErrorList,
+      systemErrorList: [{code: 'new Code2222', msg: '에러 테스트 메시지22', occur_date: new Date() }],
+      // systemErrorList: this.systemErrorList,
       troubleList: [],
       measureDate: new Date()
     };
@@ -89,7 +89,7 @@ class Control extends AbstDeviceClient {
    * @param {Buffer} data 명령 수행 결과 데이터
    */
   updateDcData(processItem, data){
-    BU.CLIN('data');
+    // BU.CLIN('data');
     BU.appendFile(`./log/vantage/data/${BU.convertDateToText(new Date(), '', 2)}.txt`, `${this.config.deviceInfo.target_id} : ${data.toString('hex')}`);
     const resultParsing = this.converter.parsingUpdateData(processItem.cmdList[processItem.currCmdIndex], data);
     // BU.CLI(resultParsing);

@@ -7,7 +7,6 @@ const BU = require('base-util-jh').baseUtil;
  * @typedef {Object} createExcelOption
  * @property {Object[]} inverterTrend
  * @property {chartData} powerChartData
- * @property {chartData} gridKwChartData
  * @property {chartDecoration} powerChartDecoration
  * @property {chartData} weatherChartData
  * @property {Object[]} weatherTrend
@@ -120,9 +119,9 @@ function makeChartDataToReport(resource) {
   let titleScaleList = _.pluck(optionList, 'scale');
   // 검색 기간의 최대 최소 값의 차를 빼서 계산
 
-  ws['B4'] = { t: 's', v: `가중치 미적용 ${powerName} ${powerChartDecoration.yAxisTitle}` };
+  ws['B4'] = { t: 's', v: `가중치 미적용 \n${powerName} ${powerChartDecoration.yAxisTitle}` };
   ws['B5'] = { t: 's', v: '가중치' };
-  ws['B6'] = { t: 's', v: `가중치 적용 ${powerName} ${powerChartDecoration.yAxisTitle}`};
+  ws['B6'] = { t: 's', v: `가중치 적용 \n${powerName} ${powerChartDecoration.yAxisTitle}`};
   ws['B7'] = { t: 's', v: '비교(%)'};
   
   let summeryColumnList = ['C', 'E', 'G', 'I', 'K', 'M'];
@@ -157,8 +156,7 @@ function makeChartDataToReport(resource) {
     }
     XLSX.utils.cell_set_number_format(ws[column + '7'], '0.0%');
   });
-
-
+  
   /** 데이터 레포트를 출력하기 위한 테이블 제목 세팅 */
   const weatherTitleList = _.pluck(weatherChartOptionList, 'name');
   ws['B10'] = { t: 's', v: powerChartDecoration.xAxisTitle };
@@ -183,12 +181,14 @@ function makeChartDataToReport(resource) {
 
   const excelDataList = [];
   // 차트에 표현된 날짜 기간
+
   const defaultRange = powerChartData.range;
+  const groupInverterTrend = _.groupBy(inverterTrend, 'target_name');
   for (let index = 0; index < defaultRange.length; index++) {
     const row = [];
     row.push(defaultRange[index]);
     powerTitleList.forEach(powerTitle => {
-      const foundIt = _.findWhere(inverterTrend, {view_date: defaultRange[index], target_name: powerTitle});
+      const foundIt = _.findWhere(groupInverterTrend[powerTitle], {view_date: defaultRange[index]});
       row.push(_.isEmpty(foundIt) ? '' : foundIt.grid_out_w);
       row.push(_.isEmpty(foundIt) ? '' : foundIt.interval_wh);
     });
@@ -199,7 +199,6 @@ function makeChartDataToReport(resource) {
     });
     excelDataList.push(row);
   }
-
   // 각 행들의 합을 계산
   sumIntervalPowerList = ['', `합산 ${powerName} ${powerChartDecoration.yAxisTitle}`];
   powerChartData.series.forEach(chartData => {
@@ -211,6 +210,8 @@ function makeChartDataToReport(resource) {
   });
 
   let powerHeader = [searchList];
+
+  XLSX.utils.cell_add_comment(ws['B10'], '출력(W)은 발전량을 토대로 계산한 값으로 실제 인버터에서 계측한 출력(W)은 아닙니다.');
 
   var wb = XLSX.utils.book_new();
   wb.SheetNames = [sheetName];
@@ -274,7 +275,7 @@ function makeChartDataToReport(resource) {
   
   let colsInfoList = [
     { wch: 3 }, 
-    { wch: 10 }, 
+    { wch: 15 }, 
     { wch: 10 }, 
     { wch: 10 }, 
     { wch: 10 }, 
@@ -293,7 +294,9 @@ function makeChartDataToReport(resource) {
   /* TEST: column props */
   ws['!cols'] = colsInfoList;
 
-
+  // /* TEST: row props */
+  let rowsInfoList = [{ hpt: 10 }, { hpt: 24 }, { hpt: 22}, { hpt: 35 }, { hpt: 20 }, { hpt: 35 }, { hpt: 20 }, { hpt: 15 }, { hpt: 15 }, { hpt: 24 }, { hpt: 24 }];
+  ws['!rows'] = rowsInfoList;
 
   XLSX.utils.sheet_add_aoa(ws, powerHeader, { origin: 'B2' });
   XLSX.utils.sheet_add_aoa(ws, [reportSubTitleList], { origin: 'C11' });

@@ -46,7 +46,6 @@ module.exports = function (app) {
 
   // Get
   router.get('/', wrap(async (req, res) => {
-    
     // 장비 종류 여부 (전체, 인버터, 접속반)
     let deviceType = req.query.device_type === 'inverter' || req.query.device_type === 'connector' ? req.query.device_type : req.query.device_type === undefined ? 'inverter' : 'all';
     // 장비 선택 타입 (전체, 인버터, 접속반)
@@ -69,6 +68,8 @@ module.exports = function (app) {
       }
     }
     // BU.CLIS(req.query, searchRange);
+
+    
 
     // 장비 선택 리스트 가져옴
     let deviceList = await biModule.getDeviceList(deviceType);
@@ -113,19 +114,21 @@ module.exports = function (app) {
     let chartDecoration = webUtil.makeChartDecoration(searchRange);
 
     let {weatherChartData, weatherTrend, weatherChartOptionList} = await getWeatherChart(searchRange, betweenDatePoint);
-
+    let weatherCastRowDataPacketList =  await biModule.getWeatherAverage(searchRange);
+    // BU.CLI(weatherCastRowDataPacketList);
 
     let createExcelOption = {
       inverterTrend,
       powerChartData, 
       powerChartDecoration: chartDecoration, 
+      weatherCastRowDataPacketList,
       weatherChartData, 
       weatherTrend, 
       weatherChartOptionList,
       searchRange
     };
 
-    let excelContents = excelUtil.makeChartDataToWorkBook(createExcelOption);
+    let excelContents = excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
     // BU.CLI(chartDecoration);
     // BU.CLI(chartOption);
     req.locals.searchOption = searchOption;
@@ -142,6 +145,38 @@ module.exports = function (app) {
     let deviceList = await biModule.getDeviceList(devicetype);
 
     return res.status(200).send(deviceList);
+  }));
+
+
+  router.get('/excel/:interval', wrap(async (req, res) => {
+    BU.CLI('@@@@@@');
+    const interval = req.params.interval ? req.params.interval : 'min10';
+    // 장비 종류 여부 (전체, 인버터, 접속반)
+    let deviceType = req.query.device_type === 'inverter' || req.query.device_type === 'connector' ? req.query.device_type : req.query.device_type === undefined ? 'inverter' : 'all';
+    // 장비 선택 타입 (전체, 인버터, 접속반)
+    let deviceListType = req.query.device_list_type === 'inverter' || req.query.device_list_type === 'connector' ? req.query.device_list_type : 'all';
+    // 장비 선택 seq (all, number)
+    let deviceSeq = !isNaN(req.query.device_seq) && req.query.device_seq !== '' ? Number(req.query.device_seq) : 'all';
+    // BU.CLIS(deviceType, deviceListType, deviceSeq);
+    // Search 타입을 지정
+    let searchType = req.query.search_type ? req.query.search_type : defaultRangeFormat;
+    // 지정된 SearchType으로 설정 구간 정의
+    let searchRange = biModule.getSearchRange(searchType, req.query.start_date, req.query.end_date);
+    if (searchType === 'range') {
+      let realSearchType = searchType === 'range' ? biModule.convertSearchTypeWithCompareDate(searchRange.strEndDate, searchRange.strStartDate) : searchType;
+      if (realSearchType === 'hour') {
+        searchRange = biModule.getSearchRange(defaultRangeFormat, req.query.start_date, req.query.end_date);
+      } else {
+        searchRange.searchInterval = searchRange.searchType = realSearchType;
+      }
+    }
+
+    
+    
+    searchRange.searchInterval = interval;
+    BU.CLI(searchRange);
+
+    return res.json(searchRange);
   }));
 
   /**
@@ -354,10 +389,10 @@ module.exports = function (app) {
   }
 
 
-  router.use(wrap(async (err, req, res) => {
-    console.log('Err', err);
-    res.status(500).send(err);
-  }));
+  // router.use(wrap(async (err, req, res) => {
+  //   // BU.log('Err', err);
+  //   res.status(500).send(err);
+  // }));
 
   return router;
 };

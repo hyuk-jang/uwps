@@ -13,7 +13,7 @@ module.exports = function (app) {
   app.get('/', function (req, res, next) {
     // if (!req.user) {
 
-    BU.CLI('@@@@');
+    // BU.CLI('@@@@');
     return res.redirect('/main');
     // }
     // next();

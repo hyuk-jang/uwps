@@ -2,6 +2,13 @@ const _ = require('underscore');
 const bmjh = require('base-model-jh');
 const BU = require('base-util-jh').baseUtil;
 
+/**
+ * @typedef {Object[]} weatherRowDataPacketList
+ * @property {string} view_date 차트에 표현할 Date Format
+ * @property {string} group_date 그룹 처리한 Date Format
+ * @property {number} avg_sky 평균 운량
+ */
+
 
 class BiModule extends bmjh.BM {
   constructor(dbInfo) {
@@ -14,6 +21,41 @@ class BiModule extends bmjh.BM {
    */
   getWeather() {
     let sql = 'SELECT * FROM weather_device_data ORDER BY writedate DESC LIMIT 1';
+    return this.db.single(sql, '', false);
+  }
+
+  /**
+   * 날씨 평균을 구해옴
+   * @param {searchRange} searchRange  검색 옵션
+   * @return {weatherRowDataPacketList}
+   */
+  getWeatherAverage(searchRange) {
+    searchRange = searchRange ? searchRange : this.getSearchRange();
+    let dateFormat = this.makeDateFormatForReport(searchRange, 'applydate');
+    // BU.CLI(dateFormat);
+    // BU.CLI(searchRange);
+
+    let sql = `
+    SELECT main.*,
+    ${dateFormat.selectViewDate},
+    ${dateFormat.selectGroupDate},
+    ROUND(AVG(main.scale_sky), 1) AS avg_sky
+     FROM
+    (
+    SELECT *,
+        CASE
+        WHEN sky = 1 THEN 1
+        WHEN sky = 2 THEN 4
+        WHEN sky = 3 THEN 7
+        WHEN sky = 4 THEN 9.5
+        END AS scale_sky
+    FROM kma_data	
+    WHERE applydate>= "${searchRange.strBetweenStart}" and applydate<"${searchRange.strBetweenEnd}"
+    AND DATE_FORMAT(applydate, '%H') > '05' AND DATE_FORMAT(applydate, '%H') < '21'
+    ) main
+    GROUP BY ${dateFormat.groupByFormat}
+    ORDER BY applydate
+    `;
     return this.db.single(sql, '', false);
   }
 

@@ -12,6 +12,7 @@ const BU = require('base-util-jh').baseUtil;
  * @property {chartData} weatherChartData
  * @property {Object[]} weatherTrend
  * @property {Object[]} weatherChartOptionList
+ * @property {Array.<weatherCastRowDataPacket>} weatherCastRowDataPacketList
  * @property {searchRange} searchRange
  */
 
@@ -51,6 +52,14 @@ const BU = require('base-util-jh').baseUtil;
  */
 
 /**
+ * @typedef {Object} weatherCastRowDataPacket
+ * @property {string} view_date 차트에 표현할 Date Format
+ * @property {string} group_date 그룹 처리한 Date Format
+ * @property {number} avg_sky 평균 운량
+ */
+
+
+/**
   * @typedef {Object} chartDecoration
   * @property {string} mainTitle
   * @property {string} xAxisTitle
@@ -63,7 +72,7 @@ const BU = require('base-util-jh').baseUtil;
  * 차트 데이터
  * @param {createExcelOption} resource 
  */
-function makeChartDataToReport(resource) {
+function makeChartDataToExcelWorkSheet(resource) {
   let ws = XLSX.utils.aoa_to_sheet([]);
 
   let powerChartData = resource.powerChartData;
@@ -73,15 +82,11 @@ function makeChartDataToReport(resource) {
   let powerChartDecoration = resource.powerChartDecoration;
   let weatherTrend = resource.weatherTrend;
   let weatherChartOptionList = resource.weatherChartOptionList;
+  let weatherCastRowDataPacketList = resource.weatherCastRowDataPacketList;
   let searchRange = resource.searchRange;
 
   let searchList = [];
   let sumIntervalPowerList = [];
-
-  // BU.CLI(searchRange);
-  
-  // let sssss = (_.pluck(powerChartData.series, 'name').join('@@')).split('@');
-  // BU.CLI(sssss);
 
   // 데이터 그래프
   const resourceList = powerChartData.series;
@@ -127,7 +132,9 @@ function makeChartDataToReport(resource) {
   
   let summeryColumnList = ['C', 'E', 'G', 'I', 'K', 'M'];
 
+  // 검색 기간의 개요 구성
   optionList.forEach((option, index) => {
+    // 검색 기간 발전량 도출
     let intervalPower = Number(option.max - option.min);
     intervalPower = isNaN(intervalPower) ? '' : intervalPower;
     let column = summeryColumnList[index];
@@ -137,7 +144,6 @@ function makeChartDataToReport(resource) {
     ws[column + '5'] = { t: 'n', v: titleScaleList[index] };
     ws[column + '6'] = { t: 'n', f: `${column}4*${column}5` };
     XLSX.utils.cell_set_number_format(ws[column + '6'], '0.00');
-    // scaleTotalPowerList.push((intervalPower * option.scale).scale(1, 3));
   });
 
   summeryColumnList.forEach((column, index) => {
@@ -159,21 +165,30 @@ function makeChartDataToReport(resource) {
   });
   
   /** 데이터 레포트를 출력하기 위한 테이블 제목 세팅 */
-  const weatherTitleList = _.map(weatherChartOptionList, 'name');
+  let weatherCastTitleList = ['운량'];
+  // TEMP
+  ws['P3'] = { t: 's', v: _.head(weatherCastTitleList) };
+  ws['P4'] = { t: 'n', v: _.round(_.meanBy(weatherCastRowDataPacketList, 'avg_sky'), 1)  };
+  // BU.CLI(weatherCastRowDataPacketList);
+
+  let weatherDeviceTitleList = _.map(weatherChartOptionList, 'name');
+  let weatherTitleList = _.concat(weatherDeviceTitleList, weatherCastTitleList);
   ws['B10'] = { t: 's', v: powerChartDecoration.xAxisTitle };
   // let reportTitleList = powerTitleList.concat(weatherTitleList);
   let modifiedPowerTitleList = [];
   powerTitleList.forEach(currentItem => {
     modifiedPowerTitleList.push(_.replace(currentItem, '(', '\n('));
   });
-  let reportTitleList = _.concat(modifiedPowerTitleList, modifiedPowerTitleList, '기상계측장치');
-  ws['C11'] = { t: 's', v: '출력(W)' };
-  ws['I11'] = { t: 's', v: powerChartDecoration.yAxisTitle };
+  let reportTitleList = _.concat(modifiedPowerTitleList, modifiedPowerTitleList, weatherTitleList);
+  ws['C10'] = { t: 's', v: '인버터 출력(W)' };
+  ws['I10'] = { t: 's', v: `인버터 ${powerChartDecoration.yAxisTitle}` };
+  ws['O10'] = { t: 's', v: '기상계측장치' };
+  ws['T10'] = { t: 's', v: '기상청' };
   
-  let weatherColumnList = ['O', 'P', 'Q', 'R', 'S'];
-  weatherColumnList.forEach((currentItem, index) => {
-    ws[currentItem + 11] = { t: 's', v: weatherTitleList[index] };
-  });
+  // let weatherColumnList = ['O', 'P', 'Q', 'R', 'S'];
+  // weatherColumnList.forEach((currentItem, index) => {
+  //   ws[currentItem + 11] = { t: 's', v: weatherTitleList[index] };
+  // });
   /** 데이터 레포트를 출력하기 위한 테이블 제목 세팅 */
 
 
@@ -190,6 +205,7 @@ function makeChartDataToReport(resource) {
 
     let wList = [];
     let powerList = [];
+    // 인버터 발전량 데이터 추출
     powerTitleList.forEach(powerTitle => {
       const foundIt = _.find(groupInverterTrend[powerTitle], {view_date: defaultRange[index]});
       wList.push(_.isEmpty(foundIt) ? '' : foundIt.grid_out_w);
@@ -199,13 +215,18 @@ function makeChartDataToReport(resource) {
     row = _.concat(row, wList, powerList);
     // row = row.concat(wList, powerList);
 
-
+    // 기상 관측 장비 데이터 추출
     weatherChartOptionList.forEach(weatherChartOption => {
       const foundIt = _.find(weatherTrend, {view_date: defaultRange[index]});
       row.push(_.isEmpty(foundIt) ? '' : foundIt[weatherChartOption.selectKey]);
     });
+
+
+    let weatherCastData = _.find(weatherCastRowDataPacketList, {view_date: defaultRange[index]});
+    row.push(_.isEmpty(weatherCastData) ? '' : weatherCastData.avg_sky);
     excelDataList.push(row);
   }
+  // BU.CLI(excelDataList);
   // console.timeEnd('111');
   // 각 행들의 합을 계산
   sumIntervalPowerList = ['', `합산 ${powerName} ${powerChartDecoration.yAxisTitle}`, '', '', '', '', '', ''];
@@ -271,8 +292,8 @@ function makeChartDataToReport(resource) {
     XLSX.utils.decode_range('K7:L7'),
     XLSX.utils.decode_range('M7:N7'),
     XLSX.utils.decode_range('B10:B11'),
-    XLSX.utils.decode_range('C11:H11'),
-    // XLSX.utils.decode_range('I10:N10'),
+    XLSX.utils.decode_range('C10:H10'),
+    XLSX.utils.decode_range('I10:N10'),
     // XLSX.utils.decode_range('G10:H10'),
     // XLSX.utils.decode_range('I10:J10'),
     // XLSX.utils.decode_range('K10:L10'),
@@ -302,11 +323,11 @@ function makeChartDataToReport(resource) {
   ws['!cols'] = colsInfoList;
 
   // /* TEST: row props */
-  let rowsInfoList = [{ hpt: 10 }, { hpt: 24 }, { hpt: 22}, { hpt: 35 }, { hpt: 20 }, { hpt: 35 }, { hpt: 20 }, { hpt: 15 }, { hpt: 15 }, { hpt: 35 }, { hpt: 24 }];
+  let rowsInfoList = [{ hpt: 10 }, { hpt: 24 }, { hpt: 22}, { hpt: 35 }, { hpt: 20 }, { hpt: 35 }, { hpt: 20 }, { hpt: 15 }, { hpt: 15 }, { hpt: 24 }, { hpt: 35 }];
   ws['!rows'] = rowsInfoList;
 
   XLSX.utils.sheet_add_aoa(ws, powerHeader, { origin: 'B2' });
-  XLSX.utils.sheet_add_aoa(ws, [reportTitleList], { origin: 'C10' });
+  XLSX.utils.sheet_add_aoa(ws, [reportTitleList], { origin: 'C11' });
   // XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
   // BU.CLI(ws);
   XLSX.utils.sheet_add_aoa(ws, excelDataList, { origin: 'B12' });
@@ -316,8 +337,12 @@ function makeChartDataToReport(resource) {
 
   return wb;
 }
-exports.makeChartDataToWorkBook = makeChartDataToReport;
+exports.makeChartDataToExcelWorkSheet = makeChartDataToExcelWorkSheet;
 
+
+function makeExcelWorkBook(workSheetList) {
+
+}
 
 
 // 누적 발전량 (쓰이지 않음)

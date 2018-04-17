@@ -173,6 +173,7 @@ module.exports = function (app) {
     // 인버터 차트 데이터 불러옴
     let inverterTrend = await biModule.getInverterTrend(searchRange, device_seq);
     // BU.CLI(inverterTrend);
+    
 
 
     // 하루 데이터(10분 구간)는 특별히 데이터를 정제함.
@@ -194,7 +195,7 @@ module.exports = function (app) {
       let calcOption = {
         calcMaxKey: 'max_c_wh',
         calcMinKey: 'min_c_wh',
-        resultKey: 'interval_wh',
+        resultKey: 'interval_power',
         groupKey: 'inverter_seq',
         rangeOption: {
           dateKey: 'group_date',
@@ -209,24 +210,20 @@ module.exports = function (app) {
     webUtil.addKeyToReport(inverterTrend, viewInverterStatus, 'target_id', 'inverter_seq');
     webUtil.addKeyToReport(inverterTrend, viewInverterStatus, 'target_name', 'inverter_seq');
     // 기간 발전량을 기준으로 실제 계통 출력량을 계산하여 추가함(grid_out_w)
-    webUtil.calcRangeGridOutW(inverterTrend, searchRange, 'interval_wh');
+    webUtil.calcRangeGridOutW(inverterTrend, searchRange, 'interval_power');
+    // 검색 기간을 기준으로 data 비율을 조정함
+    webUtil.calcScaleRowDataPacket(inverterTrend, searchRange, ['interval_power', 'max_c_wh', 'min_c_wh']);
+    // BU.CLI(inverterTrend);
 
-    let chartOption = { selectKey: 'interval_wh', maxKey: 'max_c_wh', minKey: 'min_c_wh', dateKey: 'group_date', groupKey: 'target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
+    let chartOption = { selectKey: 'interval_power', maxKey: 'max_c_wh', minKey: 'min_c_wh', dateKey: 'group_date', groupKey: 'target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
-    inverterPowerChartData =  webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, chartOption);
+    inverterPowerChartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, chartOption);
     tempApplyScaleInverter(inverterPowerChartData);
     chartOption = { selectKey: 'avg_out_w', maxKey: 'max_c_wh', minKey: 'min_c_wh', dateKey: 'group_date', groupKey: 'target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
-    // BU.CLI(inverterTrend);
-    // BU.CLI(chartData.series[3]);
 
     /** Grouping Chart에 의미있는 이름을 부여함. */
     webUtil.mappingChartDataName(inverterPowerChartData, viewInverterStatus, 'target_id', 'target_name');
-    /** searchRange 조건에 따라서 Chart Data의 비율을 변경 */
-    webUtil.applyScaleChart(inverterPowerChartData, searchRange.searchType);
-    // BU.CLI(chartData);
-
     
-    // BU.CLI(excelContents)
     return {inverterPowerChartData, inverterTrend};
   }
 

@@ -10,7 +10,7 @@
   "dependencies": {
     "base-class-jh": "^1.0.17",
     "base-model-jh": "^1.0.10",
-    "base-util-jh": "^1.0.24",
+    "base-util-jh": "^1.1.1",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "connect-flash": "^0.1.1",
@@ -19,7 +19,7 @@
     "event-to-promise": "^0.8.0",
     "express": "^4.16.3",
     "express-async-wrap": "^1.0.0",
-    "express-mysql-session": "^1.2.3",
+    "express-mysql-session": "^1.3.0",
     "express-session": "^1.15.6",
     "joi": "^13.1.2",
     "lodash": "^4.17.5",
@@ -33,7 +33,7 @@
     "request": "^2.85.0",
     "serve-favicon": "^2.5.0",
     "underscore": "^1.8.3",
-    "xlsx": "^0.12.8"
+    "xlsx": "^0.12.9"
   },
   "description": "염전 제어서버",
   "main": "index.js",

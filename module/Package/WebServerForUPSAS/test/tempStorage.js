@@ -116,7 +116,7 @@ class Temp extends bmjh.BM {
       ROUND(d_wh / 10, 1) AS d_wh,
       ROUND(MAX(c_wh) / 10, 1) AS max_c_wh,
       ROUND(MIN(c_wh) / 10, 1) AS min_c_wh,
-      ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_wh
+      ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_power
       FROM inverter_data
         WHERE writedate>= ${strStartDate} AND writedate<${strEndDate}
     `;

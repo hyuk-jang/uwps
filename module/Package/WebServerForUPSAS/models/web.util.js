@@ -86,33 +86,7 @@ function convertWeatherCast(weatherCastInfo) {
   }
 
   returnValue.temp = weatherCastInfo.temp;
-
-  switch (weatherCastInfo.wf_en) {
-  case 'Clear':
-    returnValue.wf = 1;
-    break;
-  case 'Partly Cloudy':
-    returnValue.wf = 2;
-    break;
-  case 'Mostly Cloudy':
-    returnValue.wf = 3;
-    break;
-  case 'Cloudy':
-    returnValue.wf = 4;
-    break;
-  case 'Rain':
-    returnValue.wf = 5;
-    break;
-  case 'Snow/Rain':
-    returnValue.wf = 6;
-    break;
-  case 'Snow':
-    returnValue.wf = 7;
-    break;
-  default:
-    returnValue.wf = 0;
-    break;
-  }
+  returnValue.wf = weatherCastInfo.wf || 0;
 
   return returnValue;
 }
@@ -311,6 +285,21 @@ function calcRangeGridOutW(rowDataPacketList, searchRange, cumulativePowerKey ){
 
 }
 exports.calcRangeGridOutW = calcRangeGridOutW;
+
+/**
+ * 
+ * @param {Object[]} rowDataPacketList 
+ * @param {searchRange} searchRange 
+ * @param {string[]} dataKeyList
+ */
+function calcScaleRowDataPacket(rowDataPacketList, searchRange, dataKeyList ){
+  rowDataPacketList.forEach(rowDataPacket => {
+    dataKeyList.forEach(dataKey => {
+      rowDataPacket[dataKey] = convertValueBySearchType(rowDataPacket[dataKey], searchRange.searchType);
+    });
+  });
+}
+exports.calcScaleRowDataPacket = calcScaleRowDataPacket;
 
 
 /**
@@ -647,17 +636,16 @@ function calcStatisticsReport(rowDataPacketList, chartOption){
  * @param {string} searchType 
  */
 function convertValueBySearchType(number, searchType) {
+  const _ = require('lodash');
   // BU.CLI('convertValueBySearchType', searchType, number)
   let returnValue = 0;
   switch (searchType) {
   case 'year':
-    returnValue = (number / 1000 / 1000).toFixed(4);
+    returnValue = _.round(number / 1000 / 1000, 4);
     break;
   case 'month':
-    returnValue = (number / 1000).toFixed(3);
-    break;
   case 'day':
-    returnValue = (number / 1000).toFixed(3);
+    returnValue = _.round(number / 1000, 3);
     break;
   case 'hour':
   default:

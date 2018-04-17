@@ -193,7 +193,7 @@ function makeChartDataToReport(resource) {
     powerTitleList.forEach(powerTitle => {
       const foundIt = _.find(groupInverterTrend[powerTitle], {view_date: defaultRange[index]});
       wList.push(_.isEmpty(foundIt) ? '' : foundIt.grid_out_w);
-      powerList.push(_.isEmpty(foundIt) ? '' : foundIt.interval_wh);
+      powerList.push(_.isEmpty(foundIt) ? '' : foundIt.interval_power);
     });
 
     row = _.concat(row, wList, powerList);

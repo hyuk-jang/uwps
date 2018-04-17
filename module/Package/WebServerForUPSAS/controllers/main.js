@@ -31,7 +31,7 @@ module.exports = function (app) {
     // 검색 조건이 일 당으로 검색되기 때문에 금월 날짜로 date Format을 지정하기 위해 day --> month 로 변경
     searchRange.searchType = 'month';
     let inverterPowerByMonth = await biModule.getInverterPower(searchRange);
-    let monthPower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerByMonth, 'interval_wh'), 0.001, 1) ;
+    let monthPower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerByMonth, 'interval_power'), 0.001, 1) ;
 
     // 오늘자 발전 현황을 구할 옵션 설정(strStartDate, strEndDate 를 오늘 날짜로 설정하기 위함)
     // 검색 조건이 시간당으로 검색되기 때문에 금일 날짜로 date Format을 지정하기 위해 hour --> day 로 변경
@@ -45,9 +45,9 @@ module.exports = function (app) {
     // searchRange = biModule.getSearchRange('hour', '2018-03-10');
     let inverterPowerList = await biModule.getInverterPower(searchRange);
     // 각 인버터에서 기록된 데이터 차를 합산
-    let dailyPower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerList, 'interval_wh'), 0.001, 1) ;
+    let dailyPower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerList, 'interval_power'), 0.001, 1) ;
     // BU.CLI(inverterPowerList);
-    let chartOption = { selectKey: 'interval_wh', dateKey: 'view_date' };
+    let chartOption = { selectKey: 'interval_power', dateKey: 'view_date' };
     let chartData = webUtil.makeDynamicChartData(inverterPowerList, chartOption);
 
     // BU.CLI(inverterPowerList);

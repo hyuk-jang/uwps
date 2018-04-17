@@ -103,7 +103,7 @@ class BiModule extends bmjh.BM {
 
   /** 
    * 기상청 날씨를 가져옴
-   * @return {Array.<{temp: number, pty: number, wf_kor: string, wf_en: string, pop: number, r12: number, ws:number, wd: number, reh: number, applydate: Date}>} 날씨 정보
+   * @return {Array.<{temp: number, pty: number, wf: number, pop: number, r12: number, ws:number, wd: number, reh: number, applydate: Date}>} 날씨 정보
    */
   getCurrWeatherCast() {
     let sql = `
@@ -348,7 +348,7 @@ class BiModule extends bmjh.BM {
         ${dateFormat.selectViewDate},
         ROUND(AVG(out_w) / 10, 1) AS out_w,
         ROUND(MAX(c_wh) / 10, 1) AS max_c_wh,
-        ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_wh
+        ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_power
         FROM inverter_data
         WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
         `;
@@ -414,7 +414,7 @@ class BiModule extends bmjh.BM {
           ROUND(AVG(avg_p_f) / 10, 1) AS avg_p_f,
           ROUND(MAX(max_c_wh) / 10, 1) AS max_c_wh,
           ROUND(MIN(min_c_wh) / 10, 1) AS min_c_wh,
-          ROUND((MAX(max_c_wh) - MIN(min_c_wh)) / 10, 1) AS interval_wh,
+          ROUND((MAX(max_c_wh) - MIN(min_c_wh)) / 10, 1) AS interval_power,
           ivt.chart_color, ivt.chart_sort_rank,
           SUM(first_count) as total_count
     FROM
@@ -577,7 +577,7 @@ class BiModule extends bmjh.BM {
         ROUND(AVG(avg_out_v) / 10, 1) AS avg_out_v,
         ROUND(AVG(avg_out_w) / 10, 1) AS avg_out_w,
         ROUND(AVG(CASE WHEN avg_p_f > 0 THEN avg_p_f END) / 10, 1) AS avg_p_f,
-        ROUND(SUM(interval_wh) / 1000, 2) AS total_s_kwh,
+        ROUND(SUM(interval_power) / 1000, 2) AS total_s_kwh,
         ROUND(SUM(max_c_wh) / 1000000, 3) AS total_c_mwh
     FROM
       (SELECT
@@ -593,7 +593,7 @@ class BiModule extends bmjh.BM {
             AVG(CASE WHEN avg_p_f > 0 THEN avg_p_f END) AS avg_p_f,
             ROUND(MAX(max_c_wh) / 10, 1) AS max_c_wh,
             ROUND(MIN(min_c_wh) / 10, 1) AS min_c_wh,
-            ROUND((MAX(max_c_wh) - MIN(min_c_wh)) / 10, 1) AS interval_wh
+            ROUND((MAX(max_c_wh) - MIN(min_c_wh)) / 10, 1) AS interval_power
       FROM
         (SELECT
               id.inverter_seq,

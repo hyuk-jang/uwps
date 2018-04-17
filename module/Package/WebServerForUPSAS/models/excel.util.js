@@ -1,4 +1,5 @@
-const _ = require('underscore');
+// const _ = require('underscore');
+const _ = require('lodash');
 const XLSX = require('xlsx');
 
 const BU = require('base-util-jh').baseUtil;
@@ -115,8 +116,8 @@ function makeChartDataToReport(resource) {
   // 총 발전량
 
   const optionList = _.map(resourceList, resource => resource.option);
-  let powerTitleList = _.pluck(powerChartData.series, 'name');
-  let titleScaleList = _.pluck(optionList, 'scale');
+  let powerTitleList = _.map(powerChartData.series, 'name');
+  let titleScaleList = _.map(optionList, 'scale');
   // 검색 기간의 최대 최소 값의 차를 빼서 계산
 
   ws['B4'] = { t: 's', v: `가중치 미적용 \n${powerName} ${powerChartDecoration.yAxisTitle}` };
@@ -158,19 +159,16 @@ function makeChartDataToReport(resource) {
   });
   
   /** 데이터 레포트를 출력하기 위한 테이블 제목 세팅 */
-  const weatherTitleList = _.pluck(weatherChartOptionList, 'name');
+  const weatherTitleList = _.map(weatherChartOptionList, 'name');
   ws['B10'] = { t: 's', v: powerChartDecoration.xAxisTitle };
-  let reportTitleList = powerTitleList.concat(weatherTitleList);
-  let reportColumnList = ['C', 'E', 'G', 'I', 'K', 'M', 'O'];
-  let reportSubTitleList = [];
-  reportColumnList.forEach((currentItem, index) => {
-    if(reportColumnList.length === index + 1){
-      ws[currentItem + 10] = { t: 's', v: '기상계측장치' };
-    } else {
-      ws[currentItem + 10] = { t: 's', v: reportTitleList[index] };
-      reportSubTitleList = reportSubTitleList.concat(['출력(W)', powerChartDecoration.yAxisTitle]);
-    }
+  // let reportTitleList = powerTitleList.concat(weatherTitleList);
+  let modifiedPowerTitleList = [];
+  powerTitleList.forEach(currentItem => {
+    modifiedPowerTitleList.push(_.replace(currentItem, '(', '\n('));
   });
+  let reportTitleList = _.concat(modifiedPowerTitleList, modifiedPowerTitleList, '기상계측장치');
+  ws['C11'] = { t: 's', v: '출력(W)' };
+  ws['I11'] = { t: 's', v: powerChartDecoration.yAxisTitle };
   
   let weatherColumnList = ['O', 'P', 'Q', 'R', 'S'];
   weatherColumnList.forEach((currentItem, index) => {
@@ -184,34 +182,43 @@ function makeChartDataToReport(resource) {
 
   const defaultRange = powerChartData.range;
   const groupInverterTrend = _.groupBy(inverterTrend, 'target_name');
+  // BU.CLI(groupInverterTrend);
+  // console.time('111');
   for (let index = 0; index < defaultRange.length; index++) {
-    const row = [];
+    let row = [];
     row.push(defaultRange[index]);
+
+    let wList = [];
+    let powerList = [];
     powerTitleList.forEach(powerTitle => {
-      const foundIt = _.findWhere(groupInverterTrend[powerTitle], {view_date: defaultRange[index]});
-      row.push(_.isEmpty(foundIt) ? '' : foundIt.grid_out_w);
-      row.push(_.isEmpty(foundIt) ? '' : foundIt.interval_wh);
+      const foundIt = _.find(groupInverterTrend[powerTitle], {view_date: defaultRange[index]});
+      wList.push(_.isEmpty(foundIt) ? '' : foundIt.grid_out_w);
+      powerList.push(_.isEmpty(foundIt) ? '' : foundIt.interval_wh);
     });
 
+    row = _.concat(row, wList, powerList);
+    // row = row.concat(wList, powerList);
+
+
     weatherChartOptionList.forEach(weatherChartOption => {
-      const foundIt = _.findWhere(weatherTrend, {view_date: defaultRange[index]});
+      const foundIt = _.find(weatherTrend, {view_date: defaultRange[index]});
       row.push(_.isEmpty(foundIt) ? '' : foundIt[weatherChartOption.selectKey]);
     });
     excelDataList.push(row);
   }
+  // console.timeEnd('111');
   // 각 행들의 합을 계산
-  sumIntervalPowerList = ['', `합산 ${powerName} ${powerChartDecoration.yAxisTitle}`];
+  sumIntervalPowerList = ['', `합산 ${powerName} ${powerChartDecoration.yAxisTitle}`, '', '', '', '', '', ''];
   powerChartData.series.forEach(chartData => {
     let sum = chartData.data.reduce((prev, curr) => {
       return Number(prev) + Number(curr);
     });
-    sumIntervalPowerList.push('');
     sumIntervalPowerList.push(sum);
   });
 
   let powerHeader = [searchList];
 
-  XLSX.utils.cell_add_comment(ws['B10'], '출력(W)은 발전량을 토대로 계산한 값으로 실제 인버터에서 계측한 출력(W)은 아닙니다.');
+  // XLSX.utils.cell_add_comment(ws['B10'], '출력(W)은 발전량을 토대로 계산한 값으로 실제 인버터에서 계측한 출력(W)은 아닙니다.');
 
   var wb = XLSX.utils.book_new();
   wb.SheetNames = [sheetName];
@@ -264,12 +271,12 @@ function makeChartDataToReport(resource) {
     XLSX.utils.decode_range('K7:L7'),
     XLSX.utils.decode_range('M7:N7'),
     XLSX.utils.decode_range('B10:B11'),
-    XLSX.utils.decode_range('C10:D10'),
-    XLSX.utils.decode_range('E10:F10'),
-    XLSX.utils.decode_range('G10:H10'),
-    XLSX.utils.decode_range('I10:J10'),
-    XLSX.utils.decode_range('K10:L10'),
-    XLSX.utils.decode_range('M10:N10'),
+    XLSX.utils.decode_range('C11:H11'),
+    // XLSX.utils.decode_range('I10:N10'),
+    // XLSX.utils.decode_range('G10:H10'),
+    // XLSX.utils.decode_range('I10:J10'),
+    // XLSX.utils.decode_range('K10:L10'),
+    // XLSX.utils.decode_range('M10:N10'),
     XLSX.utils.decode_range('O10:S10'),
   ];
   
@@ -295,11 +302,11 @@ function makeChartDataToReport(resource) {
   ws['!cols'] = colsInfoList;
 
   // /* TEST: row props */
-  let rowsInfoList = [{ hpt: 10 }, { hpt: 24 }, { hpt: 22}, { hpt: 35 }, { hpt: 20 }, { hpt: 35 }, { hpt: 20 }, { hpt: 15 }, { hpt: 15 }, { hpt: 24 }, { hpt: 24 }];
+  let rowsInfoList = [{ hpt: 10 }, { hpt: 24 }, { hpt: 22}, { hpt: 35 }, { hpt: 20 }, { hpt: 35 }, { hpt: 20 }, { hpt: 15 }, { hpt: 15 }, { hpt: 35 }, { hpt: 24 }];
   ws['!rows'] = rowsInfoList;
 
   XLSX.utils.sheet_add_aoa(ws, powerHeader, { origin: 'B2' });
-  XLSX.utils.sheet_add_aoa(ws, [reportSubTitleList], { origin: 'C11' });
+  XLSX.utils.sheet_add_aoa(ws, [reportTitleList], { origin: 'C10' });
   // XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
   // BU.CLI(ws);
   XLSX.utils.sheet_add_aoa(ws, excelDataList, { origin: 'B12' });
@@ -324,3 +331,15 @@ exports.makeChartDataToWorkBook = makeChartDataToReport;
 // let rowsInfoList = [{ hpt: 20 }, { hpt: 20 }, { hpt: 20}, { hpt: 40 }, { hpt: 20 }, { hpt: 40 }];
 // ws['!rows'] = rowsInfoList;
 // reportSubTitleList;
+
+  
+// let reportColumnList = ['C', 'I'];
+// let reportSubTitleList = [];
+// reportColumnList.forEach((currentItem, index) => {
+//   if(reportColumnList.length === index + 1){
+//     ws[currentItem + 10] = { t: 's', v: '기상계측장치' };
+//   } else {
+//     ws[currentItem + 10] = { t: 's', v: reportTitleList[index] };
+//     reportSubTitleList = reportSubTitleList.concat(['출력(W)', powerChartDecoration.yAxisTitle]);
+//   }
+// });

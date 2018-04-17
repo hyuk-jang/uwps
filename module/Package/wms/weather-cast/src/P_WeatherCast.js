@@ -118,6 +118,34 @@ class P_WeatherCast {
     };
 
     _.each(weatherCastObjBody.data, (castInfo) => {
+      let wf = 0;
+      let wfEn = castInfo.wfEn[0];
+      switch (wfEn) {
+      case 'Clear':
+        wf = 1;
+        break;
+      case 'Partly Cloudy':
+        wf = 2;
+        break;
+      case 'Mostly Cloudy':
+        wf = 3;
+        break;
+      case 'Cloudy':
+        wf = 4;
+        break;
+      case 'Rain':
+        wf = 5;
+        break;
+      case 'Snow/Rain':
+        wf = 6;
+        break;
+      case 'Snow':
+        wf = 7;
+        break;
+        
+      default:
+        break;
+      }
       /** @type {weathercast} */
       let weatherCastData = {
         // day: castInfo.day[0], // 발표 날
@@ -125,8 +153,8 @@ class P_WeatherCast {
         applydate: this._calcApplyDate(announceDate, castInfo), // 적용시간
         temp: castInfo.temp[0], // 날씨 
         pty: castInfo.pty[0], // [없음(0), 비(1), 비 / 눈(2), 눈(3)]
-        wf_kor: castInfo.wfKor[0], // 날씨한국어
-        wf_en: castInfo.wfEn[0], // 날씨영어
+        sky: castInfo.sky[0], // ① 1 : 맑음 ② 2 : 구름조금 ③ 3 : 구름많음 ④ 4 : 흐림
+        wf,
         pop: castInfo.pop[0], // 강수확율
         r12: castInfo.r12[0], // 12시간 예상강수량
         ws: Number(castInfo.ws[0]).toFixed(2), // 풍속

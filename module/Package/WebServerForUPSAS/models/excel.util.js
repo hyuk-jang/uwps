@@ -6,11 +6,12 @@ const BU = require('base-util-jh').baseUtil;
 
 /**
  * @typedef {Object} createExcelOption
+ * @property {Array.<viewInverterDataPacket>} viewInverterPacketList
  * @property {Object[]} inverterTrend
  * @property {chartData} powerChartData
  * @property {chartDecoration} powerChartDecoration
  * @property {chartData} weatherChartData
- * @property {Object[]} weatherTrend
+ * @property {Array.<weatherTrend>} weatherTrend
  * @property {Object[]} weatherChartOptionList
  * @property {Array.<weatherCastRowDataPacket>} weatherCastRowDataPacketList
  * @property {searchRange} searchRange
@@ -52,11 +53,37 @@ const BU = require('base-util-jh').baseUtil;
  */
 
 /**
+ * 인버터 현황 정보
+ * @typedef {Object} viewInverterDataPacket
+ * @property {number} inverter_seq 
+ * @property {string} target_id 
+ * @property {string} target_type 
+ * @property {string} target_category 
+ * @property {string} chart_sort_rank 
+ * @property {string} chart_sort_rank 
+ */
+
+
+
+/**
  * @typedef {Object} weatherCastRowDataPacket
  * @property {string} view_date 차트에 표현할 Date Format
  * @property {string} group_date 그룹 처리한 Date Format
  * @property {number} avg_sky 평균 운량
  */
+
+
+/**
+ * @typedef {Object} weatherTrend
+ * @property {string} view_date 차트에 표현할 Date Format
+ * @property {string} group_date 그룹 처리한 Date Format
+ * @property {number} avg_sm_infrared 평균 적외선 감지 값
+ * @property {number} avg_temp 평균 기온
+ * @property {number} avg_reh 평균 습도
+ * @property {number} avg_solar 평균 일사량
+ * @property {number} total_interval_solar 기간 총 일사량
+ * @property {number} avg_ws 평균 풍속
+ */ 
 
 
 /**
@@ -76,6 +103,9 @@ function makeChartDataToExcelWorkSheet(resource) {
   let ws = XLSX.utils.aoa_to_sheet([]);
 
   let powerChartData = resource.powerChartData;
+
+  let viewInverterPacketList = _.sortBy(resource.viewInverterPacketList, 'chart_sort_rank');
+  // BU.CLI(viewInverterPacketList);
 
   // BU.CLI(powerChartData);
   let inverterTrend = resource.inverterTrend;
@@ -97,11 +127,9 @@ function makeChartDataToExcelWorkSheet(resource) {
   let sheetName = rangeStart + (searchRange.rangeEnd === '' ? '' : ` ~ ${searchRange.rangeEnd}`);
 
 
-  searchList = ['검색 기간', powerChartDecoration.mainTitle];
 
-  // 메인 제목
-  
-  // titleList.push('수심');
+  /** 개요 구성 시작 */
+  searchList = ['검색 기간', powerChartDecoration.mainTitle];
 
   let powerName = '';
   // 기간 발전량 
@@ -123,6 +151,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   const optionList = _.map(resourceList, resource => resource.option);
   let powerTitleList = _.map(powerChartData.series, 'name');
   let titleScaleList = _.map(optionList, 'scale');
+  BU.CLI(optionList);
   // 검색 기간의 최대 최소 값의 차를 빼서 계산
 
   ws['B4'] = { t: 's', v: `가중치 미적용 \n${powerName} ${powerChartDecoration.yAxisTitle}` };
@@ -131,6 +160,28 @@ function makeChartDataToExcelWorkSheet(resource) {
   ws['B7'] = { t: 's', v: '비교(%)'};
   
   let summeryColumnList = ['C', 'E', 'G', 'I', 'K', 'M'];
+
+
+  let startSummeryColumn = 'C';
+  BU.CLI(Buffer.from('C'));
+  let summeryMap = new Map();
+
+  viewInverterPacketList.forEach(currentItem => {
+    summeryMap.set(startSummeryColumn, currentItem);
+
+    // _.head()
+
+    let buf = (Buffer.from(startSummeryColumn) + 2).toString();
+    
+    
+  });
+
+  // let summeryMap = new Map();
+  // summeryColumnList.forEach(columnName => {
+  //   summeryMap.set(columnName, )
+    
+  // });
+
 
   // 검색 기간의 개요 구성
   optionList.forEach((option, index) => {
@@ -147,6 +198,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   });
 
   summeryColumnList.forEach((column, index) => {
+    let viewInverterPacket = viewInverterPacketList[index];
     switch (index) {
     case 0:
     case 2:
@@ -184,6 +236,10 @@ function makeChartDataToExcelWorkSheet(resource) {
   ws['I10'] = { t: 's', v: `인버터 ${powerChartDecoration.yAxisTitle}` };
   ws['O10'] = { t: 's', v: '기상계측장치' };
   ws['T10'] = { t: 's', v: '기상청' };
+  
+  /** 개요 Weather Title */
+  ws['O2'] = { t: 's', v: '기상계측장치' };
+  ws['T2'] = { t: 's', v: '기상청' };
   
   // let weatherColumnList = ['O', 'P', 'Q', 'R', 'S'];
   // weatherColumnList.forEach((currentItem, index) => {

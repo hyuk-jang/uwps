@@ -9,6 +9,13 @@ const BU = require('base-util-jh').baseUtil;
  * @property {number} avg_sky 평균 운량
  */
 
+/**
+ * @typedef {Object[]} weatherDeviceRowDataPacketList
+ * @property {string} view_date 차트에 표현할 Date Format
+ * @property {string} group_date 그룹 처리한 Date Format
+ * @property {number} avg_sky 평균 운량
+ */ 
+
 
 class BiModule extends bmjh.BM {
   constructor(dbInfo) {
@@ -25,11 +32,39 @@ class BiModule extends bmjh.BM {
   }
 
   /**
+   * 기상 계측 장치 평균을 구해옴
+   * @param {searchRange} searchRange  검색 옵션
+   * @return {weatherRowDataPacketList}
+   */
+  getWeatherDeviceAverage(searchRange) {
+    searchRange = searchRange ? searchRange : this.getSearchRange();
+    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
+    let sql = `
+      SELECT
+          writedate,
+          ${dateFormat.selectViewDate},
+          ${dateFormat.selectGroupDate},
+          AVG(temp) AS avg_temp,
+          AVG(reh) AS avg_reh,
+          AVG(ws) AS avg_ws,
+          AVG(solar) AS avg_solar,
+          ROUND(AVG(solar) / 6, 1) AS interval_solar,
+          COUNT(*) AS first_count
+      FROM weather_device_data wdd
+      WHERE writedate>= "${searchRange.strBetweenStart}" and writedate<"${searchRange.strBetweenEnd}"
+      AND DATE_FORMAT(writedate, '%H') > '05' AND DATE_FORMAT(writedate, '%H') < '20'
+      GROUP BY ${dateFormat.groupByFormat}
+      ORDER BY writedate
+    `;
+    return this.db.single(sql, '', true);
+  }
+
+  /**
    * 날씨 평균을 구해옴
    * @param {searchRange} searchRange  검색 옵션
    * @return {weatherRowDataPacketList}
    */
-  getWeatherAverage(searchRange) {
+  getWeatherCastAverage(searchRange) {
     searchRange = searchRange ? searchRange : this.getSearchRange();
     let dateFormat = this.makeDateFormatForReport(searchRange, 'applydate');
     // BU.CLI(dateFormat);
@@ -413,22 +448,39 @@ class BiModule extends bmjh.BM {
    */
   getWeatherTrend(searchRange) {
     let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
+    // BU.CLI(dateFormat);
+    // BU.CLI(searchRange);
     let sql = `
       SELECT
-      ${dateFormat.selectViewDate},
-      ${dateFormat.selectGroupDate},
-        ROUND(AVG(sm_infrared), 1) AS avg_sm_infrared,
-        ROUND(AVG(temp), 1) AS avg_temp,
-        ROUND(AVG(reh), 1) AS avg_reh,
-        ROUND(AVG(solar), 0) AS avg_solar,
-        ROUND(AVG(wd), 0) AS avg_wd,	
-        ROUND(AVG(ws), 1) AS avg_ws,	
-        ROUND(AVG(uv), 0) AS avg_uv
-       FROM weather_device_data
-       WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
-       GROUP BY ${dateFormat.groupByFormat}
+        ${dateFormat.selectViewDate},
+        ${dateFormat.selectGroupDate},
+          ROUND(AVG(avg_sm_infrared), 1) AS avg_sm_infrared,
+          ROUND(AVG(avg_temp), 1) AS avg_temp,
+          ROUND(AVG(avg_reh), 1) AS avg_reh,
+          ROUND(AVG(avg_solar), 0) AS avg_solar,
+          ROUND(SUM(interval_solar), 1) AS total_interval_solar,
+          ROUND(AVG(avg_wd), 0) AS avg_wd,	
+          ROUND(AVG(avg_ws), 1) AS avg_ws,	
+          ROUND(AVG(avg_uv), 0) AS avg_uv
+      FROM
+        (SELECT 
+          writedate,
+          AVG(sm_infrared) AS avg_sm_infrared,
+          AVG(temp) AS avg_temp,
+          AVG(reh) AS avg_reh,
+          AVG(solar) AS avg_solar,
+          AVG(solar) / ${dateFormat.devideTimeNumber} AS interval_solar,
+          AVG(wd) AS avg_wd,	
+          AVG(ws) AS avg_ws,	
+          AVG(uv) AS avg_uv,
+          COUNT(*) AS first_count
+        FROM weather_device_data
+        WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
+        AND DATE_FORMAT(writedate, '%H') > '05' AND DATE_FORMAT(writedate, '%H') < '21'
+        GROUP BY ${dateFormat.firstGroupByFormat}) AS result_wdd
+     GROUP BY ${dateFormat.groupByFormat}
     `;
-    return this.db.single(sql, '', false);
+    return this.db.single(sql, '', true);
   }
   
   /**
@@ -488,7 +540,7 @@ class BiModule extends bmjh.BM {
     GROUP BY id_group.inverter_seq, ${dateFormat.groupByFormat}
     `;
 
-    return this.db.single(sql, '', false);
+    return this.db.single(sql, '', true);
   }
 
 
@@ -549,14 +601,15 @@ class BiModule extends bmjh.BM {
    * 레포트 Date Format 자동 작성
    * @param {searchRange} searchRange 
    * @param {string} dateName 
-   * @return {{groupByFormat: string, firstGroupByFormat: string, selectGroupDate: string, selectViewDate: string}} 
+   * @return {{groupByFormat: string, firstGroupByFormat: string, selectGroupDate: string, selectViewDate: string, devideTimeNumber: number}} 
    */
   makeDateFormatForReport(searchRange, dateName) {
     const returnValue = {
       groupByFormat: '',
       firstGroupByFormat: '',
       selectGroupDate: '',
-      selectViewDate: ''
+      selectViewDate: '',
+      devideTimeNumber: 1
     };
     // BU.CLI(returnValue.selectViewDate);
 
@@ -565,6 +618,7 @@ class BiModule extends bmjh.BM {
     let dateFormat = this.convertSearchType2DateFormat(searchRange.searchInterval);
     // BU.CLI(dateFormat);
     if(searchRange.searchInterval === 'min10'){
+      returnValue.devideTimeNumber = 6;
       returnValue.selectGroupDate = `CONCAT(LEFT(DATE_FORMAT(${dateName},"%Y-%m-%d %H:%i"), 15), "0")  AS group_date`;
       returnValue.selectViewDate = `CONCAT(LEFT(DATE_FORMAT(${dateName},"%H:%i"), 4), "0")  AS view_date`;
       // returnValue.firstGroupByFormat = dateFormat;
@@ -580,6 +634,7 @@ class BiModule extends bmjh.BM {
       case 'min':
         viewFormat = viewFormat.slice(9, 14);
         firstGroupFormat = '%Y-%m-%d %H:%i';
+        returnValue.devideTimeNumber = 60;
         break;
       case 'hour':
         viewFormat = viewFormat.slice(9, 11);

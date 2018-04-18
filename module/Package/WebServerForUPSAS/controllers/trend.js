@@ -29,6 +29,17 @@ const tempSacle = require('../temp/tempSacle');
  * @typedef {{range: [], series: Array.<{name: string, data: []}>}} chartData 차트 그리기 위한 데이터 형태
  */
 
+/**
+ * 인버터 현황 정보
+ * @typedef {Object} viewInverterDataPacket
+ * @property {number} inverter_seq 
+ * @property {string} target_id 
+ * @property {string} target_type 
+ * @property {string} target_category 
+ * @property {string} chart_sort_rank 
+ * @property {string} chart_sort_rank 
+ */ 
+
 const defaultRangeFormat = 'min10';
 module.exports = function (app) {
   const initSetter = app.get('initSetter');
@@ -97,7 +108,7 @@ module.exports = function (app) {
     let betweenDatePoint = BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchInterval);
     // BU.CLI(betweenDatePoint);
     // 인버터 차트
-    let {inverterPowerChartData, inverterTrend} = await getInverterChart(searchOption, searchRange, betweenDatePoint);
+    let {inverterPowerChartData, inverterTrend, viewInverterPacketList} = await getInverterChart(searchOption, searchRange, betweenDatePoint);
     
     // BU.CLI(inverterChart);
     // 접속반 차트
@@ -114,10 +125,13 @@ module.exports = function (app) {
     let chartDecoration = webUtil.makeChartDecoration(searchRange);
 
     let {weatherChartData, weatherTrend, weatherChartOptionList} = await getWeatherChart(searchRange, betweenDatePoint);
-    let weatherCastRowDataPacketList =  await biModule.getWeatherAverage(searchRange);
+    let weatherCastRowDataPacketList =  await biModule.getWeatherCastAverage(searchRange);
     // BU.CLI(weatherCastRowDataPacketList);
+    // let weatherDeviceRowDataPacketList = await biModule.getWeatherDeviceAverage(searchRange);
+    // BU.CLI(weatherDeviceRowDataPacketList);
 
     let createExcelOption = {
+      viewInverterPacketList,
       inverterTrend,
       powerChartData, 
       powerChartDecoration: chartDecoration, 
@@ -184,7 +198,7 @@ module.exports = function (app) {
    * @param {{device_type: string, device_list_type: string, device_type_list: [], device_seq: string, search_type: string}} searchOption
    * @param {searchRange} searchRange
    * @param {{fullTxtPoint: [], shortTxtPoint: []}} betweenDatePoint
-   * @return {{inverterPowerChartData: chartData, inverterTrend: Object[]}} chartData
+   * @return {{inverterPowerChartData: chartData, inverterTrend: Object[], viewInverterPacketList: Array.<viewInverterDataPacket>}} chartData
    */
   async function getInverterChart(searchOption, searchRange, betweenDatePoint) {
     let inverterPowerChartData = { range: [], series: [] };
@@ -204,7 +218,8 @@ module.exports = function (app) {
     // searchRange = biModule.getSearchRange('day', '2018-02-17', '2018-02-18');
     // searchRange.searchType = 'hour';
     // TODO 인버터 모듈 이름을 가져오기 위한 테이블. 성능을 위해서라면 다른 쿼리문 작성 사용 필요
-    let viewInverterStatus = await biModule.getTable('v_inverter_status');
+    let viewInverterPacketList = await biModule.getTable('v_inverter_status');
+    // BU.CLI(viewInverterStatus);
     // 인버터 차트 데이터 불러옴
     let inverterTrend = await biModule.getInverterTrend(searchRange, device_seq);
     // BU.CLI(inverterTrend);
@@ -241,9 +256,9 @@ module.exports = function (app) {
       };
       webUtil.calcRangePower(inverterTrend, calcOption);
     }
-    
-    webUtil.addKeyToReport(inverterTrend, viewInverterStatus, 'target_id', 'inverter_seq');
-    webUtil.addKeyToReport(inverterTrend, viewInverterStatus, 'target_name', 'inverter_seq');
+    // BU.CLI(inverterTrend);
+    webUtil.addKeyToReport(inverterTrend, viewInverterPacketList, 'target_id', 'inverter_seq');
+    webUtil.addKeyToReport(inverterTrend, viewInverterPacketList, 'target_name', 'inverter_seq');
     // 기간 발전량을 기준으로 실제 계통 출력량을 계산하여 추가함(grid_out_w)
     webUtil.calcRangeGridOutW(inverterTrend, searchRange, 'interval_power');
     // 검색 기간을 기준으로 data 비율을 조정함
@@ -257,9 +272,9 @@ module.exports = function (app) {
     chartOption = { selectKey: 'avg_out_w', maxKey: 'max_c_wh', minKey: 'min_c_wh', dateKey: 'group_date', groupKey: 'target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
 
     /** Grouping Chart에 의미있는 이름을 부여함. */
-    webUtil.mappingChartDataName(inverterPowerChartData, viewInverterStatus, 'target_id', 'target_name');
+    webUtil.mappingChartDataName(inverterPowerChartData, viewInverterPacketList, 'target_id', 'target_name');
     
-    return {inverterPowerChartData, inverterTrend};
+    return {inverterPowerChartData, inverterTrend, viewInverterPacketList};
   }
 
   /**
@@ -342,6 +357,8 @@ module.exports = function (app) {
   async function getWeatherChart(searchRange, betweenDatePoint){
 
     let weatherTrend = await biModule.getWeatherTrend(searchRange);
+    webUtil.calcScaleRowDataPacket(weatherTrend, searchRange, ['total_interval_solar']);
+    // BU.CLI(weatherTrend);
 
     let weatherChartOptionList= [
       { name: '일사량(W/m²)',color: 'black', yAxis:1,  selectKey: 'avg_solar', dateKey: 'group_date'},

@@ -480,7 +480,7 @@ class BiModule extends bmjh.BM {
         GROUP BY ${dateFormat.firstGroupByFormat}) AS result_wdd
      GROUP BY ${dateFormat.groupByFormat}
     `;
-    return this.db.single(sql, '', true);
+    return this.db.single(sql, '', false);
   }
   
   /**
@@ -540,7 +540,7 @@ class BiModule extends bmjh.BM {
     GROUP BY id_group.inverter_seq, ${dateFormat.groupByFormat}
     `;
 
-    return this.db.single(sql, '', true);
+    return this.db.single(sql, '', false);
   }
 
 

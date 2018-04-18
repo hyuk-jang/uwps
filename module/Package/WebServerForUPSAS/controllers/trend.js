@@ -1,6 +1,6 @@
 const wrap = require('express-async-wrap');
 const router = require('express').Router();
-const _ = require('underscore');
+const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
 const DU = require('base-util-jh').domUtil;
 
@@ -109,14 +109,14 @@ module.exports = function (app) {
     // BU.CLI(betweenDatePoint);
     // 인버터 차트
     let {inverterPowerChartData, inverterTrend, viewInverterPacketList} = await getInverterChart(searchOption, searchRange, betweenDatePoint);
-    
+    // BU.CLI(inverterPowerChartData);
     // BU.CLI(inverterChart);
     // 접속반 차트
     let connectorChart = await getConnectorChart(searchOption, searchRange, betweenDatePoint);
     // 차트 Range 지정
     let powerChartData = { range: betweenDatePoint.shortTxtPoint, series: [] };
     // 차트 합침
-    // BU.CLI(inverterPowerChartData);
+    // BU.CLI(powerChartData);
     powerChartData.series = inverterPowerChartData.series.concat(connectorChart.series);
 
     // BU.CLI(chartData);
@@ -130,13 +130,13 @@ module.exports = function (app) {
     // let weatherDeviceRowDataPacketList = await biModule.getWeatherDeviceAverage(searchRange);
     // BU.CLI(weatherDeviceRowDataPacketList);
 
+    // BU.CLI(viewInverterPacketList);
     let createExcelOption = {
       viewInverterPacketList,
       inverterTrend,
       powerChartData, 
       powerChartDecoration: chartDecoration, 
       weatherCastRowDataPacketList,
-      weatherChartData, 
       weatherTrend, 
       weatherChartOptionList,
       searchRange
@@ -219,7 +219,7 @@ module.exports = function (app) {
     // searchRange.searchType = 'hour';
     // TODO 인버터 모듈 이름을 가져오기 위한 테이블. 성능을 위해서라면 다른 쿼리문 작성 사용 필요
     let viewInverterPacketList = await biModule.getTable('v_inverter_status');
-    // BU.CLI(viewInverterStatus);
+    // BU.CLI(viewInverterPacketList);
     // 인버터 차트 데이터 불러옴
     let inverterTrend = await biModule.getInverterTrend(searchRange, device_seq);
     // BU.CLI(inverterTrend);
@@ -306,12 +306,12 @@ module.exports = function (app) {
     let connectorList = await biModule.getTable('connector');
     // BU.CLIS(searchOption, connectorList);
     // 선택한 접속반 seq 정의
-    let connectorSeqList = !isNaN(searchOption.device_seq) ? [Number(searchOption.device_seq)] : _.pluck(connectorList, 'connector_seq');
+    let connectorSeqList = !isNaN(searchOption.device_seq) ? [Number(searchOption.device_seq)] : _.map(connectorList, 'connector_seq');
     // 선택한 접속반에 물려있는 모듈의 seq를 배열에 저장
     let moduleSeqList = [];
-    _.each(connectorSeqList, seq => {
-      let moduleList = _.where(upsasProfile, { connector_seq: seq });
-      moduleSeqList = moduleSeqList.concat(moduleList.length ? _.pluck(moduleList, 'photovoltaic_seq') : []);
+    _.forEach(connectorSeqList, seq => {
+      let moduleList = _.map(upsasProfile, { connector_seq: seq });
+      moduleSeqList = moduleSeqList.concat(moduleList.length ? _.map(moduleList, 'photovoltaic_seq') : []);
     });
     // 혹시나 중복된 seq가 있다면 중복 제거
     moduleSeqList = _.union(moduleSeqList);
@@ -358,7 +358,12 @@ module.exports = function (app) {
 
     let weatherTrend = await biModule.getWeatherTrend(searchRange);
     webUtil.calcScaleRowDataPacket(weatherTrend, searchRange, ['total_interval_solar']);
+
     // BU.CLI(weatherTrend);
+    // BU.CLI(_.sumBy(weatherTrend, 'total_interval_solar'));
+    // BU.CLI(weatherTrend);
+
+  
 
     let weatherChartOptionList= [
       { name: '일사량(W/m²)',color: 'black', yAxis:1,  selectKey: 'avg_solar', dateKey: 'group_date'},
@@ -369,7 +374,7 @@ module.exports = function (app) {
     
     weatherChartOptionList.forEach(chartOption => {
       let staicChart =  webUtil.makeStaticChartData(weatherTrend, betweenDatePoint, chartOption);
-      let chart =_.first(staicChart.series); 
+      let chart =_.head(staicChart.series); 
       chart.name = chartOption.name;
       chart.color = chartOption.color;
       chart.yAxis = chartOption.yAxis;
@@ -397,7 +402,7 @@ module.exports = function (app) {
    */
   function tempApplyScaleInverter(chartData){
     chartData.series.forEach(currentItem => {
-      let foundIt = _.findWhere(tempSacle.inverterScale, { target_id: currentItem.name });
+      let foundIt = _.find(tempSacle.inverterScale, { target_id: currentItem.name });
       currentItem.option.scale = foundIt.scale;
       currentItem.data.forEach((data, index) => {
         currentItem.data[index] = data === '' ? '' : Number((data * foundIt.scale).scale(1, 1));

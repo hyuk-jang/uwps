@@ -1,3 +1,4 @@
+let webUtil = require('./web.util');
 // const _ = require('underscore');
 const _ = require('lodash');
 const XLSX = require('xlsx');
@@ -10,9 +11,8 @@ const BU = require('base-util-jh').baseUtil;
  * @property {Object[]} inverterTrend
  * @property {chartData} powerChartData
  * @property {chartDecoration} powerChartDecoration
- * @property {chartData} weatherChartData
  * @property {Array.<weatherTrend>} weatherTrend
- * @property {Object[]} weatherChartOptionList
+ * @property {Array.<weatherChartOption>} weatherChartOptionList
  * @property {Array.<weatherCastRowDataPacket>} weatherCastRowDataPacketList
  * @property {searchRange} searchRange
  */
@@ -57,10 +57,13 @@ const BU = require('base-util-jh').baseUtil;
  * @typedef {Object} viewInverterDataPacket
  * @property {number} inverter_seq 
  * @property {string} target_id 
+ * @property {string} target_name
  * @property {string} target_type 
  * @property {string} target_category 
+ * @property {number} amount scale 10:1 인버터 용량
  * @property {string} chart_sort_rank 
- * @property {string} chart_sort_rank 
+ * @property {string} compare_inverter_seq 
+ * @property {string} columnName 
  */
 
 
@@ -70,6 +73,14 @@ const BU = require('base-util-jh').baseUtil;
  * @property {string} view_date 차트에 표현할 Date Format
  * @property {string} group_date 그룹 처리한 Date Format
  * @property {number} avg_sky 평균 운량
+ */
+
+/**
+ * @typedef {Object} weatherChartOption
+ * @property {string} name 기상 데이터 명
+ * @property {string} color 차트 색상
+ * @property {string} selectKey 데이터 Key
+ * @property {string} dateKey 묶는 기준 날짜 ket
  */
 
 
@@ -93,7 +104,22 @@ const BU = require('base-util-jh').baseUtil;
   * @property {string} yAxisTitle
   */
 
+  
+const weatherCastOptionList= [
+  { name: '운량', selectKey: 'avg_sky', dateKey: 'group_date'},
+];
 
+
+/**
+ * 차트 데이터
+ * @param {string} char 
+ * @param {number} nextIndex 
+ */
+function getNextAlphabet(char, nextIndex) {
+  let charHexCode = Number(char.charCodeAt());
+  charHexCode += nextIndex;
+  return Buffer.from([charHexCode]).toString();
+}
 
 /**
  * 차트 데이터
@@ -120,7 +146,6 @@ function makeChartDataToExcelWorkSheet(resource) {
 
   // 데이터 그래프
   const resourceList = powerChartData.series;
-
   // BU.CLI(powerChartData.series);
   // 검색 기간
   let rangeStart = searchRange.rangeStart;
@@ -150,101 +175,132 @@ function makeChartDataToExcelWorkSheet(resource) {
 
   const optionList = _.map(resourceList, resource => resource.option);
   let powerTitleList = _.map(powerChartData.series, 'name');
-  let titleScaleList = _.map(optionList, 'scale');
-  BU.CLI(optionList);
-  // 검색 기간의 최대 최소 값의 차를 빼서 계산
-
   ws['B4'] = { t: 's', v: `가중치 미적용 \n${powerName} ${powerChartDecoration.yAxisTitle}` };
-  ws['B5'] = { t: 's', v: '가중치' };
-  ws['B6'] = { t: 's', v: `가중치 적용 \n${powerName} ${powerChartDecoration.yAxisTitle}`};
-  ws['B7'] = { t: 's', v: '비교(%)'};
+  ws['B5'] = { t: 's', v: '비교(%)'};
+  ws['B6'] = { t: 's', v: '가중치' };
+  ws['B7'] = { t: 's', v: `가중치 적용 \n${powerName} ${powerChartDecoration.yAxisTitle}`};
+  ws['B8'] = { t: 's', v: '비교(%)'};
+  ws['B9'] = { t: 's', v: '이용률(%)'};
+  ws['B12'] = { t: 's', v: powerChartDecoration.xAxisTitle };
   
-  let summeryColumnList = ['C', 'E', 'G', 'I', 'K', 'M'];
-
-
-  let startSummeryColumn = 'C';
-  BU.CLI(Buffer.from('C'));
-  let summeryMap = new Map();
-
+  // 시작 지점 입력
+  const fixedSummeryColumn = 'C';
+  let summeryColumn = fixedSummeryColumn;
+  // 인버터 종류별로 반복
   viewInverterPacketList.forEach(currentItem => {
-    summeryMap.set(startSummeryColumn, currentItem);
-
-    // _.head()
-
-    let buf = (Buffer.from(startSummeryColumn) + 2).toString();
-    
-    
+    // 컬럼 HexCode 값을 Str으로 변형
+    currentItem.columnName = summeryColumn;
+    summeryColumn = getNextAlphabet(summeryColumn, 2);
   });
 
-  // let summeryMap = new Map();
-  // summeryColumnList.forEach(columnName => {
-  //   summeryMap.set(columnName, )
-    
-  // });
+  // 인버터 리스트 반복
+  ws[fixedSummeryColumn + 12] = { t: 's', v: '인버터 출력(W)' };
+  ws[getNextAlphabet(fixedSummeryColumn, viewInverterPacketList.length) + '12'] = { t: 's', v: `인버터 ${powerChartDecoration.yAxisTitle}` };
+  viewInverterPacketList.forEach((viewInverterPacket, index) => {
+    let foundOptionIt = _.find(optionList, {sort: viewInverterPacket.chart_sort_rank});
+    let foundForeginOptionIt = _.find(viewInverterPacketList, {compare_inverter_seq: viewInverterPacket.compare_inverter_seq});
+    let subData = _.subtract(_.get(foundOptionIt, 'max'), _.get(foundOptionIt, 'min'));
+    let columnName = viewInverterPacket.columnName;
+    let strDataName = viewInverterPacket.target_name;
+    // 인버터 명
+    ws[columnName + '3'] = { t: 's', v: strDataName };
+    // 가중치 미적용
+    ws[columnName + '4'] = { t: 'n', v: subData };
+    XLSX.utils.cell_set_number_format(ws[columnName + '4'], '#,#.00');
+    // 가중치 미적용 비교
+    ws[columnName + '5'] = { t: 'n', f: `${columnName}4/${foundForeginOptionIt.columnName}4` };
+    XLSX.utils.cell_set_number_format(ws[columnName + '5'], '0.0%');
+    // 가중치
+    ws[columnName + '6'] = { t: 'n', v: _.get(foundOptionIt, 'scale') || '' };
+    // 가중치 적용
+    ws[columnName + '7'] = { t: 'n', f: `${columnName}4*${columnName}6` };
+    XLSX.utils.cell_set_number_format(ws[columnName + '7'], '#,#.00');
+    // 가중치 적용 비교
+    ws[columnName + '8'] = { t: 'n', f: `${columnName}7/${foundForeginOptionIt.columnName}7` };
+    XLSX.utils.cell_set_number_format(ws[columnName + '8'], '0.0%');
 
-
-  // 검색 기간의 개요 구성
-  optionList.forEach((option, index) => {
-    // 검색 기간 발전량 도출
-    let intervalPower = Number(option.max - option.min);
-    intervalPower = isNaN(intervalPower) ? '' : intervalPower;
-    let column = summeryColumnList[index];
-
-    ws[column + '3'] = { t: 's', v: powerTitleList[index] };
-    ws[column + '4'] = { t: 'n', v: intervalPower };
-    ws[column + '5'] = { t: 'n', v: titleScaleList[index] };
-    ws[column + '6'] = { t: 'n', f: `${column}4*${column}5` };
-    XLSX.utils.cell_set_number_format(ws[column + '6'], '0.00');
+    // 24시간 발전 용량 Wh(kw -> w 1000배, Scale 10 나눔 ---> 100(시간당 발전용량))
+    // FIXME 월 단위는 계산식 틀림. 일단 놔둠.
+    let inverterAmount = _.multiply(viewInverterPacket.amount, 100);
+    inverterAmount = webUtil.convertValueBySearchType(inverterAmount, searchRange.searchType);
+    // 24시간 대비 이용률
+    ws[columnName + '9'] = { t: 'n', f: `${columnName}7/(${inverterAmount}*24)` };
+    XLSX.utils.cell_set_number_format(ws[columnName + '9'], '0.0%');
+   
+    // 데이터 상세 리스트 제목도 같이 구성
+    strDataName = _.replace(strDataName, '(', '\n(');
+    ws[getNextAlphabet(fixedSummeryColumn, index) + '13'] = { t: 's', v: strDataName };
+    ws[getNextAlphabet(fixedSummeryColumn, index + viewInverterPacketList.length) + '13'] = { t: 's', v: strDataName };
   });
+  
 
-  summeryColumnList.forEach((column, index) => {
-    let viewInverterPacket = viewInverterPacketList[index];
-    switch (index) {
-    case 0:
-    case 2:
-    case 3:
-      ws[column + '7'] = { t: 'n', f: `${column}6/C6` };
-      break;
-    case 1:
-    case 4:
-    case 5:
-      ws[column + '7'] = { t: 'n', f: `${column}6/E6` };
+  /** 기상 개요 구성 시작 */
+  ws[summeryColumn + 3] = { t: 's', v: '기상계측장치' };
+  ws[summeryColumn + 12] = { t: 's', v: '기상계측장치' };
+  /** 데이터 레포트를 출력하기 위한 테이블 제목 세팅 */
+  // 기상 계측 장치 옵션 만큼 반복
+  weatherChartOptionList.forEach(currentItem => {
+    let strDataName = currentItem.name;
+    // 데이터 상세 리스트 제목도 같이 구성
+    ws[summeryColumn + '13'] = { t: 's', v: strDataName };
+    strDataName = _.replace(strDataName, '(', '\n(');
+    let data = 0;
+    switch (currentItem.selectKey) {
+    case 'avg_solar':
+      strDataName = '총 일사량\n(Wh/m²)';
+      data = _.sumBy(weatherTrend, 'total_interval_solar');
       break;
     default:
+      strDataName = `평균 ${strDataName}`;
+      data = _.meanBy(weatherTrend, currentItem.selectKey);
       break;
     }
-    XLSX.utils.cell_set_number_format(ws[column + '7'], '0.0%');
+    data =_.round(data, 1);
+    ws[summeryColumn + '4'] = { t: 's', v: strDataName };
+    ws[summeryColumn + '5'] = { t: 'n', v: data };
+    XLSX.utils.cell_set_number_format(ws[summeryColumn + '5'], '#,#.0');
+    currentItem.columnName = summeryColumn;
+    summeryColumn = getNextAlphabet(summeryColumn, 1);
   });
-  
-  /** 데이터 레포트를 출력하기 위한 테이블 제목 세팅 */
-  let weatherCastTitleList = ['운량'];
-  // TEMP
-  ws['P3'] = { t: 's', v: _.head(weatherCastTitleList) };
-  ws['P4'] = { t: 'n', v: _.round(_.meanBy(weatherCastRowDataPacketList, 'avg_sky'), 1)  };
-  // BU.CLI(weatherCastRowDataPacketList);
 
-  let weatherDeviceTitleList = _.map(weatherChartOptionList, 'name');
-  let weatherTitleList = _.concat(weatherDeviceTitleList, weatherCastTitleList);
-  ws['B10'] = { t: 's', v: powerChartDecoration.xAxisTitle };
-  // let reportTitleList = powerTitleList.concat(weatherTitleList);
-  let modifiedPowerTitleList = [];
-  powerTitleList.forEach(currentItem => {
-    modifiedPowerTitleList.push(_.replace(currentItem, '(', '\n('));
+  ws[summeryColumn + 3] = { t: 's', v: '기상청' };
+  ws[summeryColumn + 12] = { t: 's', v: '기상청' };
+  weatherCastOptionList.forEach(currentItem => {
+    let strDataName = currentItem.name;
+    ws[summeryColumn + '13'] = { t: 's', v: strDataName };
+    strDataName = _.replace(strDataName, '(', '\n(');
+    let data = 0;
+    switch (currentItem.selectKey) {
+    case '':
+    default:
+      strDataName = `평균 ${strDataName}`;
+      data = _.round(_.meanBy(weatherCastRowDataPacketList, currentItem.selectKey), 1);
+      break;
+    }
+    ws[summeryColumn + '4'] = { t: 's', v: strDataName };
+    ws[summeryColumn + '5'] = { t: 'n', v: data };
+    XLSX.utils.cell_set_number_format(ws[summeryColumn + '5'], '#,#.0');
+    currentItem.columnName = summeryColumn;
+    summeryColumn = getNextAlphabet(summeryColumn, 1);
   });
-  let reportTitleList = _.concat(modifiedPowerTitleList, modifiedPowerTitleList, weatherTitleList);
-  ws['C10'] = { t: 's', v: '인버터 출력(W)' };
-  ws['I10'] = { t: 's', v: `인버터 ${powerChartDecoration.yAxisTitle}` };
-  ws['O10'] = { t: 's', v: '기상계측장치' };
-  ws['T10'] = { t: 's', v: '기상청' };
-  
-  /** 개요 Weather Title */
-  ws['O2'] = { t: 's', v: '기상계측장치' };
-  ws['T2'] = { t: 's', v: '기상청' };
-  
-  // let weatherColumnList = ['O', 'P', 'Q', 'R', 'S'];
-  // weatherColumnList.forEach((currentItem, index) => {
-  //   ws[currentItem + 11] = { t: 's', v: weatherTitleList[index] };
+
+  /** 기상 개요 구성 끝 */
+
+
+  // let weatherDeviceTitleList = _.map(weatherChartOptionList, 'name');
+  // let weatherTitleList = _.concat(weatherDeviceTitleList, weatherCastTitleList);
+  // // let reportTitleList = powerTitleList.concat(weatherTitleList);
+  // let modifiedPowerTitleList = [];
+  // powerTitleList.forEach(currentItem => {
+  //   modifiedPowerTitleList.push(_.replace(currentItem, '(', '\n('));
   // });
+  // let reportTitleList = _.concat(modifiedPowerTitleList, modifiedPowerTitleList, weatherTitleList);
+  // ws['C10'] = { t: 's', v: '인버터 출력(W)' };
+  // ws['I10'] = { t: 's', v: `인버터 ${powerChartDecoration.yAxisTitle}` };
+  // ws['O10'] = { t: 's', v: '기상계측장치' };
+  // ws['T10'] = { t: 's', v: '기상청' };
+  
+
   /** 데이터 레포트를 출력하기 위한 테이블 제목 세팅 */
 
 
@@ -255,6 +311,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   const groupInverterTrend = _.groupBy(inverterTrend, 'target_name');
   // BU.CLI(groupInverterTrend);
   // console.time('111');
+  // FIXME 선택한 인버터의 갯수에 따라서 동적으로 배치하는 논리 적용 필요
   for (let index = 0; index < defaultRange.length; index++) {
     let row = [];
     row.push(defaultRange[index]);
@@ -277,9 +334,15 @@ function makeChartDataToExcelWorkSheet(resource) {
       row.push(_.isEmpty(foundIt) ? '' : foundIt[weatherChartOption.selectKey]);
     });
 
+    // 기상청 데이터 추출
+    weatherCastOptionList.forEach(weatherCastOption => {
+      const foundIt = _.find(weatherCastRowDataPacketList, {view_date: defaultRange[index]});
+      row.push(_.isEmpty(foundIt) ? '' : foundIt[weatherCastOption.selectKey]);
+    });
 
-    let weatherCastData = _.find(weatherCastRowDataPacketList, {view_date: defaultRange[index]});
-    row.push(_.isEmpty(weatherCastData) ? '' : weatherCastData.avg_sky);
+
+    // let weatherCastData = _.find(weatherCastRowDataPacketList, {view_date: defaultRange[index]});
+    // row.push(_.isEmpty(weatherCastData) ? '' : weatherCastData.avg_sky);
     excelDataList.push(row);
   }
   // BU.CLI(excelDataList);
@@ -317,44 +380,63 @@ function makeChartDataToExcelWorkSheet(resource) {
 
   ws['!merges'] = [
     XLSX.utils.decode_range('C2:H2'), 
+
     XLSX.utils.decode_range('C3:D3'),
-    XLSX.utils.decode_range('E3:F3'),
-    XLSX.utils.decode_range('G3:H3'),
-    XLSX.utils.decode_range('I3:J3'),
-    XLSX.utils.decode_range('K3:L3'),
-    XLSX.utils.decode_range('M3:N3'),
     XLSX.utils.decode_range('C4:D4'),
-    XLSX.utils.decode_range('E4:F4'),
-    XLSX.utils.decode_range('G4:H4'),
-    XLSX.utils.decode_range('I4:J4'),
-    XLSX.utils.decode_range('K4:L4'),
-    XLSX.utils.decode_range('M4:N4'),
     XLSX.utils.decode_range('C5:D5'),
-    XLSX.utils.decode_range('E5:F5'),
-    XLSX.utils.decode_range('G5:H5'),
-    XLSX.utils.decode_range('I5:J5'),
-    XLSX.utils.decode_range('K5:L5'),
-    XLSX.utils.decode_range('M5:N5'),
     XLSX.utils.decode_range('C6:D6'),
-    XLSX.utils.decode_range('E6:F6'),
-    XLSX.utils.decode_range('G6:H6'),
-    XLSX.utils.decode_range('I6:J6'),
-    XLSX.utils.decode_range('K6:L6'),
-    XLSX.utils.decode_range('M6:N6'),
     XLSX.utils.decode_range('C7:D7'),
+    XLSX.utils.decode_range('C8:D8'),
+    XLSX.utils.decode_range('C9:D9'),
+
+    XLSX.utils.decode_range('E3:F3'),
+    XLSX.utils.decode_range('E4:F4'),
+    XLSX.utils.decode_range('E5:F5'),
+    XLSX.utils.decode_range('E6:F6'),
     XLSX.utils.decode_range('E7:F7'),
+    XLSX.utils.decode_range('E8:F8'),
+    XLSX.utils.decode_range('E9:F9'),
+
+    XLSX.utils.decode_range('G3:H3'),
+    XLSX.utils.decode_range('G4:H4'),
+    XLSX.utils.decode_range('G5:H5'),
+    XLSX.utils.decode_range('G6:H6'),
     XLSX.utils.decode_range('G7:H7'),
+    XLSX.utils.decode_range('G8:H8'),
+    XLSX.utils.decode_range('G9:H9'),
+
+    XLSX.utils.decode_range('I3:J3'),
+    XLSX.utils.decode_range('I4:J4'),
+    XLSX.utils.decode_range('I5:J5'),
+    XLSX.utils.decode_range('I6:J6'),
     XLSX.utils.decode_range('I7:J7'),
+    XLSX.utils.decode_range('I8:J8'),
+    XLSX.utils.decode_range('I9:J9'),
+
+    XLSX.utils.decode_range('K3:L3'),
+    XLSX.utils.decode_range('K4:L4'),
+    XLSX.utils.decode_range('K5:L5'),
+    XLSX.utils.decode_range('K6:L6'),
     XLSX.utils.decode_range('K7:L7'),
+    XLSX.utils.decode_range('K8:L8'),
+    XLSX.utils.decode_range('K9:L9'),
+
+    XLSX.utils.decode_range('M3:N3'),
+    XLSX.utils.decode_range('M4:N4'),
+    XLSX.utils.decode_range('M5:N5'),
+    XLSX.utils.decode_range('M6:N6'),
     XLSX.utils.decode_range('M7:N7'),
-    XLSX.utils.decode_range('B10:B11'),
-    XLSX.utils.decode_range('C10:H10'),
-    XLSX.utils.decode_range('I10:N10'),
-    // XLSX.utils.decode_range('G10:H10'),
-    // XLSX.utils.decode_range('I10:J10'),
-    // XLSX.utils.decode_range('K10:L10'),
-    // XLSX.utils.decode_range('M10:N10'),
-    XLSX.utils.decode_range('O10:S10'),
+    XLSX.utils.decode_range('M8:N8'),
+    XLSX.utils.decode_range('M9:N9'),
+
+    XLSX.utils.decode_range('O3:S3'),
+
+    XLSX.utils.decode_range('B12:B13'),
+
+    XLSX.utils.decode_range('C12:H12'),
+    XLSX.utils.decode_range('I12:N12'),
+    XLSX.utils.decode_range('O12:R12'),
+
   ];
   
   let colsInfoList = [
@@ -379,14 +461,14 @@ function makeChartDataToExcelWorkSheet(resource) {
   ws['!cols'] = colsInfoList;
 
   // /* TEST: row props */
-  let rowsInfoList = [{ hpt: 10 }, { hpt: 24 }, { hpt: 22}, { hpt: 35 }, { hpt: 20 }, { hpt: 35 }, { hpt: 20 }, { hpt: 15 }, { hpt: 15 }, { hpt: 24 }, { hpt: 35 }];
+  let rowsInfoList = [{ hpt: 10 }, { hpt: 24 }, { hpt: 22}, { hpt: 35 }, { hpt: 20 }, { hpt: 20 }, { hpt: 35 }, { hpt: 20 }, { hpt: 20 }, { hpt: 15 }, { hpt: 15 }, { hpt: 24 }, { hpt: 35 }];
   ws['!rows'] = rowsInfoList;
 
   XLSX.utils.sheet_add_aoa(ws, powerHeader, { origin: 'B2' });
-  XLSX.utils.sheet_add_aoa(ws, [reportTitleList], { origin: 'C11' });
+  // XLSX.utils.sheet_add_aoa(ws, [reportTitleList], { origin: 'C11' });
   // XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
   // BU.CLI(ws);
-  XLSX.utils.sheet_add_aoa(ws, excelDataList, { origin: 'B12' });
+  XLSX.utils.sheet_add_aoa(ws, excelDataList, { origin: 'B14' });
   XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
 
   wb.Sheets[sheetName] = ws;

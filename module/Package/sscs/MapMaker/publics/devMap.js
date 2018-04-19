@@ -1,6 +1,6 @@
 
 
-module.exports = {
+var placeMap = {
   drawInfo: {
     frame: {
       mapSize: {

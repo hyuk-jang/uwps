@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>SVG.js</title>
+  <script src="../publics/js/svg.js"></script>
+  <script src="../publics/js/lodash.min.js"></script>
+  <script src="../publics/devMap.js"></script>
+</head>
+
+<body>
+  <div id="drawing">%%hi</div>
+</body>
+
+<script>
+  
+  document.addEventListener('click', function (event) {
+    var x = event.clientX;     // Get the horizontal coordinate
+    var y = event.clientY;     // Get the vertical coordinate
+    var coor = "X coords: " + x + ", Y coords: " + y;
+    console.log(coor);
+  })
+</script>
+
+<script defer src="./svgUtil.js">
+  // if (SVG.supported) {
+  //   var draw = SVG('drawing').size(300, 300)
+  //   var rect = draw.rect(100, 100).move(100, 50).fill('#f06')
+  // } else {
+  //   alert('SVG not supported')
+  // }
+
+</script>
+
+</html>

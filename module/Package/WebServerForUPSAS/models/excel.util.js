@@ -181,7 +181,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   ws['B7'] = { t: 's', v: `가중치 적용 \n${powerName} ${powerChartDecoration.yAxisTitle}`};
   ws['B8'] = { t: 's', v: '비교(%)'};
   ws['B9'] = { t: 's', v: '이용률(%)'};
-  ws['B12'] = { t: 's', v: powerChartDecoration.xAxisTitle };
+  ws['B13'] = { t: 's', v: powerChartDecoration.xAxisTitle };
   
   // 시작 지점 입력
   const fixedSummeryColumn = 'C';
@@ -206,7 +206,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     ws[columnName + '3'] = { t: 's', v: strDataName };
     // 가중치 미적용
     ws[columnName + '4'] = { t: 'n', v: subData };
-    XLSX.utils.cell_set_number_format(ws[columnName + '4'], '#,#.00');
+    XLSX.utils.cell_set_number_format(ws[columnName + '4'], '#,#0.0##');
     // 가중치 미적용 비교
     ws[columnName + '5'] = { t: 'n', f: `${columnName}4/${foundForeginOptionIt.columnName}4` };
     XLSX.utils.cell_set_number_format(ws[columnName + '5'], '0.0%');
@@ -214,7 +214,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     ws[columnName + '6'] = { t: 'n', v: _.get(foundOptionIt, 'scale') || '' };
     // 가중치 적용
     ws[columnName + '7'] = { t: 'n', f: `${columnName}4*${columnName}6` };
-    XLSX.utils.cell_set_number_format(ws[columnName + '7'], '#,#.00');
+    XLSX.utils.cell_set_number_format(ws[columnName + '7'], '#,#0.0##');
     // 가중치 적용 비교
     ws[columnName + '8'] = { t: 'n', f: `${columnName}7/${foundForeginOptionIt.columnName}7` };
     XLSX.utils.cell_set_number_format(ws[columnName + '8'], '0.0%');
@@ -235,6 +235,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   
 
   /** 기상 개요 구성 시작 */
+  summeryColumn = getNextAlphabet(summeryColumn, 1);
   ws[summeryColumn + 3] = { t: 's', v: '기상계측장치' };
   ws[summeryColumn + 12] = { t: 's', v: '기상계측장치' };
   /** 데이터 레포트를 출력하기 위한 테이블 제목 세팅 */
@@ -247,7 +248,8 @@ function makeChartDataToExcelWorkSheet(resource) {
     let data = 0;
     switch (currentItem.selectKey) {
     case 'avg_solar':
-      strDataName = '총 일사량\n(Wh/m²)';
+      var tempStr = ['min', 'min10', 'hour'].includes(searchRange.searchType) ? 'Wh/m²' : 'kWh/m²';
+      strDataName = `총 일사량\n(${tempStr})`;
       data = _.sumBy(weatherTrend, 'total_interval_solar');
       break;
     default:
@@ -258,7 +260,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     data =_.round(data, 1);
     ws[summeryColumn + '4'] = { t: 's', v: strDataName };
     ws[summeryColumn + '5'] = { t: 'n', v: data };
-    XLSX.utils.cell_set_number_format(ws[summeryColumn + '5'], '#,#.0');
+    XLSX.utils.cell_set_number_format(ws[summeryColumn + '5'], '#,#0.0##');
     currentItem.columnName = summeryColumn;
     summeryColumn = getNextAlphabet(summeryColumn, 1);
   });
@@ -279,30 +281,12 @@ function makeChartDataToExcelWorkSheet(resource) {
     }
     ws[summeryColumn + '4'] = { t: 's', v: strDataName };
     ws[summeryColumn + '5'] = { t: 'n', v: data };
-    XLSX.utils.cell_set_number_format(ws[summeryColumn + '5'], '#,#.0');
+    XLSX.utils.cell_set_number_format(ws[summeryColumn + '5'], '#,#0.0##');
     currentItem.columnName = summeryColumn;
     summeryColumn = getNextAlphabet(summeryColumn, 1);
   });
 
   /** 기상 개요 구성 끝 */
-
-
-  // let weatherDeviceTitleList = _.map(weatherChartOptionList, 'name');
-  // let weatherTitleList = _.concat(weatherDeviceTitleList, weatherCastTitleList);
-  // // let reportTitleList = powerTitleList.concat(weatherTitleList);
-  // let modifiedPowerTitleList = [];
-  // powerTitleList.forEach(currentItem => {
-  //   modifiedPowerTitleList.push(_.replace(currentItem, '(', '\n('));
-  // });
-  // let reportTitleList = _.concat(modifiedPowerTitleList, modifiedPowerTitleList, weatherTitleList);
-  // ws['C10'] = { t: 's', v: '인버터 출력(W)' };
-  // ws['I10'] = { t: 's', v: `인버터 ${powerChartDecoration.yAxisTitle}` };
-  // ws['O10'] = { t: 's', v: '기상계측장치' };
-  // ws['T10'] = { t: 's', v: '기상청' };
-  
-
-  /** 데이터 레포트를 출력하기 위한 테이블 제목 세팅 */
-
 
   const excelDataList = [];
   // 차트에 표현된 날짜 기간
@@ -327,7 +311,8 @@ function makeChartDataToExcelWorkSheet(resource) {
 
     row = _.concat(row, wList, powerList);
     // row = row.concat(wList, powerList);
-
+    // 한칸 띄우기
+    row.push('');
     // 기상 관측 장비 데이터 추출
     weatherChartOptionList.forEach(weatherChartOption => {
       const foundIt = _.find(weatherTrend, {view_date: defaultRange[index]});
@@ -350,12 +335,8 @@ function makeChartDataToExcelWorkSheet(resource) {
   // 각 행들의 합을 계산
   sumIntervalPowerList = ['', `합산 ${powerName} ${powerChartDecoration.yAxisTitle}`, '', '', '', '', '', ''];
   powerChartData.series.forEach(chartData => {
-    let sum = chartData.data.reduce((prev, curr) => {
-      return Number(prev) + Number(curr);
-    });
-    sumIntervalPowerList.push(sum);
+    sumIntervalPowerList.push(_.sum(_.without(chartData.data, '') ));
   });
-
   let powerHeader = [searchList];
 
   // XLSX.utils.cell_add_comment(ws['B10'], '출력(W)은 발전량을 토대로 계산한 값으로 실제 인버터에서 계측한 출력(W)은 아닙니다.');
@@ -429,13 +410,13 @@ function makeChartDataToExcelWorkSheet(resource) {
     XLSX.utils.decode_range('M8:N8'),
     XLSX.utils.decode_range('M9:N9'),
 
-    XLSX.utils.decode_range('O3:S3'),
+    XLSX.utils.decode_range('P3:T3'),
 
-    XLSX.utils.decode_range('B12:B13'),
+    // XLSX.utils.decode_range('B12:B13'),
 
     XLSX.utils.decode_range('C12:H12'),
     XLSX.utils.decode_range('I12:N12'),
-    XLSX.utils.decode_range('O12:R12'),
+    XLSX.utils.decode_range('P12:S12'),
 
   ];
   
@@ -454,6 +435,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     { wch: 10 }, 
     { wch: 10 }, 
     { wch: 10 }, 
+    { wch: 3 }, 
     { wch: 13 }, 
   ];
 
@@ -473,14 +455,43 @@ function makeChartDataToExcelWorkSheet(resource) {
 
   wb.Sheets[sheetName] = ws;
 
-  return wb;
+  return {sheetName, ws};
+  // return wb;
 }
 exports.makeChartDataToExcelWorkSheet = makeChartDataToExcelWorkSheet;
 
 
-function makeExcelWorkBook(workSheetList) {
+/**
+ * 
+ * @param {Array.<{sheetName: string, ws: Object}>} excelContentsList 
+ */
+function makeExcelWorkBook(sheetName, excelContentsList) {
+  var wb = XLSX.utils.book_new();
+  // wb.SheetNames = [_.map(excelContentsList, 'sheetName')];
+  // BU.CLI(wb.SheetNames);
+  /* TEST: properties */
+  wb.Props = {
+    Title: sheetName,
+    Subject: '6kW TB',
+    Author: 'SmSoft',
+    Manager: 'Kepco',
+    Company: 'SmSoft',
+    Category: 'UPMS',
+    Keywords: 'Power',
+    Comments: 'Nothing to say here',
+    LastAuthor: 'j.hyuk',
+    CreatedDate: new Date()
+  };
+
+  excelContentsList.forEach((currentItem, index) => {
+    XLSX.utils.book_append_sheet(wb, currentItem.ws, currentItem.sheetName);
+  });
+  // BU.CLI(wb);
+
+  return wb;
 
 }
+exports.makeExcelWorkBook = makeExcelWorkBook;
 
 
 // 누적 발전량 (쓰이지 않음)

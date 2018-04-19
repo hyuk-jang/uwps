@@ -142,7 +142,10 @@ module.exports = function (app) {
       searchRange
     };
 
-    let excelContents = excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
+    let workSheetInfo = excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
+    let excelContents = excelUtil.makeExcelWorkBook(workSheetInfo.sheetName, [workSheetInfo]);
+    // let excelContents = excelUtil.makeExcelWorkBook(workSheetInfo.sheetName, [workSheetInfo]);
+    
     // BU.CLI(chartDecoration);
     // BU.CLI(chartOption);
     req.locals.searchOption = searchOption;
@@ -163,15 +166,8 @@ module.exports = function (app) {
 
 
   router.get('/excel/:interval', wrap(async (req, res) => {
-    BU.CLI('@@@@@@');
+    const Promise = require('bluebird');
     const interval = req.params.interval ? req.params.interval : 'min10';
-    // 장비 종류 여부 (전체, 인버터, 접속반)
-    let deviceType = req.query.device_type === 'inverter' || req.query.device_type === 'connector' ? req.query.device_type : req.query.device_type === undefined ? 'inverter' : 'all';
-    // 장비 선택 타입 (전체, 인버터, 접속반)
-    let deviceListType = req.query.device_list_type === 'inverter' || req.query.device_list_type === 'connector' ? req.query.device_list_type : 'all';
-    // 장비 선택 seq (all, number)
-    let deviceSeq = !isNaN(req.query.device_seq) && req.query.device_seq !== '' ? Number(req.query.device_seq) : 'all';
-    // BU.CLIS(deviceType, deviceListType, deviceSeq);
     // Search 타입을 지정
     let searchType = req.query.search_type ? req.query.search_type : defaultRangeFormat;
     // 지정된 SearchType으로 설정 구간 정의
@@ -185,13 +181,53 @@ module.exports = function (app) {
       }
     }
 
-    
-    
-    searchRange.searchInterval = interval;
-    BU.CLI(searchRange);
+    let startDate = new Date(searchRange.strStartDateInputValue);
+    let endDate = new Date(searchRange.strEndDateInputValue);
+    let searchRangeList = [searchRange];
+    while (startDate < endDate) {
+      let newSearchRange = biModule.getSearchRange(interval, startDate, endDate);
+      searchRangeList.push(newSearchRange);
+      startDate = startDate.addDays(1);
+    }
+    // BU.CLI(searchRangeList);
+    let workSheetInfoList = await Promise.all(searchRangeList.map(sr => {
+      return getExcelWorkSheet(sr);
+    }));
 
-    return res.json(searchRange);
+    let fileName = _.head(workSheetInfoList).sheetName;
+    let excelContents = excelUtil.makeExcelWorkBook(fileName, workSheetInfoList);
+    return res.render('./trend/downloadExcel.html', {workBook:excelContents, fileName});
   }));
+
+  /**
+   * 
+   * @param {searchRange} searchRange 
+   */
+  async function getExcelWorkSheet(searchRange){
+    let searchOption = {
+      device_list_type: 'inverter',
+      device_seq: 'all',
+    };
+    let betweenDatePoint = BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchInterval);
+    let {inverterPowerChartData, inverterTrend, viewInverterPacketList} = await getInverterChart(searchOption, searchRange, betweenDatePoint);
+    let {weatherTrend, weatherChartOptionList} = await getWeatherChart(searchRange, betweenDatePoint);
+    // BU.CLI(weatherTrend);
+    let weatherCastRowDataPacketList =  await biModule.getWeatherCastAverage(searchRange);
+    let chartDecoration = webUtil.makeChartDecoration(searchRange);
+    let powerChartData = inverterPowerChartData;
+    
+    let createExcelOption = {
+      viewInverterPacketList,
+      inverterTrend,
+      powerChartData, 
+      powerChartDecoration: chartDecoration, 
+      weatherCastRowDataPacketList,
+      weatherTrend, 
+      weatherChartOptionList,
+      searchRange
+    };
+    return excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
+  }
 
   /**
    * 인버터 차트 반환
@@ -358,12 +394,6 @@ module.exports = function (app) {
 
     let weatherTrend = await biModule.getWeatherTrend(searchRange);
     webUtil.calcScaleRowDataPacket(weatherTrend, searchRange, ['total_interval_solar']);
-
-    // BU.CLI(weatherTrend);
-    // BU.CLI(_.sumBy(weatherTrend, 'total_interval_solar'));
-    // BU.CLI(weatherTrend);
-
-  
 
     let weatherChartOptionList= [
       { name: '일사량(W/m²)',color: 'black', yAxis:1,  selectKey: 'avg_solar', dateKey: 'group_date'},

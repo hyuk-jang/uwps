@@ -1,0 +1,29 @@
+<html lang="en">
+<head>
+    <%- include("../master/excel.html") %>
+</head>
+<body>
+    <div class="title_trend_exc"><input class="title_trend_exc_in" type="submit" value="Download Excel" onclick="doit('xlsx');"></div>
+  
+    
+</body>
+<script>
+    var workBook = <%- JSON.stringify(workBook)  %>;
+    var fileName = <%- JSON.stringify(fileName)  %>;
+    function doit(type, fn, dl) {
+      // var fileName = "";
+      // if(searchRange.rangeEnd){
+      //   fileName = searchRange.rangeStart + "~" + searchRange.rangeEnd;
+      // } else {
+      //   fileName = searchRange.rangeStart
+      // }
+      // var elt = document.getElementById('data-table');
+      // var wb = XLSX.utils.table_to_book(elt, { sheet: "Sheet JS" });
+      // return dl ?
+        // XLSX.write(workBook, { bookType: type, bookSST: true, type: 'base64' }) :
+        XLSX.writeFile(workBook, fileName + ".xlsx");
+    }
+
+  </script>
+
+</html>

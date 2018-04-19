@@ -204,8 +204,9 @@ class BiModule extends bmjh.BM {
    */
   getSearchRange(searchType, start_date, end_date) {
     // BU.CLIS(searchType, start_date, end_date);
-    let startDate = start_date ? BU.convertTextToDate(start_date) : new Date();
-    let endDate = searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : new Date(startDate);
+    let startDate = start_date instanceof Date ? start_date : _.isString(start_date) ? BU.convertTextToDate(start_date) : new Date();
+    let endDate = end_date instanceof Date ? end_date : searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : startDate;
+    // let endDate = searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : new Date(startDate);
     let convertEndDate = null;
     // BU.CLI(BU.convertDateToText(startDate), endDate);
     let returnValue = {

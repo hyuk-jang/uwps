@@ -8,6 +8,12 @@ module.exports = Control;
 if (require !== undefined && require.main === module) {
   console.log('__main__');
 
+  const config = require('./src/config');
+
+  const controller =  new Control(config);
+
+
+  
 
 
 

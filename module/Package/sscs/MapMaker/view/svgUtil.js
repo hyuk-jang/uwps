@@ -25,15 +25,35 @@ function getSvgGenInfo(svgModelId){
   return _.find(mapFrame.svgModelResourceList, {id:svgModelId});
 }
 
-if (SVG.supported) {
-  var draw = SVG('drawing').size(300, 300);
-  var rect = draw.rect(100, 100).move(100, 50).fill('#f06');
-} else {
-  alert('SVG not supported');
-}
+var makeDrawingFrame = function(domId){
+  var draw = SVG(domId).size(mapFrame.mapSize.width, mapFrame.mapSize.height);
+  var rect = draw.rect(130, 100).move(200, 50).fill('red');
+};
 
-var test =  getSvgGenInfo('salternLine_001');
+var drawingSvg = function(){
 
-BU.CLI(test);
+};
+
+
+var test111 = function(){
+  console.log('TT');
+};
+
+
+
+
+
+
+
+// if (SVG.supported) {
+//   var draw = SVG('drawing').size(300, 300);
+//   var rect = draw.rect(100, 100).move(100, 50).fill('#f06');
+// } else {
+//   alert('SVG not supported');
+// }
+
+// var test =  getSvgGenInfo('salternLine_001');
+
+// BU.CLI(test);
 
 

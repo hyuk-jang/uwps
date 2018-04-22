@@ -17,6 +17,14 @@ module.exports = {
           color: '#33ffff'
         }
       },{
+        id: 'salternBlock_002',
+        type: 'rect',
+        drawingInfo: {
+          width: 100,
+          height: 150,
+          color: '#33ffff'
+        }
+      },{
         id: 'salternLine_001',
         type: 'line',
         drawingInfo: {

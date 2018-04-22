@@ -1,8 +1,8 @@
 'use strict';
 
-const _ = require('underscore');
+const _ = require('lodash');
 
-const {BU, EU} = require('base-util-jh');
+const {BU} = require('base-util-jh');
 const Control = require('./Control');
 
 const refinedDeviceDataConfig = require('../config/refinedDeviceDataConfig');
@@ -47,16 +47,17 @@ class Model extends AbstDeviceClientModel {
     let smInfraredData = this.controller.smInfrared.getDeviceOperationInfo();
     let vantagepro2Data = this.controller.vantagepro2.getDeviceOperationInfo();
 
-    this.systemErrorList = EU.unionArrayObject(['code'], smInfraredData.systemErrorList, vantagepro2Data.systemErrorList);
-
-    this.troubleList = EU.unionArrayObject('code', smInfraredData.troubleList, vantagepro2Data.troubleList);
+    this.systemErrorList = _.unionBy(smInfraredData.systemErrorList, vantagepro2Data.systemErrorList, 'code');
+    this.troubleList = _.unionBy(smInfraredData.troubleList, vantagepro2Data.troubleList, 'code');
 
     // SM 적외선 데이터와 VantagePro2 객체 데이터를 합침
     this.deviceData = Object.assign(smInfraredData.data, vantagepro2Data.data);
 
+    // BU.CLI(vantagepro2Data.data);
     /* 데이터에 null이 포함되어있다면 아직 준비가 안된것으로 판단 */
-    if (_.contains(vantagepro2Data.data, null)) {
-      BU.logFile('장치의 데이터 수집이 준비가 안되었습니다.');
+    if (_.includes(vantagepro2Data.data, null)) {
+      BU.log('장치의 데이터 수집이 준비가 안되었습니다.');
+      // BU.logFile('장치의 데이터 수집이 준비가 안되었습니다.');
       return false;
     }
 
@@ -68,7 +69,7 @@ class Model extends AbstDeviceClientModel {
     const convertDataList = await this.refineTheDataToSaveDB(this.deviceCategory, measureDate);
     // BU.CLI(convertDataList);
 
-    const resultSaveToDB = await this.saveDataToDB(this.deviceCategory);
+    // const resultSaveToDB = await this.saveDataToDB(this.deviceCategory);
     // BU.CLI(resultSaveToDB);
   }
 }

@@ -1,9 +1,10 @@
 'use strict';
-const _ = require('underscore');
+const _ = require('lodash');
 
 const BU = require('base-util-jh').baseUtil;
 
-const AbstDeviceClient = require('device-client-controller-jh');
+// const AbstDeviceClient = require('device-client-controller-jh');
+const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
 
 const Model = require('./Model');
 
@@ -15,8 +16,7 @@ class Control extends AbstDeviceClient {
     super();
     this.config = config.current;
 
-    // this.setDeviceClient(this.config.deviceInfo);
-
+    BU.CLI(this.config);
     this.model = new Model(this);
   }
 
@@ -25,6 +25,7 @@ class Control extends AbstDeviceClient {
    */
   init(){
     if(!this.config.hasDev){
+      BU.CLI('니가 왜 들어오냐고 개생캬');
       this.setDeviceClient(this.config.deviceInfo);
     } else {
       require('./dummy')(this);
@@ -40,7 +41,7 @@ class Control extends AbstDeviceClient {
       id: this.config.deviceInfo.target_id,
       config: this.config.deviceInfo,
       data: this.model.deviceData,
-      // systemErrorList: [{code: 'new Code2222', msg: '에러 테스트 메시지22', occur_date: new Date() }],
+      // systemErrorList: [{code: 'new Code22223', msg: '에러 테스트 메시지22', occur_date: new Date() }],
       systemErrorList: this.systemErrorList,
       troubleList: []
     };
@@ -52,7 +53,8 @@ class Control extends AbstDeviceClient {
    * @param {*=} eventMsg 
    */
   updateDcEvent(eventName, eventMsg) {
-    BU.log('updateDcEvent\t', eventName, eventMsg);
+    BU.log('updateDcEvent\t', eventName);
+    eventMsg ? BU.log('eventMsg', eventMsg) : '';
     switch (eventName) {
     case 'dcConnect':
       this.executeCommand();

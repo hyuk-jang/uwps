@@ -43,8 +43,8 @@ class Control {
       }
       // 10분마다 요청
       this.scheduler = new cron.CronJob({
-        cronTime: `0 */${scheduleIntervalMin} * * * *`,
-        // cronTime: `*/${scheduleIntervalSec} * * * * *`,
+        // cronTime: `0 */${scheduleIntervalMin} * * * *`,
+        cronTime: '*/10 * * * * *',
         onTick: () => {
           return this.model.getWeatherDeviceData(new Date());
         },

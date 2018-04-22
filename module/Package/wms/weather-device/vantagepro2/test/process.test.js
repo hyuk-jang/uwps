@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const _ = require('underscore');
+const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
 const config = require('../src/config.js');
 const Control = require('../src/Control');

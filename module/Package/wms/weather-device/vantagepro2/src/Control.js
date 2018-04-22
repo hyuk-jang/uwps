@@ -1,15 +1,16 @@
 'use strict';
-const _ = require('underscore');
+const _ = require('lodash');
 
 const BU = require('base-util-jh').baseUtil;
 
-const AbstDeviceClient = require('device-client-controller-jh');
+// const AbstDeviceClient = require('device-client-controller-jh');
+const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
 
 const Model = require('./Model');
 
 let config = require('./config');
 
-const {AbstConverter, weathercastProtocolFormat} = require('device-protocol-converter-jh');
+const {AbstConverter} = require('device-protocol-converter-jh');
 
 class Control extends AbstDeviceClient {
   /** @param {config} config */
@@ -21,7 +22,7 @@ class Control extends AbstDeviceClient {
     this.model = new Model(this);
 
     this.converter = new AbstConverter(this.config.deviceInfo);
-
+    /** 주기적으로 LOOP 명령을 내릴 시간 인터벌 */
     this.executeCommandInterval = null;
   }
 
@@ -65,7 +66,8 @@ class Control extends AbstDeviceClient {
    * @param {*=} eventMsg 
    */
   updateDcEvent(eventName, eventMsg) {
-    BU.log('updateDcEvent\t', eventName, eventMsg);
+    BU.log('updateDcEvent\t', eventName);
+    eventMsg ? BU.log('eventMsg', eventMsg) : '';
     switch (eventName) {
     case 'dcConnect':
       this.executeCommandInterval ? clearInterval(this.executeCommandInterval) : null;
@@ -89,7 +91,7 @@ class Control extends AbstDeviceClient {
    * @param {Buffer} data 명령 수행 결과 데이터
    */
   updateDcData(processItem, data){
-    // BU.CLIN('data');
+    // BU.CLI('data', data);
     BU.appendFile(`./log/vantage/data/${BU.convertDateToText(new Date(), '', 2)}.txt`, `${this.config.deviceInfo.target_id} : ${data.toString('hex')}`);
     const resultParsing = this.converter.parsingUpdateData(processItem.cmdList[processItem.currCmdIndex], data);
     // BU.CLI(resultParsing);

@@ -1,4 +1,4 @@
-const _ = require('underscore');
+const _ = require('lodash');
 const Control = require('./Control');
 const BU = require('base-util-jh').baseUtil;
 

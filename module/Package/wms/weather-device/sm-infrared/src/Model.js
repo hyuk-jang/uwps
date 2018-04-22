@@ -1,8 +1,7 @@
 'use strict';
-const _ = require('underscore');
+const _ = require('lodash');
 
-const BU = require('base-util-jh').baseUtil;
-const NU = require('base-util-jh').newUtil;
+const {BU, CU} = require('base-util-jh');
 
 const Control = require('./Control');
 
@@ -12,34 +11,21 @@ class Model {
    * @param {Control} controller 
    */
   constructor(controller) {
-    this.averageCalculator = new NU.CalculateAverage(controller.config.calculateOption);
-
-    this.rainAlarmBoundaryList = controller.config.rainAlarmBoundaryList;
-
     this.deviceData = {
       smInfrared: null
     };
 
-    /** @property {Object} rainStatus */
-    this.rainStatus = this.rainAlarmBoundaryList[0];
-    this.lastestRainLevel = 0;
-    // this.rainAlarmBoundaryList.reverse();
+    let averConfig = {
+      maxStorageNumber: 10, // 최대 저장 데이터 수
+      keyList: Object.keys(this.deviceData),
+    };
+
+    this.averageStorage = new CU.AverageStorage(averConfig);
   }
-
-  getDeviceData() {
-    return this.averageCalculator.getData();
-  }
-
-  get averageRain() {
-    return this.averageCalculator.getAverageData('smInfrared');
-  }
-
-
 
   /**
    * 
    * @param {Buffer} data 
-   * @return {{sendStatus: string, currRainLevel: number, currPredictAmount: number, msg: string, averageRain: number}}
    */
   onData(data){
     const dataLength = data.length;
@@ -53,38 +39,9 @@ class Model {
     const endCharLength = 6; 
 
     let rainBufferData =  data.slice(dataLength - endCharLength - rainDataLength, dataLength - endCharLength );
-
     let rainData = parseInt(rainBufferData, 16);
-
-    // BU.CLI(rainData);
-    
-
-    let dataObj = {
-      smInfrared: rainData
-    };
-
-    let resultAverageData = this.averageCalculator.onData(dataObj);
-
-    _.each(resultAverageData.averageStorage, (value, key) => {
-      // 정의한 Key 안에서 들어온 데이터일 경우
-      if (value !== null && _.has(this.deviceData, key)) {
-        this.deviceData[key] = value.average;
-      }
-    });
-
-
-
-    
-    // BU.CLI(resCalcObj.hasOccurEvent, this.averageRain);
-    if(resultAverageData.hasOccurEvent){
-      return this.checkRain();
-    } else {
-      return {};
-    }
-  }
-
-  applyDeviceDataFromAverage(){
-
+    this.averageStorage.addData('smInfrared', rainData);
+    this.deviceData.smInfrared = this.averageStorage.getAverage('smInfrared');
   }
 
   /**

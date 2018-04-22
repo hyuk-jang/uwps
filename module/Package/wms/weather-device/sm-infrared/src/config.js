@@ -13,14 +13,18 @@ module.exports = {
       parser: {
         type: 'byteLengthParser',
         option: 55
-      }
-    },
-    calculateOption: {
-      averageCount: 3, // 평균 합산 변수
-      maxCycleCount: 10,
-      criticalInfo: {
-        smInfrared: 10 // 적외선 감지 센서
-      }
+      },
+      connect_info: {
+        hasOneAndOne: true,
+        type: 'socket',
+        subType: 'parser',
+        baudRate: 9600,
+        port: 9000,
+        addConfigInfo: {
+          parser: 'byteLengthParser',
+          option: 55
+        }
+      },
     },
     rainAlarmBoundaryList: [{
       rainLevel: 0,

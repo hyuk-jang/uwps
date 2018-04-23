@@ -16,7 +16,7 @@ class Control extends AbstDeviceClient {
     super();
     this.config = config.current;
 
-    BU.CLI(this.config);
+    // BU.CLI(this.config);
     this.model = new Model(this);
   }
 
@@ -25,7 +25,6 @@ class Control extends AbstDeviceClient {
    */
   init(){
     if(!this.config.hasDev){
-      BU.CLI('니가 왜 들어오냐고 개생캬');
       this.setDeviceClient(this.config.deviceInfo);
     } else {
       require('./dummy')(this);
@@ -54,7 +53,7 @@ class Control extends AbstDeviceClient {
    */
   updateDcEvent(eventName, eventMsg) {
     BU.log('updateDcEvent\t', eventName);
-    eventMsg ? BU.log('eventMsg', eventMsg) : '';
+    // eventMsg ? BU.log('eventMsg', eventMsg) : '';
     switch (eventName) {
     case 'dcConnect':
       this.executeCommand();
@@ -82,7 +81,7 @@ class Control extends AbstDeviceClient {
       this.emit('updateSmRainSensor', resultData);
     }
 
-    // BU.CLI(this.getDeviceOperationInfo());
+    // BU.CLIN(this.getDeviceOperationInfo());
   }
 }
 module.exports = Control;

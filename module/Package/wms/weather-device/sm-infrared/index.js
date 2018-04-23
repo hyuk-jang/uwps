@@ -8,12 +8,16 @@ module.exports = Control;
 if (require !== undefined && require.main === module) {
   console.log('__main__');
 
+  const {BU} = require('base-util-jh');
 
   const config = require('./src/config');
 
 
   const control = new Control(config);
 
+
+  // let defaultCommandInfo = control.getDefaultCommandConfig();
+  // BU.CLI(defaultCommandInfo);
 
   control.on('updateSmRainSensor', data => {
     BU.CLI(data);

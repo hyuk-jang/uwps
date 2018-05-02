@@ -89,12 +89,12 @@ class Control extends AbstDeviceClient {
    * @param {dcData} dcData 현재 장비에서 실행되고 있는 명령 객체
    */
   onDcData(dcData){
-    BU.CLI('data', dcData);
+    BU.CLI('data', dcData.data);
     const resultParsing = this.converter.parsingUpdateData(dcData);
     // BU.CLI(resultParsing);
     
     resultParsing.eventCode === this.definedCommanderResponse.DONE && this.model.onData(resultParsing.data);
-    BU.CLIN(this.getDeviceOperationInfo());
+    // BU.CLIN(this.getDeviceOperationInfo());
   }
 }
 module.exports = Control;

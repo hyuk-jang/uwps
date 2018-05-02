@@ -29,6 +29,14 @@ module.exports = {
         target_name: 'SmRainSensor',
         target_category: 'weather',
         hasOneAndOne: true,
+        logOption: {
+          hasCommanderResponse: false,
+          hasDcError: false,
+          hasDcEvent: false,
+          hasReceiveData: false,
+          hasDcMessage: false,
+          hasTransferCommand: false
+        },
         connect_info: {
           type: 'serial',
           subType: 'parser',
@@ -51,6 +59,14 @@ module.exports = {
         target_name: 'Davis Vantage Pro2',
         target_category: 'weathercast',
         target_protocol: 'vantagepro2',
+        logOption: {
+          hasCommanderResponse: true,
+          hasDcError: true,
+          hasDcEvent: true,
+          hasReceiveData: true,
+          hasDcMessage: true,
+          hasTransferCommand: true
+        },
         connect_info: {
           type: 'serial',
           baudRate: 19200,

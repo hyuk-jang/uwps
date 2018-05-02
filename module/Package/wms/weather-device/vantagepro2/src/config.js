@@ -8,6 +8,14 @@ module.exports = {
       target_name: 'Davis Vantage Pro2',
       target_category: 'weathercast',
       target_protocol: 'vantagepro2',
+      logOption: {
+        hasCommanderResponse: true,
+        hasDcError: true,
+        hasDcEvent: true,
+        hasReceiveData: true,
+        hasDcMessage: true,
+        hasTransferCommand: true
+      },
       // connect_info: {
       //   type: 'serial',
       //   baudRate: 19200,

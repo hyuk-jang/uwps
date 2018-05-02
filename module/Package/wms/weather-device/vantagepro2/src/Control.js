@@ -1,7 +1,7 @@
 'use strict';
 const _ = require('lodash');
 
-const BU = require('base-util-jh').baseUtil;
+const {BU} = require('base-util-jh');
 
 const AbstDeviceClient = require('device-client-controller-jh');
 // const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
@@ -64,7 +64,7 @@ class Control extends AbstDeviceClient {
 
   /**
    * Device Controller 변화가 생겨 관련된 전체 Commander에게 뿌리는 Event
-   * @param {dcEvent} dcEvent 'dcConnect', 'dcClose', 'dcError'
+   * @param {dcEvent} dcEvent 
    */
   updatedDcEventOnDevice(dcEvent) {
     BU.log('updateDcEvent\t', dcEvent.eventName);

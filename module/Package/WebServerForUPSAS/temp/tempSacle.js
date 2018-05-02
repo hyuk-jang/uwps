@@ -12,11 +12,13 @@ exports.moduleScale = [{
 },{
   photovoltaic_seq: 3,
   target_name: 'G2G 수중 쏠라테크',
-  scale: 1
+  scale: 	0.939450921
+  // scale: 1
 },{
   photovoltaic_seq: 4,
   target_name: '일반 수중 쏠라테크',
-  scale: 1.024210526
+  scale: 	0.977638431
+  // scale: 1.024210526
 },{
   photovoltaic_seq: 5,
   target_name: 'G2G육상 에스에너지',
@@ -43,12 +45,14 @@ exports.inverterScale = [{
   inverter_seq: 3,
   target_id: 'IVT5',
   target_name: 'G2G 수중 쏠라테크',
-  scale: 1
+  scale: 	0.939450921
+  // scale: 1
 },{
   inverter_seq: 4,
   target_id: 'IVT6',
   target_name: '일반 수중 쏠라테크',
-  scale: 1.024210526
+  scale: 	0.977638431
+  // scale: 1.024210526
 },{
   inverter_seq: 5,
   target_id: 'IVT1',

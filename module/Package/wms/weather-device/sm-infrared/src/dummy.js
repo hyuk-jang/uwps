@@ -28,9 +28,7 @@ const generateData = (controller) => {
       }
 
       let strData = `0000000000000000000000000000000000000000000000${rData}000000`;
-
-
-      controller.updateDcData({cmdList: ['LOOP\n'], currCmdIndex:0}, strData);
+      controller.onDcData({commandSet: {cmdList: [{data:'', commandExecutionTimeoutMs:1000}]}, currCmdIndex:0, data: strData});
     }, 2000);
   }
 };

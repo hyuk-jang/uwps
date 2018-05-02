@@ -28,12 +28,12 @@ module.exports = {
         target_id: 'SI1',
         target_name: 'SmRainSensor',
         target_category: 'weather',
+        hasOneAndOne: true,
         connect_info: {
-          hasOneAndOne: true,
           type: 'serial',
           subType: 'parser',
           baudRate: 9600,
-          port: 'COM7',
+          port: 'COM15',
           addConfigInfo: {
             parser: 'byteLengthParser',
             option: 55
@@ -46,18 +46,17 @@ module.exports = {
     current: {
       hasDev: true, // 장치 연결을 실제로 하는지 여부
       deviceInfo: {
+        hasOneAndOne: true,
         target_id: 'VantagePro_1',
         target_name: 'Davis Vantage Pro2',
         target_category: 'weathercast',
         target_protocol: 'vantagepro2',
         connect_info: {
-          hasOneAndOne: true,
           type: 'serial',
           baudRate: 19200,
           port: 'COM8'
         },
         // connect_info: {
-        //   hasOneAndOne: true,
         //   type: 'socket',
         //   port: 9000
         // },

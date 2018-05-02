@@ -44,7 +44,7 @@ const generateData = (controller) => {
     onceRun = false;
     BU.CLI('데이터 생성기 시작');
     setInterval(() => {
-      controller.updateDcData({cmdList: ['LOOP\n'], currCmdIndex:0}, dummyList[index]);
+      controller.onDcData({commandSet: {cmdList: [{data:'LOOP\n', commandExecutionTimeoutMs:1000}]}, currCmdIndex:0, data: dummyList[index]});
       index += 1;
       index = index >= dummyList.length ? 0 : index;
     }, 2000);

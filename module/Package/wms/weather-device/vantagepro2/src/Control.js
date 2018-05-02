@@ -3,13 +3,15 @@ const _ = require('lodash');
 
 const BU = require('base-util-jh').baseUtil;
 
-// const AbstDeviceClient = require('device-client-controller-jh');
-const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
+const AbstDeviceClient = require('device-client-controller-jh');
+// const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
 
 const Model = require('./Model');
 
 let config = require('./config');
 
+// const {AbstConverter, controlFormat} = require('../../../../../../module/device-protocol-converter-jh');
+// const {AbstConverter} = require('../../../../../module/device-protocol-converter-jh');
 const {AbstConverter} = require('device-protocol-converter-jh');
 
 class Control extends AbstDeviceClient {
@@ -62,19 +64,16 @@ class Control extends AbstDeviceClient {
 
   /**
    * Device Controller 변화가 생겨 관련된 전체 Commander에게 뿌리는 Event
-   * @param {string} eventName 'dcConnect', 'dcClose', 'dcError'
-   * @param {*=} eventMsg 
+   * @param {dcEvent} dcEvent 'dcConnect', 'dcClose', 'dcError'
    */
-  updateDcEvent(eventName, eventMsg) {
-    BU.log('updateDcEvent\t', eventName);
-    eventMsg ? BU.log('eventMsg', eventMsg) : '';
-    switch (eventName) {
-    case 'dcConnect':
-      this.executeCommandInterval ? clearInterval(this.executeCommandInterval) : null;
-      var cmdList = this.converter.generationCommand();
-      this.executeCommand(cmdList);
+  updatedDcEventOnDevice(dcEvent) {
+    BU.log('updateDcEvent\t', dcEvent.eventName);
+    switch (dcEvent.eventName) {
+    case this.definedControlEvent.CONNECT:
+      var commandSet = this.generationManualCommand({cmdList:this.converter.generationCommand()});
+      this.executeCommand(commandSet);
       this.executeCommandInterval = setInterval(() => {
-        this.executeCommand(cmdList);
+        this.executeCommand(commandSet);
         this.requestNextCommand();
       }, 1000 * 60);
       break;
@@ -87,21 +86,15 @@ class Control extends AbstDeviceClient {
   /**
    * 장치로부터 데이터 수신
    * @interface
-   * @param {commandFormat} processItem 현재 장비에서 실행되고 있는 명령 객체
-   * @param {Buffer} data 명령 수행 결과 데이터
+   * @param {dcData} dcData 현재 장비에서 실행되고 있는 명령 객체
    */
-  updateDcData(processItem, data){
-    // BU.CLI('data', data);
-    BU.appendFile(`./log/vantage/data/${BU.convertDateToText(new Date(), '', 2)}.txt`, `${this.config.deviceInfo.target_id} : ${data.toString('hex')}`);
-    const resultParsing = this.converter.parsingUpdateData(processItem.cmdList[processItem.currCmdIndex], data);
+  onDcData(dcData){
+    BU.CLI('data', dcData);
+    const resultParsing = this.converter.parsingUpdateData(dcData);
     // BU.CLI(resultParsing);
-    if(resultParsing.eventCode === 'done'){
-      if(!this.config.hasDev){
-        this.requestTakeAction('wait');
-      }
-    }
-    this.model.onData(resultParsing.data);
-    // BU.CLIN(this.getDeviceOperationInfo());
+    
+    resultParsing.eventCode === this.definedCommanderResponse.DONE && this.model.onData(resultParsing.data);
+    BU.CLIN(this.getDeviceOperationInfo());
   }
 }
 module.exports = Control;

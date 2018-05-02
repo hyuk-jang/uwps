@@ -1,7 +1,7 @@
 
 module.exports = {
   current: {
-    hasDev: false, // 장치 연결을 실제로 하는지 여부
+    hasDev: true, // 장치 연결을 실제로 하는지 여부
     deviceInfo: {
       hasOneAndOne: true,
       target_id: 'VantagePro_1',

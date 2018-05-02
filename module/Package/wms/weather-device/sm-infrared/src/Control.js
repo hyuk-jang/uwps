@@ -23,8 +23,8 @@ class Control extends AbstDeviceClient {
   /**
    * 개발 버젼일 경우 장치 연결 수립을 하지 않고 가상 데이터를 생성
    */
-  init(){
-    if(!this.config.hasDev){
+  init() {
+    if (!this.config.hasDev) {
       this.setDeviceClient(this.config.deviceInfo);
     } else {
       require('./dummy')(this);
@@ -48,35 +48,38 @@ class Control extends AbstDeviceClient {
 
   /**
    * Device Controller 변화가 생겨 관련된 전체 Commander에게 뿌리는 Event
-   * @param {string} eventName 'dcConnect', 'dcClose', 'dcError'
-   * @param {*=} eventMsg 
+   * @param {dcEvent} dcEvent 'dcConnect', 'dcClose', 'dcError'
    */
-  updateDcEvent(eventName, eventMsg) {
-    BU.log('updateDcEvent\t', eventName);
-    // eventMsg ? BU.log('eventMsg', eventMsg) : '';
-    switch (eventName) {
-    case 'dcConnect':
-      this.executeCommand();
+  updatedDcEventOnDevice(dcEvent) {
+    BU.log('updateDcEvent\t', dcEvent.eventName);
+    switch (dcEvent.eventName) {
+    case this.definedControlEvent.CONNECT:
+      var commandSet = this.generationAutoCommand();
+      this.executeCommand(commandSet);
+      this.executeCommandInterval = setInterval(() => {
+        this.executeCommand(commandSet);
+        this.requestNextCommand();
+      }, 1000 * 60);
       break;
     default:
       break;
     }
   }
 
+
   /**
    * 장치로부터 데이터 수신
    * @interface
-   * @param {commandFormat} processItem 현재 장비에서 실행되고 있는 명령 객체
-   * @param {Buffer} data 명령 수행 결과 데이터
+   * @param {dcData} dcData 현재 장비에서 실행되고 있는 명령 객체
    */
-  updateDcData(processItem, data){
+  onDcData(dcData) {
     // BU.CLI(data.toString());
-    const resultData = this.model.onData(data);
+    const resultData = this.model.onData(dcData.data);
 
     // BU.CLI(this.getDeviceOperationInfo().data); 
 
     // 현재 내리는 비가 변화가 생긴다면 이벤트 발생
-    if(!_.isEmpty(resultData)){
+    if (!_.isEmpty(resultData)) {
       BU.CLI('이벤트 발생', resultData);
       this.emit('updateSmRainSensor', resultData);
     }

@@ -1,10 +1,11 @@
 'use strict';
 const _ = require('lodash');
 
-const {BU} = require('base-util-jh');
+const BU = require('base-util-jh').baseUtil;
 
-const AbstDeviceClient = require('device-client-controller-jh');
-
+// const AbstDeviceClient = require('device-client-controller-jh');
+const AbstDeviceClient = require('../../../module/device-client-controller-jh');
+const {AbstConverter, controlCommand} = require('../../../module/device-protocol-converter-jh');
 const Model = require('./Model');
 
 let config = require('./config');
@@ -17,6 +18,8 @@ class Control extends AbstDeviceClient {
 
     // BU.CLI(this.config);
     this.model = new Model(this);
+
+    this.converter = new AbstConverter(this.config.deviceInfo);
   }
 
   /**
@@ -28,6 +31,7 @@ class Control extends AbstDeviceClient {
     } else {
       require('./dummy')(this);
     }
+    this.converter.setProtocolConverter();
   }
 
   /**
@@ -65,20 +69,22 @@ class Control extends AbstDeviceClient {
   /**
    * 장치로부터 데이터 수신
    * @interface
-   * @param {commandFormat} processItem 현재 장비에서 실행되고 있는 명령 객체
-   * @param {Buffer} data 명령 수행 결과 데이터
+   * @param {dcData} dcData 명령 수행 결과 데이터
    */
-  updateDcData(processItem, data){
-    // BU.CLI(data.toString());
-    const resultData = this.model.onData(data);
+  onDcData(dcData){
+    BU.CLIS(dcData.commandSet.cmdList[dcData.commandSet.currCmdIndex], dcData.data);
+
+    this.converter.parsingUpdateData(dcData.data);
+
+    // const resultData = this.model.onData(data);
 
     // BU.CLI(this.getDeviceOperationInfo().data); 
 
     // 현재 내리는 비가 변화가 생긴다면 이벤트 발생
-    if(!_.isEmpty(resultData)){
-      BU.CLI('이벤트 발생', resultData);
-      this.emit('updateSmRainSensor', resultData);
-    }
+    // if(!_.isEmpty(resultData)){
+    //   BU.CLI('이벤트 발생', resultData);
+    //   this.emit('updateSmRainSensor', resultData);
+    // }
 
     // BU.CLIN(this.getDeviceOperationInfo());
   }

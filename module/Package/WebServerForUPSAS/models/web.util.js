@@ -387,6 +387,7 @@ function refineSelectedInverterStatus(viewInverterStatus) {
       d_wh: '',
       d_kwh: '',
       c_mwh: '',
+      water_level: data.water_level,
       writedate: data.writedate,
       hasOperation: false
     };

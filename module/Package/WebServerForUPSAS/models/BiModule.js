@@ -24,6 +24,35 @@ class BiModule extends bmjh.BM {
   }
 
   /**
+   * 수위
+   * @param {searchRange} searchRange  검색 옵션
+   * @param {number[]=} inverter_seq_list 
+   * @return {Promise} SQL 실행 결과
+   */
+  getWaterLevel(searchRange, inverter_seq_list){
+    searchRange = searchRange ? searchRange : this.getSearchRange();
+    let dateFormat = this.makeDateFormatForReport(searchRange, 'applydate');
+
+    let sql = `
+      SELECT
+        twl.inverter_seq,
+        ROUND(AVG(water_level), 1) AS water_level,
+        DATE_FORMAT(applydate,'%H') AS hour_time,
+        ${dateFormat.selectViewDate}
+        FROM temp_water_level twl
+        WHERE applydate>= "${searchRange.strBetweenStart}" and applydate<"${searchRange.strBetweenEnd}"
+    `;
+    if (inverter_seq_list) {
+      sql += `AND twl.inverter_seq IN (${inverter_seq_list})`;
+    }
+    sql += `
+          GROUP BY twl.inverter_seq
+          ORDER BY twl.inverter_seq, applydate
+    `;
+    return this.db.single(sql, '', false);
+  }
+
+  /**
    * 기상 관측 장비의 최신 데이터 1row를 가져옴.
    */
   getWeather() {

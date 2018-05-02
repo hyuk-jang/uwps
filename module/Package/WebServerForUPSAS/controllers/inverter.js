@@ -30,6 +30,10 @@ module.exports = function (app) {
     // BU.CLI('inverter', req.locals)
     // console.time('getTable')
     let viewInverterStatus = await biModule.getTable('v_inverter_status');
+    
+    let searchRange = biModule.getSearchRange('min10');
+    // searchRange.searchInterval = 'day';
+    let waterLevelDataPacket = await biModule.getWaterLevel(searchRange);
 
     // TEST 구간
     viewInverterStatus.forEach(currentItem => {
@@ -46,22 +50,30 @@ module.exports = function (app) {
     });
     // BU.CLI(moduleStatusList);
 
+    _.each(viewInverterStatus, data => {
+      let waterLevelData = _.findWhere(waterLevelDataPacket, {inverter_seq: data.inverter_seq});
+      // BU.CLIS(waterLevelData, _.isNumber(waterLevelData.water_level));
+
+      data.water_level = waterLevelData && _.isNumber(waterLevelData.water_level) ?   waterLevelData.water_level : '';
+    });
+
 
 
     // 데이터 검증
     let validInverterStatus = webUtil.checkDataValidation(viewInverterStatus, new Date(), 'writedate');
-    // BU.CLI(validInverterStatus);
     /** 인버터 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
     let refinedInverterStatus = webUtil.refineSelectedInverterStatus(validInverterStatus);
 
-    let searchRange = biModule.getSearchRange('min10');
+    
     // let searchRange = biModule.getSearchRange('hour', '2018-03-10');
+    searchRange = biModule.getSearchRange('min10');
     let inverterPowerList = await biModule.getInverterPower(searchRange);
     // BU.CLI(inverterPowerList);
     let chartOption = {selectKey: 'out_w', dateKey: 'view_date', groupKey: 'ivt_target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
 
     let chartData = webUtil.makeDynamicChartData(inverterPowerList, chartOption);
     // BU.CLI(chartData);
+    
 
     /* Scale 적용 */
     chartData.series.forEach(currentItem => {

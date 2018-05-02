@@ -39,13 +39,15 @@
                     <br>(A)</th>
                   <th style="width:8%;">AC 전력
                     <br>(kW)</th>
-                  <th style="width:8%;">역률
+                  <th style="width:6%;">역률
                     <br>(%)</th>
-                  <th style="width:11%;">금일발전량
+                  <th style="width:10%;">금일발전량
                     <br>(kWh)</th>
-                  <th style="width:11%;">누적발전량
+                  <th style="width:10%;">누적발전량
                     <br>(mWh)</th>
-                  <th style="width:7%; text-align:center; padding-bottom:15px;">장치상태</th>
+                  <th style="width:6%;">수위
+                    <br>(cm)</th>
+                  <th style="width:5%; text-align:center;">장치<br>상태</th>
 
                 </tr>
               </thead>
@@ -94,6 +96,9 @@
                     <td>
                       <%=inverterData.c_mwh %>
                     </td>
+                    <td>
+                      <%=inverterData.water_level %>
+                    </td>
                     <td class="center_ball">
                       <img src="image/<%= deviceOperationImgName %>" />
                     </td>
@@ -122,6 +127,7 @@
                       <td>
                         <%= inverterStatus.totalInfo.c_mwh %>
                       </td>
+                      <td></td>
                       <td></td>
                     </tr>
               </tbody>

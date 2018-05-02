@@ -47,12 +47,20 @@ module.exports = {
     },
     smInfrared:{
       current: {
-        hasDev: true, // 장치 연결을 실제로 하는지 여부
+        hasDev: false, // 장치 연결을 실제로 하는지 여부
         deviceInfo: {
+          hasOneAndOne: true,
           target_id: 'SI1',
           target_name: 'SmRainSensor',
           target_category: 'weather',
-          hasOneAndOne: true,
+          logOption: {
+            hasCommanderResponse: false,
+            hasDcError: false,
+            hasDcEvent: false,
+            hasReceiveData: false,
+            hasDcMessage: false,
+            hasTransferCommand: false
+          },
           connect_info: {
             type: 'serial',
             subType: 'parser',
@@ -68,13 +76,21 @@ module.exports = {
     },
     vantagepro2: {
       current: {
-        hasDev: true, // 장치 연결을 실제로 하는지 여부
+        hasDev: false, // 장치 연결을 실제로 하는지 여부
         deviceInfo: {
           hasOneAndOne: true,
           target_id: 'VantagePro_1',
           target_name: 'Davis Vantage Pro2',
           target_category: 'weathercast',
           target_protocol: 'vantagepro2',
+          logOption: {
+            hasCommanderResponse: true,
+            hasDcError: true,
+            hasDcEvent: true,
+            hasReceiveData: true,
+            hasDcMessage: true,
+            hasTransferCommand: true
+          },
           connect_info: {
             type: 'serial',
             baudRate: 19200,

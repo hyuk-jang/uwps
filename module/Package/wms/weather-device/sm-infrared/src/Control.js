@@ -77,11 +77,11 @@ class Control extends AbstDeviceClient {
 
     // BU.CLI(this.getDeviceOperationInfo().data); 
 
-    // 현재 내리는 비가 변화가 생긴다면 이벤트 발생
-    if (!_.isEmpty(resultData)) {
-      BU.CLI('이벤트 발생', resultData);
-      this.emit('updateSmRainSensor', resultData);
-    }
+    // // 현재 내리는 비가 변화가 생긴다면 이벤트 발생
+    // if (!_.isEmpty(resultData)) {
+    //   BU.CLI('이벤트 발생', resultData);
+    //   this.emit('updateSmRainSensor', resultData);
+    // }
 
     // BU.CLIN(this.getDeviceOperationInfo());
   }

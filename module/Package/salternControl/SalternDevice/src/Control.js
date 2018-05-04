@@ -49,10 +49,10 @@ class Control extends AbstDeviceClient {
     BU.CLI(orderInfo);
     let modelId = orderInfo.modelId;
 
-    BU.CLI(_.includes(modelId, 'V_') && orderInfo.hasTrue === true);
-    BU.CLI(_.includes(modelId, 'P_') && orderInfo.hasTrue === true);
+    // BU.CLI(_.includes(modelId, 'V_') && orderInfo.hasTrue === true);
+    // BU.CLI(_.includes(modelId, 'P_') && orderInfo.hasTrue === true);
     // BU.CLIN(this.converter);
-    BU.CLI(this.operationInfo.waterDoor);
+    // BU.CLI(this.operationInfo.waterDoor);
     let oper;
 
     if(orderInfo.hasTrue === true){
@@ -83,7 +83,7 @@ class Control extends AbstDeviceClient {
     let cmdList = this.converter.generationCommand(oper);
     let commandSet =  this.generationManualCommand({cmdList: cmdList, commandId: orderInfo.commandId});
 
-    BU.CLIN(commandSet);
+    // BU.CLIN(commandSet, 2);
     this.executeCommand(commandSet);
     // return commandSet.cmdList;
   }
@@ -110,7 +110,7 @@ class Control extends AbstDeviceClient {
    * @param {dcEvent} dcEvent 
    */
   updatedDcEventOnDevice(dcEvent) {
-    BU.log('updateDcEvent\t', dcEvent.eventName);
+    // BU.log('updateDcEvent\t', dcEvent.eventName);
     switch (dcEvent.eventName) {
     case this.definedControlEvent.CONNECT:
       // var commandSet = this.generationManualCommand({cmdList:this.converter.generationCommand()});

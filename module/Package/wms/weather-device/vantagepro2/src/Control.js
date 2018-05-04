@@ -3,8 +3,8 @@ const _ = require('lodash');
 
 const {BU} = require('base-util-jh');
 
-// const AbstDeviceClient = require('device-client-controller-jh');
-const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
+const AbstDeviceClient = require('device-client-controller-jh');
+// const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
 
 const Model = require('./Model');
 

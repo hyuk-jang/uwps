@@ -3,7 +3,7 @@
 const {BU, CU} = require('base-util-jh');
 
 const Control = require('./Control');
-const {weathercastProtocolFormat} = require('device-protocol-converter-jh');
+const {baseFormat} = require('device-protocol-converter-jh');
 
 
 class Model {
@@ -11,7 +11,7 @@ class Model {
    * @param {Control} controller 
    */
   constructor(controller) {
-    this.deviceData = weathercastProtocolFormat;
+    this.deviceData = baseFormat.weathercast.vantagepro2;
 
     let averConfig = {
       maxStorageNumber: 30, // 최대 저장 데이터 수

@@ -85,6 +85,7 @@ class Control {
       };
       let {foundRouter, modelInfo} = this.findRouterAndModel(modelId);
       orderInfo.modelId = modelInfo.targetId;
+      BU.CLIN(foundRouter);
       orderList.push(foundRouter.orderOperation(orderInfo));
     });
 
@@ -108,6 +109,7 @@ class Control {
    */
   cancelControl(controlInfo){
     let orderList = [];
+    controlInfo.trueList = _.reverse(controlInfo.trueList);
     controlInfo.trueList.forEach(modelId => {
       let orderInfo = {
         hasTrue: false,

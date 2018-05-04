@@ -17,40 +17,40 @@ if (require !== undefined && require.main === module) {
 
   const map = require('./config/map');
 
+  const _ = require('lodash');
 
+  // const net = require('net');
+  // const server = net.createServer((socket) => {
+  //   // socket.end('goodbye\n');
+  //   let port = Number(`900${i}`);
+  //   console.log(`client is Connected ${port}`);
 
-  const net = require('net');
-  const server = net.createServer((socket) => {
-    // socket.end('goodbye\n');
-    let port = Number(`900${i}`);
-    console.log(`client is Connected ${port}`);
+  //   // socket.write('18?');
 
-    // socket.write('18?');
-
-    socket.on('data', data => {
-      BU.CLI(data);
+  //   socket.on('data', data => {
+  //     BU.CLI(data);
       
-      return socket.write('this.is.my.socket\r\ngogogogo' + port);
-    });
+  //     return socket.write('this.is.my.socket\r\ngogogogo' + port);
+  //   });
 
-  }).on('error', (err) => {
-    // handle errors here
-    console.error('@@@@', err, server.address());
-    // throw err;
-  });
+  // }).on('error', (err) => {
+  //   // handle errors here
+  //   console.error('@@@@', err, server.address());
+  //   // throw err;
+  // });
 
-  // grab an arbitrary unused port.
-  server.listen(9005, () => {
-    console.log('opened server on', server.address());
-  });
+  // // grab an arbitrary unused port.
+  // server.listen(9005, () => {
+  //   console.log('opened server on', server.address());
+  // });
 
-  server.on('close', () => {
-    console.log('clonse');
-  });
+  // server.on('close', () => {
+  //   console.log('clonse');
+  // });
 
-  server.on('error', (err) => {
-    console.error(err);
-  });
+  // server.on('error', (err) => {
+  //   console.error(err);
+  // });
 
 
 
@@ -58,15 +58,19 @@ if (require !== undefined && require.main === module) {
 
   control.init();
 
+  // BU.CLIN(control);
+
   // BU.CLIN(control.routerList, 2);
 
   // control.findModel('WD_007');
-
+  let cmdInfo = {};
+  // cmdInfo = _.find(map.controlList, {cmdName: '증발지 1A → 해주 1'});
+  cmdInfo = _.find(map.controlList, {cmdName: '증발지 3 → 증발지 4'});  
+  cmdInfo = _.find(map.controlList, {cmdName: '저수조 → 증발지 1'});  
 
   setTimeout(() => {
-    // control.excuteControl(map.controlList[1]);
-    control.cancelControl(map.controlList[1]);
-    // BU.CLI(controlOrderList);
+    control.excuteControl(cmdInfo);
+    // control.cancelControl(cmdInfo);
     
   }, 1000);
 

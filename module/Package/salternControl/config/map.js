@@ -55,119 +55,109 @@ const map = {
   },
   setInfo: {
     connectInfoList: [{
-      type: 'serial',
+      type: 'zigbee',
+      subType: 'xbee',
       baudRate: 9600,
-      port: 'COM??',
+      port: 'COM5',
       deviceRouterList: [{
         targetId: 'R_GLS_001',
-        deviceId: '',
+        deviceId: '0013A20040F7B4AD',
         nodeModelList: ['V_101']
       }, {
         targetId: 'R_GLS_002',
-        deviceId: '',
+        deviceId: '0013A20040F7B454',
         nodeModelList: ['V_102']
       }, {
         targetId: 'R_GLS_003',
-        deviceId: '',
+        deviceId: '0013A20040F7B42D',
         nodeModelList: ['V_103']
       }, {
         targetId: 'R_GLS_004',
-        deviceId: '',
+        deviceId: '0013A20040F7B433',
         nodeModelList: ['V_104']
       }, {
         targetId: 'R_GLS_005',
-        deviceId: '',
+        deviceId: '0013A20040F7ACC8',
         nodeModelList: ['WD_005']
       }, {
         targetId: 'R_GLS_006',
-        deviceId: '',
+        deviceId: '0013A20040F7B486',
         nodeModelList: ['WD_006']
       }, {
         targetId: 'R_GLS_007',
-        deviceId: '',
+        deviceId: '0013A20040F7B47C',
         nodeModelList: ['WD_007']
       }, {
         targetId: 'R_GLS_008',
-        deviceId: '',
+        deviceId: '0013A20040F7AB9C',
         nodeModelList: ['WD_008']
       }, {
         targetId: 'R_GLS_009',
-        deviceId: '',
+        deviceId: '0013A20040F7B430',
         nodeModelList: ['WD_009']
       }, {
         targetId: 'R_GLS_010',
-        deviceId: '',
+        deviceId: '0013A20040F7AB7D',
         nodeModelList: ['WD_010']
       }, {
         targetId: 'R_GLS_011',
-        deviceId: '',
+        deviceId: '0013A20040F7B4A9',
         nodeModelList: ['WD_011']
       }, {
         targetId: 'R_GLS_012',
-        deviceId: '',
+        deviceId: '0013A20040F7B460',
         nodeModelList: ['WD_012']
       }, {
         targetId: 'R_GLS_013',
-        deviceId: '',
+        deviceId: '0013A20040F7B49B',
         nodeModelList: ['WD_013']
       }, {
         targetId: 'R_GLS_014',
-        deviceId: '',
+        deviceId: '0013A20040F7B453',
         nodeModelList: ['WD_014']
       }, {
         targetId: 'R_GLS_015',
-        deviceId: '',
+        deviceId: '0013A20040F7B474',
         nodeModelList: ['WD_015']
       }, {
         targetId: 'R_V_001',
-        deviceId: '',
+        deviceId: '0013A20040F7B4A4',
         nodeModelList: ['V_001']
       }, {
         targetId: 'R_V_002',
-        deviceId: '',
+        deviceId: '0013A20040F7B47F',
         nodeModelList: ['V_002']
       }, {
         targetId: 'R_V_003',
-        deviceId: '',
+        deviceId: '0013A20040F7B43C',
         nodeModelList: ['V_003']
       }, {
         targetId: 'R_V_004',
-        deviceId: '',
+        deviceId: '0013A20040F7B455',
         nodeModelList: ['V_004']
       }, {
-        targetId: 'R_V_005',
-        deviceId: '',
-        nodeModelList: ['V_005']
-      }, {
         targetId: 'R_V_006',
-        deviceId: '',
+        deviceId: '0013A20040F7B469',
         nodeModelList: ['V_006']
       }, {
         targetId: 'R_V_007',
-        deviceId: '',
+        deviceId: '0013A20040F7B4A7',
         nodeModelList: ['V_007']
       }, {
-        targetId: 'R_V_008',
-        deviceId: '',
-        nodeModelList: ['V_008']
-      }, {
-        targetId: 'R_P_001',
-        deviceId: ''
-      }, {
         targetId: 'R_P_002',
-        deviceId: '',
+        deviceId: '0013A20040F7B446',
         nodeModelList: ['P_002']
       }, {
         targetId: 'R_P_003',
-        deviceId: '',
+        deviceId: '0013A20040F7B44A',
         nodeModelList: ['P_003']
       }, {
         targetId: 'R_P_004',
-        deviceId: '',
+        deviceId: '0013A20040F7A4E0',
         nodeModelList: ['P_004']
       }, {
         targetId: 'R_P_005',
-        deviceId: '',
+        deviceId: '0013A20040F7A4D8',
         nodeModelList: ['P_005']
       },]
     }
@@ -220,17 +210,11 @@ const map = {
         targetId: 'V_004', 
         target_name: '밸브4'
       },{
-        targetId: 'V_005', 
-        target_name: '밸브5'
-      },{
         targetId: 'V_006', 
         target_name: '밸브6'
       },{
         targetId: 'V_007', 
         target_name: '밸브7'
-      },{
-        targetId: 'V_008', 
-        target_name: '밸브8'
       },{
         targetId: 'V_101', 
         target_name: '수문1'
@@ -266,29 +250,55 @@ const map = {
   },
   controlList:[{
     cmdName: '저수조 → 증발지 1',
-    trueList: ['V_001', 'V_002', 'V_003', 'V_004', 'V_005', 'P_002'],
+    trueList: ['V_006', 'V_001', 'V_002', 'V_003', 'V_004', 'P_002'],
     falseList: ['V_101','V_102','V_103','V_104','WD_005']
-  },{
+  },
+  {
     cmdName: '저수조 → 증발지 1A',
-    trueList: ['V_001', 'P_002'],
+    trueList: ['V_006', 'V_001', 'P_002'],
     falseList: ['V_101']
   },{
     cmdName: '저수조 → 증발지 1B',
-    trueList: ['V_002', 'P_002'],
+    trueList: ['V_006', 'V_002', 'P_002'],
     falseList: ['V_102']
   },{
     cmdName: '저수조 → 증발지 1C',
-    trueList: ['V_003', 'P_002'],
+    trueList: ['V_006', 'V_003', 'P_002'],
     falseList: ['V_103']
   },{
     cmdName: '저수조 → 증발지 1D',
-    trueList: ['V_004', 'P_002'],
+    trueList: ['V_006', 'V_004', 'P_002'],
     falseList: ['V_104']
   },{
     cmdName: '저수조 → 증발지 일반',
-    trueList: ['V_005', 'P_002'],
+    trueList: ['V_006', 'P_002'],
     falseList: ['WD_005']
   },{
+    cmdName: '해주 1 → 증발지 1',
+    trueList: ['V_007', 'V_001', 'V_002', 'V_003', 'V_004', 'P_002'],
+    falseList: ['V_101','V_102','V_103','V_104','WD_005']
+  },{
+    cmdName: '해주 1 → 증발지 1A',
+    trueList: ['V_007', 'V_001', 'P_002'],
+    falseList: ['V_101']
+  },{
+    cmdName: '해주 1 → 증발지 1B',
+    trueList: ['V_007', 'V_002', 'P_002'],
+    falseList: ['V_102']
+  },{
+    cmdName: '해주 1 → 증발지 1C',
+    trueList: ['V_007', 'V_003', 'P_002'],
+    falseList: ['V_103']
+  },{
+    cmdName: '해주 1 → 증발지 1D',
+    trueList: ['V_007', 'V_004', 'P_002'],
+    falseList: ['V_104']
+  },{
+    cmdName: '증발지 1 → 해주 1',
+    trueList: ['V_101','V_102','V_103','V_104','WD_005', 'WD_010'],
+    falseList: ['WD_013']
+  },
+  {
     cmdName: '증발지 1A → 해주 1',
     trueList: ['V_101', 'WD_010'],
     falseList: ['WD_013']
@@ -324,10 +334,6 @@ const map = {
     cmdName: '결정지 1 → 해주 3',
     trueList: ['WD_009'],
     falseList: ['WD_012']
-  },{
-    cmdName: '해주1 → 해주 2',
-    trueList: ['WD_005', 'WD_010'],
-    falseList: ['WD_013']
   },{
     cmdName: '해주2 → 증발지 2',
     trueList: ['V_007', 'P_004'],

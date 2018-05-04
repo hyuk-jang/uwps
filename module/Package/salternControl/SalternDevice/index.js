@@ -25,16 +25,20 @@ if (require !== undefined && require.main === module) {
 
   let cmdList = control.converter.generationCommand(cmdStorage.waterDoor.STATUS);
   BU.CLI(cmdList);
-  let defaultCommandFormat = control.getDefaultCommandConfig();
-  defaultCommandFormat.cmdList = cmdList;
+
+  try {
+    control.executeCommand(control.generationManualCommand({cmdList}));
+  } catch (error) {
+    
+  }
   
-  setTimeout(() => {
-    let cmd_1 = control.generationManualCommand(defaultCommandFormat);
-    control.executeCommand(cmd_1);
-  }, 1000);
+  // setTimeout(() => {
+  //   let cmd_1 = control.generationManualCommand(defaultCommandFormat);
+  //   control.executeCommand(cmd_1);
+  // }, 1000);
 
   
-  BU.CLI(cmdList);
+  // BU.CLI(cmdList);
 
   process.on('uncaughtException', function (err) {
   // BU.debugConsole();

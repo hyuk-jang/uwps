@@ -8,36 +8,74 @@ module.exports = Control;
 if (require !== undefined && require.main === module) {
   console.log('__main__');
 
-  const {BU} = require('base-util-jh');
+  const { BU } = require('base-util-jh');
 
   global.BU = BU;
 
   const config = require('./src/config');
 
 
+  const map = require('./config/map');
+
+
+
+  const net = require('net');
+  const server = net.createServer((socket) => {
+    // socket.end('goodbye\n');
+    let port = Number(`900${i}`);
+    console.log(`client is Connected ${port}`);
+
+    // socket.write('18?');
+
+    socket.on('data', data => {
+      BU.CLI(data);
+      
+      return socket.write('this.is.my.socket\r\ngogogogo' + port);
+    });
+
+  }).on('error', (err) => {
+    // handle errors here
+    console.error('@@@@', err, server.address());
+    // throw err;
+  });
+
+  // grab an arbitrary unused port.
+  server.listen(9005, () => {
+    console.log('opened server on', server.address());
+  });
+
+  server.on('close', () => {
+    console.log('clonse');
+  });
+
+  server.on('error', (err) => {
+    console.error(err);
+  });
+
+
+
   const control = new Control(config);
 
   control.init();
 
-  const {operationController} = require('device-protocol-converter-jh');
-  // const {operationController} = require('../../module/device-protocol-converter-jh');
-  const cmdStorage = operationController.saltern.xbee;
+  // BU.CLIN(control.routerList, 2);
 
-  let cmdList = control.converter.generationCommand(cmdStorage.waterDoor.STATUS);
-  BU.CLI(cmdList);
-  let defaultCommandFormat = control.getDefaultCommandConfig();
-  defaultCommandFormat.cmdList = cmdList;
-  
+  // control.findModel('WD_007');
+
+
   setTimeout(() => {
-    let cmd_1 = control.generationManualCommand(defaultCommandFormat);
-    control.executeCommand(cmd_1);
+    // control.excuteControl(map.controlList[1]);
+    control.cancelControl(map.controlList[1]);
+    // BU.CLI(controlOrderList);
+    
   }, 1000);
 
-  
-  BU.CLI(cmdList);
+
+
+
 
   process.on('uncaughtException', function (err) {
-  // BU.debugConsole();
+    // BU.debugConsole();
     console.error(err.stack);
     console.log(err.message);
     console.log('Node NOT Exiting...');
@@ -45,7 +83,7 @@ if (require !== undefined && require.main === module) {
 
 
   process.on('unhandledRejection', function (err) {
-  // BU.debugConsole();
+    // BU.debugConsole();
     console.error(err.stack);
     console.log(err.message);
     console.log('Node NOT Exiting...');

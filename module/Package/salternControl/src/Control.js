@@ -3,90 +3,176 @@ const _ = require('lodash');
 
 const BU = require('base-util-jh').baseUtil;
 
-const AbstDeviceClient = require('device-client-controller-jh');
-// const AbstDeviceClient = require('../../../module/device-client-controller-jh');
-const {AbstConverter, operationController} = require('device-protocol-converter-jh');
-// const {AbstConverter, operationController} = require('../../../module/device-protocol-converter-jh');
+
+const SalternDevice = require('../SalternDevice'); 
+
+
 const Model = require('./Model');
 
 let config = require('./config');
 
-class Control extends AbstDeviceClient {
+const map = require('../config/map');
+
+class Control {
   /** @param {config} config */
   constructor(config) {
-    super();
     this.config = config.current;
 
     // BU.CLI(this.config);
     this.model = new Model(this);
 
-    this.converter = new AbstConverter(this.config.deviceInfo);
+    this.map = map;
+
+    /** @type {Array.<SalternDevice>} */
+    this.routerList = [];
+    this.modelList = map.setInfo.modelInfo;
   }
 
   /**
    * 개발 버젼일 경우 장치 연결 수립을 하지 않고 가상 데이터를 생성
    */
   init(){
-    if(!this.config.hasDev){
-      this.setDeviceClient(this.config.deviceInfo);
-    } else {
-      require('./dummy')(this);
-    }
-    this.converter.setProtocolConverter();
+    this.map.setInfo.connectInfoList.forEach(deviceConnectInfo => {
+      let connectInfo = {
+        type: deviceConnectInfo.type,
+        subType: deviceConnectInfo.subType,
+        port: deviceConnectInfo.port,
+        baudRate: deviceConnectInfo.baudRate
+      };
+      deviceConnectInfo.deviceRouterList.forEach(routerInfo => {
+        const salternDevice = new SalternDevice({current:{
+          hasDev: false,
+          deviceInfo: {
+            target_id: routerInfo.targetId,
+            // target_category: 'socket',
+            // target_protocol: 'xbee',
+            target_category: 'saltern',
+            target_protocol: 'xbee',
+            protocolConstructorConfig: {deviceId: routerInfo.deviceId} ,
+            logOption:{
+              hasCommanderResponse: true,
+              hasDcError: true,
+              hasDcEvent: true,
+              hasReceiveData: true,
+              hasDcMessage: true,
+              hasTransferCommand: true
+            },
+            connect_info: connectInfo,
+            modelList: routerInfo.nodeModelList
+          }
+        }});
+        salternDevice.init();
+        this.routerList.push(salternDevice);
+      });
+    });
+  }
+
+  getAllStatus(){
+    
   }
 
   /**
-   * 장치의 현재 데이터 및 에러 내역을 가져옴
-   * @return {{id: string, config: Object, data: {smRain: number}, systemErrorList: Array, troubleList: Array}} 
+   * 
+   * @param {{cmdName: string, trueList: string[], falseList: string[]}} controlInfo 
    */
-  getDeviceOperationInfo() {
-    return {
-      id: this.config.deviceInfo.target_id,
-      config: this.config.deviceInfo,
-      data: this.model.deviceData,
-      // systemErrorList: [{code: 'new Code22223', msg: '에러 테스트 메시지22', occur_date: new Date() }],
-      systemErrorList: this.systemErrorList,
-      troubleList: []
-    };
+  excuteControl(controlInfo) {
+    let orderList = [];
+    controlInfo.trueList.forEach(modelId => {
+      let orderInfo = {
+        hasTrue: true,
+        modelId: '' ,
+        commandId: controlInfo.cmdName
+      };
+      let {foundRouter, modelInfo} = this.findRouterAndModel(modelId);
+      orderInfo.modelId = modelInfo.targetId;
+      orderList.push(foundRouter.orderOperation(orderInfo));
+    });
+
+    controlInfo.falseList.forEach(modelId => {
+      let orderInfo = {
+        hasTrue: true,
+        modelId: '' ,
+        commandId: controlInfo.cmdName
+      };
+      let {foundRouter, modelInfo} = this.findRouterAndModel(modelId);
+      orderInfo.modelId = modelInfo.targetId;
+      orderList.push(foundRouter.orderOperation(orderInfo));
+    });
+
+    return orderList;
   }
 
   /**
-   * Device Controller 변화가 생겨 관련된 전체 Commander에게 뿌리는 Event
-   * @param {dcEvent} dcEvent 
+   * 
+   * @param {{cmdName: string, trueList: string[], falseList: string[]}} controlInfo 
    */
-  updatedDcEventOnDevice(dcEvent) {
-    BU.log('updateDcEvent\t', dcEvent.eventName);
-    switch (dcEvent.eventName) {
-    case this.definedControlEvent.CONNECT:
-      // var commandSet = this.generationManualCommand({cmdList:this.converter.generationCommand()});
-      // this.executeCommand(commandSet);
+  cancelControl(controlInfo){
+    let orderList = [];
+    controlInfo.trueList.forEach(modelId => {
+      let orderInfo = {
+        hasTrue: false,
+        modelId: '' ,
+        commandId: controlInfo.cmdName
+      };
+      let {foundRouter, modelInfo} = this.findRouterAndModel(modelId);
+      orderInfo.modelId = modelInfo.targetId;
+      orderList.push(foundRouter.orderOperation(orderInfo));
+    });
+
+    // controlInfo.falseList.forEach(modelId => {
+    //   let orderInfo = {
+    //     hasTrue: true,
+    //     modelId: '' ,
+    //     commandId: controlInfo.cmdName
+    //   };
+    //   let {foundRouter, modelInfo} = this.findRouterAndModel(modelId);
+    //   orderInfo.modelId = modelInfo.targetId;
+    //   orderList.push(foundRouter.orderOperation(orderInfo));
+    // });
+
+    return orderList;
+  }
+
+  findRouterAndModel(modelId){
+    let modelInfo;
+
+    let category =  _.findKey(this.modelList, modelList => {
+      let foundIt = _.find(modelList, {targetId: modelId});
+      if(!_.isEmpty(foundIt)){
+        modelInfo = foundIt;
+        return true;
+      }
+    });
+    
+    switch (category) {
+    case 'waterDoorList':
+      category = 'waterDoor';
+      break;
+    case 'valveList':
+      category = 'valve';
+      break;
+    case 'pumpList':
+      category = 'pump';
       break;
     default:
       break;
     }
+    
+    modelInfo.category = category;
+    let foundRouter = _.find(this.routerList, router => {
+      return _.includes(router.modelList, modelId);
+    });
+
+    return {foundRouter, modelInfo};
+  }
+  
+  findModel(modelId){
+    let {foundRouter, modelInfo} = this.findRouterAndModel(modelId);
+    BU.CLIN(modelInfo);
+    let deviceData = foundRouter && foundRouter.getData(modelInfo.category);
+
+    BU.CLIN(deviceData);
   }
 
-  /**
-   * 장치로부터 데이터 수신
-   * @interface
-   * @param {dcData} dcData 명령 수행 결과 데이터
-   */
-  onDcData(dcData){
-    // BU.CLIS(dcData.commandSet.cmdList[dcData.commandSet.currCmdIndex], dcData.data);
-
-    let parsedData =  this.converter.parsingUpdateData(dcData);
-
-    this.requestTakeAction(parsedData.eventCode);
-
-    // BU.CLIS(parsedData.eventCode,this.definedCommanderResponse.DONE);
-    if(parsedData.eventCode === this.definedCommanderResponse.DONE){
-      this.model.onData(parsedData.data);
-    }
-
-    // BU.CLI(parsedData);
-    // const resultData = this.model.onData(data);
-
-    // BU.CLIN(this.getDeviceOperationInfo());
-  }
 }
 module.exports = Control;

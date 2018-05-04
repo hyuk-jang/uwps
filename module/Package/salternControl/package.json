@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "base-util-jh": "^1.1.3",
+    "device-protocol-converter-jh": "^0.1.9",
     "lodash": "^4.17.10"
   }
 }

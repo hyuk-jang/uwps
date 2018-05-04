@@ -18,6 +18,10 @@ class Model {
     // BU.CLI(this.deviceData);
   }
 
+  getData(category){
+    return this.deviceData[category];
+  }
+
   /**
    * @param {baseFormat} salternData 
    */

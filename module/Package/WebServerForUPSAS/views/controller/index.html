@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <%- include("../master/head.html") %>
+    <%- include("../master/excel.html") %>
+      <script src="js/hichart/highcharts.src.js"></script>
+</head>
+
+<body>
+  <!--네비-->
+  <%- include("../master/header.html") %>
+    <!--메인-->
+    <div class="jumbotron text-center jumbotron_line">
+      <div class="row row_st_line min_h_780">
+        <div class="row row_width  top_box">
+          <div class="col-xs-3 sel_box" style="width: 250px">
+            명령 제어
+            <select class="form-control form-control_st" id="excute" name="" style="width: 230px">
+              <%
+                    for(var i = 0 ; i < excuteControlList.length ; i++){
+                      var controlInfo = excuteControlList[i];
+                      var controlName = controlInfo.cmdName;
+                    
+                  %>
+                <option value="<%= controlName %>">
+                  <%= controlName %>
+                </option>
+                <%
+                    }
+                  %>
+            </select>
+          </div>
+
+          <div class=" sel_box_data">
+            <button type="button" class="btn btn-primary" onclick="excute()" style="margin-bottom:3px; height:40px;" id="search">명령 제어 실행</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    </div>
+
+    <script>
+      // 장치 타입 변경 시
+      function excute() {
+        var cmd = $("#excute option:selected").val();
+        console.log("cmd", cmd)
+        // var deviceName = deviceType === 'inverter' ? '인버터' : deviceType === 'connector' ? '접속반' : '모두';
+        $.ajax({
+          type: "GET",
+          url: "/controller/excute/" + encodeURIComponent(cmd)
+        }).done(function (dataList, msg, res) {
+          // Check for a successful (blank) response
+          // console.log('dataList', dataList)
+          var resultData = dataList;
+          var html = '';
+        }).fail(function (req, sts, err) {
+          alert(err);
+        });
+      }
+
+
+    </script>
+
+
+    <%- include("../master/footer.html") %>
+</body>
+
+</html>

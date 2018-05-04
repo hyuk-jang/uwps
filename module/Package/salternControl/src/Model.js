@@ -8,14 +8,17 @@ const Control = require('./Control');
 const baseFormat = require('device-protocol-converter-jh').baseFormat.saltern;
 // const baseFormat = require('../../../module/device-protocol-converter-jh').baseFormat.saltern;
 
+const map =require('../config/map');
+
+
 class Model {
   /**
    * 
    * @param {Control} controller 
    */
   constructor(controller) {
-    this.deviceData = baseFormat;
-    // BU.CLI(this.deviceData);
+   
+    // this.deviceModel = {waterDoorList: [], valveList: [], pumpList: []};
   }
 
   /**

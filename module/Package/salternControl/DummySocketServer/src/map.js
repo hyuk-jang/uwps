@@ -159,11 +159,7 @@ const map = {
         targetId: 'R_P_005',
         deviceId: '0013A20040F7A4D8',
         nodeModelList: ['P_005']
-      },{
-        targetId: 'R_GLS_TEST_001',
-        deviceId: '0013A20040F7AB6C',
-        nodeModelList: ['']
-      }]
+      },]
     }
     ],
     modelInfo: {

@@ -1,17 +1,19 @@
 const _ = require('lodash');
 const Control = require('./Control');
+const {operationController} = require('../../../../module/device-protocol-converter-jh');
 const BU = require('base-util-jh').baseUtil;
 
-const dummyList = [
+const cmdStorage = operationController.saltern.xbee;
+
+const wdDummyList = [
   { type: 144,
     remote64: '0013a20040f7ab6c',
     remote16: 'e77b',
     receiveOptions: 1,
-    data:{'type':'Buffer',data:[35,48,48,48,49,48,48,48,49,48,52,48,48,48,48,48,48,49,48,46,50,]}
+    data:{'type':'Buffer',data:[35,48,48,48,49,48,48,48,49,48,52,48,48,48,48,48,48,49,48,46,50]}
   },
 ];
-
-dummyList.forEach((currentItem, index) => {
+wdDummyList.forEach((currentItem, index) => {
   currentItem.data = Buffer.from(currentItem.data);
 });
 
@@ -24,12 +26,12 @@ let onceRun = true;
  */
 let controller;
 const generateData = () => {
-  controller.onDcData({commandSet: {cmdList: [{data:'LOOP\n', commandExecutionTimeoutMs:1000}]}, currCmdIndex:0, data: dummyList[index]});
+  controller.onDcData({commandSet: {cmdList: [{data:'LOOP\n', commandExecutionTimeoutMs:1000}]}, currCmdIndex:0, data: wdDummyList[index]});
 };
 
 
 function executeCommand(dataaaa){
-  return controller.onDcData({data:_.sample(dummyList)});
+  return controller.onDcData({data:_.sample(wdDummyList)});
 }
 
 

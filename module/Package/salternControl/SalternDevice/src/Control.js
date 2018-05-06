@@ -3,10 +3,10 @@ const _ = require('lodash');
 
 const BU = require('base-util-jh').baseUtil;
 
-const AbstDeviceClient = require('device-client-controller-jh');
-// const AbstDeviceClient = require('../../../../module/device-client-controller-jh');
-const {AbstConverter, operationController} = require('device-protocol-converter-jh');
-// const {AbstConverter, operationController} = require('../../../../module/device-protocol-converter-jh');
+// const AbstDeviceClient = require('device-client-controller-jh');
+const AbstDeviceClient = require('../../../../module/device-client-controller-jh');
+// const {AbstConverter, operationController} = require('device-protocol-converter-jh');
+const {AbstConverter, operationController} = require('../../../../module/device-protocol-converter-jh');
 // const {AbstConverter, operationController} = require('../../../module/device-protocol-converter-jh');
 const Model = require('./Model');
 
@@ -49,6 +49,8 @@ class Control extends AbstDeviceClient {
     BU.CLI(orderInfo);
     let modelId = orderInfo.modelId;
 
+    BU.CLI(orderInfo);
+
     // BU.CLI(_.includes(modelId, 'V_') && orderInfo.hasTrue === true);
     // BU.CLI(_.includes(modelId, 'P_') && orderInfo.hasTrue === true);
     // BU.CLIN(this.converter);
@@ -80,12 +82,18 @@ class Control extends AbstDeviceClient {
         oper = this.operationInfo.valve.STATUS;
       }
     }
+    /** @type {Array.<commandInfo>} */
     let cmdList = this.converter.generationCommand(oper);
+    // BU.CLI(cmdList);
+    if(this.config.deviceInfo.connect_info.type === 'socket'){
+      cmdList.forEach(currentItem => {
+        currentItem.data = JSON.stringify(currentItem.data);
+      });
+    }
+    
     let commandSet =  this.generationManualCommand({cmdList: cmdList, commandId: orderInfo.commandId});
-
     // BU.CLIN(commandSet, 2);
     this.executeCommand(commandSet);
-    // return commandSet.cmdList;
   }
 
 
@@ -105,21 +113,21 @@ class Control extends AbstDeviceClient {
     };
   }
 
-  /**
-   * Device Controller 변화가 생겨 관련된 전체 Commander에게 뿌리는 Event
-   * @param {dcEvent} dcEvent 
-   */
-  updatedDcEventOnDevice(dcEvent) {
-    // BU.log('updateDcEvent\t', dcEvent.eventName);
-    switch (dcEvent.eventName) {
-    case this.definedControlEvent.CONNECT:
-      // var commandSet = this.generationManualCommand({cmdList:this.converter.generationCommand()});
-      // this.executeCommand(commandSet);
-      break;
-    default:
-      break;
-    }
-  }
+  // /**
+  //  * Device Controller 변화가 생겨 관련된 전체 Commander에게 뿌리는 Event
+  //  * @param {dcEvent} dcEvent 
+  //  */
+  // updatedDcEventOnDevice(dcEvent) {
+  //   // BU.log('updateDcEvent\t', dcEvent.eventName);
+  //   switch (dcEvent.eventName) {
+  //   case this.definedControlEvent.CONNECT:
+  //     // var commandSet = this.generationManualCommand({cmdList:this.converter.generationCommand()});
+  //     // this.executeCommand(commandSet);
+  //     break;
+  //   default:
+  //     break;
+  //   }
+  // }
 
 
 
@@ -134,13 +142,19 @@ class Control extends AbstDeviceClient {
    * @param {dcData} dcData 명령 수행 결과 데이터
    */
   onDcData(dcData){
-    BU.CLIS(dcData.data);
+    // BU.CLIS(dcData.data);
+
+    // TEST 개발용 Socket 일 경우 데이터 처리
+    if(this.config.deviceInfo.connect_info.type === 'socket'){
+      dcData.data = JSON.parse(dcData.data.toString());
+      dcData.data.data = Buffer.from(dcData.data.data);
+      BU.CLI(dcData.data);
+    }
 
     try {
       let parsedData =  this.converter.parsingUpdateData(dcData);
   
       BU.CLI(parsedData);
-
       !this.config.hasDev && this.requestTakeAction(parsedData.eventCode);
   
       // BU.CLIS(parsedData.eventCode,this.definedCommanderResponse.DONE);
@@ -148,10 +162,7 @@ class Control extends AbstDeviceClient {
         this.model.onData(parsedData.data);
       }
   
-      BU.CLI(parsedData);
-      // const resultData = this.model.onData(data);
-  
-      // BU.CLIN(this.getDeviceOperationInfo());
+      BU.CLIN(this.getDeviceOperationInfo().data);
       
     } catch (error) {
       BU.CLI(error.name);

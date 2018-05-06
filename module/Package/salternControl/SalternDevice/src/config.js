@@ -16,14 +16,15 @@ module.exports = {
         hasDcMessage: true,
         hasTransferCommand: true
       },
-      protocolConstructorConfig: {
+      protocol_info: {
         deviceId: '0013A20040F7AB6C',
       },
       connect_info: {
         type: 'zigbee',
         subType: 'xbee',
         baudRate: 9600,
-        port: 'COM5',
+        port: 'COM10',
+        // port: 9000,
         
       },
     },

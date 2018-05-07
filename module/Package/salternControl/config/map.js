@@ -62,19 +62,19 @@ const map = {
       port: 9000,
       // port: 'COM5',
       deviceRouterList: [{
-        targetId: 'R_GLS_001',
+        targetId: 'R_V_101',
         deviceId: '0013A20040F7B4AD',
         nodeModelList: ['V_101', 'WL_001']
       }, {
-        targetId: 'R_GLS_002',
+        targetId: 'R_V_102',
         deviceId: '0013A20040F7B454',
         nodeModelList: ['V_102', 'WL_002']
       }, {
-        targetId: 'R_GLS_003',
+        targetId: 'R_V_103',
         deviceId: '0013A20040F7B42D',
         nodeModelList: ['V_103', 'WL_003']
       }, {
-        targetId: 'R_GLS_004',
+        targetId: 'R_V_104',
         deviceId: '0013A20040F7B433',
         nodeModelList: ['V_104', 'WL_004']
       }, {

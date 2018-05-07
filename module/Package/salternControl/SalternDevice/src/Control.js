@@ -62,7 +62,7 @@ class Control extends AbstDeviceClient {
    * @param {{hasTrue: boolean, modelId: string, commandId: string}} orderInfo 
    */
   orderOperation(orderInfo){
-    BU.CLI(orderInfo);
+    // BU.CLI(orderInfo);
     let modelId = orderInfo.modelId;
 
     let oper;
@@ -167,8 +167,13 @@ class Control extends AbstDeviceClient {
 
     try {
       let parsedData =  this.converter.parsingUpdateData(dcData);
+
+      // 만약 파싱 에러가 발생한다면 명령 재 요청
+      if(parsedData.eventCode === this.definedCommanderResponse.ERROR){
+        BU.errorLog('salternDevice', 'parsingError', parsedData.data);
+        return this.requestTakeAction(this.definedCommanderResponse.RETRY);
+      }
   
-      BU.CLI(parsedData);
       !this.config.hasDev && this.requestTakeAction(parsedData.eventCode);
   
       // BU.CLIS(parsedData.eventCode,this.definedCommanderResponse.DONE);
@@ -176,7 +181,7 @@ class Control extends AbstDeviceClient {
         this.model.onData(parsedData.data);
       }
   
-      BU.CLI(this.getDeviceOperationInfo().id, this.getDeviceOperationInfo().data);
+      // BU.CLI(this.getDeviceOperationInfo().id, this.getDeviceOperationInfo().data);
 
       // 옵저버에게 데이터 전달
       _.forEach(this.observerList, observer => {

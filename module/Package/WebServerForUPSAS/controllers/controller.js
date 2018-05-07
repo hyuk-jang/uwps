@@ -14,6 +14,15 @@ const map = require('../public/Map/map');
 const net = require('net');
 
 module.exports = function(app) {
+  var http = require('http').Server(app);
+  var io = require('socket.io')(http);
+  // app.get('/a', function(req, res){
+  //   return res.render('./socket.test.html');
+  // });
+  io.on('connection', function(socket){
+    console.log('a user connected');
+  });
+
   const initSetter = app.get('initSetter');
   const biModule = new BiModule(initSetter.dbInfo);
     

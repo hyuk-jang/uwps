@@ -84,7 +84,7 @@ class Control {
 
   /**
    * 
-   * @param {{commandId: string, trueList: string[], falseList: string[]}} controlInfo 
+   * @param {{cmdName: string, trueList: string[], falseList: string[]}} controlInfo 
    */
   excuteControl(controlInfo) {
     let orderList = [];
@@ -92,7 +92,7 @@ class Control {
       let orderInfo = {
         hasTrue: true,
         modelId,
-        commandId: controlInfo.commandId
+        commandId: controlInfo.cmdName
       };
       let foundRouter = this.model.findRouter(modelId);
       // BU.CLIN(foundRouter);
@@ -102,11 +102,10 @@ class Control {
     controlInfo.falseList.forEach(modelId => {
       let orderInfo = {
         hasTrue: false,
-        modelId: '' ,
-        commandId: controlInfo.commandId
+        modelId,
+        commandId: controlInfo.cmdName
       };
-      let {foundRouter, modelInfo} = this.findRouterAndModel(modelId);
-      orderInfo.modelId = modelInfo.targetId;
+      let foundRouter = this.model.findRouter(modelId);
       orderList.push(foundRouter.orderOperation(orderInfo));
     });
 
@@ -123,11 +122,10 @@ class Control {
     controlInfo.trueList.forEach(modelId => {
       let orderInfo = {
         hasTrue: false,
-        modelId: '' ,
+        modelId,
         commandId: controlInfo.cmdName
       };
-      let {foundRouter, modelInfo} = this.findRouterAndModel(modelId);
-      orderInfo.modelId = modelInfo.targetId;
+      let foundRouter = this.model.findRouter(modelId);
       orderList.push(foundRouter.orderOperation(orderInfo));
     });
 
@@ -144,48 +142,6 @@ class Control {
 
     return orderList;
   }
-
-  findRouterAndModel(modelId){
-    let modelInfo;
-
-    let category =  _.findKey(this.modelList, modelList => {
-      let foundIt = _.find(modelList, {targetId: modelId});
-      if(!_.isEmpty(foundIt)){
-        modelInfo = foundIt;
-        return true;
-      }
-    });
-    
-    switch (category) {
-    case 'waterDoorList':
-      category = 'waterDoor';
-      break;
-    case 'valveList':
-      category = 'valve';
-      break;
-    case 'pumpList':
-      category = 'pump';
-      break;
-    default:
-      break;
-    }
-    
-    modelInfo.category = category;
-    let foundRouter = _.find(this.routerList, router => {
-      return _.includes(router.modelList, modelId);
-    });
-
-    return {foundRouter, modelInfo};
-  }
-  
-  findModel(modelId){
-    let {foundRouter, modelInfo} = this.findRouterAndModel(modelId);
-    BU.CLIN(modelInfo);
-    let deviceData = foundRouter && foundRouter.getData(modelInfo.category);
-
-    BU.CLIN(deviceData);
-  }
-
 }
 module.exports = Control;
 

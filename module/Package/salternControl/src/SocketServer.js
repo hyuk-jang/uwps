@@ -6,7 +6,7 @@ const net = require('net');
 
 const Model = require('./Model');
 
-class Control {
+class SocketServer {
   /**
    * 
    * @param {number} port 
@@ -62,4 +62,4 @@ class Control {
   }
 
 }
-module.exports = Control;
+module.exports = SocketServer;

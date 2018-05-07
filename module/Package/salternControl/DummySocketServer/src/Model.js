@@ -146,7 +146,7 @@ class Model {
    */
   getPump(xbeeApi_0x10) {
     let router = this.findRouter(xbeeApi_0x10);
-    let bufferHex = [0x23, 0x30, 0x30, 0x30, 0x31, 0x30, 0x30, 0x30, 0x32];
+    let bufferHex = [0x23, 0x30, 0x30, 0x30, 0x31, 0x30, 0x30, 0x30, 0x33];
     switch (router.pump) {
     case baseModel.PUMP.STATUS.OFF:
       bufferHex = bufferHex.concat([0x30, 0x30]);
@@ -200,21 +200,21 @@ class Model {
     let router = this.findRouter(xbeeApi_0x10);
     const cmd = xbeeApi_0x10.data;
     if (cmd === baseModel.VALVE.COMMAND.OPEN.cmd) {
-      if (router.valve !== baseModel.VALVE.COMMAND.OPEN) {
+      if (router.valve !== baseModel.VALVE.STATUS.OPEN) {
         // setTimeout(() => {
-        router.valve = baseModel.VALVE.COMMAND.OPENING;
+        router.valve = baseModel.VALVE.STATUS.OPENING;
         // }, 30);
         setTimeout(() => {
-          router.valve = baseModel.VALVE.COMMAND.OPEN;
+          router.valve = baseModel.VALVE.STATUS.OPEN;
         }, _.random(3000, 5000));
       }
     } else if (cmd === baseModel.VALVE.COMMAND.CLOSE.cmd) {
-      if (router.valve !== baseModel.VALVE.COMMAND.CLOSE) {
+      if (router.valve !== baseModel.VALVE.STATUS.CLOSE) {
         // setTimeout(() => {
-        router.valve = baseModel.VALVE.COMMAND.CLOSING;
+        router.valve = baseModel.VALVE.STATUS.CLOSING;
         // }, 30);
         setTimeout(() => {
-          router.valve = baseModel.VALVE.COMMAND.CLOSE;
+          router.valve = baseModel.VALVE.STATUS.CLOSE;
         }, _.random(3000, 5000));
       }
     }
@@ -228,21 +228,21 @@ class Model {
     let router = this.findRouter(xbeeApi_0x10);
     const cmd = xbeeApi_0x10.data;
     if (cmd === baseModel.PUMP.COMMAND.ON.cmd) {
-      if (router.pump !== baseModel.PUMP.COMMAND.ON) {
+      if (router.pump !== baseModel.PUMP.STATUS.ON) {
         // setTimeout(() => {
-        router.pump = baseModel.PUMP.COMMAND.OFF;
+        router.pump = baseModel.PUMP.STATUS.OFF;
         // }, 30);
         setTimeout(() => {
-          router.pump = baseModel.PUMP.COMMAND.ON;
+          router.pump = baseModel.PUMP.STATUS.ON;
         }, _.random(3000, 5000));
       }
     } else if (cmd === baseModel.PUMP.COMMAND.OFF.cmd) {
-      if (router.pump !== baseModel.PUMP.COMMAND.OFF) {
+      if (router.pump !== baseModel.PUMP.STATUS.OFF) {
         // setTimeout(() => {
-        router.pump = baseModel.PUMP.COMMAND.ON;
+        router.pump = baseModel.PUMP.STATUS.ON;
         // }, 30);
         setTimeout(() => {
-          router.pump = baseModel.PUMP.COMMAND.OFF;
+          router.pump = baseModel.PUMP.STATUS.OFF;
         }, _.random(3000, 5000));
       }
     }

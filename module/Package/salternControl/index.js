@@ -63,10 +63,9 @@ if (require !== undefined && require.main === module) {
   // BU.CLIN(control.routerList, 2);
 
   // control.findModel('WD_007');
-  let cmdInfo = {};
   // cmdInfo = _.find(map.controlList, {cmdName: '증발지 1A → 해주 1'});
   // cmdInfo = _.find(map.controlList, {cmdName: '증발지 3 → 증발지 4'});  
-  cmdInfo = _.find(map.controlList, {cmdName: '저수조 → 증발지 1'});  
+  let cmdInfo = _.find(map.controlList, {cmdName: '저수조 → 증발지 1'});  
 
   BU.CLI(cmdInfo);
 

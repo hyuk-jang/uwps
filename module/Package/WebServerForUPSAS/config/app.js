@@ -13,6 +13,8 @@ module.exports = function (dbInfo) {
 
   var app = express();
 
+
+
   var flash = require('connect-flash');
   var favicon = require('serve-favicon');
   app.use(favicon(path.join(process.cwd(), 'public/image', 'favicon.ico')));

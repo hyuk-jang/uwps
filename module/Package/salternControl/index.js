@@ -65,8 +65,10 @@ if (require !== undefined && require.main === module) {
   // control.findModel('WD_007');
   let cmdInfo = {};
   // cmdInfo = _.find(map.controlList, {cmdName: '증발지 1A → 해주 1'});
-  cmdInfo = _.find(map.controlList, {cmdName: '증발지 3 → 증발지 4'});  
+  // cmdInfo = _.find(map.controlList, {cmdName: '증발지 3 → 증발지 4'});  
   cmdInfo = _.find(map.controlList, {cmdName: '저수조 → 증발지 1'});  
+
+  BU.CLI(cmdInfo);
 
   setTimeout(() => {
     control.excuteControl(cmdInfo);

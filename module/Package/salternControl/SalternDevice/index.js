@@ -37,9 +37,13 @@ if (require !== undefined && require.main === module) {
   cloneConfig.current.deviceInfo.target_id = 'Direct';
   const control_2 = new Control(cloneConfig);
   control_2.init();
-  const {operationController} = require('../../../module/device-protocol-converter-jh');
-  const cmdStorage = operationController.saltern.xbee;
-  let cmdList = control_2.converter.generationCommand(cmdStorage.valve.CLOSE);
+  const {BaseModel} = require('../../../module/device-protocol-converter-jh');
+
+  const baseModel = new BaseModel.Saltern('xbee');
+
+  BU.CLI(baseModel.VALVE.COMMAND.CLOSE);
+  let cmdList = control_2.converter.generationCommand(baseModel.VALVE.COMMAND.CLOSE);
+  BU.CLI(cmdList);
   if(cloneConfig.current.deviceInfo.connect_info.type === 'socket'){
     cmdList.forEach(currentItem => {
       currentItem.data = JSON.stringify(currentItem.data);
@@ -50,44 +54,6 @@ if (require !== undefined && require.main === module) {
     // BU.CLI(cmd_1.cmdList);
     control_2.executeCommand(cmd_1);
   }, 3000);
-
-  // const {operationController} = require('device-protocol-converter-jh');
-  // const {operationController} = require('../../../module/device-protocol-converter-jh');
-  // const cmdStorage = operationController.saltern.xbee;
-
-
-  // const map = require('../config/map');
-
-
-
-  // const deviceRouterList = map.setInfo.connectInfoList[0].deviceRouterList;
-
-  // const deviceId = _.nth(deviceRouterList, 0).deviceId;
-
-  // config.current.deviceInfo.protocolConstructorConfig.deviceId = '0013A20040F7B446';
-  // config.current.deviceInfo.protocolConstructorConfig.deviceId = '0013A20040F7B4A4';
-  // let cmdList = control.converter.generationCommand(cmdStorage.waterDoor.CLOSE);
-  
-  
-  
-  // BU.CLI(cmdList);
-
-  // try {
-  //   control.executeCommand(control.generationManualCommand({cmdList}));
-  // } catch (error) {
-    
-  // }
-  
-  // setTimeout(() => {
-  //   let cmd_1 = control.generationManualCommand({cmdList});
-  //   BU.CLI(cmd_1.cmdList);
-
-    
-  //   control.executeCommand(cmd_1);
-  // }, 3000);
-
-  
-  // BU.CLI(cmdList);
 
   process.on('uncaughtException', function (err) {
   // BU.debugConsole();

@@ -6,7 +6,7 @@ const BU = require('base-util-jh').baseUtil;
 // const AbstDeviceClient = require('device-client-controller-jh');
 const AbstDeviceClient = require('../../../../module/device-client-controller-jh');
 // const {AbstConverter, operationController} = require('device-protocol-converter-jh');
-const {AbstConverter, operationController} = require('../../../../module/device-protocol-converter-jh');
+const {AbstConverter, BaseModel} = require('../../../../module/device-protocol-converter-jh');
 // const {AbstConverter, operationController} = require('../../../module/device-protocol-converter-jh');
 const Model = require('./Model');
 
@@ -19,13 +19,22 @@ class Control extends AbstDeviceClient {
     this.config = config.current;
 
     // BU.CLI(this.config);
+    
+    /** @type {string[]} */
+    this.nodeModelList = config.current.deviceInfo.nodeModelList;
+    
+    
+
+
+    this.id = this.config.deviceInfo.target_id;
+
+
+    this.converter = new AbstConverter(this.config.deviceInfo.protocol_info);
+    this.baseModel = new BaseModel.Saltern(this.config.deviceInfo.protocol_info.subCategory);
+
     this.model = new Model(this);
 
-    this.converter = new AbstConverter(this.config.deviceInfo);
-
-    this.modelList = config.current.deviceInfo.modelList;
-
-    this.operationInfo = operationController.saltern.xbee;
+    this.observerList = [];
   }
 
   /**
@@ -40,6 +49,13 @@ class Control extends AbstDeviceClient {
     this.converter.setProtocolConverter();
   }
 
+  /**
+   * 
+   * @param {Object} parent 
+   */
+  attch(parent){
+    this.observerList.push(parent);
+  }
 
   /**
    * 
@@ -49,37 +65,31 @@ class Control extends AbstDeviceClient {
     BU.CLI(orderInfo);
     let modelId = orderInfo.modelId;
 
-    BU.CLI(orderInfo);
-
-    // BU.CLI(_.includes(modelId, 'V_') && orderInfo.hasTrue === true);
-    // BU.CLI(_.includes(modelId, 'P_') && orderInfo.hasTrue === true);
-    // BU.CLIN(this.converter);
-    // BU.CLI(this.operationInfo.waterDoor);
     let oper;
 
     if(orderInfo.hasTrue === true){
       if(_.includes(modelId, 'WD_')){
-        oper = this.operationInfo.waterDoor.OPEN;
+        oper = this.baseModel.WATER_DOOR.COMMAND.OPEN;
       } else if(_.includes(modelId, 'P_')){
-        oper = this.operationInfo.pump.ON;
+        oper = this.baseModel.PUMP.COMMAND.ON;
       } else if(_.includes(modelId, 'V_')){
-        oper = this.operationInfo.valve.OPEN;
+        oper = this.baseModel.VALVE.COMMAND.OPEN;
       }
     } else if(orderInfo.hasTrue === false){
       if(_.includes(modelId, 'WD_')){
-        oper = this.operationInfo.waterDoor.CLOSE;
+        oper = this.baseModel.WATER_DOOR.COMMAND.CLOSE;
       } else if(_.includes(modelId, 'P_')){
-        oper = this.operationInfo.pump.OFF;
+        oper = this.baseModel.PUMP.COMMAND.OFF;
       } else if(_.includes(modelId, 'V_')){
-        oper = this.operationInfo.valve.CLOSE;
+        oper = this.baseModel.VALVE.COMMAND.CLOSE;
       }
     } else {
       if(_.includes(modelId, 'WD_')){
-        oper = this.operationInfo.waterDoor.STATUS;
+        oper = this.baseModel.WATER_DOOR.COMMAND.STATUS;
       } else if(_.includes(modelId, 'P_')){
-        oper = this.operationInfo.pump.STATUS;
+        oper = this.baseModel.PUMP.COMMAND.STATUS;
       } else if(_.includes(modelId, 'V_')){
-        oper = this.operationInfo.valve.STATUS;
+        oper = this.baseModel.VALVE.COMMAND.STATUS;
       }
     }
     /** @type {Array.<commandInfo>} */
@@ -100,11 +110,11 @@ class Control extends AbstDeviceClient {
 
   /**
    * 장치의 현재 데이터 및 에러 내역을 가져옴
-   * @return {{id: string, config: Object, data: {smRain: number}, systemErrorList: Array, troubleList: Array}} 
    */
   getDeviceOperationInfo() {
     return {
-      id: this.config.deviceInfo.target_id,
+      controller: this,
+      id: this.id,
       config: this.config.deviceInfo,
       data: this.model.deviceData,
       // systemErrorList: [{code: 'new Code22223', msg: '에러 테스트 메시지22', occur_date: new Date() }],
@@ -131,9 +141,13 @@ class Control extends AbstDeviceClient {
 
 
 
-  getData(category){
-    BU.CLI(category);
-    return this.model.deviceData[category];
+  /**
+   * 
+   * @param {string} category 
+   */
+  getDeviceData(category){
+    // BU.CLI(category);
+    return _.get(this.model.deviceData, category);
   }
 
   /**
@@ -162,7 +176,12 @@ class Control extends AbstDeviceClient {
         this.model.onData(parsedData.data);
       }
   
-      BU.CLIN(this.getDeviceOperationInfo().data);
+      BU.CLI(this.getDeviceOperationInfo().id, this.getDeviceOperationInfo().data);
+
+      // 옵저버에게 데이터 전달
+      _.forEach(this.observerList, observer => {
+        observer.notifyData(this);
+      });
       
     } catch (error) {
       BU.CLI(error.name);

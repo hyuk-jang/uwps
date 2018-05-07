@@ -79,8 +79,10 @@
 /**
  * @typedef {Object} deviceModel
  * @prop {string} targetId
- * @prop {string} target_name
+ * @prop {string} targetName
+ * @prop {number|string} targetData
  */
+//  * @prop {SalternDevice} salternRouter
 
 /**
  * @typedef {Object} deviceRouter

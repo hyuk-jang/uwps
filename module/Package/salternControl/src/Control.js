@@ -19,18 +19,14 @@ class Control {
     this.config = config.current;
 
     // BU.CLI(this.config);
-    this.model = new Model(this);
-
+    
     this.map = map;
-
+    
     /** @type {Array.<SalternDevice>} */
     this.routerList = [];
-    this.modelList = map.setInfo.modelInfo;
+    this.model = new Model(this);
   }
 
-  /**
-   * 개발 버젼일 경우 장치 연결 수립을 하지 않고 가상 데이터를 생성
-   */
   init(){
     this.map.setInfo.connectInfoList.forEach(deviceConnectInfo => {
       let connectInfo = {
@@ -44,11 +40,7 @@ class Control {
           hasDev: false,
           deviceInfo: {
             target_id: routerInfo.targetId,
-            // target_category: 'socket',
-            // target_protocol: 'xbee',
             target_category: 'saltern',
-            target_protocol: 'xbee',
-            protocolConstructorConfig: {deviceId: routerInfo.deviceId} ,
             logOption:{
               hasCommanderResponse: true,
               hasDcError: true,
@@ -57,43 +49,61 @@ class Control {
               hasDcMessage: true,
               hasTransferCommand: true
             },
+            protocol_info: {
+              mainCategory: 'saltern',
+              subCategory: 'xbee',
+              deviceId: routerInfo.deviceId,
+            },
             connect_info: connectInfo,
-            modelList: routerInfo.nodeModelList
+            nodeModelList: routerInfo.nodeModelList
           }
         }});
         salternDevice.init();
+        salternDevice.attch(this);
         this.routerList.push(salternDevice);
       });
     });
   }
 
   getAllStatus(){
-    
+    return this.model.salternDeviceDataStorage;
   }
+
+
+  /**
+   * Saltern Device로 부터 데이터 갱신이 이루어 졌을때 자동 업데이트 됨.
+   * @param {SalternDevice} salternController 
+   */
+  notifyData(salternController) {
+    this.model.onData(salternController);
+
+    BU.CLI(this.getAllStatus());
+    return this.getAllStatus();
+  }
+
 
   /**
    * 
-   * @param {{cmdName: string, trueList: string[], falseList: string[]}} controlInfo 
+   * @param {{commandId: string, trueList: string[], falseList: string[]}} controlInfo 
    */
   excuteControl(controlInfo) {
     let orderList = [];
     controlInfo.trueList.forEach(modelId => {
       let orderInfo = {
         hasTrue: true,
-        modelId: '' ,
-        commandId: controlInfo.cmdName
+        modelId,
+        commandId: controlInfo.commandId
       };
-      let {foundRouter, modelInfo} = this.findRouterAndModel(modelId);
-      orderInfo.modelId = modelInfo.targetId;
-      BU.CLIN(foundRouter);
+      let foundRouter = this.model.findRouter(modelId);
+      // BU.CLIN(foundRouter);
       orderList.push(foundRouter.orderOperation(orderInfo));
     });
 
     controlInfo.falseList.forEach(modelId => {
       let orderInfo = {
-        hasTrue: true,
+        hasTrue: false,
         modelId: '' ,
-        commandId: controlInfo.cmdName
+        commandId: controlInfo.commandId
       };
       let {foundRouter, modelInfo} = this.findRouterAndModel(modelId);
       orderInfo.modelId = modelInfo.targetId;
@@ -178,3 +188,21 @@ class Control {
 
 }
 module.exports = Control;
+
+
+/**
+ * @typedef {Object} deviceOperationInfo
+ * @prop {SalternDevice} controller
+ * @prop {string} id
+ * @prop {Object} config
+ * @prop {Object} data
+ * @prop {Array.<systemError>} systemErrorList
+ * @prop {Array.<systemError>} troubleList
+ */
+
+/**
+ * @typedef {Object} systemError
+ * @prop {string} code
+ * @prop {string} msg
+ * @prop {Date} occur_date
+ */ 

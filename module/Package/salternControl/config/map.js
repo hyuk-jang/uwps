@@ -55,26 +55,28 @@ const map = {
   },
   setInfo: {
     connectInfoList: [{
-      type: 'zigbee',
+      type: 'socket',
+      // type: 'zigbee',
       subType: 'xbee',
       baudRate: 9600,
-      port: 'COM5',
+      port: 9000,
+      // port: 'COM5',
       deviceRouterList: [{
         targetId: 'R_GLS_001',
         deviceId: '0013A20040F7B4AD',
-        nodeModelList: ['V_101']
+        nodeModelList: ['V_101', 'WL_001']
       }, {
         targetId: 'R_GLS_002',
         deviceId: '0013A20040F7B454',
-        nodeModelList: ['V_102']
+        nodeModelList: ['V_102', 'WL_002']
       }, {
         targetId: 'R_GLS_003',
         deviceId: '0013A20040F7B42D',
-        nodeModelList: ['V_103']
+        nodeModelList: ['V_103', 'WL_003']
       }, {
         targetId: 'R_GLS_004',
         deviceId: '0013A20040F7B433',
-        nodeModelList: ['V_104']
+        nodeModelList: ['V_104', 'WL_004']
       }, {
         targetId: 'R_GLS_005',
         deviceId: '0013A20040F7ACC8',
@@ -203,50 +205,61 @@ const map = {
       }],
       valveList: [{
         targetId: 'V_001', 
-        target_name: '밸브1'
+        targetName: '밸브1'
       },{
         targetId: 'V_002', 
-        target_name: '밸브2'
+        targetName: '밸브2'
       },{
         targetId: 'V_003', 
-        target_name: '밸브3'
+        targetName: '밸브3'
       },{
         targetId: 'V_004', 
-        target_name: '밸브4'
+        targetName: '밸브4'
       },{
         targetId: 'V_006', 
-        target_name: '밸브6'
+        targetName: '밸브6'
       },{
         targetId: 'V_007', 
-        target_name: '밸브7'
+        targetName: '밸브7'
       },{
         targetId: 'V_101', 
-        target_name: '수문1'
+        targetName: '수문1'
       },{
         targetId: 'V_102', 
-        target_name: '수문2'
+        targetName: '수문2'
       },{
         targetId: 'V_103', 
-        target_name: '수문3'
+        targetName: '수문3'
       },{
         targetId: 'V_104', 
-        target_name: '수문4'
+        targetName: '수문4'
       }],
       pumpList: [{
         targetId: 'P_002',
-        target_name: '펌프2'
+        targetName: '펌프2'
       },{
         targetId: 'P_003',
-        target_name: '펌프3'
+        targetName: '펌프3'
       },{
         targetId: 'P_004',
-        target_name: '펌프4'
+        targetName: '펌프4'
       },{
         targetId: 'P_005',
-        target_name: '펌프5'
-      }
-
-      ]
+        targetName: '펌프5'
+      }],
+      waterLevelList: [{
+        targetId: 'WL_001',
+        targetName: '수위1'
+      },{
+        targetId: 'WL_002',
+        targetName: '수위2'
+      },{
+        targetId: 'WL_003',
+        targetName: '수위3'
+      },{
+        targetId: 'WL_004',
+        targetName: '수위4'
+      }]
     }
   },
   realtionInfo:{

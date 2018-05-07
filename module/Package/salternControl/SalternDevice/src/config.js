@@ -17,14 +17,16 @@ module.exports = {
         hasTransferCommand: true
       },
       protocol_info: {
+        mainCategory: 'saltern',
+        subCategory: 'xbee',
         deviceId: '0013A20040F7AB6C',
       },
       connect_info: {
-        type: 'zigbee',
+        type: 'socket',
         subType: 'xbee',
         baudRate: 9600,
-        port: 'COM10',
-        // port: 9000,
+        // port: 'COM10',
+        port: 9000,
         
       },
     },

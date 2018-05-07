@@ -5,17 +5,13 @@ const {BU, CU} = require('base-util-jh');
 
 const Control = require('./Control');
 
-const baseFormat = require('device-protocol-converter-jh').baseFormat.saltern;
-// const baseFormat = require('../../../module/device-protocol-converter-jh').baseFormat.saltern;
-
 class Model {
   /**
    * 
    * @param {Control} controller 
    */
   constructor(controller) {
-    this.deviceData = baseFormat;
-    // BU.CLI(this.deviceData);
+    this.deviceData = controller.baseModel.baseFormat;
   }
 
   getData(category){
@@ -23,7 +19,7 @@ class Model {
   }
 
   /**
-   * @param {baseFormat} salternData 
+   * @param {Object} salternData 
    */
   onData(salternData){
     // BU.CLI(salternData);

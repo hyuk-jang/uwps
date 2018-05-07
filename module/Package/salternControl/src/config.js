@@ -16,7 +16,9 @@ module.exports = {
         hasDcMessage: true,
         hasTransferCommand: true
       },
-      protocolConstructorConfig: {
+      protocol_info: {
+        mainCategory: 'saltern',
+        subCategory: 'xbee',
         deviceId: '0013A20040F7AB6C',
       },
       connect_info: {

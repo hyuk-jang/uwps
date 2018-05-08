@@ -49,6 +49,8 @@ class SocketServer {
           /** @type {{cmdType: string, hasTrue: boolean, cmdId: string}} */
           let jsonData = JSON.parse(bufferData.toString());
 
+
+
           this.processingCommand(jsonData);
         } catch (error) {
           BU.logFile(error);
@@ -81,11 +83,11 @@ class SocketServer {
 
   /**
    * 
-   * @param {*} salternDeviceDataStorage 
+   * @param {{commandStorage: Object, deviceStorage: Array.<{category: string, targetId: string, targetName: string, targetData: *}>}} salternDeviceDataStorage 
    */
   emitToClientList(salternDeviceDataStorage) {
     try {
-      let encodingData =  this.baseConverter.encodingDefaultRequestMsgForTransfer(salternDeviceDataStorage);
+      let encodingData = this.baseConverter.encodingDefaultRequestMsgForTransfer(JSON.stringify(salternDeviceDataStorage));
   
       this.clientList.forEach(client => {
         client.write(encodingData);
@@ -100,6 +102,7 @@ class SocketServer {
    * @param {{cmdType: string, hasTrue: boolean, cmdId: string}} jsonData 
    */
   processingCommand(jsonData) {
+    BU.CLI(jsonData);
     if(jsonData.cmdType === 'AUTOMATIC'){
       let fountIt = _.find(this.map.controlList, {cmdName: jsonData.cmdId});
       if(jsonData.hasTrue){
@@ -114,6 +117,10 @@ class SocketServer {
       } else {
         this.controller.cancelAutomaticControl(fountIt);
       }
+    } else if (jsonData.cmdType === 'SCENARIO') {
+      if(jsonData.cmdId === 'SCENARIO_1'){
+        this.controller.scenarioMode_1();
+      } 
     }
   }
 

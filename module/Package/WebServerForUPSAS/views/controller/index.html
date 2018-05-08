@@ -13,7 +13,12 @@
     <!--메인-->
     <div class="jumbotron text-center jumbotron_line">
       <div class="row row_st_line min_h_780">
+          
         <div class="row row_width  top_box">
+          <div class="col-xs-3 sel_box" style="width: 150px">
+            <a class="btn btn-warning btn-lg" id="scenario_control_btn" role="button">시연모드 1</a>
+          </div>
+            
           <div class="col-xs-3 sel_box" style="width: 250px">
             명령 제어 목록
             <select class="form-control form-control_st" id="automatic_control_list" name="" style="width: 230px">
@@ -47,32 +52,76 @@
             <button type="button" id="automatic_control_btn" class="btn btn-primary" style="margin-bottom:3px; height:40px;" id="search">명령 제어 실행</button>
           </div>
         </div>
-        
-        <div id="contents">
-          <div style="position: absolute; width: 75%">
-
-          </div>
-          <div style="margin-left: 75%; width:25%">
+        <div id="contents" style="padding: 30px">
+          <div style="float: left; width: 65%">
             <div class="panel panel-default">
-                <!-- Default panel contents -->
-                <div class="panel-heading">염전 장치 상태 정보 목록</div>
-                <div class="panel-body">
-                </div>
-              
-                <!-- Table -->
-                <table id="saltern_device_data_list" class="table">
-                  <thead>
-                    <tr>
-                      <!-- <th data-field="type">장치 종류</th> -->
-                      <th data-field="targetName">장치 명</th>
-                      <th data-field="targetId">장치 ID</th>
-                      <th data-field="targetData">장치 상태</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
+              <!-- Default panel contents -->
+              <div class="panel-heading"> 현재 수행 명령 목록</div>
+              <!-- Table -->
+              <table id="saltern_current_command" class="table">
+                <thead>
+                  <tr>
+                    <th data-field="commandType">명령 타입</th>
+                    <th data-field="commandId">명령 ID</th>
+                    <th data-field="commandName">요청 명령</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="panel panel-default">
+              <!-- Default panel contents -->
+              <div class="panel-heading"> 대기 명령 목록</div>
+              <!-- Table -->
+              <table id="saltern_standby_command" class="table">
+                <thead>
+                  <tr>
+                    <th data-field="commandType">명령 타입</th>
+                    <th data-field="commandId">명령 ID</th>
+                    <th data-field="commandName">요청 명령</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="panel panel-default">
+              <!-- Default panel contents -->
+              <div class="panel-heading"> 지연 대기 명령</div>
+              <!-- Table -->
+              <table id="saltern_delay_command" class="table">
+                <thead>
+                  <tr>
+                    <th data-field="commandType">명령 타입</th>
+                    <th data-field="commandId">명령 ID</th>
+                    <th data-field="commandName">요청 명령</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+        
+          </div>
+          <div style="float: right; width:30%">
+            <div class="panel panel-default">
+              <!-- Default panel contents -->
+              <div class="panel-heading"> 장치 상태 정보 목록</div>
+              <div class="panel-body">
               </div>
-
+        
+              <!-- Table -->
+              <table id="saltern_device_data_list" class="table">
+                <thead>
+                  <tr>
+                    <th data-field="targetCategory">장치 종류</th>
+                    <th data-field="targetName">장치 명</th>
+                    <th data-field="targetId">장치 ID</th>
+                    <th data-field="targetData">장치 상태</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+        
           </div>
         </div>
       </div>
@@ -107,35 +156,70 @@
           socket.emit("excuteSalternControl", requestMsg);
         })
 
-        // socket.on("onSalternData", function (msg) {
-        //   var salternDeviceDataStorage = JSON.parse(msg);
-        //   var dataList = [];
-        //   // $('#saltern_device_status').html();
-        //   // _.each(salternDeviceDataStorage, function (salternStorage, category) {
-        //   //   _.each(salternStorage, function(data){
-        //   //     var template = document.querySelector('#mytemplate').innerHTML;
-        //   //     var clone = $.parseHTML(template)
+        $("#scenario_control_btn").on("click", function () {
+          var requestMsg = {
+            cmdType: "SCENARIO",
+            cmdId: "SCENARIO_1"
+          }
+          socket.emit("excuteSalternControl", requestMsg);
+        })
 
-        //   //     data.targetId
-        //   //     // dataList.push(clone)
-        //   //     // $('#saltern_device_status').append(clone);
-        //   //   })
+        // 초기 페이지에 접속하면 자동으로 데이터를 갱신하기 위함
+        var $saltern_current_command = $('#saltern_current_command');
+        var $saltern_standby_command = $('#saltern_standby_command');
+        var $saltern_delay_command = $('#saltern_delay_command');
+        var $saltern_device_table = $('#saltern_device_data_list');
 
-        //   //   // $('#saltern_device_status').prepend(clone);
-        //   // });
-        //   $("#saltern_device_status").html(salternDeviceDataStorage);
-        // });
-
-        socket.on("onSalternData", function (msg) {
-          var salternDeviceDataStorage = JSON.parse(msg);
-
-          $("#saltern_device_data_list").bootstrapTable({
+        socket.on("initSalternDevice", function (salternData) {
+          
+          var salternDeviceDataStorage = JSON.parse(salternData);
+          $saltern_device_table.bootstrapTable({
             data: salternDeviceDataStorage
           });
+        });
+
+        socket.on("initSalternCommand", function (currentCommandSet, standbyCommandSetList, delayCommandSetList) {
+        // socket.on("initSalternCommand", function (standbyCommandSetList) {
+          // console.log(standbyCommandSetList);
+          var parseCurrentCommandSet = JSON.parse(currentCommandSet);
+          var parseDtandbyCommandSetList = JSON.parse(standbyCommandSetList);
+          var parseDelayCommandSetList = JSON.parse(delayCommandSetList);
+          $saltern_current_command.bootstrapTable({
+            data: [parseCurrentCommandSet]
+          });
+          $saltern_standby_command.bootstrapTable({
+            data: parseDtandbyCommandSetList
+          });
+          $saltern_delay_command.bootstrapTable({
+            data: parseDelayCommandSetList
+          });
+        });
 
 
 
-          // $("#contents").html($("<p>").text(msg));
+        // 명령 요청을 하고 데이터를 받을 경우
+        socket.on("onSalternDevice", function (salternData) {
+          var salternDeviceDataStorage = JSON.parse(salternData);
+          $saltern_device_table.bootstrapTable('destroy').bootstrapTable({
+            data: salternDeviceDataStorage
+          });
+        });
+
+        socket.on("onSalternCommand", function (currentCommandSet, standbyCommandSetList, delayCommandSetList) {
+        // socket.on("onSalternCommand", function (standbyCommandSetList) {
+          console.log(standbyCommandSetList);
+          var parseCurrentCommandSet = JSON.parse(currentCommandSet);
+          var parseDtandbyCommandSetList = JSON.parse(standbyCommandSetList);
+          var parseDelayCommandSetList = JSON.parse(delayCommandSetList);
+          $saltern_current_command.bootstrapTable('destroy').bootstrapTable({
+            data: [parseCurrentCommandSet]
+          });
+          $saltern_standby_command.bootstrapTable('destroy').bootstrapTable({
+            data: parseDtandbyCommandSetList
+          });
+          $saltern_delay_command.bootstrapTable('destroy').bootstrapTable({
+            data: parseDelayCommandSetList
+          });
         });
       });
     </script>

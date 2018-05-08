@@ -29,6 +29,8 @@ class Model {
 
     // Device Model Storage 초기화
     this.init();
+
+    this.commandStorage = {};
   }
 
   init(){
@@ -69,25 +71,25 @@ class Model {
     };
     if(_.includes(targetId, 'WD_')){
       returnValue.category = this.baseModel.WATER_DOOR.KEY;
-      returnValue.model = _.find(this.salternDeviceDataStorage.waterDoorList, {targetId});
+      returnValue.model = _.find(this.salternDeviceDataStorage[this.baseModel.WATER_DOOR.KEY], {targetId});
     } else if(_.includes(targetId, 'P_')){
       returnValue.category = this.baseModel.PUMP.KEY;
-      returnValue.model = _.find(this.salternDeviceDataStorage.pumpList, {targetId});
+      returnValue.model = _.find(this.salternDeviceDataStorage[this.baseModel.PUMP.KEY], {targetId});
     } else if(_.includes(targetId, 'V_')){
       returnValue.category = this.baseModel.VALVE.KEY;
-      returnValue.model = _.find(this.salternDeviceDataStorage.valveList, {targetId});
+      returnValue.model = _.find(this.salternDeviceDataStorage[this.baseModel.VALVE.KEY], {targetId});
     } else if(_.includes(targetId, 'WL_')){
       returnValue.category = this.baseModel.WATER_LEVEL.KEY;
-      returnValue.model = _.find(this.salternDeviceDataStorage.waterLevelList, {targetId});
+      returnValue.model = _.find(this.salternDeviceDataStorage[this.baseModel.WATER_LEVEL.KEY], {targetId});
     } else if(_.includes(targetId, 'S_')){
       returnValue.category = this.baseModel.SALINITY.KEY;
-      returnValue.model = _.find(this.salternDeviceDataStorage.salinityList, {targetId});
+      returnValue.model = _.find(this.salternDeviceDataStorage[this.baseModel.SALINITY.KEY], {targetId});
     } else if(_.includes(targetId, 'WT_')){
       returnValue.category = this.baseModel.WATER_TEMPERATURE.KEY;
-      returnValue.model = _.find(this.salternDeviceDataStorage.waterTemperatureList, {targetId});
-    } else if(_.includes(targetId, 'MT_')){
-      returnValue.category = this.baseModel.WATER_TEMPERATURE.KEY;
-      returnValue.model = _.find(this.salternDeviceDataStorage.moduleTemperatureList, {targetId});
+      returnValue.model = _.find(this.salternDeviceDataStorage[this.baseModel.WATER_TEMPERATURE.KEY], {targetId});
+    } else if(_.includes(targetId, 'MFT_')){
+      returnValue.category = this.baseModel.MODULE_FRONT_TEMPERATURE.KEY;
+      returnValue.model = _.find(this.salternDeviceDataStorage[this.baseModel.MODULE_FRONT_TEMPERATURE.KEY], {targetId});
     }
     return returnValue;
   }
@@ -111,6 +113,30 @@ class Model {
   onData(salternController){
     let operationInfo = salternController.getDeviceOperationInfo();
 
+    const commandStorage = salternController.manager.commandStorage;
+    commandStorage.standbyCommandSetList;
+
+    let currentCommandSet = _.clone(commandStorage.currentCommandSet);
+    currentCommandSet.commandId;
+    currentCommandSet.commandName;
+    this.commandStorage = {
+      currentCommandSet: _.pick(commandStorage.currentCommandSet, ['commandType', 'commandId', 'commandName']),
+      standbyCommandSetList: [],
+      delayCommandSetList: []
+    };
+
+    _.forEach(commandStorage.standbyCommandSetList, storage => {
+      _.forEach(storage.list, commandSet => {
+        this.commandStorage.standbyCommandSetList.push(_.pick(commandSet, ['commandType', 'commandId', 'commandName']));
+      });
+    });
+
+    commandStorage.currentCommandSet;
+
+    _.forEach(commandStorage.delayCommandSetList, storage => {
+      this.commandStorage.delayCommandSetList.push(_.pick(storage, ['commandType', 'commandId', 'commandName']));
+    });
+
     operationInfo.controller.nodeModelList.forEach(modelId => {
       let foundIt = this.findDataStorage(modelId);
       foundIt.model.targetData = salternController.getDeviceData(foundIt.category);
@@ -118,7 +144,11 @@ class Model {
   }
 
 
-  getAllStatus(){
+  
+  /**
+   * @return {Array.<{category: string, targetId: string, targetName: string, targetData: *}>}
+   */
+  getAllDeviceModelStatus(){
     let returnValue = [];
     _.forEach(this.salternDeviceDataStorage, (deviceGroup, deviceCategory) => {
       let deviceCate = '';
@@ -153,13 +183,16 @@ class Model {
       
       deviceGroup.forEach(currentItem => {
         returnValue.push({
-          category: deviceCate, 
+          targetCategory: deviceCate, 
           targetId: currentItem.targetId, 
           targetName: currentItem.targetName, 
           targetData: currentItem.targetData, 
         });
       });
     });
+
+
+    // return _.sortBy(returnValue, 'targetName');
     return returnValue;
   }
 

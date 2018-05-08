@@ -117,10 +117,10 @@ class Model {
     case baseModel.VALVE.STATUS.OPEN:
       bufferHex = bufferHex.concat([0x30, 0x32]);
       break;
-    case baseModel.VALVE.STATUS.CLOSING:
+    case baseModel.VALVE.STATUS.OPENING:
       bufferHex = bufferHex.concat([0x30, 0x34]);
       break;
-    case baseModel.VALVE.STATUS.OPENING:
+    case baseModel.VALVE.STATUS.CLOSING:
       bufferHex = bufferHex.concat([0x30, 0x35]);
       break;
     }

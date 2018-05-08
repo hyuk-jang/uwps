@@ -27,6 +27,9 @@ class SalternConnector {
     
     if(_.isEmpty(foundInstance)){
       this.baseConverter = BaseModel.default;
+      this.stringfySalternDevice = '';
+      this.stringfyCommandStorage = '';
+      
       instanceList.push({id: this.configInfo, instance: this});
       this.connect();
     } else {
@@ -59,20 +62,29 @@ class SalternConnector {
 
     const client = net.createConnection(this.port, this.host);
     client.on('data', bufferData => {
+      BU.CLI('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
       // let salternData = _.isBuffer(bufferData) ? JSON.parse(bufferData.toString()) : bufferData;
-      let salternData =  this.baseConverter.decodingDefaultRequestMsgForTransfer(bufferData);
+      let stringfySalternData = this.baseConverter.decodingDefaultRequestMsgForTransfer(bufferData).toString();
 
+      let parseSalternData = JSON.parse(stringfySalternData);
 
-      
-      // BU.CLI(salternData);
-      // let jsonData = salternData.toString();
-      this.io.emit('onSalternData', salternData.toString());
-      // this.notifyData(bufferData);
+      BU.CLI(parseSalternData);
+
+      this.stringfySalternDevice = JSON.stringify(parseSalternData.deviceStorage);
+      this.stringfyCurrentCommandSet =  JSON.stringify(parseSalternData.commandStorage.currentCommandSet); 
+      this.stringfyStandbyCommandSetList =  JSON.stringify(parseSalternData.commandStorage.standbyCommandSetList);
+      this.stringfyDelayCommandSetList = JSON.stringify(parseSalternData.commandStorage.delayCommandSetList); 
+
+      this.io.emit('onSalternDevice', this.stringfySalternDevice);
+      // this.io.emit('onSalternCommand', this.stringfyStandbyCommandSetList);
+      this.io.emit('onSalternCommand', this.stringfyCurrentCommandSet, this.stringfyStandbyCommandSetList, this.stringfyDelayCommandSetList);
     });
     
     client.on('close', err => {
       this.client = {};
-      // this.notifyDisconnect(err);
+      setTimeout(() => {
+        this.connect();
+      }, 1000 * 30);
     });
 
     client.on('end', () => {
@@ -80,7 +92,6 @@ class SalternConnector {
     });
 
     client.on('error', error => {
-      // this.notifyError(error);
     });
     await eventToPromise.multi(client, ['connect', 'connection', 'open'], ['close, error']);
     BU.log('connected Saltern Socket', this.port);
@@ -95,19 +106,21 @@ class SalternConnector {
   setSocketIO(pramHttp) {
     this.io = require('socket.io')(pramHttp);
     this.io.on('connection', socket =>{
-      console.log('a user connected');
-      this.io.emit('hello', 'world');
-
-
       socket.on('excuteSalternControl', msg => {
-        BU.CLI('msg', msg);
         let encodingMsg = this.baseConverter.encodingDefaultRequestMsgForTransfer(msg);
-        BU.CLI('encodingMsg', encodingMsg);
 
-        this.write(encodingMsg).catch(err => {
+        !_.isEmpty(this.client) && this.write(encodingMsg).catch(err => {
           BU.logFile(err);
         });
+        
       });
+
+      if(this.stringfySalternDevice.length){
+        socket.emit('initSalternDevice', this.stringfySalternDevice);
+        // socket.emit('initSalternCommand', this.stringfyStandbyCommandSetList);
+        socket.emit('initSalternCommand', this.stringfyCurrentCommandSet, this.stringfyStandbyCommandSetList, this.stringfyDelayCommandSetList);
+      }
+
       socket.on('disconnect', () =>{
         console.log('user disconnected');
       });

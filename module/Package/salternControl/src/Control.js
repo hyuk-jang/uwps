@@ -3,6 +3,7 @@ const _ = require('lodash');
 
 const BU = require('base-util-jh').baseUtil;
 
+const Promise = require('bluebird');
 
 const SalternDevice = require('../SalternDevice'); 
 
@@ -28,6 +29,9 @@ class Control {
     this.routerList = [];
     this.model = new Model(this);
     this.socketServer = new SocketServer(this);
+
+
+    this.hasOperationScenario_1 = false;
   }
 
   init(){
@@ -74,6 +78,111 @@ class Control {
     return this.model.salternDeviceDataStorage;
   }
 
+  async scenarioMode_1(){
+    if(this.hasOperationScenario_1){
+      return false;
+    }
+
+    this.hasOperationScenario_1 = true;
+    let scenario_1 = _.find(this.map.controlList, {cmdName: '저수조 → 증발지 1'});  
+    let scenario_2 = _.find(this.map.controlList, {cmdName: '증발지 1 → 해주 1'});  
+    let scenario_3 = _.find(this.map.controlList, {cmdName: '해주 1 → 증발지 1'});  
+    let scenario_4 = _.find(this.map.controlList, {cmdName: '증발지 1 → 해주 2'});  
+    let scenario_5 = _.find(this.map.controlList, {cmdName: '해주 2 → 증발지 2, 3, 4'});  
+    let scenario_6 = _.find(this.map.controlList, {cmdName: '증발지 4 → 해주3'});  
+    let scenario_7 = _.find(this.map.controlList, {cmdName: '해주 3 → 결정지'});  
+    
+    // scenario_1: 저수조 → 증발지 1
+    this.excuteAutomaticControl(scenario_1);
+    // 30 초 동안 급수 진행
+    await Promise.delay(1000 * 30);
+    this.cancelAutomaticControl(scenario_1);
+
+
+
+    // 염수 증발 시키기
+    await Promise.delay(1000 * 30);
+    
+
+
+
+    // scenario_2: 증발지 1 → 해주 1
+    this.excuteAutomaticControl(scenario_2);
+    // 30 초 동안 염수 이동
+    await Promise.delay(1000 * 30);
+    this.cancelAutomaticControl(scenario_2);
+    
+
+
+    // 명령 사이의 딜레이
+    await Promise.delay(1000 * 10);
+
+
+
+    // scenario_3: 해주 1 → 증발지 1
+    this.excuteAutomaticControl(scenario_3);
+    // 30 초 동안 급수 진행
+    await Promise.delay(1000 * 30);
+    this.cancelAutomaticControl(scenario_3);
+
+
+
+    // 염수 증발 시키기
+    await Promise.delay(1000 * 30);
+
+
+
+
+    // scenario_4: 증발지 1 → 해주 2
+    this.excuteAutomaticControl(scenario_4);
+    // 30 초 동안 염수 이동 진행
+    await Promise.delay(1000 * 30);
+    this.cancelAutomaticControl(scenario_4);
+    
+
+
+    // 명령 사이의 딜레이
+    await Promise.delay(1000 * 10);
+
+
+
+    // scenario_5: 해주 2 → 증발지 2, 3, 4
+    this.excuteAutomaticControl(scenario_5);
+    // 30 초 동안 염수 이동 진행
+    await Promise.delay(1000 * 30);
+    this.cancelAutomaticControl(scenario_5);
+
+
+
+    // 염수 증발 시키기
+    await Promise.delay(1000 * 30);
+
+
+    
+    // scenario_6: 증발지 4 → 해주3
+    this.excuteAutomaticControl(scenario_6);
+    // 30 초 동안 염수 이동 진행
+    await Promise.delay(1000 * 30);
+    this.cancelAutomaticControl(scenario_6);
+
+
+
+    // 명령 사이의 딜레이
+    await Promise.delay(1000 * 10);
+
+
+    
+    // scenario_7: 해주 3 → 결정지
+    this.excuteAutomaticControl(scenario_7);
+    // 30 초 동안 염수 이동 진행
+    await Promise.delay(1000 * 30);
+    this.cancelAutomaticControl(scenario_7);
+
+    this.hasOperationScenario_1 = false;
+
+    return true;
+  }
+
 
   /**
    * Saltern Device로 부터 데이터 갱신이 이루어 졌을때 자동 업데이트 됨.
@@ -84,10 +193,14 @@ class Control {
 
     // this.socketServer.
 
-    BU.CLI(this.model.getAllStatus());
+    
+    
+    let commandStorage = this.model.commandStorage;
+    let deviceStorage = this.model.getAllDeviceModelStatus();
+    BU.CLI(commandStorage);
+    BU.CLI(deviceStorage);
 
-    this.socketServer.emitToClientList(this.getAllStatus());
-    // return this.getAllStatus();
+    this.socketServer.emitToClientList({commandStorage, deviceStorage});
   }
 
   /**
@@ -112,9 +225,11 @@ class Control {
    * @param {{cmdName: string, trueList: string[], falseList: string[]}} controlInfo 
    */
   excuteAutomaticControl(controlInfo) {
+    BU.CLI(controlInfo);
     let orderList = [];
     controlInfo.trueList.forEach(modelId => {
       let orderInfo = {
+        commandType: 'ADD',
         hasTrue: true,
         modelId,
         commandId: controlInfo.cmdName
@@ -126,6 +241,7 @@ class Control {
 
     controlInfo.falseList.forEach(modelId => {
       let orderInfo = {
+        commandType: 'ADD',
         hasTrue: false,
         modelId,
         commandId: controlInfo.cmdName
@@ -133,7 +249,7 @@ class Control {
       let foundRouter = this.model.findRouter(modelId);
       orderList.push(foundRouter.orderOperation(orderInfo));
     });
-
+    BU.CLI(controlInfo);
     return orderList;
   }
 
@@ -146,9 +262,11 @@ class Control {
     controlInfo.trueList = _.reverse(controlInfo.trueList);
     controlInfo.trueList.forEach(modelId => {
       let orderInfo = {
+        commandType: 'CANCEL',
         hasTrue: false,
         modelId,
-        commandId: controlInfo.cmdName
+        commandId: controlInfo.cmdName,
+
       };
       let foundRouter = this.model.findRouter(modelId);
       orderList.push(foundRouter.orderOperation(orderInfo));

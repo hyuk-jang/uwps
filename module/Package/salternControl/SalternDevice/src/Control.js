@@ -62,37 +62,47 @@ class Control extends AbstDeviceClient {
 
   /**
    * 
-   * @param {{hasTrue: boolean, modelId: string, commandId: string}} orderInfo 
+   * @param {{commandType: string, hasTrue: boolean, modelId: string,  commandId: string}} orderInfo 
    */
   orderOperation(orderInfo) {
     // BU.CLI(orderInfo);
     let modelId = orderInfo.modelId;
 
     let oper;
+    let cmdName;
 
     if (orderInfo.hasTrue === true) {
       if (_.includes(modelId, 'WD_')) {
         oper = this.baseModel.WATER_DOOR.COMMAND.OPEN;
+        cmdName = `${this.baseModel.WATER_DOOR.NAME} ${modelId} ${this.baseModel.WATER_DOOR.STATUS.OPEN}`;
       } else if (_.includes(modelId, 'P_')) {
         oper = this.baseModel.PUMP.COMMAND.ON;
+        cmdName = `${this.baseModel.PUMP.NAME} ${modelId} ${this.baseModel.PUMP.STATUS.ON}`;
       } else if (_.includes(modelId, 'V_')) {
         oper = this.baseModel.VALVE.COMMAND.OPEN;
+        cmdName = `${this.baseModel.VALVE.NAME} ${modelId} ${this.baseModel.VALVE.STATUS.OPEN}`;
       }
     } else if (orderInfo.hasTrue === false) {
       if (_.includes(modelId, 'WD_')) {
         oper = this.baseModel.WATER_DOOR.COMMAND.CLOSE;
+        cmdName = `${this.baseModel.WATER_DOOR.NAME} ${modelId} ${this.baseModel.WATER_DOOR.STATUS.CLOSE}`;
       } else if (_.includes(modelId, 'P_')) {
         oper = this.baseModel.PUMP.COMMAND.OFF;
+        cmdName = `${this.baseModel.PUMP.NAME} ${modelId} ${this.baseModel.PUMP.STATUS.OFF}`;
       } else if (_.includes(modelId, 'V_')) {
         oper = this.baseModel.VALVE.COMMAND.CLOSE;
+        cmdName = `${this.baseModel.VALVE.NAME} ${modelId} ${this.baseModel.VALVE.STATUS.CLOSE}`;
       }
     } else {
       if (_.includes(modelId, 'WD_')) {
         oper = this.baseModel.WATER_DOOR.COMMAND.STATUS;
+        cmdName = `${this.baseModel.WATER_DOOR.NAME} ${modelId} STATUS`;
       } else if (_.includes(modelId, 'P_')) {
         oper = this.baseModel.PUMP.COMMAND.STATUS;
+        cmdName = `${this.baseModel.PUMP.NAME} ${modelId} STATUS`;
       } else if (_.includes(modelId, 'V_')) {
         oper = this.baseModel.VALVE.COMMAND.STATUS;
+        cmdName = `${this.baseModel.VALVE.NAME} ${modelId} STATUS`;
       }
     }
     /** @type {Array.<commandInfo>} */
@@ -106,7 +116,9 @@ class Control extends AbstDeviceClient {
 
     let commandSet = this.generationManualCommand({
       cmdList: cmdList,
-      commandId: orderInfo.commandId
+      commandId: orderInfo.commandId,
+      commandName: cmdName,
+      commandType: orderInfo.commandType
     });
     // BU.CLIN(commandSet, 2);
     this.executeCommand(commandSet);
@@ -178,18 +190,18 @@ class Control extends AbstDeviceClient {
   onDcData(dcData) {
     // BU.CLIS(dcData.data);
     try {
-      BU.CLI('??????????????????????', dcData.data.toString());
+      BU.CLI(dcData.data.toString());
       // BU.CLIN(this.commander.currentCommand);
       // TEST 개발용 Socket 일 경우 데이터 처리
       if (this.config.deviceInfo.connect_info.type === 'socket') {
         dcData.data = JSON.parse(dcData.data.toString());
         dcData.data.data = Buffer.from(dcData.data.data);
-        BU.CLI(dcData.data);
+        // BU.CLI(dcData.data);
       }
       let parsedData = this.converter.parsingUpdateData(dcData);
 
       // 만약 파싱 에러가 발생한다면 명령 재 요청
-      BU.CLI(parsedData.eventCode);
+      // BU.CLI(parsedData.eventCode);
       if (parsedData.eventCode === this.definedCommanderResponse.ERROR) {
         BU.errorLog('salternDevice', 'parsingError', parsedData.data);
         return this.requestTakeAction(this.definedCommanderResponse.RETRY);

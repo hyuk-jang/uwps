@@ -46,7 +46,6 @@ module.exports = function(app) {
   router.get('/excute/:cmd', wrap(async (req, res) => {
     const client = net.createConnection(9000);
     client.on('data', bufferData => {
-
     });
 
     client.write(req.params.cmd);

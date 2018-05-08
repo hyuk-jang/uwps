@@ -161,7 +161,7 @@ const map = {
         targetId: 'R_P_005',
         deviceId: '0013A20040F7A4D8',
         nodeModelList: ['P_005']
-      },{
+      }, {
         targetId: 'R_GLS_TEST_001',
         deviceId: '0013A20040F7AB6C',
         nodeModelList: ['']
@@ -169,7 +169,7 @@ const map = {
     }
     ],
     modelInfo: {
-      waterDoorList: [{
+      waterDoor: [{
         targetId: 'WD_005',
         targetName: '수문5'
       }, {
@@ -203,164 +203,179 @@ const map = {
         targetId: 'WD_015',
         targetName: '수문15'
       }],
-      valveList: [{
-        targetId: 'V_001', 
+      valve: [{
+        targetId: 'V_001',
         targetName: '밸브1'
-      },{
-        targetId: 'V_002', 
+      }, {
+        targetId: 'V_002',
         targetName: '밸브2'
-      },{
-        targetId: 'V_003', 
+      }, {
+        targetId: 'V_003',
         targetName: '밸브3'
-      },{
-        targetId: 'V_004', 
+      }, {
+        targetId: 'V_004',
         targetName: '밸브4'
-      },{
-        targetId: 'V_006', 
+      }, {
+        targetId: 'V_006',
         targetName: '밸브6'
-      },{
-        targetId: 'V_007', 
+      }, {
+        targetId: 'V_007',
         targetName: '밸브7'
-      },{
-        targetId: 'V_101', 
+      }, {
+        targetId: 'V_101',
         targetName: '수문1'
-      },{
-        targetId: 'V_102', 
+      }, {
+        targetId: 'V_102',
         targetName: '수문2'
-      },{
-        targetId: 'V_103', 
+      }, {
+        targetId: 'V_103',
         targetName: '수문3'
-      },{
-        targetId: 'V_104', 
+      }, {
+        targetId: 'V_104',
         targetName: '수문4'
       }],
-      pumpList: [{
+      pump: [{
         targetId: 'P_002',
         targetName: '펌프2'
-      },{
+      }, {
         targetId: 'P_003',
         targetName: '펌프3'
-      },{
+      }, {
         targetId: 'P_004',
         targetName: '펌프4'
-      },{
+      }, {
         targetId: 'P_005',
         targetName: '펌프5'
       }],
-      waterLevelList: [{
+      waterLevel: [{
         targetId: 'WL_001',
         targetName: '수위1'
-      },{
+      }, {
         targetId: 'WL_002',
         targetName: '수위2'
-      },{
+      }, {
         targetId: 'WL_003',
         targetName: '수위3'
-      },{
+      }, {
         targetId: 'WL_004',
         targetName: '수위4'
       }]
     }
   },
-  realtionInfo:{
+  realtionInfo: {
 
   },
-  controlList:[{
+  controlList: [{
     cmdName: '저수조 → 증발지 1',
     trueList: ['V_006', 'V_001', 'V_002', 'V_003', 'V_004', 'P_002'],
-    falseList: ['V_101','V_102','V_103','V_104','WD_005']
+    falseList: ['V_101', 'V_102', 'V_103', 'V_104', 'WD_005']
   },
+  {
+    cmdName: '해주 1 → 증발지 1',
+    trueList: ['V_007', 'V_001', 'V_002', 'V_003', 'V_004', 'P_003'],
+    falseList: ['V_101', 'V_102', 'V_103', 'V_104', 'WD_005']
+  }, {
+    cmdName: '해주 2 → 증발지 2',
+    trueList: ['P_004'],
+    falseList: ['WD_006']
+  },{
+    cmdName: '해주 2 → 증발지 2, 3, 4',
+    trueList: ['P_004', 'WD_006', 'WD_007'],
+    falseList: ['WD_008']
+  }, {
+    cmdName: '해주 3 → 결정지',
+    trueList: ['P_005'],
+    falseList: ['WD_009']
+  },
+
+  {
+    cmdName: '증발지 1 → 해주 1',
+    trueList: ['V_101', 'V_102', 'V_103', 'V_104', 'WD_005', 'WD_013', 'WD_010'],
+    falseList: []
+  }, {
+    cmdName: '증발지 1 → 해주 2',
+    trueList: ['V_101', 'V_102', 'V_103', 'V_104', 'WD_005', 'WD_013', 'WD_011'],
+    falseList: ['WD_010', 'WD_012', 'WD_014', 'WD_015']
+  },
+  {
+    cmdName: '증발지 2 → 증발지 3',
+    trueList: ['WD_006'],
+    falseList: ['WD_007']
+  }, {
+    cmdName: '증발지 3 → 증발지 4',
+    trueList: ['WD_007'],
+    falseList: ['WD_008']
+  }, {
+    cmdName: '증발지 4 → 해주2',
+    trueList: ['WD_008', 'WD_014', 'WD_011'],
+    falseList: ['WD_012', 'WD_015']
+  }, {
+    cmdName: '증발지 4 → 해주3',
+    trueList: ['WD_008', 'WD_014', 'WD_012'],
+    falseList: ['WD_011', 'WD_015']
+  }, {
+    cmdName: '결정지 → 해주 3',
+    trueList: ['WD_009', 'WD_014', 'WD_012'],
+    falseList: ['WD_011']
+  },
+
+
+
   {
     cmdName: '저수조 → 증발지 1A',
     trueList: ['V_006', 'V_001', 'P_002'],
     falseList: ['V_101']
-  },{
+  }, {
     cmdName: '저수조 → 증발지 1B',
     trueList: ['V_006', 'V_002', 'P_002'],
     falseList: ['V_102']
-  },{
+  }, {
     cmdName: '저수조 → 증발지 1C',
     trueList: ['V_006', 'V_003', 'P_002'],
     falseList: ['V_103']
-  },{
+  }, {
     cmdName: '저수조 → 증발지 1D',
     trueList: ['V_006', 'V_004', 'P_002'],
     falseList: ['V_104']
-  },{
-    cmdName: '저수조 → 증발지 일반',
-    trueList: ['V_006', 'P_002'],
-    falseList: ['WD_005']
-  },{
-    cmdName: '해주 1 → 증발지 1',
-    trueList: ['V_007', 'V_001', 'V_002', 'V_003', 'V_004', 'P_002'],
-    falseList: ['V_101','V_102','V_103','V_104','WD_005']
-  },{
-    cmdName: '해주 1 → 증발지 1A',
-    trueList: ['V_007', 'V_001', 'P_002'],
-    falseList: ['V_101']
-  },{
-    cmdName: '해주 1 → 증발지 1B',
-    trueList: ['V_007', 'V_002', 'P_002'],
-    falseList: ['V_102']
-  },{
-    cmdName: '해주 1 → 증발지 1C',
-    trueList: ['V_007', 'V_003', 'P_002'],
-    falseList: ['V_103']
-  },{
-    cmdName: '해주 1 → 증발지 1D',
-    trueList: ['V_007', 'V_004', 'P_002'],
-    falseList: ['V_104']
-  },{
-    cmdName: '증발지 1 → 해주 1',
-    trueList: ['V_101','V_102','V_103','V_104','WD_005', 'WD_010'],
-    falseList: ['WD_013']
   },
   {
+    cmdName: '해주 1 → 증발지 1A',
+    trueList: ['V_007', 'V_001', 'P_003'],
+    falseList: ['V_101']
+  }, {
+    cmdName: '해주 1 → 증발지 1B',
+    trueList: ['V_007', 'V_002', 'P_003'],
+    falseList: ['V_102']
+  }, {
+    cmdName: '해주 1 → 증발지 1C',
+    trueList: ['V_007', 'V_003', 'P_003'],
+    falseList: ['V_103']
+  }, {
+    cmdName: '해주 1 → 증발지 1D',
+    trueList: ['V_007', 'V_004', 'P_003'],
+    falseList: ['V_104']
+  },
+
+
+
+  {
     cmdName: '증발지 1A → 해주 1',
-    trueList: ['V_101', 'WD_010'],
-    falseList: ['WD_013']
-  },{
-    cmdName: '증발지 1B → 해주 1',
-    trueList: ['V_102', 'WD_010'],
-    falseList: ['WD_013']
-  },{
-    cmdName: '증발지 1C → 해주 1',
-    trueList: ['V_103', 'WD_010'],
-    falseList: ['WD_013']
-  },{
-    cmdName: '증발지 1D → 해주 1',
-    trueList: ['V_104', 'WD_010'],
-    falseList: ['WD_013']
-  },{
-    cmdName: '증발지 2 → 증발지 3',
-    trueList: ['WD_006'],
-    falseList: ['WD_007']
-  },{
-    cmdName: '증발지 3 → 증발지 4',
-    trueList: ['WD_007'],
-    falseList: ['WD_008']
-  },{
-    cmdName: '증발지 3 → 해주2',
-    trueList: ['WD_008', 'WD_011', 'WD_014'],
-    falseList: ['WD_012', 'WD_015']
-  },{
-    cmdName: '증발지 3 → 해주3',
-    trueList: ['WD_008', 'WD_012', 'WD_014'],
-    falseList: ['WD_011', 'WD_015']
-  },{
-    cmdName: '결정지 1 → 해주 3',
-    trueList: ['WD_009'],
-    falseList: ['WD_012']
-  },{
-    cmdName: '해주2 → 증발지 2',
-    trueList: ['V_007', 'P_004'],
+    trueList: ['V_101', 'WD_013', 'WD_010'],
     falseList: []
-  },{
-    cmdName: '해주3 → 결정지 1',
-    trueList: ['V_008', 'P_005'],
-    falseList: ['WD_009']
-  }],
-  
+  }, {
+    cmdName: '증발지 1B → 해주 1',
+    trueList: ['V_102', 'WD_013', 'WD_010'],
+    falseList: []
+  }, {
+    cmdName: '증발지 1C → 해주 1',
+    trueList: ['V_103', 'WD_013', 'WD_010'],
+    falseList: []
+  }, {
+    cmdName: '증발지 1D → 해주 1',
+    trueList: ['V_104', 'WD_013', 'WD_010'],
+    falseList: []
+  },],
+
 };
 
 module.exports = map;

@@ -51,13 +51,13 @@
 
 /**
  * @typedef {Object} modelInfo
- * @prop {Array.<deviceModel>} waterDoorList
- * @prop {Array.<deviceModel>} valveList
- * @prop {Array.<deviceModel>} pumpList
- * @prop {Array.<deviceModel>} salinityList
- * @prop {Array.<deviceModel>} waterLevelList
- * @prop {Array.<deviceModel>} waterTemperatureList
- * @prop {Array.<deviceModel>} moduleTemperatureList
+ * @prop {Array.<deviceModel>} waterDoor
+ * @prop {Array.<deviceModel>} valve
+ * @prop {Array.<deviceModel>} pump
+ * @prop {Array.<deviceModel>} salinity
+ * @prop {Array.<deviceModel>} water
+ * @prop {Array.<deviceModel>} waterTemperature
+ * @prop {Array.<deviceModel>} moduleTemperature
  */
 
 
@@ -79,8 +79,10 @@
 /**
  * @typedef {Object} deviceModel
  * @prop {string} targetId
- * @prop {string} target_name
+ * @prop {string} targetName
+ * @prop {number|string} targetData
  */
+//  * @prop {SalternDevice} salternRouter
 
 /**
  * @typedef {Object} deviceRouter

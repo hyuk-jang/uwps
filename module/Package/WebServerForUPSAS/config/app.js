@@ -1,3 +1,4 @@
+const BU = require('base-util-jh').baseUtil;
 module.exports = function (dbInfo) {
   var express = require('express');
   var session = require('express-session');
@@ -12,9 +13,7 @@ module.exports = function (dbInfo) {
   var path = require('path');
 
   var app = express();
-
-
-
+  
   var flash = require('connect-flash');
   var favicon = require('serve-favicon');
   app.use(favicon(path.join(process.cwd(), 'public/image', 'favicon.ico')));

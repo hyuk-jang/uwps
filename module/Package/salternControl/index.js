@@ -67,11 +67,14 @@ if (require !== undefined && require.main === module) {
   // cmdInfo = _.find(map.controlList, {cmdName: '증발지 3 → 증발지 4'});  
   let cmdInfo = _.find(map.controlList, {cmdName: '저수조 → 증발지 1'});  
 
-  BU.CLI(cmdInfo);
+  // BU.CLI(cmdInfo);
 
   setTimeout(() => {
-    control.excuteControl(cmdInfo);
-    // control.cancelControl(cmdInfo);
+    control.excuteSingleControl({modelId: 'WD_015', hasTrue: true});
+
+
+    // control.excuteAutomaticControl(cmdInfo);
+    // control.cancelAutomaticControl(cmdInfo);
     
   }, 1000);
 

@@ -39,6 +39,10 @@
       password: 'upsas1111',
       database: process.env.SALTERN_DB ? process.env.SALTERN_DB : 'saltpond_controller'
     },
+    salternInfo: {
+      port: 7777,
+      host: 'localhost'
+    },
     identificationNum: 3,
     hasExchangeKey: false, // exchangeKey
     hasMapDownload: false, // map download 

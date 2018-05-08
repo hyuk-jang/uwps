@@ -3,8 +3,8 @@
 
 <head>
   <%- include("../master/head.html") %>
-    <%- include("../master/excel.html") %>
-      <script src="js/hichart/highcharts.src.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
 </head>
 
 <body>
@@ -15,8 +15,8 @@
       <div class="row row_st_line min_h_780">
         <div class="row row_width  top_box">
           <div class="col-xs-3 sel_box" style="width: 250px">
-            명령 제어
-            <select class="form-control form-control_st" id="excute" name="" style="width: 230px">
+            명령 제어 목록
+            <select class="form-control form-control_st" id="automatic_control_list" name="" style="width: 230px">
               <%
                     for(var i = 0 ; i < excuteControlList.length ; i++){
                       var controlInfo = excuteControlList[i];
@@ -30,44 +30,114 @@
                     }
                   %>
             </select>
+            
           </div>
-
+          <div class="col-xs-3 sel_box" style="width: 150px">
+              제어 형식
+              <select class="form-control form-control_st" id="automatic_control_type" name="" style="width: 130px">
+                  <option value="true">
+                    제어 요청
+                  </option>
+                  <option value="false">
+                    취소 요청 
+                  </option>
+              </select>
+            </div>
           <div class=" sel_box_data">
-            <button type="button" class="btn btn-primary" onclick="excute()" style="margin-bottom:3px; height:40px;" id="search">명령 제어 실행</button>
+            <button type="button" id="automatic_control_btn" class="btn btn-primary" style="margin-bottom:3px; height:40px;" id="search">명령 제어 실행</button>
           </div>
         </div>
+        
+        <div id="contents">
+          <div style="position: absolute; width: 75%">
 
+          </div>
+          <div style="margin-left: 75%; width:25%">
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">염전 장치 상태 정보 목록</div>
+                <div class="panel-body">
+                </div>
+              
+                <!-- Table -->
+                <table id="saltern_device_data_list" class="table">
+                  <thead>
+                    <tr>
+                      <!-- <th data-field="type">장치 종류</th> -->
+                      <th data-field="targetName">장치 명</th>
+                      <th data-field="targetId">장치 ID</th>
+                      <th data-field="targetData">장치 상태</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+
+          </div>
+        </div>
       </div>
 
     </div>
 
     </div>
+    <script type="text/html" id="mytemplate">
+      <tr data-id="" data-category="" data-value="" >
+        <td></td>
+        <td data-type="name"></td>
+        <td data-type="id"></td>
+        <td data-type="value"></td>
+      </tr>
 
-    <script>
-      // 장치 타입 변경 시
-      function excute() {
-        var cmd = $("#excute option:selected").val();
-        console.log("cmd", cmd)
-        // var deviceName = deviceType === 'inverter' ? '인버터' : deviceType === 'connector' ? '접속반' : '모두';
-        $.ajax({
-          type: "GET",
-          url: "/controller/excute/" + encodeURIComponent(cmd)
-        }).done(function (dataList, msg, res) {
-          // Check for a successful (blank) response
-          // console.log('dataList', dataList)
-          var resultData = dataList;
-          var html = '';
-        }).fail(function (req, sts, err) {
-          alert(err);
+</script>
+
+    
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script defer>
+      $(function () {
+        var socket = io();
+
+        $("#automatic_control_btn").on("click", function () {
+          var automaticId = $("#automatic_control_list option:selected").val();
+          var controlType = $("#automatic_control_type option:selected").val();
+          var requestMsg = {
+            cmdType: "AUTOMATIC",
+            cmdId: automaticId,
+            hasTrue: controlType === "true" ? true : false
+          }
+          socket.emit("excuteSalternControl", requestMsg);
+        })
+
+        // socket.on("onSalternData", function (msg) {
+        //   var salternDeviceDataStorage = JSON.parse(msg);
+        //   var dataList = [];
+        //   // $('#saltern_device_status').html();
+        //   // _.each(salternDeviceDataStorage, function (salternStorage, category) {
+        //   //   _.each(salternStorage, function(data){
+        //   //     var template = document.querySelector('#mytemplate').innerHTML;
+        //   //     var clone = $.parseHTML(template)
+
+        //   //     data.targetId
+        //   //     // dataList.push(clone)
+        //   //     // $('#saltern_device_status').append(clone);
+        //   //   })
+
+        //   //   // $('#saltern_device_status').prepend(clone);
+        //   // });
+        //   $("#saltern_device_status").html(salternDeviceDataStorage);
+        // });
+
+        socket.on("onSalternData", function (msg) {
+          var salternDeviceDataStorage = JSON.parse(msg);
+
+          $("#saltern_device_data_list").bootstrapTable({
+            data: salternDeviceDataStorage
+          });
+
+
+
+          // $("#contents").html($("<p>").text(msg));
         });
-      }
-
-
-    </script>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      var socket = io();
+      });
     </script>
 
 

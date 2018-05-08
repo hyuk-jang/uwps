@@ -21,6 +21,7 @@ class Model {
    * @param {Control} controller 
    */
   constructor(controller) {
+    // BU.CLIN(controller);
     this.map = controller.map;
     this.routerList = controller.routerList;
 
@@ -47,7 +48,6 @@ class Model {
    * @param {string} category waterDoorList, pumpList, ...etc
    */
   getDeviceCategory(category) {
-
     switch (category) {
     case [this.baseModel.WATER_DOOR.KEY]:
         
@@ -95,7 +95,6 @@ class Model {
 
 
   /**
-   * 
    * @param {string} modelId 
    */
   findRouter(modelId){
@@ -120,8 +119,48 @@ class Model {
 
 
   getAllStatus(){
-    
-    
+    let returnValue = [];
+    _.forEach(this.salternDeviceDataStorage, (deviceGroup, deviceCategory) => {
+      let deviceCate = '';
+      switch (deviceCategory) {
+      case this.baseModel.WATER_DOOR.KEY:
+        deviceCate = this.baseModel.WATER_DOOR.KEY;
+        break;
+      case this.baseModel.VALVE.KEY:
+        deviceCate = this.baseModel.VALVE.KEY;
+        break;
+      case this.baseModel.PUMP.KEY:
+        deviceCate = this.baseModel.PUMP.KEY;
+        break;
+      case this.baseModel.SALINITY.KEY:
+        deviceCate = this.baseModel.SALINITY.KEY;
+        break;
+      case this.baseModel.WATER_LEVEL.KEY:
+        deviceCate = this.baseModel.WATER_LEVEL.KEY;
+        break;
+      case this.baseModel.WATER_TEMPERATURE.KEY:
+        deviceCate = this.baseModel.WATER_TEMPERATURE.KEY;
+        break;
+      case this.baseModel.MODULE_FRONT_TEMPERATURE.KEY:
+        deviceCate = this.baseModel.MODULE_FRONT_TEMPERATURE.KEY;
+        break;
+      case this.baseModel.MODULE_REAR_TEMPERATURE.KEY:
+        deviceCate = this.baseModel.MODULE_REAR_TEMPERATURE.KEY;
+        break;
+      default:
+        break;
+      }
+      
+      deviceGroup.forEach(currentItem => {
+        returnValue.push({
+          category: deviceCate, 
+          targetId: currentItem.targetId, 
+          targetName: currentItem.targetName, 
+          targetData: currentItem.targetData, 
+        });
+      });
+    });
+    return returnValue;
   }
 
 

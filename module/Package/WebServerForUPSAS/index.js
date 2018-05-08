@@ -6,16 +6,18 @@ const Promise = require('bluebird');
 
 const InitSetter = require('./config/InitSetter.js');
 
-
 const config = require('./config.js');
 const BU = require('base-util-jh').baseUtil;
 let DU = require('base-util-jh').domUtil;
 let SU = require('base-util-jh').salternUtil;
 const _ = require('underscore');
+
 global.BU = BU;
 global.DU = DU;
 global.SU = SU;
 global._ = _;
+
+const SalternConnector = require('./src/SalternConnector');
 
 const CONTROLLERS_PATH = process.cwd() + '\\controllers';
 global.CONTROLLERS_PATH = CONTROLLERS_PATH;
@@ -79,14 +81,22 @@ global.minyung = {
 // 컨트롤러 구동 시작
 function operationController() {
   // BU.CLI(mainConfig.workers.SocketServer.PushServer.current.port)
+  const salternConnector = new SalternConnector(config.init.salternInfo);
   let app = require('./config/app.js')(initSetter.dbInfo);
   let passport = require('./config/passport.js')(app, initSetter.aliceBobSecret);
   app.set('passport', passport);
   app.set('initSetter', initSetter);
 
   require('./controllers')(app);
+
+  /** Web Socket Binding */
+  var http = require('http').Server(app);
+  
+  
+  salternConnector.setSocketIO(http);
+
   // TEST
-  app.listen(global.minyung.has ? global.minyung.webPort : initSetter.webPort, (req, res) => {
+  http.listen(global.minyung.has ? global.minyung.webPort : initSetter.webPort, (req, res) => {
     console.log('Controller Server is Running', initSetter.webPort);
   });
 }

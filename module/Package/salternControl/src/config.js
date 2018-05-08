@@ -2,12 +2,16 @@
 module.exports = {
   current: {
     hasDev: false, // 장치 연결을 실제로 하는지 여부
+    socketServerInfo: {
+      port: 7777,
+    },
     deviceInfo: {
       target_id: 'WD_001',
       target_name: 'testWaterDoor',
       target_category: 'saltern',
       target_protocol: 'xbee', 
       hasOneAndOne: false,
+      hasErrorHandling: true,
       logOption: {
         hasCommanderResponse: true,
         hasDcError: true,

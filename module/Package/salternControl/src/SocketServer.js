@@ -3,44 +3,61 @@ const _ = require('lodash');
 const {BU} = require('base-util-jh');
 const net = require('net');
 
+const {BaseModel} = require('../../../module/device-protocol-converter-jh');
 
+const Control = require('./Control'); 
 const Model = require('./Model');
 
 class SocketServer {
   /**
    * 
-   * @param {number} port 
+   * @param {Control} controller 
    */
-  constructor(port) {
-    this.port = port;
+  constructor(controller) {
+    this.controller = controller;
 
+    this.port = this.controller.config.socketServerInfo.port;
 
-    this.model = new Model();
+    this.model = this.controller.model;
+
+    this.map = this.controller.map;
+    
+    this.baseConverter = BaseModel.default;
+
+    /** @type {Array.<Socket>} */
+    this.clientList = [];
+
+    this.init();
+    
   }
 
+  /**
+   * Socket Server 구동
+   * @param {number} port 
+   */
   init() {
     const server = net.createServer((socket) => {
       // socket.end('goodbye\n');
       console.log(`client is Connected ${this.port}`);
 
-      /**
-       * 
-       */
-      socket.on('data', data => {
-        /** @type {xbeeApi_0x10} */
-        let parseData =  JSON.parse(data.toString());
-        // parseData.data = Buffer.from(parseData.data);
-        BU.CLI(`P: ${this.port}Received Data: `, parseData);
-        // return socket.write('this.is.my.socket\r\ngogogogo' + this.port);
-        let returnData = this.model.onData(parseData);
-        BU.CLI(returnData);
+      this.clientList.push(socket);
 
-        // 약간의 지연 시간을 둠 (30ms)
-        setTimeout(() => {
-          socket.write(JSON.stringify(returnData));
-        }, 500);
+      socket.on('data', data => {
+        try {
+          let bufferData = this.baseConverter.decodingDefaultRequestMsgForTransfer(data);
+
+          /** @type {{cmdType: string, hasTrue: boolean, cmdId: string}} */
+          let jsonData = JSON.parse(bufferData.toString());
+
+          this.processingCommand(jsonData);
+        } catch (error) {
+          BU.logFile(error);
+        }
       });
 
+      socket.on('close', () => {
+        _.remove(this.clientList, client => _.isEqual(client, socket));
+      });
     }).on('error', (err) => {
       // handle errors here
       console.error('@@@@', err, server.address());
@@ -53,12 +70,51 @@ class SocketServer {
     });
 
     server.on('close', () => {
+      
       console.log('clonse');
     });
 
     server.on('error', (err) => {
       console.error(err);
     });
+  }
+
+  /**
+   * 
+   * @param {*} salternDeviceDataStorage 
+   */
+  emitToClientList(salternDeviceDataStorage) {
+    try {
+      let encodingData =  this.baseConverter.encodingDefaultRequestMsgForTransfer(salternDeviceDataStorage);
+  
+      this.clientList.forEach(client => {
+        client.write(encodingData);
+      });
+    } catch (error) {
+      BU.errorLog('salternDevice', 'emitToClientList', error);
+    }
+  }
+
+  /**
+   * 
+   * @param {{cmdType: string, hasTrue: boolean, cmdId: string}} jsonData 
+   */
+  processingCommand(jsonData) {
+    if(jsonData.cmdType === 'AUTOMATIC'){
+      let fountIt = _.find(this.map.controlList, {cmdName: jsonData.cmdId});
+      if(jsonData.hasTrue){
+        this.controller.excuteAutomaticControl(fountIt);
+      } else {
+        this.controller.cancelAutomaticControl(fountIt);
+      }
+    } else if (jsonData.cmdType === 'SINGLE') {
+      let fountIt = _.find(this.map.controlList, {cmdName: jsonData.cmdId});
+      if(jsonData.hasTrue){
+        this.controller.excuteAutomaticControl(fountIt);
+      } else {
+        this.controller.cancelAutomaticControl(fountIt);
+      }
+    }
   }
 
 }

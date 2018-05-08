@@ -37,6 +37,7 @@ class Control {
 
         // 약간의 지연 시간을 둠 (30ms)
         setTimeout(() => {
+          // socket.write('hi');
           socket.write(JSON.stringify(returnData));
         }, 500);
       });

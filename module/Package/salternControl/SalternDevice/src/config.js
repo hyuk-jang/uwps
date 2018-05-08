@@ -8,6 +8,7 @@ module.exports = {
       target_category: 'saltern',
       target_protocol: 'xbee', 
       hasOneAndOne: false,
+      hasErrorHandling: true,
       logOption: {
         hasCommanderResponse: true,
         hasDcError: true,

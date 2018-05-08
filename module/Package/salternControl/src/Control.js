@@ -9,6 +9,8 @@ const SalternDevice = require('../SalternDevice');
 
 const Model = require('./Model');
 
+let SocketServer = require('./SocketServer');
+
 let config = require('./config');
 
 const map = require('../config/map');
@@ -25,6 +27,7 @@ class Control {
     /** @type {Array.<SalternDevice>} */
     this.routerList = [];
     this.model = new Model(this);
+    this.socketServer = new SocketServer(this);
   }
 
   init(){
@@ -63,6 +66,8 @@ class Control {
         this.routerList.push(salternDevice);
       });
     });
+
+
   }
 
   getAllStatus(){
@@ -77,16 +82,36 @@ class Control {
   notifyData(salternController) {
     this.model.onData(salternController);
 
-    BU.CLI(this.getAllStatus());
-    return this.getAllStatus();
+    // this.socketServer.
+
+    BU.CLI(this.model.getAllStatus());
+
+    this.socketServer.emitToClientList(this.getAllStatus());
+    // return this.getAllStatus();
   }
 
+  /**
+   * Device Client로부터 Error 수신
+   * @param {dcError} dcError 명령 수행 결과 데이터
+   */
+  notifyError(dcError){
+
+  }
+
+  /**
+   * 
+   * @param {{modelId: string, hasTrue: boolean}} orderInfo 
+   */
+  excuteSingleControl(orderInfo){
+    let foundRouter = this.model.findRouter(orderInfo.modelId);
+    foundRouter.orderOperation(orderInfo);
+  }
 
   /**
    * 
    * @param {{cmdName: string, trueList: string[], falseList: string[]}} controlInfo 
    */
-  excuteControl(controlInfo) {
+  excuteAutomaticControl(controlInfo) {
     let orderList = [];
     controlInfo.trueList.forEach(modelId => {
       let orderInfo = {
@@ -116,7 +141,7 @@ class Control {
    * 
    * @param {{cmdName: string, trueList: string[], falseList: string[]}} controlInfo 
    */
-  cancelControl(controlInfo){
+  cancelAutomaticControl(controlInfo){
     let orderList = [];
     controlInfo.trueList = _.reverse(controlInfo.trueList);
     controlInfo.trueList.forEach(modelId => {

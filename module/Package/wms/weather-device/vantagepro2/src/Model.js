@@ -1,9 +1,11 @@
 'use strict';
+const _ = require('lodash');
 
 const {BU, CU} = require('base-util-jh');
 
 const Control = require('./Control');
-const {baseFormat} = require('device-protocol-converter-jh');
+// const {baseFormat} = require('device-protocol-converter-jh');
+// const {BaseModel} = require('../../../../../module/device-protocol-converter-jh');
 
 
 class Model {
@@ -11,8 +13,8 @@ class Model {
    * @param {Control} controller 
    */
   constructor(controller) {
-    this.deviceData = baseFormat.weathercast.vantagepro2;
-
+    this.deviceData = controller.baseModel.baseFormat;
+    
     let averConfig = {
       maxStorageNumber: 30, // 최대 저장 데이터 수
       keyList: Object.keys(this.deviceData)
@@ -28,7 +30,11 @@ class Model {
     // BU.CLI(weathercastData);
     this.averageStorage.onData(weathercastData);
 
-    this.deviceData = weathercastData;
+    _.forEach(weathercastData, (data, key) => {
+      if(_.has(this.deviceData, key)){
+        this.deviceData[key] = data;
+      }
+    });
     // BU.CLI(this.deviceData);
   }
 }

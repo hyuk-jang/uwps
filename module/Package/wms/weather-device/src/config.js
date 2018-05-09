@@ -58,7 +58,6 @@ module.exports = {
         target_id: 'VantagePro_1',
         target_name: 'Davis Vantage Pro2',
         target_category: 'weathercast',
-        target_protocol: 'vantagepro2',
         logOption: {
           hasCommanderResponse: true,
           hasDcError: true,
@@ -66,6 +65,10 @@ module.exports = {
           hasReceiveData: true,
           hasDcMessage: true,
           hasTransferCommand: true
+        },
+        protocol_info: {
+          mainCategory: 'weathercast',
+          subCategory: 'vantagepro2'
         },
         connect_info: {
           type: 'serial',

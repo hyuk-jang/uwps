@@ -1,18 +1,16 @@
 'use strict';
-const _ = require('lodash');
-
 const {BU} = require('base-util-jh');
 
-const AbstDeviceClient = require('device-client-controller-jh');
-// const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
+// const AbstDeviceClient = require('device-client-controller-jh');
+const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
 
 const Model = require('./Model');
 
 let config = require('./config');
 
 // const {AbstConverter, controlFormat} = require('../../../../../../module/device-protocol-converter-jh');
-// const {AbstConverter} = require('../../../../../module/device-protocol-converter-jh');
-const {AbstConverter} = require('device-protocol-converter-jh');
+const {AbstConverter, BaseModel} = require('../../../../../module/device-protocol-converter-jh');
+// const {AbstConverter} = require('device-protocol-converter-jh');
 
 class Control extends AbstDeviceClient {
   /** @param {config} config */
@@ -21,9 +19,11 @@ class Control extends AbstDeviceClient {
     
     this.config = config.current;
 
+    
+    this.converter = new AbstConverter(this.config.deviceInfo.protocol_info);
+    this.baseModel = new BaseModel.Weathercast(this.config.deviceInfo.protocol_info.subCategory);
+    
     this.model = new Model(this);
-
-    this.converter = new AbstConverter(this.config.deviceInfo);
     /** 주기적으로 LOOP 명령을 내릴 시간 인터벌 */
     this.executeCommandInterval = null;
   }
@@ -48,7 +48,6 @@ class Control extends AbstDeviceClient {
 
   /**
    * 장치의 현재 데이터 및 에러 내역을 가져옴
-   * @return {deviceOperationInfo} 
    */
   getDeviceOperationInfo() {
     return {
@@ -89,12 +88,12 @@ class Control extends AbstDeviceClient {
    * @param {dcData} dcData 현재 장비에서 실행되고 있는 명령 객체
    */
   onDcData(dcData){
-    BU.CLI('data', dcData.data);
+    // BU.CLI('data', dcData.data.toString());
     const resultParsing = this.converter.parsingUpdateData(dcData);
     // BU.CLI(resultParsing);
     
     resultParsing.eventCode === this.definedCommanderResponse.DONE && this.model.onData(resultParsing.data);
-    // BU.CLIN(this.getDeviceOperationInfo());
+    BU.CLIN(this.getDeviceOperationInfo());
   }
 }
 module.exports = Control;

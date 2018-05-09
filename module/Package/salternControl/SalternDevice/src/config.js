@@ -6,7 +6,6 @@ module.exports = {
       target_id: 'WD_001',
       target_name: 'testWaterDoor',
       target_category: 'saltern',
-      target_protocol: 'xbee', 
       hasOneAndOne: false,
       hasErrorHandling: true,
       logOption: {

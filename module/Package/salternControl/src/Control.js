@@ -213,7 +213,7 @@ class Control {
 
   /**
    * 
-   * @param {{modelId: string, hasTrue: boolean}} orderInfo 
+   * @param {{modelId: string, hasTrue: boolean, rank: number=}} orderInfo 
    */
   excuteSingleControl(orderInfo){
     let foundRouter = this.model.findRouter(orderInfo.modelId);

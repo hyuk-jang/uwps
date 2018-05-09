@@ -62,7 +62,7 @@ class Control extends AbstDeviceClient {
 
   /**
    * 
-   * @param {{commandType: string, hasTrue: boolean, modelId: string,  commandId: string}} orderInfo 
+   * @param {{commandType: string, hasTrue: boolean, modelId: string, commandId: string, rank: number=}} orderInfo 
    */
   orderOperation(orderInfo) {
     // BU.CLI(orderInfo);

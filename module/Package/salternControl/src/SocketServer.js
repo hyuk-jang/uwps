@@ -46,7 +46,7 @@ class SocketServer {
         try {
           let bufferData = this.baseConverter.decodingDefaultRequestMsgForTransfer(data);
 
-          /** @type {{cmdType: string, hasTrue: boolean, cmdId: string}} */
+          /** @type {{cmdType: string, hasTrue: boolean, cmdId: string, cmdRank: number=}} */
           let jsonData = JSON.parse(bufferData.toString());
 
 
@@ -99,7 +99,7 @@ class SocketServer {
 
   /**
    * 
-   * @param {{cmdType: string, hasTrue: boolean, cmdId: string}} jsonData 
+   * @param {{cmdType: string, hasTrue: boolean, cmdId: string, cmdRank: number=}} jsonData 
    */
   processingCommand(jsonData) {
     BU.CLI(jsonData);
@@ -111,12 +111,12 @@ class SocketServer {
         this.controller.cancelAutomaticControl(fountIt);
       }
     } else if (jsonData.cmdType === 'SINGLE') {
-      let fountIt = _.find(this.map.controlList, {cmdName: jsonData.cmdId});
-      if(jsonData.hasTrue){
-        this.controller.excuteAutomaticControl(fountIt);
-      } else {
-        this.controller.cancelAutomaticControl(fountIt);
-      }
+      let orderInfo = {
+        modelId: jsonData.cmdId,
+        hasTrue: jsonData.hasTrue,
+        rank: jsonData.cmdRank
+      };
+      this.controller.excuteSingleControl(orderInfo);
     } else if (jsonData.cmdType === 'SCENARIO') {
       if(jsonData.cmdId === 'SCENARIO_1'){
         this.controller.scenarioMode_1();

@@ -66,7 +66,8 @@ class Control extends AbstDeviceClient {
    * @param {dcEvent} dcEvent 
    */
   updatedDcEventOnDevice(dcEvent) {
-    BU.log('updateDcEvent\t', dcEvent.eventName);
+    // BU.log('updateDcEvent\t', dcEvent.eventName);
+    // BU.CLI(this.converter.generationCommand());
     switch (dcEvent.eventName) {
     case this.definedControlEvent.CONNECT:
       var commandSet = this.generationManualCommand({cmdList:this.converter.generationCommand()});

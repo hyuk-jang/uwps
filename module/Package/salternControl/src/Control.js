@@ -1,9 +1,11 @@
 'use strict';
 const _ = require('lodash');
+const cron = require('cron');
 
-const BU = require('base-util-jh').baseUtil;
 
 const Promise = require('bluebird');
+
+const BU = require('base-util-jh').baseUtil;
 
 const SalternDevice = require('../SalternDevice'); 
 
@@ -32,6 +34,7 @@ class Control {
 
 
     this.hasOperationScenario_1 = false;
+    this.cronScheduler = null;
   }
 
   init(){
@@ -43,45 +46,92 @@ class Control {
         baudRate: deviceConnectInfo.baudRate
       };
       deviceConnectInfo.deviceRouterList.forEach(routerInfo => {
-        const salternDevice = new SalternDevice({current:{
-          hasDev: false,
-          deviceInfo: {
-            target_id: routerInfo.targetId,
-            target_category: 'saltern',
-            logOption:{
-              hasCommanderResponse: true,
-              hasDcError: true,
-              hasDcEvent: true,
-              hasReceiveData: true,
-              hasDcMessage: true,
-              hasTransferCommand: true
-            },
-            protocol_info: {
-              mainCategory: 'saltern',
-              subCategory: 'xbee',
-              deviceId: routerInfo.deviceId,
-            },
-            connect_info: connectInfo,
-            nodeModelList: routerInfo.nodeModelList
-          }
-        }});
-        salternDevice.init();
-        salternDevice.attch(this);
-        this.routerList.push(salternDevice);
+        if(routerInfo.nodeModelList.length){
+          const salternDevice = new SalternDevice({current:{
+            hasDev: false,
+            deviceInfo: {
+              target_id: routerInfo.targetId,
+              target_category: 'saltern',
+              logOption:{
+                hasCommanderResponse: true,
+                hasDcError: true,
+                hasDcEvent: true,
+                hasReceiveData: true,
+                hasDcMessage: true,
+                hasTransferCommand: true
+              },
+              protocol_info: {
+                mainCategory: 'saltern',
+                subCategory: 'xbee',
+                deviceId: routerInfo.deviceId,
+              },
+              connect_info: connectInfo,
+              nodeModelList: routerInfo.nodeModelList
+            }
+          }});
+          salternDevice.init();
+          salternDevice.attch(this);
+          this.routerList.push(salternDevice);
+        }
       });
     });
 
 
+    // 시스템 초기화 후 5초 후에 장치 탐색 스케줄러 실행
+    Promise.delay(1000 * 5)
+      .then(() => {
+        this.runCronDiscoveryRegularDevice();
+      });
+
+
   }
+
+  // Cron 구동시킬 시간
+  runCronDiscoveryRegularDevice() {
+    try {
+      if (this.cronScheduler !== null) {
+        // BU.CLI('Stop')
+        this.cronScheduler.stop();
+      }
+      // 1분마다 요청
+      this.cronScheduler = new cron.CronJob({
+        cronTime: '0 */1 * * * *',
+        onTick: () => {
+          this.discoveryRegularDevice();
+        },
+        start: true,
+      });
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /** 정기적인 Router Status 탐색 */
+  discoveryRegularDevice(){
+    this.routerList.forEach(router => {
+      router.orderOperation({commandType: 'ADD', commandId: 'regularDiscovery'});
+    });
+  }
+
 
   getAllStatus(){
     return this.model.salternDeviceDataStorage;
   }
 
-  async scenarioMode_1(){
+  /**
+   * 
+   * @param {boolean} hasRun 시나리오 모드 실행 / 정지
+   */
+  async scenarioMode_1(hasRun){
+    if(hasRun === false){
+      return this.hasOperationScenario_1 = false;
+    }
     if(this.hasOperationScenario_1){
       return false;
     }
+
+    
 
     this.hasOperationScenario_1 = true;
     let scenario_1 = _.find(this.map.controlList, {cmdName: '저수조 → 증발지 1'});  
@@ -91,92 +141,124 @@ class Control {
     let scenario_5 = _.find(this.map.controlList, {cmdName: '해주 2 → 증발지 2, 3, 4'});  
     let scenario_6 = _.find(this.map.controlList, {cmdName: '증발지 4 → 해주3'});  
     let scenario_7 = _.find(this.map.controlList, {cmdName: '해주 3 → 결정지'});  
+    let scenario_8 = _.find(this.map.controlList, {cmdName: '결정지 → 해주 3'});  
     
     // scenario_1: 저수조 → 증발지 1
+    if(!this.hasOperationScenario_1) return false;
     this.excuteAutomaticControl(scenario_1);
-    // 30 초 동안 급수 진행
-    await Promise.delay(1000 * 30);
+    // 10초 딜레이 40 초 동안 급수 진행
+    await Promise.delay(1000 * 50);
+    if(!this.hasOperationScenario_1) return false;
     this.cancelAutomaticControl(scenario_1);
 
 
 
-    // 염수 증발 시키기
-    await Promise.delay(1000 * 30);
-    
+    // 밸브 닫는 시간 + 염수 증발 시간 할애
+    await Promise.delay(1000 * 10);
+    if(!this.hasOperationScenario_1) return false;
 
 
 
     // scenario_2: 증발지 1 → 해주 1
     this.excuteAutomaticControl(scenario_2);
-    // 30 초 동안 염수 이동
-    await Promise.delay(1000 * 30);
-    this.cancelAutomaticControl(scenario_2);
+    // 20 초 동안 염수 이동
+    await Promise.delay(1000 * 20);
+    if(!this.hasOperationScenario_1) return false;
+    // 수로 수문을 너무 일찍 닫기 때문에 사용하지 않음.
+    // this.cancelAutomaticControl(scenario_2);
+
+    // 시나리오 3을 진행하면 자동으로 증발지 1 수문이 닫히므로 명령 내리지 않음
+    // this.excuteSingleControl({modelId: 'V_101', hasTrue: 'false'});
+    // this.excuteSingleControl({modelId: 'V_102', hasTrue: 'false'});
+    // this.excuteSingleControl({modelId: 'V_103', hasTrue: 'false'});
+    // this.excuteSingleControl({modelId: 'V_104', hasTrue: 'false'});
+    // this.excuteSingleControl({modelId: 'WD_005', hasTrue: 'false'});
     
-
-
-    // 명령 사이의 딜레이
-    await Promise.delay(1000 * 10);
-
 
 
     // scenario_3: 해주 1 → 증발지 1
     this.excuteAutomaticControl(scenario_3);
-    // 30 초 동안 급수 진행
-    await Promise.delay(1000 * 30);
+    // 10초 딜레이 40 초 동안 급수 진행
+    await Promise.delay(1000 * 50);
+    if(!this.hasOperationScenario_1) return false;
     this.cancelAutomaticControl(scenario_3);
 
 
 
-    // 염수 증발 시키기
-    await Promise.delay(1000 * 30);
-
+    // 밸브 닫는 시간 + 염수 증발 시간 할애
+    await Promise.delay(1000 * 10);
+    if(!this.hasOperationScenario_1) return false;
 
 
 
     // scenario_4: 증발지 1 → 해주 2
     this.excuteAutomaticControl(scenario_4);
     // 30 초 동안 염수 이동 진행
-    await Promise.delay(1000 * 30);
-    this.cancelAutomaticControl(scenario_4);
+    await Promise.delay(1000 * 20);
+    if(!this.hasOperationScenario_1) return false;
+    // 수로 수문을 너무 일찍 닫기 때문에 사용하지 않음.
+    // this.cancelAutomaticControl(scenario_4);
+    // 염판 수문 닫기
+    this.excuteSingleControl({modelId: 'V_101', hasTrue: false});
+    this.excuteSingleControl({modelId: 'V_102', hasTrue: false});
+    this.excuteSingleControl({modelId: 'V_103', hasTrue: false});
+    this.excuteSingleControl({modelId: 'V_104', hasTrue: false});
+    this.excuteSingleControl({modelId: 'WD_005', hasTrue: false});
     
 
 
-    // 명령 사이의 딜레이
-    await Promise.delay(1000 * 10);
-
+    // // 명령 사이의 딜레이
+    // await Promise.delay(1000 * 5);
+    // if(!this.hasOperationScenario_1) return false;
 
 
     // scenario_5: 해주 2 → 증발지 2, 3, 4
     this.excuteAutomaticControl(scenario_5);
-    // 30 초 동안 염수 이동 진행
-    await Promise.delay(1000 * 30);
+    // 40 초 동안 염수 이동 진행
+    await Promise.delay(1000 * 40);
+    if(!this.hasOperationScenario_1) return false;
     this.cancelAutomaticControl(scenario_5);
 
 
 
     // 염수 증발 시키기
-    await Promise.delay(1000 * 30);
-
+    await Promise.delay(1000 * 5);
+    if(!this.hasOperationScenario_1) return false;
 
     
     // scenario_6: 증발지 4 → 해주3
     this.excuteAutomaticControl(scenario_6);
     // 30 초 동안 염수 이동 진행
-    await Promise.delay(1000 * 30);
+    await Promise.delay(1000 * 20);
+    if(!this.hasOperationScenario_1) return false;
     this.cancelAutomaticControl(scenario_6);
 
 
 
-    // 명령 사이의 딜레이
-    await Promise.delay(1000 * 10);
-
-
+    // // 명령 사이의 딜레이
+    // await Promise.delay(1000 * 5);
+    // if(!this.hasOperationScenario_1) return false;
     
+
     // scenario_7: 해주 3 → 결정지
     this.excuteAutomaticControl(scenario_7);
     // 30 초 동안 염수 이동 진행
-    await Promise.delay(1000 * 30);
+    await Promise.delay(1000 * 40);
+    if(!this.hasOperationScenario_1) return false;
     this.cancelAutomaticControl(scenario_7);
+    
+
+    
+    // scenario_8: 결정지 → 해주 3
+    this.excuteAutomaticControl(scenario_8);
+    // 30 초 동안 염수 이동 진행
+    await Promise.delay(1000 * 30);
+    if(!this.hasOperationScenario_1) return false;
+    this.cancelAutomaticControl(scenario_8);
+
+
+
+    
 
     this.hasOperationScenario_1 = false;
 
@@ -192,9 +274,6 @@ class Control {
     this.model.onData(salternController);
 
     // this.socketServer.
-
-    
-    
     let commandStorage = this.model.commandStorage;
     let deviceStorage = this.model.getAllDeviceModelStatus();
     BU.CLI(commandStorage);

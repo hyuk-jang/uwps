@@ -62,13 +62,18 @@ class SalternConnector {
 
     const client = net.createConnection(this.port, this.host);
     client.on('data', bufferData => {
-      BU.CLI('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
       // let salternData = _.isBuffer(bufferData) ? JSON.parse(bufferData.toString()) : bufferData;
-      let stringfySalternData = this.baseConverter.decodingDefaultRequestMsgForTransfer(bufferData).toString();
+      let stringfySalternData = '';
+      try {
+        stringfySalternData = this.baseConverter.decodingDefaultRequestMsgForTransfer(bufferData).toString();
+      } catch (error) {
+        BU.logFile(error);
+        return false;
+      }
 
       let parseSalternData = JSON.parse(stringfySalternData);
 
-      BU.CLI(parseSalternData);
+      // BU.CLI(parseSalternData);
 
       this.stringfySalternDevice = JSON.stringify(parseSalternData.deviceStorage);
       this.stringfyCurrentCommandSet =  JSON.stringify(parseSalternData.commandStorage.currentCommandSet); 
@@ -122,7 +127,6 @@ class SalternConnector {
       }
 
       socket.on('disconnect', () =>{
-        console.log('user disconnected');
       });
     });
   }

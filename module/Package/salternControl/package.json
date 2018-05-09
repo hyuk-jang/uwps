@@ -24,6 +24,7 @@
   "dependencies": {
     "base-util-jh": "^1.1.3",
     "bluebird": "^3.5.1",
+    "cron": "^1.3.0",
     "device-protocol-converter-jh": "^0.1.9",
     "lodash": "^4.17.10"
   }

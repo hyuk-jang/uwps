@@ -55,9 +55,10 @@
  * @prop {Array.<deviceModel>} valve
  * @prop {Array.<deviceModel>} pump
  * @prop {Array.<deviceModel>} salinity
- * @prop {Array.<deviceModel>} water
+ * @prop {Array.<deviceModel>} waterLevel
  * @prop {Array.<deviceModel>} waterTemperature
- * @prop {Array.<deviceModel>} moduleTemperature
+ * @prop {Array.<deviceModel>} moduleFrontTemperature
+ * @prop {Array.<deviceModel>} moduleRearTemperature
  */
 
 

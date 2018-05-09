@@ -119,7 +119,8 @@ class SocketServer {
       this.controller.excuteSingleControl(orderInfo);
     } else if (jsonData.cmdType === 'SCENARIO') {
       if(jsonData.cmdId === 'SCENARIO_1'){
-        this.controller.scenarioMode_1();
+
+        this.controller.scenarioMode_1(jsonData.hasTrue);
       } 
     }
   }

@@ -70,6 +70,7 @@ class Control extends AbstDeviceClient {
 
     let oper;
     let cmdName;
+    let rank = this.definedCommandSetRank.SECOND;
 
     if (orderInfo.hasTrue === true) {
       if (_.includes(modelId, 'WD_')) {
@@ -94,6 +95,7 @@ class Control extends AbstDeviceClient {
         cmdName = `${this.baseModel.VALVE.NAME} ${modelId} ${this.baseModel.VALVE.STATUS.CLOSE}`;
       }
     } else {
+      rank = this.definedCommandSetRank.THIRD;
       if (_.includes(modelId, 'WD_')) {
         oper = this.baseModel.WATER_DOOR.COMMAND.STATUS;
         cmdName = `${this.baseModel.WATER_DOOR.NAME} ${modelId} STATUS`;
@@ -103,6 +105,9 @@ class Control extends AbstDeviceClient {
       } else if (_.includes(modelId, 'V_')) {
         oper = this.baseModel.VALVE.COMMAND.STATUS;
         cmdName = `${this.baseModel.VALVE.NAME} ${modelId} STATUS`;
+      } else {
+        oper = this.baseModel.VALVE.COMMAND.STATUS;
+        cmdName = `순회 탐색 ${this.id} STATUS`;
       }
     }
     /** @type {Array.<commandInfo>} */
@@ -118,7 +123,8 @@ class Control extends AbstDeviceClient {
       cmdList: cmdList,
       commandId: orderInfo.commandId,
       commandName: cmdName,
-      commandType: orderInfo.commandType
+      commandType: orderInfo.commandType,
+      rank
     });
     // BU.CLIN(commandSet, 2);
     this.executeCommand(commandSet);
@@ -190,7 +196,7 @@ class Control extends AbstDeviceClient {
   onDcData(dcData) {
     // BU.CLIS(dcData.data);
     try {
-      BU.CLI(dcData.data.toString());
+      // BU.CLI(dcData.data.toString());
       // BU.CLIN(this.commander.currentCommand);
       // TEST 개발용 Socket 일 경우 데이터 처리
       if (this.config.deviceInfo.connect_info.type === 'socket') {

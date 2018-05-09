@@ -90,6 +90,9 @@ class Model {
     } else if(_.includes(targetId, 'MFT_')){
       returnValue.category = this.baseModel.MODULE_FRONT_TEMPERATURE.KEY;
       returnValue.model = _.find(this.salternDeviceDataStorage[this.baseModel.MODULE_FRONT_TEMPERATURE.KEY], {targetId});
+    } else if(_.includes(targetId, 'MRT_')){
+      returnValue.category = this.baseModel.MODULE_REAR_TEMPERATURE.KEY;
+      returnValue.model = _.find(this.salternDeviceDataStorage[this.baseModel.MODULE_REAR_TEMPERATURE.KEY], {targetId});
     }
     return returnValue;
   }
@@ -154,28 +157,28 @@ class Model {
       let deviceCate = '';
       switch (deviceCategory) {
       case this.baseModel.WATER_DOOR.KEY:
-        deviceCate = this.baseModel.WATER_DOOR.KEY;
+        deviceCate = this.baseModel.WATER_DOOR.NAME;
         break;
       case this.baseModel.VALVE.KEY:
-        deviceCate = this.baseModel.VALVE.KEY;
+        deviceCate = this.baseModel.VALVE.NAME;
         break;
       case this.baseModel.PUMP.KEY:
-        deviceCate = this.baseModel.PUMP.KEY;
+        deviceCate = this.baseModel.PUMP.NAME;
         break;
       case this.baseModel.SALINITY.KEY:
-        deviceCate = this.baseModel.SALINITY.KEY;
+        deviceCate = this.baseModel.SALINITY.NAME;
         break;
       case this.baseModel.WATER_LEVEL.KEY:
-        deviceCate = this.baseModel.WATER_LEVEL.KEY;
+        deviceCate = this.baseModel.WATER_LEVEL.NAME;
         break;
       case this.baseModel.WATER_TEMPERATURE.KEY:
-        deviceCate = this.baseModel.WATER_TEMPERATURE.KEY;
+        deviceCate = this.baseModel.WATER_TEMPERATURE.NAME;
         break;
       case this.baseModel.MODULE_FRONT_TEMPERATURE.KEY:
-        deviceCate = this.baseModel.MODULE_FRONT_TEMPERATURE.KEY;
+        deviceCate = this.baseModel.MODULE_FRONT_TEMPERATURE.NAME;
         break;
       case this.baseModel.MODULE_REAR_TEMPERATURE.KEY:
-        deviceCate = this.baseModel.MODULE_REAR_TEMPERATURE.KEY;
+        deviceCate = this.baseModel.MODULE_REAR_TEMPERATURE.NAME;
         break;
       default:
         break;

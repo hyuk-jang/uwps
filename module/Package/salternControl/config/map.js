@@ -55,12 +55,12 @@ const map = {
   },
   setInfo: {
     connectInfoList: [{
-      type: 'socket',
-      // type: 'zigbee',
+      // type: 'socket',
+      type: 'zigbee',
       subType: 'xbee',
       baudRate: 9600,
-      port: 9000,
-      // port: 'COM5',
+      // port: 9000,
+      port: 'COM5',
       deviceRouterList: [{
         targetId: 'R_V_101',
         deviceId: '0013A20040F7B4AD',
@@ -121,22 +121,26 @@ const map = {
         targetId: 'R_GLS_015',
         deviceId: '0013A20040F7B474',
         nodeModelList: ['WD_015']
+      },{
+        targetId: 'R_GLS_016',
+        deviceId: '0013A20040F7AB98',
+        nodeModelList: ['WD_016']
       }, {
         targetId: 'R_V_001',
-        deviceId: '0013A20040F7B4A4',
-        nodeModelList: ['V_001']
+        deviceId: '0013A20040F7B47F',
+        nodeModelList: ['V_001', 'MRT_001']
       }, {
         targetId: 'R_V_002',
-        deviceId: '0013A20040F7B47F',
-        nodeModelList: ['V_002']
+        deviceId: '0013A20040F7B4A4',
+        nodeModelList: ['V_002', 'MRT_002']
       }, {
         targetId: 'R_V_003',
-        deviceId: '0013A20040F7B43C',
-        nodeModelList: ['V_003']
+        deviceId: '0013A20040F7B455',
+        nodeModelList: ['V_003', 'MRT_003']
       }, {
         targetId: 'R_V_004',
-        deviceId: '0013A20040F7B455',
-        nodeModelList: ['V_004']
+        deviceId: '0013A20040F7B43C',
+        nodeModelList: ['V_004', 'MRT_004']
       }, {
         targetId: 'R_V_006',
         deviceId: '0013A20040F7B469',
@@ -161,11 +165,13 @@ const map = {
         targetId: 'R_P_005',
         deviceId: '0013A20040F7A4D8',
         nodeModelList: ['P_005']
-      }, {
+      },
+      {
         targetId: 'R_GLS_TEST_001',
         deviceId: '0013A20040F7AB6C',
-        nodeModelList: ['']
-      }]
+        nodeModelList: []
+      }
+      ]
     }
     ],
     modelInfo: {
@@ -202,6 +208,9 @@ const map = {
       }, {
         targetId: 'WD_015',
         targetName: '수문15'
+      }, {
+        targetId: 'WD_016',
+        targetName: '수문16'
       }],
       valve: [{
         targetId: 'V_001',
@@ -259,7 +268,20 @@ const map = {
       }, {
         targetId: 'WL_004',
         targetName: '수위4'
-      }]
+      }],
+      moduleRearTemperature: [{
+        targetId: 'MRT_001',
+        targetName: '모듈온도 1'
+      }, {
+        targetId: 'MRT_002',
+        targetName: '모듈온도 2'
+      }, {
+        targetId: 'MRT_003',
+        targetName: '모듈온도 3'
+      }, {
+        targetId: 'MRT_004',
+        targetName: '모듈온도 4'
+      }],
     }
   },
   realtionInfo: {
@@ -291,10 +313,10 @@ const map = {
   {
     cmdName: '증발지 1 → 해주 1',
     trueList: ['V_101', 'V_102', 'V_103', 'V_104', 'WD_005', 'WD_013', 'WD_010'],
-    falseList: []
+    falseList: ['WD_016']
   }, {
     cmdName: '증발지 1 → 해주 2',
-    trueList: ['V_101', 'V_102', 'V_103', 'V_104', 'WD_005', 'WD_013', 'WD_011'],
+    trueList: ['V_101', 'V_102', 'V_103', 'V_104', 'WD_005', 'WD_013', 'WD_016', 'WD_011'],
     falseList: ['WD_010', 'WD_012', 'WD_014', 'WD_015']
   },
   {

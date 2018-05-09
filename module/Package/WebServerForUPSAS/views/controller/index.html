@@ -15,8 +15,9 @@
       <div class="row row_st_line min_h_780">
           
         <div class="row row_width  top_box">
-          <div class="col-xs-3 sel_box" style="width: 150px">
-            <a class="btn btn-warning btn-lg" id="scenario_control_btn" role="button">시연모드 1</a>
+          <div class="col-xs-3 sel_box" style="width: 200px">
+            <a class="btn btn-success btn-lg" id="scenario_control_run_btn" role="button">시연모드 1 실행</a>
+            <a class="btn btn-danger btn-lg" id="scenario_control_cancel_btn" role="button">시연모드 1 정지</a>
           </div>
             
           <div class="col-xs-3 sel_box" style="width: 250px">
@@ -92,7 +93,7 @@
       </div>
         </div>
         <div id="contents" style="padding: 30px">
-          <div style="float: left; width: 65%">
+          <div style="float: left; width: 55%">
             <div class="panel panel-default">
               <!-- Default panel contents -->
               <div class="panel-heading"> 현재 수행 명령 목록</div>
@@ -140,7 +141,7 @@
             </div>
         
           </div>
-          <div style="float: right; width:30%">
+          <div style="float: right; width:40%">
             <div class="panel panel-default">
               <!-- Default panel contents -->
               <div class="panel-heading"> 장치 상태 정보 목록</div>
@@ -246,10 +247,20 @@
           socket.emit("excuteSalternControl", requestMsg);
         })
 
-        $("#scenario_control_btn").on("click", function () {
+        $("#scenario_control_run_btn").on("click", function () {
           var requestMsg = {
             cmdType: "SCENARIO",
-            cmdId: "SCENARIO_1"
+            cmdId: "SCENARIO_1",
+            hasTrue: true
+          }
+          socket.emit("excuteSalternControl", requestMsg);
+        })
+
+        $("#scenario_control_cancel_btn").on("click", function () {
+          var requestMsg = {
+            cmdType: "SCENARIO",
+            cmdId: "SCENARIO_1",
+            hasTrue: false
           }
           socket.emit("excuteSalternControl", requestMsg);
         })

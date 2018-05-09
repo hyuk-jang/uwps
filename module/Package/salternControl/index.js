@@ -75,7 +75,7 @@ if (require !== undefined && require.main === module) {
     // control.scenarioMode_1();
 
 
-    control.excuteSingleControl({modelId: 'WD_015', hasTrue: false});
+    // control.excuteSingleControl({modelId: 'WD_015', hasTrue: false});
 
 
     // control.excuteAutomaticControl(cmdInfo);

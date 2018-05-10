@@ -29,7 +29,7 @@ class Model {
     // BU.CLI('onData');
     let tempStorage = new this.biModule.TempStorage();
     let prevForecastList = await this.biModule.getPrevWeatherCast(this.locationInfo.x, this.locationInfo.y);
-    BU.CLI(prevForecastList);
+    // BU.CLI(prevForecastList);
     prevForecastList.forEach(currentItem => {
       currentItem.applydate = BU.convertDateToText(currentItem.applydate);
     });
@@ -52,7 +52,7 @@ class Model {
     // BU.CLI(finalStorage);
 
     const resultDoQuery = await this.biModule.doQuery(tempStorage, 'kma_data', 'kma_data_seq', false);
-    // BU.CLI(resultDoQuery);
+    BU.CLI(resultDoQuery);
     return resultDoQuery;
   }
 

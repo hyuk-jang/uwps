@@ -77,8 +77,6 @@ class Control extends AbstDeviceClient {
         currentItem.data = JSON.stringify(currentItem.data);
       });
     }
-      
-        
     switch (dcEvent.eventName) {
     case this.definedControlEvent.CONNECT:
 

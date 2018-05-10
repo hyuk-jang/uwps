@@ -26,6 +26,8 @@ class Control extends AbstDeviceClient {
     this.model = new Model(this);
     /** 주기적으로 LOOP 명령을 내릴 시간 인터벌 */
     this.executeCommandInterval = null;
+
+    
   }
 
   get id(){
@@ -61,15 +63,27 @@ class Control extends AbstDeviceClient {
     };
   }
 
+
   /**
    * Device Controller 변화가 생겨 관련된 전체 Commander에게 뿌리는 Event
    * @param {dcEvent} dcEvent 
    */
   updatedDcEventOnDevice(dcEvent) {
     BU.log('updateDcEvent\t', dcEvent.eventName);
+    /** @type {Array.<commandInfo>} */
+    let cmdList = this.converter.generationCommand();
+    if (this.config.deviceInfo.connect_info.type === 'socket') {
+      cmdList.forEach(currentItem => {
+        currentItem.data = JSON.stringify(currentItem.data);
+      });
+    }
+      
+        
     switch (dcEvent.eventName) {
     case this.definedControlEvent.CONNECT:
-      var commandSet = this.generationManualCommand({cmdList:this.converter.generationCommand()});
+
+      var commandSet = this.generationManualCommand({cmdList});
+      BU.CLI(commandSet.cmdList);
       this.executeCommand(commandSet);
       this.executeCommandInterval = setInterval(() => {
         this.executeCommand(commandSet);
@@ -81,6 +95,18 @@ class Control extends AbstDeviceClient {
     }
   }
 
+  /**
+   * 장치에서 명령을 수행하는 과정에서 생기는 1:1 이벤트
+   * @param {dcError} dcError 현재 장비에서 실행되고 있는 명령 객체
+   */
+  onDcError(dcError) {
+    BU.CLI('E_UNHANDLING_DATA', dcError.errorInfo);
+    if(dcError.errorInfo.message === this.definedOperationError.E_UNHANDLING_DATA){
+      // BU.CLI('E_UNHANDLING_DATA');
+      this.manager.disconnect();
+    }
+  }
+
 
   /**
    * 장치로부터 데이터 수신
@@ -88,6 +114,15 @@ class Control extends AbstDeviceClient {
    * @param {dcData} dcData 현재 장비에서 실행되고 있는 명령 객체
    */
   onDcData(dcData){
+    
+    return false;
+
+    if (this.config.deviceInfo.connect_info.type === 'socket') {
+      dcData.data = JSON.parse(dcData.data.toString());
+      dcData.data.data = Buffer.from(dcData.data.data);
+      // BU.CLI(dcData.data);
+    }
+
     // BU.CLI('data', dcData.data.toString());
     const resultParsing = this.converter.parsingUpdateData(dcData);
     // BU.CLI(resultParsing);

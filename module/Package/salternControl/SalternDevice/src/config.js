@@ -6,8 +6,6 @@ module.exports = {
       target_id: 'WD_001',
       target_name: 'testWaterDoor',
       target_category: 'saltern',
-      hasOneAndOne: false,
-      hasErrorHandling: true,
       logOption: {
         hasCommanderResponse: true,
         hasDcError: true,
@@ -16,18 +14,22 @@ module.exports = {
         hasDcMessage: true,
         hasTransferCommand: true
       },
+      controlInfo: {
+        hasErrorHandling: true,
+        hasOneAndOne: false,
+        hasReconnect: true
+      },
       protocol_info: {
         mainCategory: 'saltern',
         subCategory: 'xbee',
-        deviceId: '0013A20040F7AB6C',
       },
       connect_info: {
-        type: 'zigbee',
-        // type: 'socket',
+        // type: 'zigbee',
+        type: 'socket',
         subType: 'xbee',
         baudRate: 9600,
-        port: 'COM5',
-        // port: 9000,
+        // port: 'COM5',
+        port: 9000,
         
       },
     },

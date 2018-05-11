@@ -185,6 +185,7 @@ class Control extends AbstDeviceClient {
       observer.notifyError(dcError);
     });
 
+    // 에러가 발생하면 해당 명령을 모두 제거
     return this.deleteCommandSet(dcError.commandSet.commandId);
     // return this.requestTakeAction(this.definedCommanderResponse.NEXT);
   }

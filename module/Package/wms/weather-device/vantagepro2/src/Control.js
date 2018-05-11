@@ -70,26 +70,29 @@ class Control extends AbstDeviceClient {
    */
   updatedDcEventOnDevice(dcEvent) {
     BU.log('updateDcEvent\t', dcEvent.eventName);
-    /** @type {Array.<commandInfo>} */
-    let cmdList = this.converter.generationCommand();
-    if (this.config.deviceInfo.connect_info.type === 'socket') {
-      cmdList.forEach(currentItem => {
-        currentItem.data = JSON.stringify(currentItem.data);
-      });
-    }
-    switch (dcEvent.eventName) {
-    case this.definedControlEvent.CONNECT:
-
-      var commandSet = this.generationManualCommand({cmdList});
-      BU.CLI(commandSet.cmdList);
-      this.executeCommand(commandSet);
-      this.executeCommandInterval = setInterval(() => {
+    try {
+      /** @type {Array.<commandInfo>} */
+      let cmdList = this.converter.generationCommand();
+      if (this.config.deviceInfo.connect_info.type === 'socket') {
+        cmdList.forEach(currentItem => {
+          currentItem.data = JSON.stringify(currentItem.data);
+        });
+      }
+      switch (dcEvent.eventName) {
+      case this.definedControlEvent.CONNECT:
+        var commandSet = this.generationManualCommand({cmdList});
         this.executeCommand(commandSet);
-        this.requestTakeAction(this.definedCommanderResponse.NEXT);
-      }, 1000 * 60);
-      break;
-    default:
-      break;
+        this.executeCommandInterval = setInterval(() => {
+          this.executeCommand(commandSet);
+          this.requestTakeAction(this.definedCommanderResponse.NEXT);
+        }, 1000 * 60);
+        break;
+      default:
+        break;
+      }
+      
+    } catch (error) {
+      BU.CLI(error);
     }
   }
 
@@ -98,9 +101,10 @@ class Control extends AbstDeviceClient {
    * @param {dcError} dcError 현재 장비에서 실행되고 있는 명령 객체
    */
   onDcError(dcError) {
-    BU.CLI('E_UNHANDLING_DATA', dcError.errorInfo);
-    if(dcError.errorInfo.message === this.definedOperationError.E_UNHANDLING_DATA){
+    BU.CLI('dcError', dcError.errorInfo);
+    if(dcError.errorInfo.message === this.definedOperationError.E_TIMEOUT){
       // BU.CLI('E_UNHANDLING_DATA');
+      // controlInfo.hasReconnect 옵션이 켜져있기 때문에 장치 재접속으로 데이터 미수신 처리
       this.manager.disconnect();
     }
   }
@@ -112,21 +116,16 @@ class Control extends AbstDeviceClient {
    * @param {dcData} dcData 현재 장비에서 실행되고 있는 명령 객체
    */
   onDcData(dcData){
-    
-    return false;
-
-    if (this.config.deviceInfo.connect_info.type === 'socket') {
-      dcData.data = JSON.parse(dcData.data.toString());
-      dcData.data.data = Buffer.from(dcData.data.data);
-      // BU.CLI(dcData.data);
+    try {
+      // BU.CLI('data', dcData.data.toString());
+      const resultParsing = this.converter.parsingUpdateData(dcData);
+      // BU.CLI(resultParsing);
+      
+      resultParsing.eventCode === this.definedCommanderResponse.DONE && this.model.onData(resultParsing.data);
+      BU.CLIN(this.getDeviceOperationInfo());
+    } catch (error) {
+      BU.logFile(error);      
     }
-
-    // BU.CLI('data', dcData.data.toString());
-    const resultParsing = this.converter.parsingUpdateData(dcData);
-    // BU.CLI(resultParsing);
-    
-    resultParsing.eventCode === this.definedCommanderResponse.DONE && this.model.onData(resultParsing.data);
-    BU.CLIN(this.getDeviceOperationInfo());
   }
 }
 module.exports = Control;

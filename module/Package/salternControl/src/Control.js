@@ -51,7 +51,7 @@ class Control {
             hasDev: false,
             deviceInfo: {
               target_id: routerInfo.targetId,
-              target_category: 'saltern',
+              target_category: this.config.deviceInfo.protocol_info.mainCategory,
               logOption:{
                 hasCommanderResponse: true,
                 hasDcError: true,
@@ -60,9 +60,10 @@ class Control {
                 hasDcMessage: true,
                 hasTransferCommand: true
               },
+              controlInfo: this.config.deviceInfo.controlInfo,
               protocol_info: {
-                mainCategory: 'saltern',
-                subCategory: 'xbee',
+                mainCategory: this.config.deviceInfo.protocol_info.mainCategory,
+                subCategory: this.config.deviceInfo.protocol_info.subCategory,
                 deviceId: routerInfo.deviceId,
               },
               connect_info: connectInfo,

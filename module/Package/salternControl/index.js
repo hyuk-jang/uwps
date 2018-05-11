@@ -72,7 +72,7 @@ if (require !== undefined && require.main === module) {
 
   setTimeout(() => {
 
-    // control.scenarioMode_1();
+    control.scenarioMode_1();
 
 
     // control.excuteSingleControl({modelId: 'WD_015', hasTrue: false});

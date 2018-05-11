@@ -15,11 +15,12 @@ let instanceList = [];
 class SalternConnector {
   /**
    * Socket Client 접속 설정 정보
-   * @param {{port: number, host: string}} connectInfo 
+   * @param {{hasTryConnect: boolean, port: number, host: string}} connectInfo 
    */
   constructor(connectInfo) {
     this.port = connectInfo.port;
     this.host = connectInfo.host || 'localhost';
+    this.hasTryConnect = connectInfo.hasTryConnect;
     
     let foundInstance = _.find(instanceList, instanceInfo => {
       return _.isEqual(instanceInfo.id, this.configInfo);
@@ -31,7 +32,11 @@ class SalternConnector {
       this.stringfyCommandStorage = '';
       
       instanceList.push({id: this.configInfo, instance: this});
-      this.connect();
+
+      // 장치와 연결을 수행할지 여부
+      if(this.hasTryConnect){
+        this.connect();
+      }
     } else {
       return foundInstance.instance;
     }

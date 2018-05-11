@@ -1,6 +1,6 @@
 const wrap = require('express-async-wrap');
 const router = require('express').Router();
-const _ = require('underscore');
+const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
 const DU = require('base-util-jh').domUtil;
 
@@ -37,9 +37,7 @@ module.exports = function (app) {
 
     // TEST 구간
     viewInverterStatus.forEach(currentItem => {
-      let foundIt = _.findWhere(tempSacle.inverterScale, {
-        inverter_seq: currentItem.inverter_seq
-      });
+      let foundIt = _.find(tempSacle.inverterScale, {inverter_seq: currentItem.inverter_seq});
       currentItem.in_a = Number((foundIt.scale * currentItem.in_a).scale(1, 1));
       currentItem.in_w = Number((foundIt.scale * currentItem.in_w).scale(1, 1));
       currentItem.out_a = Number((foundIt.scale * currentItem.out_a).scale(1, 1));
@@ -48,22 +46,23 @@ module.exports = function (app) {
       currentItem.c_wh = Number((foundIt.scale * currentItem.c_wh).scale(1, 0));
       currentItem.daily_power_wh = Number((foundIt.scale * currentItem.daily_power_wh).scale(1, 0));
     });
-    // BU.CLI(moduleStatusList);
-
-    _.each(viewInverterStatus, data => {
-      let waterLevelData = _.findWhere(waterLevelDataPacket, {inverter_seq: data.inverter_seq});
+    
+    _.forEach(viewInverterStatus, data => {
+      let waterLevelData = _.find(waterLevelDataPacket, {inverter_seq: data.inverter_seq});
       // BU.CLIS(waterLevelData, _.isNumber(waterLevelData.water_level));
-
+      
       data.water_level = waterLevelData && _.isNumber(waterLevelData.water_level) ?   waterLevelData.water_level : '';
     });
 
-
-
+    
+    
     // 데이터 검증
     let validInverterStatus = webUtil.checkDataValidation(viewInverterStatus, new Date(), 'writedate');
+    BU.CLI(_.map(viewInverterStatus, 'daily_power_wh'));
     /** 인버터 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
     let refinedInverterStatus = webUtil.refineSelectedInverterStatus(validInverterStatus);
-
+    // BU.CLI(refinedInverterStatus);
+    BU.CLI(_.map(refinedInverterStatus.dataList, 'd_kwh'));
     
     // let searchRange = biModule.getSearchRange('hour', '2018-03-10');
     searchRange = biModule.getSearchRange('min10');
@@ -77,7 +76,7 @@ module.exports = function (app) {
 
     /* Scale 적용 */
     chartData.series.forEach(currentItem => {
-      let foundIt = _.findWhere(tempSacle.inverterScale, {
+      let foundIt = _.find(tempSacle.inverterScale, {
         target_id: currentItem.name
       });
       currentItem.data.forEach((data, index) => {
@@ -85,6 +84,7 @@ module.exports = function (app) {
       });
     });
 
+    // BU.CLI(refinedInverterStatus);
 
 
     // BU.CLI(chartData);

@@ -40,6 +40,7 @@
       database: process.env.SALTERN_DB ? process.env.SALTERN_DB : 'saltpond_controller'
     },
     salternInfo: {
+      hasTryConnect: true,  // 염전과의 연결을 할지 여부
       port: 7777,
       host: 'localhost'
     },

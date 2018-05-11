@@ -386,7 +386,7 @@ function refineSelectedInverterStatus(viewInverterStatus) {
       p_f: '',
       d_wh: '',
       d_kwh: '',
-      c_mwh: '',
+      c_kwh: '',
       water_level: data.water_level,
       writedate: data.writedate,
       hasOperation: false
@@ -404,8 +404,8 @@ function refineSelectedInverterStatus(viewInverterStatus) {
       addObj.out_kw = _.isNumber(data.out_w) ? calcValue(data.out_w, 0.001, 3) : '';
       addObj.p_f = data.p_f;
       addObj.d_wh = data.d_wh;
-      addObj.d_kwh = _.isNumber(data.d_wh) ? calcValue(data.d_wh, 0.001, 3) : '';
-      addObj.c_mwh = _.isNumber(data.c_wh) ? calcValue(data.c_wh, 0.000001, 4) : '';
+      addObj.d_kwh = _.isNumber(data.daily_power_wh) ? calcValue(data.daily_power_wh, 0.001, 3) : '';
+      addObj.c_kwh = _.isNumber(data.c_wh) ? calcValue(data.c_wh, 0.001, 2) : '';
       addObj.hasOperation = true;
     }
     return addObj;

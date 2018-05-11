@@ -101,7 +101,7 @@ class Control extends AbstDeviceClient {
    * @param {dcError} dcError 현재 장비에서 실행되고 있는 명령 객체
    */
   onDcError(dcError) {
-    BU.CLI('dcError', dcError.errorInfo);
+    // BU.CLI('dcError', dcError.errorInfo);
     if(dcError.errorInfo.message === this.definedOperationError.E_TIMEOUT){
       // BU.CLI('E_UNHANDLING_DATA');
       // controlInfo.hasReconnect 옵션이 켜져있기 때문에 장치 재접속으로 데이터 미수신 처리

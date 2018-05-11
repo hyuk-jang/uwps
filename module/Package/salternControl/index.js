@@ -70,18 +70,18 @@ if (require !== undefined && require.main === module) {
 
   // BU.CLI(cmdInfo);
 
-  setTimeout(() => {
+  // setTimeout(() => {
 
-    control.scenarioMode_1();
-
-
-    // control.excuteSingleControl({modelId: 'WD_015', hasTrue: false});
+  //   // control.scenarioMode_1();
 
 
-    // control.excuteAutomaticControl(cmdInfo);
-    // control.cancelAutomaticControl(cmdInfo);
+  //   // control.excuteSingleControl({modelId: 'WD_015', hasTrue: false});
+
+
+  //   // control.excuteAutomaticControl(cmdInfo);
+  //   // control.cancelAutomaticControl(cmdInfo);
     
-  }, 1000);
+  // }, 1000);
 
 
 

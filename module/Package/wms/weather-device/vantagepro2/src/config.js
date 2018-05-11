@@ -20,7 +20,7 @@ module.exports = {
       },
       controlInfo: {
         hasErrorHandling: false,
-        hasOneAndOne: false,
+        hasOneAndOne: true,
         hasReconnect: true
       },
       connect_info: {

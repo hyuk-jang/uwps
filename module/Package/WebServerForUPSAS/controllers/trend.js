@@ -344,14 +344,9 @@ module.exports = function (app) {
     // 선택한 접속반 seq 정의
     let connectorSeqList = !isNaN(searchOption.device_seq) ? [Number(searchOption.device_seq)] : _.map(connectorList, 'connector_seq');
     // 선택한 접속반에 물려있는 모듈의 seq를 배열에 저장
-    let moduleSeqList = [];
-    _.forEach(connectorSeqList, seq => {
-      let moduleList = _.map(upsasProfile, { connector_seq: seq });
-      moduleSeqList = moduleSeqList.concat(moduleList.length ? _.map(moduleList, 'photovoltaic_seq') : []);
-    });
-    // 혹시나 중복된 seq가 있다면 중복 제거
-    moduleSeqList = _.union(moduleSeqList);
-    // BU.CLI(moduleSeqList);
+    let moduleSeqList = _.chain(upsasProfile).filter(profile => {
+      return _.includes(connectorSeqList, profile.connector_seq);
+    }).map('photovoltaic_seq').union().value();
 
     /** 모듈 데이터 가져옴 */
     let connectorTrend = await biModule.getConnectorTrend(moduleSeqList, searchRange);
@@ -366,7 +361,7 @@ module.exports = function (app) {
 
     /* Scale 적용 */
     chartData.series.forEach(currentItem => {
-      let foundIt = _.findWhere(tempSacle.moduleScale, { photovoltaic_seq: Number(currentItem.name) });
+      let foundIt = _.find(tempSacle.moduleScale, { photovoltaic_seq: Number(currentItem.name) });
       currentItem.scale = foundIt.scale;
       currentItem.data.forEach((data, index) => {
         currentItem.data[index] = data === '' ? '' : Number((data * foundIt.scale).scale(1, 1));

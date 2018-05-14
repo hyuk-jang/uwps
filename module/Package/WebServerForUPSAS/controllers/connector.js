@@ -1,6 +1,6 @@
 const wrap = require('express-async-wrap');
 const router = require('express').Router();
-const _ = require('underscore');
+const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
 const DU = require('base-util-jh').domUtil;
 
@@ -39,7 +39,7 @@ module.exports = function (app) {
     let refinedConnectorList = webUtil.refineSelectedConnectorList(upsasProfile, connector_seq);
     // BU.CLI(refinedConnectorList);
     // 접속반에 물려있는 모듈 seq 정의
-    let moduleSeqList = _.pluck(refinedConnectorList, 'photovoltaic_seq');
+    let moduleSeqList = _.map(refinedConnectorList, 'photovoltaic_seq');
     // 모듈 현황
     let moduleStatusList = await biModule.getTable('v_module_status', 'photovoltaic_seq', moduleSeqList);
     // BU.CLI(moduleStatusList);
@@ -47,7 +47,7 @@ module.exports = function (app) {
 
     // TEST 구간
     moduleStatusList.forEach(currentItem => {
-      let foundIt = _.findWhere(tempSacle.moduleScale, {photovoltaic_seq: currentItem.photovoltaic_seq}); 
+      let foundIt = _.find(tempSacle.moduleScale, {photovoltaic_seq: currentItem.photovoltaic_seq}); 
       currentItem.vol = currentItem.vol === '' ? '' :  Number((currentItem.vol * foundIt.scale).scale(1, 1));
     });
 
@@ -62,7 +62,7 @@ module.exports = function (app) {
       let amp = validInfo.data.amp;
       let vol = validInfo.data.vol;
 
-      let findIt = _.findWhere(refinedConnectorList, { photovoltaic_seq: validInfo.data.photovoltaic_seq });
+      let findIt = _.find(refinedConnectorList, { photovoltaic_seq: validInfo.data.photovoltaic_seq });
       findIt.hasOperation = hasOperation;
       findIt.amp = hasOperation ? amp  : '';
       findIt.vol = hasOperation ? vol  : '';
@@ -92,7 +92,7 @@ module.exports = function (app) {
 
     /* Scale 적용 */
     chartData.series.forEach(currentItem => {
-      let foundIt = _.findWhere(tempSacle.moduleScale, {photovoltaic_seq: Number(currentItem.name)}); 
+      let foundIt = _.find(tempSacle.moduleScale, {photovoltaic_seq: Number(currentItem.name)}); 
       currentItem.data.forEach((data, index) => {
         currentItem.data[index] = Number((data * foundIt.scale).scale(1, 1));
       });

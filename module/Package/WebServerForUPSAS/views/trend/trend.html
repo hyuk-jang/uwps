@@ -100,19 +100,20 @@
             </p>
           </div>
 
-          <div class="title_box2" id="moduleChart_1">
+          <div class="title_box2" id="moduleChart_1" style="height: 500px;">
           </div>
           <!-- <p class="re_p">※ 금일 발전량, 누적 발전량, 장치 상태를 제외한 위의 데이터는 모두 해당<span> 검색 기간의 평균 값</span> 입니다. </p> -->
           <p class="re_p" style="margin-top: 10px">※ 인버터 발전량 차트의 각 데이터 포인트는 <span> <%- chartDecorator.inverterComment %></span> 입니다. </p>
           <p class="re_p" style="margin-top: 10px">※ 접속반 발전량 차트의 각 데이터 포인트는 <span> <%- chartDecorator.connectorComment %></span> 이며 참고사항 용입니다 . </p>
+          <p class="re_p" style="margin: 5px 0px 0px">※ 단: 단결정, 다: 다결정</p>
           <!-- <p class="re_p" style="margin-top: 10px">※ 인버터 발전량 차트의 각 데이터 포인트는 <span> X축 시간 동안의 (최고 누적발전량 - 최저 누적발전량)</span> 으로 해당 기간 동안의 실제 발전량입니다. </p>
           <p class="re_p" style="margin-top: 10px">※ 접속반 발전량 차트의 각 데이터 포인트는 <span> X축 시간 동안의 (평균 전류 * 평균 전압)</span> 이며 X축 시간이 일 단위 이상일 경우에는 시간당 입력된 평균 전력의 합산 값으로 참고사항 용입니다 . </p> -->
 
-          <div class="row row_title">
+          <!-- <div class="row row_title">
             <div class="title title_trend">기상 장치 정보</div>
           </div>
 
-          <div class="title_box2" id="weatherChart"></div>
+          <div class="title_box2" id="weatherChart"></div> -->
 
         </div>
       </div>
@@ -258,7 +259,8 @@
       if(powerChartData.series.length){
         $('#moduleChart_1').highcharts({
               chart: {
-                  type: "spline"
+                  type: "spline",
+                  zoomType: 'x',
                 },
               title: {
                 text: chartDecorator.mainTitle
@@ -270,16 +272,28 @@
                 tickInterval: 1,
                 categories: powerChartData.range
               },
-              yAxis: {
+              yAxis: [{
                 title: {
                   text: chartDecorator.yAxisTitle
                 }
-              },
+                  },{
+                min: 0,
+                max: 1500,
+                title: {
+                  text: '일사량'
+                },
+                opposite: true
+              }],
               legend: { //범례
-                layout: 'vertical',
-                align: 'right',
-                verticalAlign: 'middle',
+                align: 'center',
+                verticalAlign: 'bottom',
                 borderWidth: 0
+              },
+              plotOptions: {
+                column: {
+                  pointPadding: 0.2,
+                  borderWidth: 0
+                }
               },
               series: powerChartData.series,
               credits: {
@@ -292,8 +306,7 @@
       </script>
 
       <!-- 날씨 차트 -->
-      <script>
-      var weatherChartData = <%- JSON.stringify(weatherChartData) %>;
+      <!-- <script>
       console.log('weatherChartData.series', weatherChartData.series)
       if(weatherChartData.series.length){
         Highcharts.chart('weatherChart', {
@@ -375,7 +388,7 @@
       } else {
         $("#weatherChart").html("기상 관측 내역이 존재하지 않습니다.").css({"line-height": "240px", "font-size": "25px"});
       }
-    </script>
+    </script> -->
 
 
 </body>

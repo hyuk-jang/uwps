@@ -106,29 +106,21 @@ module.exports = function (app) {
 
     /** searchRange를 기준으로 검색 Column Date를 정함  */
     let betweenDatePoint = BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchInterval);
-    // BU.CLI(betweenDatePoint);
     // 인버터 차트
     let {inverterPowerChartData, inverterTrend, viewInverterPacketList} = await getInverterChart(searchOption, searchRange, betweenDatePoint);
-    // BU.CLI(inverterPowerChartData);
-    // BU.CLI(inverterChart);
     // 접속반 차트
     let connectorChart = await getConnectorChart(searchOption, searchRange, betweenDatePoint);
     // 차트 Range 지정
     let powerChartData = { range: betweenDatePoint.shortTxtPoint, series: [] };
     // 차트 합침
-    // BU.CLI(powerChartData);
     powerChartData.series = inverterPowerChartData.series.concat(connectorChart.series);
-
-    // BU.CLI(chartData);
 
     // /** 차트를 표현하는데 필요한 Y축, X축, Title Text 설정 객체 생성 */
     let chartDecoration = webUtil.makeChartDecoration(searchRange);
 
     let {weatherChartData, weatherTrend, weatherChartOptionList} = await getWeatherChart(searchRange, betweenDatePoint);
     let weatherCastRowDataPacketList =  await biModule.getWeatherCastAverage(searchRange);
-    // BU.CLI(weatherCastRowDataPacketList);
-    // let weatherDeviceRowDataPacketList = await biModule.getWeatherDeviceAverage(searchRange);
-    // BU.CLI(weatherDeviceRowDataPacketList);
+    let waterLevelDataPacketList = await biModule.getWaterLevel(searchRange);
 
     // BU.CLI(viewInverterPacketList);
     let createExcelOption = {
@@ -136,6 +128,7 @@ module.exports = function (app) {
       inverterTrend,
       powerChartData, 
       powerChartDecoration: chartDecoration, 
+      waterLevelDataPacketList,
       weatherCastRowDataPacketList,
       weatherTrend, 
       weatherChartOptionList,
@@ -145,13 +138,15 @@ module.exports = function (app) {
     let workSheetInfo = excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
     let excelContents = excelUtil.makeExcelWorkBook(workSheetInfo.sheetName, [workSheetInfo]);
     // let excelContents = excelUtil.makeExcelWorkBook(workSheetInfo.sheetName, [workSheetInfo]);
+
+    powerChartData.series = _.concat(powerChartData.series, weatherChartData.series);
     
     // BU.CLI(chartDecoration);
-    // BU.CLI(chartOption);
+    // BU.CLI(powerChartData);
     req.locals.searchOption = searchOption;
     req.locals.powerChartData = powerChartData;
     req.locals.chartDecorator = chartDecoration;
-    req.locals.weatherChartData = weatherChartData;
+    // req.locals.weatherChartData = weatherChartData;
     req.locals.workBook = excelContents;
     return res.render('./trend/trend.html', req.locals);
   }));
@@ -391,8 +386,8 @@ module.exports = function (app) {
     webUtil.calcScaleRowDataPacket(weatherTrend, searchRange, ['total_interval_solar']);
 
     let weatherChartOptionList= [
-      { name: '일사량(W/m²)',color: 'black', yAxis:1,  selectKey: 'avg_solar', dateKey: 'group_date'},
-      { name: '기온(℃)', color: 'red', yAxis:0, selectKey: 'avg_temp', maxKey: 'avg_temp', minKey: 'avg_temp', averKey: 'avg_temp', dateKey: 'group_date'},
+      { name: '일사량(W/m²)',color: 'red', yAxis:1,  selectKey: 'avg_solar', dateKey: 'group_date'},
+      { name: '기온(℃)', color: 'green', yAxis:0, selectKey: 'avg_temp', maxKey: 'avg_temp', minKey: 'avg_temp', averKey: 'avg_temp', dateKey: 'group_date'},
     ];
 
     let weatherChartData = { range: betweenDatePoint.shortTxtPoint , series: [] };
@@ -410,7 +405,7 @@ module.exports = function (app) {
     let addWeatherChartOptionList= [
       { name: '풍향', color: 'brown', yAxis:0, selectKey: 'avg_wd', dateKey: 'group_date'},
       { name: '풍속(m/s)', color: 'purple', yAxis:0, selectKey: 'avg_ws', dateKey: 'group_date'},
-      { name: '습도(%)', color: 'green', yAxis:0, selectKey: 'avg_reh', dateKey: 'group_date'},
+      { name: '습도(%)', color: 'pink', yAxis:0, selectKey: 'avg_reh', dateKey: 'group_date'},
       // { name: '자외선(uv)', color: 'skyblue', yAxis:0, selectKey: 'avg_uv', dateKey: 'group_date'},
     ];
 

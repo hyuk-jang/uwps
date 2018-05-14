@@ -3,6 +3,7 @@
 
 <head>
   <%- include("../master/head.html") %>
+  <%- include("../master/excel.html") %>
 </head>
 
 <body>
@@ -39,6 +40,7 @@
             <div class="input_st" style="display:inline-block; width:210px; padding-left:28px; padding-right:15px; margin-left:20px;">
               <span style="float:left; line-height:2; margin-right:10px; ">조회간격</span>
               <select class="form-control" id="search_interval_sel" style="width:80px; margin-top:-2px; height:30px; padding: 4px 8px;">
+                <option value="min">1분</option>
                 <option value="min10">10분</option>
                 <option value="hour">1시간</option>
                 <option value="day">1일</option>
@@ -73,10 +75,14 @@
             <span id="between-start-end" <%= hiddenValue %>>~</span>
            <input class="input_tre" name="end"  id="end_date_input" type="text" readonly <%= hiddenValue %>>
             <button type="button" class="btn btn-primary" onclick="searchReport()" style="" id="search">검색</button>
-
+            
           </div>
-
-
+        </div>
+        <!-- <div style="position: absolute; text-align: right; margin-right: 50px" >
+          <button type="button" class="btn btn-warning"  id="download_excel">Download Excel</button>
+        </div> -->
+        <div style="text-align: right">
+          <button type="button" class="btn btn-warning"  id="download_excel">Download Excel</button>
         </div>
         <div class="row_width search_area">
           <b>검색결과 (총 <%- paginationInfo.totalCount %> 건)</b>
@@ -269,6 +275,43 @@
 
           return location.href = "/report?inverter_seq=" + inverter_seq + "&start_date=" + startDate + "&end_date=" + endDate + "&search_type=" + searchType + "&search_interval=" + searchInterval;
         }
+      </script>
+
+      <script>
+        $("#download_excel").on('click', function(event){
+          var inverter_seq = document.querySelector('#device_list_sel option:checked').value;
+          inverter_seq = inverter_seq.trim();
+          var searchInterval = document.querySelector('#search_interval_sel option:checked').value;
+          var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
+          var startDate = document.getElementById('start_date_input').value;
+          var endDate = '';
+
+          if (searchType === 'range') {
+            endDate = document.getElementById('end_date_input').value;
+            if (startDate > endDate) {
+              return alert('종료일이 시작일보다 빠를 수 없습니다.');
+            }
+          }
+
+          var dataParam = {
+            inverter_seq: inverter_seq,
+            search_interval: searchInterval,
+            search_type: searchType,
+            start_date: startDate,
+            end_date: endDate
+          }
+
+          $.ajax({
+            type: "GET",
+            url: "/report/excel/",
+            data: dataParam
+          }).done(function (excelData) {
+            XLSX.writeFile(excelData.workBook, excelData.fileName + ".xlsx");
+          }).fail(function (req, sts, err) {
+            alert(err);
+          });
+        })
+
       </script>
 </body>
 

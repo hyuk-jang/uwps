@@ -1,6 +1,6 @@
 const wrap = require('express-async-wrap');
 const router = require('express').Router();
-const _ = require('underscore');
+const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
 const DU = require('base-util-jh').domUtil;
 
@@ -50,6 +50,7 @@ module.exports = function (app) {
     let chartOption = { selectKey: 'interval_power', dateKey: 'view_date' };
     let chartData = webUtil.makeDynamicChartData(inverterPowerList, chartOption);
 
+    BU.CLI(chartData);
     // BU.CLI(inverterPowerList);
     webUtil.applyScaleChart(chartData, 'day');
     webUtil.mappingChartDataName(chartData, '인버터 시간별 발전량');
@@ -59,19 +60,20 @@ module.exports = function (app) {
     // console.time('1');
     // 접속반 현재 발전 현황
     let moduleStatus = await biModule.getModuleStatus();
+    moduleStatus = _.sortBy(moduleStatus, 'chart_sort_rank');
     // BU.CLI(moduleStatus);
 
     let weatherDeviceStatus = await biModule.getWeather();
     // 인버터 발전 현황 데이터 검증
     let validWeatherDeviceStatus = webUtil.checkDataValidation(weatherDeviceStatus, new Date(), 'writedate');
-    let validWeatherDevice = _.first(validWeatherDeviceStatus);
+    let validWeatherDevice = _.head(validWeatherDeviceStatus);
 
     // TEST
     const tempSacle = require('../temp/tempSacle');   
     // TEST 구간
     moduleStatus.forEach(currentItem => {
-      let foundIt = _.findWhere(tempSacle.moduleScale, {photovoltaic_seq: currentItem.photovoltaic_seq}); 
-      currentItem.vol = Number((currentItem.vol * foundIt.scale).scale(1, 1));
+      let foundIt = _.find(tempSacle.moduleScale, {photovoltaic_seq: currentItem.photovoltaic_seq}); 
+      currentItem.vol = _.round(currentItem.vol * foundIt.scale, 1);
     });
 
 
@@ -80,8 +82,9 @@ module.exports = function (app) {
     let validModuleStatusList = webUtil.checkDataValidation(moduleStatus, new Date(), 'writedate');
     validModuleStatusList.forEach(moduleInfo => {
       let moduleData = moduleInfo.data;
-      moduleData.module_name = `${moduleData.install_place} ${moduleData.target_name} (${moduleData.manufacturer.slice(0, 2)})`;
+      moduleData.module_name = `${moduleData.install_place} ${moduleData.target_name} (${moduleData.module_type})`;
     });
+    
     // console.timeEnd('1');
     // BU.CLI(validModuleStatusList);
     // console.time('2');
@@ -94,14 +97,14 @@ module.exports = function (app) {
     let validInverterDataList = webUtil.checkDataValidation(inverterDataList, new Date(), 'writedate');
 
     // 설치 인버터 총 용량
-    let pv_amount = _.reduce(_.pluck(v_upsas_profile, 'pv_amount'), (accumulator, currentValue) => accumulator + currentValue);
+    let pv_amount = _.reduce(_.map(v_upsas_profile, 'pv_amount'), (accumulator, currentValue) => accumulator + currentValue);
     let powerGenerationInfo = {
       currKw: webUtil.calcValue(webUtil.calcValidDataList(validInverterDataList, 'out_w', false), 0.001, 3),
-      currKwYaxisMax: Math.ceil(pv_amount / 10),
+      currKwYaxisMax: _.ceil(pv_amount / 10),
       dailyPower : dailyPower === '' ? 0 : dailyPower,
       monthPower,
       cumulativePower,
-      co2: webUtil.calcValue(cumulativePower, 0.424, 3),
+      co2: _.round(cumulativePower * 0.424, 3),
       solarRadiation : validWeatherDevice.hasValidData ? validWeatherDevice.data.solar : '-',
       hasOperationInverter: _.every(_.values(_.map(validInverterDataList, data => data.hasValidData))),
       hasAlarm: false // TODO 알람 정보 작업 필요

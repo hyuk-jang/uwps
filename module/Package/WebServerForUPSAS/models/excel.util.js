@@ -11,11 +11,35 @@ const BU = require('base-util-jh').baseUtil;
  * @property {Object[]} inverterTrend
  * @property {chartData} powerChartData
  * @property {chartDecoration} powerChartDecoration
+ * @property {Array.<waterLevelDataPacket>} waterLevelDataPacketList
+ * 
  * @property {Array.<weatherTrend>} weatherTrend
  * @property {Array.<weatherChartOption>} weatherChartOptionList
  * @property {Array.<weatherCastRowDataPacket>} weatherCastRowDataPacketList
  * @property {searchRange} searchRange
  */
+
+/**
+ * searchRange Type
+ * @typedef {Object} waterLevelDataPacket
+ * @property {number} inverter_seq 인버터 장치 시퀀스
+ * @property {number} water_level 수위
+ * @property {string} view_date 차트에 표현할 Date Format
+ * @property {string} group_date 그룹 처리한 Date Format
+ */ 
+
+
+/**
+ * searchRange Type
+ * @typedef {Object} searchRange
+ * @property {string} searchType day, month, year, range
+ * @property {string} strStartDate sql writedate range 사용
+ * @property {string} strEndDate sql writedate range 사용
+ * @property {string} rangeStart Chart 위에 표시될 시작 날짜
+ * @property {string} rangeEnd Chart 위에 표시될 종료 날짜
+ * @property {string} strStartDateInputValue input[type=text] 에 표시될 시작 날짜
+ * @property {string} strEndDateInputValue input[type=text] 에 표시될 종료 날짜
+ */ 
 
 /**
  * searchRange Type
@@ -138,6 +162,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   let powerChartDecoration = resource.powerChartDecoration;
   let weatherTrend = resource.weatherTrend;
   let weatherChartOptionList = resource.weatherChartOptionList;
+  let waterLevelDataPacketList = resource.waterLevelDataPacketList;
   let weatherCastRowDataPacketList = resource.weatherCastRowDataPacketList;
   let searchRange = resource.searchRange;
 
@@ -181,6 +206,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   ws['B7'] = { t: 's', v: `가중치 적용 \n${powerName} ${powerChartDecoration.yAxisTitle}`};
   ws['B8'] = { t: 's', v: '비교(%)'};
   ws['B9'] = { t: 's', v: '이용률(%)'};
+  ws['B10'] = { t: 's', v: '수위(cm)'};
   ws['B13'] = { t: 's', v: powerChartDecoration.xAxisTitle };
   
   // 시작 지점 입력
@@ -202,6 +228,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     let subData = _.subtract(_.get(foundOptionIt, 'max'), _.get(foundOptionIt, 'min'));
     let columnName = viewInverterPacket.columnName;
     let strDataName = viewInverterPacket.target_name;
+    let waterLevel = _.get(_.find(waterLevelDataPacketList, {inverter_seq: viewInverterPacket.inverter_seq}), 'water_level', ''); 
     // 인버터 명
     ws[columnName + '3'] = { t: 's', v: strDataName };
     // 가중치 미적용
@@ -227,13 +254,16 @@ function makeChartDataToExcelWorkSheet(resource) {
     ws[columnName + '9'] = { t: 'n', f: `${columnName}7/(${inverterAmount}*24)` };
     XLSX.utils.cell_set_number_format(ws[columnName + '9'], '0.0%');
    
+    // 수위
+    ws[columnName + '10'] = { t: 'n', v: waterLevel};
+   
     // 데이터 상세 리스트 제목도 같이 구성
     strDataName = _.replace(strDataName, '(', '\n(');
     ws[getNextAlphabet(fixedSummeryColumn, index) + '13'] = { t: 's', v: strDataName };
     ws[getNextAlphabet(fixedSummeryColumn, index + viewInverterPacketList.length) + '13'] = { t: 's', v: strDataName };
   });
-  
 
+  // BU.CLI(ws);
   /** 기상 개요 구성 시작 */
   summeryColumn = getNextAlphabet(summeryColumn, 1);
   ws[summeryColumn + 3] = { t: 's', v: '기상계측장치' };
@@ -287,6 +317,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   });
 
   /** 기상 개요 구성 끝 */
+  
 
   const excelDataList = [];
   // 차트에 표현된 날짜 기간
@@ -369,6 +400,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     XLSX.utils.decode_range('C7:D7'),
     XLSX.utils.decode_range('C8:D8'),
     XLSX.utils.decode_range('C9:D9'),
+    XLSX.utils.decode_range('C10:D10'),
 
     XLSX.utils.decode_range('E3:F3'),
     XLSX.utils.decode_range('E4:F4'),
@@ -377,6 +409,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     XLSX.utils.decode_range('E7:F7'),
     XLSX.utils.decode_range('E8:F8'),
     XLSX.utils.decode_range('E9:F9'),
+    XLSX.utils.decode_range('E10:F10'),
 
     XLSX.utils.decode_range('G3:H3'),
     XLSX.utils.decode_range('G4:H4'),
@@ -385,6 +418,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     XLSX.utils.decode_range('G7:H7'),
     XLSX.utils.decode_range('G8:H8'),
     XLSX.utils.decode_range('G9:H9'),
+    XLSX.utils.decode_range('G10:H10'),
 
     XLSX.utils.decode_range('I3:J3'),
     XLSX.utils.decode_range('I4:J4'),
@@ -393,6 +427,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     XLSX.utils.decode_range('I7:J7'),
     XLSX.utils.decode_range('I8:J8'),
     XLSX.utils.decode_range('I9:J9'),
+    XLSX.utils.decode_range('I10:J10'),
 
     XLSX.utils.decode_range('K3:L3'),
     XLSX.utils.decode_range('K4:L4'),
@@ -401,6 +436,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     XLSX.utils.decode_range('K7:L7'),
     XLSX.utils.decode_range('K8:L8'),
     XLSX.utils.decode_range('K9:L9'),
+    XLSX.utils.decode_range('K10:L10'),
 
     XLSX.utils.decode_range('M3:N3'),
     XLSX.utils.decode_range('M4:N4'),
@@ -409,6 +445,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     XLSX.utils.decode_range('M7:N7'),
     XLSX.utils.decode_range('M8:N8'),
     XLSX.utils.decode_range('M9:N9'),
+    XLSX.utils.decode_range('M10:N10'),
 
     XLSX.utils.decode_range('P3:T3'),
 
@@ -443,7 +480,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   ws['!cols'] = colsInfoList;
 
   // /* TEST: row props */
-  let rowsInfoList = [{ hpt: 10 }, { hpt: 24 }, { hpt: 22}, { hpt: 35 }, { hpt: 20 }, { hpt: 20 }, { hpt: 35 }, { hpt: 20 }, { hpt: 20 }, { hpt: 15 }, { hpt: 15 }, { hpt: 24 }, { hpt: 35 }];
+  let rowsInfoList = [{ hpt: 10 }, { hpt: 24 }, { hpt: 22}, { hpt: 35 }, { hpt: 20 }, { hpt: 20 }, { hpt: 35 }, { hpt: 20 }, { hpt: 20 }, { hpt: 20 }, { hpt: 15 }, { hpt: 24 }, { hpt: 35 }];
   ws['!rows'] = rowsInfoList;
 
   XLSX.utils.sheet_add_aoa(ws, powerHeader, { origin: 'B2' });

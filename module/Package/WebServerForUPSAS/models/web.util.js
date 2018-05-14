@@ -1,4 +1,4 @@
-const _ = require('underscore');
+const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
 
 
@@ -137,16 +137,16 @@ exports.checkDataValidation = checkDataValidation;
 function calcValidDataList(validDataList, key, hasAll) {
   let validList = [];
   if (hasAll) {
-    validList = _.pluck(validDataList, 'data');
+    validList = _.map(validDataList, 'data');
   } else {
-    _.each(validDataList, validData => {
+    _.forEach(validDataList, validData => {
       if (validData.hasValidData) {
         validList.push(validData.data);
       }
     });
   }
   // BU.CLI(validList);
-  let returnNumber = _.reduce(_.pluck(validList, key), (accumulator, currentValue) => accumulator + currentValue);
+  let returnNumber = _.sum(_.map(validList, key));
   return _.isNumber(returnNumber) ? returnNumber : 0;
 }
 exports.calcValidDataList = calcValidDataList;
@@ -158,7 +158,7 @@ exports.calcValidDataList = calcValidDataList;
  * @return {number|string} 계산 결과 값 or ''
  */
 function reduceDataList(dataList, key) {
-  let returnNumber = _.reduce(_.pluck(dataList, key), (prev, next) => prev + next);
+  let returnNumber = _.sum(_.map(dataList, key)); 
   return _.isNumber(returnNumber) ? returnNumber : '';
 }
 exports.reduceDataList = reduceDataList;
@@ -200,7 +200,7 @@ function calcRangePower(rowDataPacketList, calcOption){
     // 데이터 분포군 개수로는 계산하지 않음.
     // const hasCalcCount = hasCalcRange && calcOption.rangeOption.minRequiredCountKey.length ? true : false;
     
-    _.each(groupRowDataPacketList, rowList => {
+    _.forEach(groupRowDataPacketList, rowList => {
       let prevValue;
       let prevDate;
       rowList.forEach((rowData, index) => {
@@ -279,7 +279,7 @@ function calcRangeGridOutW(rowDataPacketList, searchRange, cumulativePowerKey ){
       default:
         break;
       }
-      rowDataPacket.grid_out_w = rowDataPacket.grid_out_w.scale(1, 2);
+      rowDataPacket.grid_out_w = _.round(rowDataPacket.grid_out_w, 2);
     } 
   });
 
@@ -313,8 +313,9 @@ function refineSelectedConnectorList(viewUpsasProfile, connector_seq) {
   // if (connector_seq !== 'all') {
   //   sortedList = _.filter(sortedList, info => info.connector_seq === connector_seq);
   // }
-  return _.map(viewUpsasProfile, info => {
-    return {
+  let returnArray = [];
+  _.forEach(viewUpsasProfile, info => {
+    returnArray.push({
       photovoltaic_seq: info.photovoltaic_seq,
       connector_ch: `CH ${info.connector_ch}`,
       pv_target_name: info.pv_target_name,
@@ -330,8 +331,9 @@ function refineSelectedConnectorList(viewUpsasProfile, connector_seq) {
       power: '',
       temperature: '',
       hasOperation: false
-    };
+    });
   });
+  return returnArray;
 }
 exports.refineSelectedConnectorList = refineSelectedConnectorList;
 
@@ -345,7 +347,7 @@ exports.refineSelectedConnectorList = refineSelectedConnectorList;
 function convertColumn2Rows(targetList, priotyKeyList, repeatLength) {
   const returnValue = {};
   priotyKeyList.forEach(key => {
-    let pluckData = _.pluck(targetList, key);
+    let pluckData = _.map(targetList, key);
     let space = repeatLength - pluckData.length;
     for (let i = 0; i < space; i++) {
       pluckData.push('');
@@ -367,7 +369,8 @@ function refineSelectedInverterStatus(viewInverterStatus) {
     totalInfo: {},
     dataList: []
   };
-  let currInverterDataList = _.map(viewInverterStatus, info => {
+  let currInverterDataList = [];
+  _.forEach(viewInverterStatus, info => {
     // BU.CLI(info)
     let hasValidData = info.hasValidData;
     let data = info.data;
@@ -387,7 +390,8 @@ function refineSelectedInverterStatus(viewInverterStatus) {
       d_wh: '',
       d_kwh: '',
       c_kwh: '',
-      water_level: data.water_level,
+      compare_efficiency: '',
+      water_level: '',
       writedate: data.writedate,
       hasOperation: false
     };
@@ -404,11 +408,13 @@ function refineSelectedInverterStatus(viewInverterStatus) {
       addObj.out_kw = _.isNumber(data.out_w) ? calcValue(data.out_w, 0.001, 3) : '';
       addObj.p_f = data.p_f;
       addObj.d_wh = data.d_wh;
+      addObj.compare_efficiency = data.compare_efficiency;
+      addObj.water_level = data.water_level;
       addObj.d_kwh = _.isNumber(data.daily_power_wh) ? calcValue(data.daily_power_wh, 0.001, 3) : '';
       addObj.c_kwh = _.isNumber(data.c_wh) ? calcValue(data.c_wh, 0.001, 2) : '';
       addObj.hasOperation = true;
     }
-    return addObj;
+    currInverterDataList.push(addObj);
   });
   // currInverterDataList = _.sortBy(currInverterDataList, 'target_name');
   // 인버터 실시간 데이터 테이블
@@ -416,7 +422,7 @@ function refineSelectedInverterStatus(viewInverterStatus) {
   returnValue.totalInfo.in_kw = calcValue(reduceDataList(currInverterDataList, 'in_kw'), 1, 3);
   returnValue.totalInfo.out_kw = calcValue(reduceDataList(currInverterDataList, 'out_kw'), 1, 3);
   returnValue.totalInfo.d_kwh = calcValue(reduceDataList(currInverterDataList, 'd_kwh'), 1, 3);
-  returnValue.totalInfo.c_mwh = calcValue(reduceDataList(currInverterDataList, 'c_mwh'), 1, 4);
+  returnValue.totalInfo.c_kwh = calcValue(reduceDataList(currInverterDataList, 'c_kwh'), 1, 3);
 
   return returnValue;
 }
@@ -431,6 +437,7 @@ exports.refineSelectedInverterStatus = refineSelectedInverterStatus;
  * @return {chartData}
  */
 function makeDynamicChartData(rowDataPacketList, chartOption) {
+  BU.CLI(chartOption);
   const selectKey = chartOption.selectKey;
   const dateKey = chartOption.dateKey;
   const groupKey = chartOption.groupKey;
@@ -439,22 +446,23 @@ function makeDynamicChartData(rowDataPacketList, chartOption) {
 
   // 반환 데이터 유형
   let returnValue = {
-    range: _.sortBy(_.union(_.pluck(rowDataPacketList, dateKey))),
+    range: _.sortBy(_.union(_.map(rowDataPacketList, dateKey))),
     series: []
   };
 
   // BU.CLI(returnValue.range);
   // 같은 Key 끼리 그루핑
   if (groupKey) {
-    // BU.CLI(groupKey);
+    BU.CLI(groupKey);
     let groupDataList = _.groupBy(rowDataPacketList, groupKey);
-    returnValue.series = _.map(groupDataList, (groupObj, gKey) => {
+    returnValue.series = [];
+    _.forEach(groupDataList, (groupObj, gKey) => {
       let addObj = {
         name: gKey,
         data: []
       };
 
-      let dataRow =  _.first(groupObj);
+      let dataRow =  _.head(groupObj);
       if(colorKey){
         addObj.color = dataRow[chartOption.colorKey];
       }
@@ -462,11 +470,12 @@ function makeDynamicChartData(rowDataPacketList, chartOption) {
         addObj.sort = dataRow[chartOption.sortKey];
       }
 
-      _.each(groupObj, gInfo => {
+      _.forEach(groupObj, gInfo => {
         let index = _.indexOf(returnValue.range, gInfo[dateKey]);
+        BU.CLI(index);
         addObj.data[index] = gInfo[selectKey];
       });
-      return addObj;
+      returnValue.series.push(addObj);
     });
 
     if(sortKey){
@@ -480,9 +489,16 @@ function makeDynamicChartData(rowDataPacketList, chartOption) {
       data: []
     };
 
-    addObj.data = _.map(_.sortBy(_.groupBy(rowDataPacketList, dateKey), dateKey) , dataList => {
+    let t = _.groupBy(rowDataPacketList, 'view_date');
+    BU.CLI(t);
+    let tt = _.sortBy(t, );
+    BU.CLI(tt);
+
+    addObj.data = [];
+    _.forEach(_.sortBy(_.groupBy(rowDataPacketList, dateKey), dateKey) , dataList => {
+      // BU.CLI(dataList);
       let resReduce = reduceDataList(dataList, selectKey);
-      return resReduce;
+      addObj.data.push(resReduce);
     });
 
     returnValue.series.push(addObj);
@@ -520,7 +536,8 @@ function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
   if (groupKey) {
     let groupedRowPacketDataList = _.groupBy(rowDataPacketList, groupKey);
 
-    returnValue.series = _.map(groupedRowPacketDataList, (groupObj, gKey) => {
+    returnValue.series = [];
+    _.forEach(groupedRowPacketDataList, (groupObj, gKey) => {
       /** @type {chartSeries} */
       let addObj = {
         name: gKey,
@@ -528,7 +545,7 @@ function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
         option: {}
       };
 
-      let dataRow =  _.first(groupObj);
+      let dataRow =  _.head(groupObj);
       // 색상 키가 있다면 입력
       if(colorKey){
         addObj.color = dataRow[colorKey];
@@ -538,7 +555,7 @@ function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
 
 
       baseRange.fullTxtPoint.forEach(fullTxtDate => {
-        let resultFind = _.findWhere(groupObj, {
+        let resultFind = _.find(groupObj, {
           [dateKey]: fullTxtDate
         });
 
@@ -546,7 +563,7 @@ function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
         let data = _.isEmpty(resultFind) ? '' : resultFind[selectKey];
         addObj.data.push(data);
       });
-      return addObj;
+      returnValue.series.push(addObj);
     });
 
     if(sortKey){
@@ -563,7 +580,7 @@ function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
     };
 
     baseRange.fullTxtPoint.forEach(fullTxtDate => {
-      let resultFind = _.findWhere(rowDataPacketList, {
+      let resultFind = _.find(rowDataPacketList, {
         [dateKey]: fullTxtDate
       });
 
@@ -595,7 +612,7 @@ function calcStatisticsReport(rowDataPacketList, chartOption){
   const minKey = chartOption.minKey;
   const averKey = chartOption.averKey;
 
-  let dataRow =  _.first(rowDataPacketList);
+  let dataRow =  _.head(rowDataPacketList);
 
   // 데이터가 없다면 빈 객체 반환
   if(_.isEmpty(dataRow)){
@@ -608,12 +625,12 @@ function calcStatisticsReport(rowDataPacketList, chartOption){
   }
   // 최대 값을 구한다면
   if(maxKey){
-    let row = _.max(rowDataPacketList, rowPacket => rowPacket[maxKey]);
+    let row = _.maxBy(rowDataPacketList, rowPacket => rowPacket[maxKey]);
     returnValue.max = row[maxKey];
   }
   // 최소 값을 구한다면
   if(minKey){
-    let row = _.min(rowDataPacketList, rowPacket => rowPacket[minKey]);
+    let row = _.minBy(rowDataPacketList, rowPacket => rowPacket[minKey]);
     returnValue.min = row[minKey];
   }
   // TODO 
@@ -637,7 +654,6 @@ function calcStatisticsReport(rowDataPacketList, chartOption){
  * @param {string} searchType 
  */
 function convertValueBySearchType(number, searchType) {
-  const _ = require('lodash');
   // BU.CLI('convertValueBySearchType', searchType, number)
   let returnValue = 0;
   switch (searchType) {
@@ -766,11 +782,11 @@ function mappingChartDataName(chartData, mappingTarget, matchingKey, mappingKey,
   chartData.series.forEach(chart => {
     let chartKey = chart.name;
     if (_.isArray(mappingTarget)) {
-      let findObj = _.findWhere(mappingTarget, {
+      let findObj = _.find(mappingTarget, {
         [matchingKey]: Number(chartKey)
       });
       if (_.isEmpty(findObj)) {
-        findObj = _.findWhere(mappingTarget, {
+        findObj = _.find(mappingTarget, {
           [matchingKey]: chartKey
         });
       }
@@ -796,11 +812,11 @@ exports.mappingChartDataName = mappingChartDataName;
  */
 function mappingChartDataNameForModule(chartData, mappingTarget) {
   chartData.series.forEach(chart => {
-    let upsasInfo = _.findWhere(mappingTarget, {
+    let upsasInfo = _.find(mappingTarget, {
       photovoltaic_seq: Number(chart.name)
     });
-    chart.name = `${upsasInfo.cnt_target_name} ${upsasInfo.pv_target_name} (${upsasInfo.pv_manufacturer.slice(0, 2)})`;
-    // chart.name = `${upsasInfo.cnt_target_name} ${upsasInfo.pv_target_name} CH ${upsasInfo.connector_ch} `;
+    chart.name = `${upsasInfo.cnt_target_name} ${upsasInfo.pv_target_name} (${upsasInfo.pv_module_type.slice(0,1)})`;
+    // chart.name = upsasInfo.ivt_target_name;
   });
   chartData.series = _.sortBy(chartData.series, 'ivt_target_name');
   return chartData;
@@ -818,7 +834,7 @@ exports.mappingChartDataNameForModule = mappingChartDataNameForModule;
 function addKeyToReport(sourceList, referenceList, addKey, referenceKey){
   // BU.CLIS(sourceList, referenceList);
   sourceList.forEach(currentItem => {
-    const findIt = _.findWhere(referenceList, {[referenceKey]: currentItem[referenceKey]});
+    const findIt = _.find(referenceList, {[referenceKey]: currentItem[referenceKey]});
 
     currentItem[addKey] = _.isEmpty(findIt) ? '' : findIt[addKey]; 
   });

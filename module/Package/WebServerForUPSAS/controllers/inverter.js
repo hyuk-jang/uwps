@@ -38,31 +38,29 @@ module.exports = function (app) {
     // TEST 구간
     viewInverterStatus.forEach(currentItem => {
       let foundIt = _.find(tempSacle.inverterScale, {inverter_seq: currentItem.inverter_seq});
-      currentItem.in_a = Number((foundIt.scale * currentItem.in_a).scale(1, 1));
-      currentItem.in_w = Number((foundIt.scale * currentItem.in_w).scale(1, 1));
-      currentItem.out_a = Number((foundIt.scale * currentItem.out_a).scale(1, 1));
-      currentItem.out_w = Number((foundIt.scale * currentItem.out_w).scale(1, 1));
-      currentItem.d_wh = Number((foundIt.scale * currentItem.d_wh).scale(1, 0));
-      currentItem.c_wh = Number((foundIt.scale * currentItem.c_wh).scale(1, 0));
-      currentItem.daily_power_wh = Number((foundIt.scale * currentItem.daily_power_wh).scale(1, 0));
+      // currentItem.in_a = _.round(foundIt.scale * currentItem.in_a, 1);
+      currentItem.in_w = _.round(foundIt.scale * currentItem.in_w, 1);
+      // currentItem.out_a = _.round(foundIt.scale * currentItem.out_a, 1);
+      currentItem.out_w = _.round(foundIt.scale * currentItem.out_w, 1);
+      // currentItem.d_wh = _.round(foundIt.scale * currentItem.d_wh, 0);
+      // currentItem.c_wh = _.round(foundIt.scale * currentItem.c_wh, 0);
+      currentItem.daily_power_wh = _.round(foundIt.scale * currentItem.daily_power_wh, 0);
     });
-    
+
     _.forEach(viewInverterStatus, data => {
       let waterLevelData = _.find(waterLevelDataPacket, {inverter_seq: data.inverter_seq});
-      // BU.CLIS(waterLevelData, _.isNumber(waterLevelData.water_level));
-      
+      let compareInverter = _.find(viewInverterStatus, {inverter_seq: data.compare_inverter_seq});
+      data.compare_efficiency = _.round(_.get(data, 'daily_power_wh') / _.get(compareInverter, 'daily_power_wh') * 100, 1);
       data.water_level = waterLevelData && _.isNumber(waterLevelData.water_level) ?   waterLevelData.water_level : '';
     });
 
     
-    
     // 데이터 검증
     let validInverterStatus = webUtil.checkDataValidation(viewInverterStatus, new Date(), 'writedate');
-    BU.CLI(_.map(viewInverterStatus, 'daily_power_wh'));
+    // BU.CLI(_.map(viewInverterStatus, 'daily_power_wh'));
     /** 인버터 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
     let refinedInverterStatus = webUtil.refineSelectedInverterStatus(validInverterStatus);
     // BU.CLI(refinedInverterStatus);
-    BU.CLI(_.map(refinedInverterStatus.dataList, 'd_kwh'));
     
     // let searchRange = biModule.getSearchRange('hour', '2018-03-10');
     searchRange = biModule.getSearchRange('min10');
@@ -85,9 +83,6 @@ module.exports = function (app) {
     });
 
     // BU.CLI(refinedInverterStatus);
-
-
-    // BU.CLI(chartData);
     webUtil.mappingChartDataName(chartData, viewInverterStatus, 'target_id', 'target_name');
 
     req.locals.inverterStatus = refinedInverterStatus;

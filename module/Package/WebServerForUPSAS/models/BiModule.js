@@ -687,11 +687,11 @@ class BiModule extends bmjh.BM {
 
   /**
    * 인버터 Report
-   * @param {number=|Array=} inverter_seq [inverter_seq]
    * @param {searchRange} searchRange getSearchRange() Return 객체
+   * @param {number=|Array=} inverter_seq [inverter_seq]
    * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
    */
-  async getInverterReport(inverter_seq, searchRange) {
+  async getInverterReport(searchRange, inverter_seq) {
     let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
     
     let sql = `

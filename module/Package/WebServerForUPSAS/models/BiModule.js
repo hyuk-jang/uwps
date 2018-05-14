@@ -520,10 +520,10 @@ class BiModule extends bmjh.BM {
    * @return {{inverter_seq: number, group_date: string, }}
    */
   getInverterTrend(searchRange, inverter_seq) {
+    // BU.CLI(searchRange);
     searchRange = searchRange ? searchRange : this.getSearchRange();
     let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
     // BU.CLI(searchRange);
-    // BU.CLI(dateFormat);
     let sql = `
     SELECT 
           id_group.inverter_seq,

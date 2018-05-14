@@ -81,7 +81,7 @@
         <!-- <div style="position: absolute; text-align: right; margin-right: 50px" >
           <button type="button" class="btn btn-warning"  id="download_excel">Download Excel</button>
         </div> -->
-        <div style="text-align: right">
+        <div style="text-align: right; margin-right: 31px">
           <button type="button" class="btn btn-warning"  id="download_excel">Download Excel</button>
         </div>
         <div class="row_width search_area">
@@ -291,6 +291,10 @@
             if (startDate > endDate) {
               return alert('종료일이 시작일보다 빠를 수 없습니다.');
             }
+          }
+
+          if(!['min', 'min10', 'hour'].includes(searchInterval)){
+            return alert("엑셀 Download는 1분, 10분, 1시간 단위 생성만 지원합니다.")
           }
 
           var dataParam = {

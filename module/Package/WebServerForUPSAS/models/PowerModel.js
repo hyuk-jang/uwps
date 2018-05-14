@@ -26,6 +26,7 @@ class PowerModel extends BiModule {
    * @return {{inverterPowerChartData: chartData, inverterTrend: Object[], viewInverterPacketList: Array.<viewInverterDataPacket>}} chartData
    */
   async getInverterChart(searchOption, searchRange, betweenDatePoint) {
+    // BU.CLI(searchRange);
     let inverterPowerChartData = {
       range: [],
       series: []
@@ -52,6 +53,7 @@ class PowerModel extends BiModule {
     let viewInverterPacketList = await this.getTable('v_inverter_status');
     // BU.CLI(viewInverterPacketList);
     // 인버터 차트 데이터 불러옴
+    // BU.CLI(searchRange);
     let inverterTrend = await this.getInverterTrend(searchRange, device_seq);
     // BU.CLI(inverterTrend);
 
@@ -210,15 +212,19 @@ class PowerModel extends BiModule {
 
   /**
    * @param {searchRange} searchRange 
+   * @param {number} searchInterval 
    */
-  async makeExcelSheet(searchRange){
-    let startDate = new Date(searchRange.strStartDateInputValue);
-    let endDate = new Date(searchRange.strEndDateInputValue);
+  async makeExcelSheet(searchRange, searchInterval){
+    let startDate = new Date(searchRange.strBetweenStart);
+    let endDate = new Date(searchRange.strBetweenEnd);
     let searchRangeList = [searchRange];
-    while (startDate < endDate) {
-      let newSearchRange = this.getSearchRange(searchRange.searchType, startDate, endDate);
-      searchRangeList.push(newSearchRange);
-      startDate = startDate.addDays(1);
+
+    if(_.includes(['min', 'min10', 'hour'], searchRange.searchType) === false){
+      while (startDate < endDate) {
+        let newSearchRange = this.getSearchRange(searchInterval, startDate, endDate);
+        searchRangeList.push(newSearchRange);
+        startDate.setDate(startDate.getDate() + 1);
+      }
     }
 
     // BU.CLI(searchRangeList);
@@ -227,8 +233,10 @@ class PowerModel extends BiModule {
     }));
 
     let fileName = _.head(workSheetInfoList).sheetName;
+    // BU.CLIN(workSheetInfoList);
     let excelContents = excelUtil.makeExcelWorkBook(fileName, workSheetInfoList);
 
+    // return false;
     return {workBook:excelContents, fileName};
   }
 
@@ -244,6 +252,8 @@ class PowerModel extends BiModule {
     };
     let betweenDatePoint = BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchInterval);
     let {inverterPowerChartData, inverterTrend, viewInverterPacketList} = await this.getInverterChart(searchOption, searchRange, betweenDatePoint);
+
+    // BU.CLI(inverterPowerChartData);
     let {weatherTrend, weatherChartOptionList} = await this.getWeatherChart(searchRange, betweenDatePoint);
     // BU.CLI(weatherTrend);
     let weatherCastRowDataPacketList =  await this.getWeatherCastAverage(searchRange);

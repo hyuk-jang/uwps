@@ -453,7 +453,6 @@ function makeDynamicChartData(rowDataPacketList, chartOption) {
   // BU.CLI(returnValue.range);
   // 같은 Key 끼리 그루핑
   if (groupKey) {
-    BU.CLI(groupKey);
     let groupDataList = _.groupBy(rowDataPacketList, groupKey);
     returnValue.series = [];
     _.forEach(groupDataList, (groupObj, gKey) => {
@@ -472,7 +471,6 @@ function makeDynamicChartData(rowDataPacketList, chartOption) {
 
       _.forEach(groupObj, gInfo => {
         let index = _.indexOf(returnValue.range, gInfo[dateKey]);
-        BU.CLI(index);
         addObj.data[index] = gInfo[selectKey];
       });
       returnValue.series.push(addObj);
@@ -489,18 +487,7 @@ function makeDynamicChartData(rowDataPacketList, chartOption) {
       data: []
     };
 
-    let t = _.groupBy(rowDataPacketList, 'view_date');
-    BU.CLI(t);
-    let tt = _.sortBy(t, );
-    BU.CLI(tt);
-
-    addObj.data = [];
-    _.forEach(_.sortBy(_.groupBy(rowDataPacketList, dateKey), dateKey) , dataList => {
-      // BU.CLI(dataList);
-      let resReduce = reduceDataList(dataList, selectKey);
-      addObj.data.push(resReduce);
-    });
-
+    addObj.data = _(rowDataPacketList).groupBy(dateKey).toPairs().sortBy().map(currentItem => _.nth(currentItem, 1)).map(dataPacket => _.sum(_.map(dataPacket, selectKey))).value();
     returnValue.series.push(addObj);
   }
   return returnValue;

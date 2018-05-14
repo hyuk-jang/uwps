@@ -50,7 +50,7 @@ module.exports = function (app) {
     let chartOption = { selectKey: 'interval_power', dateKey: 'view_date' };
     let chartData = webUtil.makeDynamicChartData(inverterPowerList, chartOption);
 
-    BU.CLI(chartData);
+    // BU.CLI(chartData);
     // BU.CLI(inverterPowerList);
     webUtil.applyScaleChart(chartData, 'day');
     webUtil.mappingChartDataName(chartData, '인버터 시간별 발전량');

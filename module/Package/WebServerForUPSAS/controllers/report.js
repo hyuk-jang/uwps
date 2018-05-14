@@ -77,20 +77,44 @@ module.exports = function (app) {
   }));
 
   router.get('/excel', wrap(async (req, res) => {
-    BU.CLI(req.query);
-    const interval = req.query.search_interval ? req.query.search_interval : 'min10';
+    const searchInterval = req.query.search_interval ? req.query.search_interval : 'min10';
     // Search 타입을 지정
     let searchType = req.query.search_type ? req.query.search_type : defaultRangeFormat;
+    let startDate = req.query.start_date;
+    let endDate = req.query.end_date;
     // 지정된 SearchType으로 설정 구간 정의
-    let searchRange = powerModel.getSearchRange(searchType, req.query.start_date, req.query.end_date);
 
-
-    searchRange.searchInterval = interval;
     
-    let excelWorkBook = await powerModel.makeExcelSheet(searchRange);
-    // BU.CLI(excelWorkBook);
+    let searchRange = powerModel.getSearchRange(searchType, startDate, endDate);
+    
+    if (searchType === 'range') {
+      let realSearchType = searchType === 'range' ? powerModel.convertSearchTypeWithCompareDate(searchRange.strEndDate, searchRange.strStartDate) : searchType;
+      if (realSearchType === 'hour') {
+        searchRange = powerModel.getSearchRange(defaultRangeFormat, req.query.start_date, req.query.end_date);
+      } else {
+        searchRange.searchInterval = searchRange.searchType = realSearchType;
+      }
+    } else if (searchType === 'hour'){
+      switch (searchInterval) {
+      case 'min':
+      case 'min10':
+        searchRange.searchType = searchInterval;
+        break;
+      }
+      searchRange.searchInterval = searchInterval;
+    }
 
-    return res.send(excelWorkBook);
+    if(['min', 'min10', 'hour'].includes(searchInterval)){
+      let excelWorkBook = await powerModel.makeExcelSheet(searchRange, searchInterval);
+      // BU.CLI(excelWorkBook);
+  
+      return res.send(excelWorkBook);
+    } else {
+      return res.status(500).send();
+    }
+
+    // BU.CLI(searchRange);
+    
   }));
 
   router.use(wrap(async(err, req, res) => {

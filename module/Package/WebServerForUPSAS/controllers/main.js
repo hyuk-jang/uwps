@@ -41,15 +41,47 @@ module.exports = function (app) {
     // console.timeEnd('0');
     // console.time('0.5');
     // 금일 발전 현황 데이터
-    searchRange = biModule.getSearchRange('hour');
+    searchRange = biModule.getSearchRange('min10');
     // searchRange = biModule.getSearchRange('hour', '2018-03-10');
-    let inverterPowerList = await biModule.getInverterPower(searchRange);
-    // 각 인버터에서 기록된 데이터 차를 합산
-    let dailyPower = webUtil.calcValue(webUtil.reduceDataList(inverterPowerList, 'interval_power'), 0.001, 1) ;
-    // BU.CLI(inverterPowerList);
-    let chartOption = { selectKey: 'interval_power', dateKey: 'view_date' };
-    let chartData = webUtil.makeDynamicChartData(inverterPowerList, chartOption);
 
+    let inverterTrend = await biModule.getInverterTrend(searchRange);
+
+    // 하루 데이터(10분 구간)는 특별히 데이터를 정제함.
+    if (searchRange.searchType === 'min' || searchRange.searchType === 'min10' || searchRange.searchType === 'hour') {
+      let maxRequiredDateSecondValue = 0;
+      switch (searchRange.searchType) {
+      case 'min':
+        maxRequiredDateSecondValue = 120;
+        break;
+      case 'min10':
+        maxRequiredDateSecondValue = 1200;
+        break;
+      case 'hour':
+        maxRequiredDateSecondValue = 7200;
+        break;
+      default:
+        break;
+      }
+      let calcOption = {
+        calcMaxKey: 'max_c_wh',
+        calcMinKey: 'min_c_wh',
+        resultKey: 'interval_power',
+        groupKey: 'inverter_seq',
+        rangeOption: {
+          dateKey: 'group_date',
+          maxRequiredDateSecondValue,
+          minRequiredCountKey: 'total_count',
+          minRequiredCountValue: 9
+        }
+      };
+      webUtil.calcRangePower(inverterTrend, calcOption);
+    }    
+
+    let dailyPower = _.round(webUtil.reduceDataList(inverterTrend, 'interval_power') * 0.001, 2) ;
+    
+    let chartOption = { selectKey: 'interval_power', dateKey: 'view_date', hasArea: true };
+    let chartData = webUtil.makeDynamicChartData(inverterTrend, chartOption);
+    
     // BU.CLI(chartData);
     // BU.CLI(inverterPowerList);
     webUtil.applyScaleChart(chartData, 'day');
@@ -97,10 +129,10 @@ module.exports = function (app) {
     let validInverterDataList = webUtil.checkDataValidation(inverterDataList, new Date(), 'writedate');
 
     // 설치 인버터 총 용량
-    let pv_amount = _.reduce(_.map(v_upsas_profile, 'pv_amount'), (accumulator, currentValue) => accumulator + currentValue);
+    let pv_amount = _(v_upsas_profile).map('pv_amount').sum();
     let powerGenerationInfo = {
       currKw: webUtil.calcValue(webUtil.calcValidDataList(validInverterDataList, 'out_w', false), 0.001, 3),
-      currKwYaxisMax: _.ceil(pv_amount / 10),
+      currKwYaxisMax: _.round(_.multiply(pv_amount, 0.001)),
       dailyPower : dailyPower === '' ? 0 : dailyPower,
       monthPower,
       cumulativePower,
@@ -109,7 +141,7 @@ module.exports = function (app) {
       hasOperationInverter: _.every(_.values(_.map(validInverterDataList, data => data.hasValidData))),
       hasAlarm: false // TODO 알람 정보 작업 필요
     };
-    // BU.CLI(powerGenerationInfo);
+    // BU.CLI(chartData);
     req.locals.dailyPowerChartData = chartData;
     req.locals.moduleStatusList = validModuleStatusList ;
     req.locals.powerGenerationInfo = powerGenerationInfo;

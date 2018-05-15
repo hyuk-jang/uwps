@@ -248,12 +248,14 @@ function makeChartDataToExcelWorkSheet(resource) {
 
     // 24시간 발전 용량 Wh(kw -> w 1000배, Scale 10 나눔 ---> 100(시간당 발전용량))
     // FIXME 월 단위는 계산식 틀림. 일단 놔둠.
-    let inverterAmount = _.multiply(viewInverterPacket.amount, 100);
+    // BU.CLI(viewInverterPacket.pv_amount);
+    let inverterAmount = _.multiply(viewInverterPacket.pv_amount);
     inverterAmount = webUtil.convertValueBySearchType(inverterAmount, searchRange.searchType);
     // 24시간 대비 이용률
     ws[columnName + '9'] = { t: 'n', f: `${columnName}7/(${inverterAmount}*24)` };
     XLSX.utils.cell_set_number_format(ws[columnName + '9'], '0.0%');
    
+    // BU.CLI(ws);
     // 수위
     ws[columnName + '10'] = { t: 'n', v: waterLevel};
    

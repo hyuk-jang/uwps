@@ -16,29 +16,9 @@
 
 
         <div class="row row_width  top_box">
-            <div class="col-xs-2 sel_box">
-                장비 종류
-              <select class="form-control form-control_st" id="device_type_sel" name="">
-                <%
-                  for(var i = 0 ; i < searchOption.device_type_list.length ; i++){
-                    var deviceTypeInfo = searchOption.device_type_list[i];
-                    var deviceType = deviceTypeInfo.type;
-                    var deviceName = deviceTypeInfo.name;
-                    var selected = '';
-                    if(deviceType === searchOption.device_type){
-                    selected = 'selected';
-                  }
-                %>
-                <option  value="<%= deviceType %>" <%=selected %> >
-                  <%= deviceName %>
-                </option>
-                <%
-                  }
-                %>
-              </select>
-            </div>
+            
           <div class="col-xs-2 sel_box">
-              장비 선택
+              인버터
             <select class="form-control form-control_st" id="device_list_sel" name="device_seq">
               <%
                 for(var i = 0 ; i < searchOption.device_list.length ; i++){
@@ -102,12 +82,8 @@
 
           <div class="title_box2" id="moduleChart_1" style="height: 500px;">
           </div>
-          <!-- <p class="re_p">※ 금일 발전량, 누적 발전량, 장치 상태를 제외한 위의 데이터는 모두 해당<span> 검색 기간의 평균 값</span> 입니다. </p> -->
           <p class="re_p" style="margin-top: 10px">※ 인버터 발전량 차트의 각 데이터 포인트는 <span> <%- chartDecorator.inverterComment %></span> 입니다. </p>
-          <p class="re_p" style="margin-top: 10px">※ 접속반 발전량 차트의 각 데이터 포인트는 <span> <%- chartDecorator.connectorComment %></span> 이며 참고사항 용입니다 . </p>
           <p class="re_p" style="margin: 5px 0px 0px">※ 단: 단결정, 다: 다결정</p>
-          <!-- <p class="re_p" style="margin-top: 10px">※ 인버터 발전량 차트의 각 데이터 포인트는 <span> X축 시간 동안의 (최고 누적발전량 - 최저 누적발전량)</span> 으로 해당 기간 동안의 실제 발전량입니다. </p>
-          <p class="re_p" style="margin-top: 10px">※ 접속반 발전량 차트의 각 데이터 포인트는 <span> X축 시간 동안의 (평균 전류 * 평균 전압)</span> 이며 X축 시간이 일 단위 이상일 경우에는 시간당 입력된 평균 전력의 합산 값으로 참고사항 용입니다 . </p> -->
 
           <!-- <div class="row row_title">
             <div class="title title_trend">기상 장치 정보</div>
@@ -196,7 +172,6 @@
 
         // 검색 클릭 시
         function searchTrend() {
-          var device_type = document.querySelector('#device_type_sel option:checked').value;
           var $deviceListDom = $('#device_list_sel option:checked');
           var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
           var startDate = document.getElementById('start_date_input').value;
@@ -208,22 +183,12 @@
               return alert('종료일이 시작일보다 빠를 수 없습니다.');
             }
           }
-          console.log($deviceListDom.data('type'))
           var device_list_type = $deviceListDom.data('type');
           var device_seq = $deviceListDom.val();
 
-          // return;
-
-          
-
-          // device_type === 'all' ? 
-
-          var locationHref = "trend?device_type=" + encodeURIComponent(device_type) + "&device_list_type=" + encodeURIComponent(device_list_type) + "&device_seq=" + encodeURIComponent(device_seq) + "&start_date=" + encodeURIComponent(startDate) + "&end_date=" + encodeURIComponent(endDate) + "&search_type=" + encodeURIComponent(searchType);
-          // var locationHref = "/trend?device_type=" + device_type + "&device_seq=" + device_seq + "&start_date=" + startDate + "&end_date=" + endDate + "&search_type=" + searchType;
-          console.log('location', locationHref)
+          var locationHref = "trend?device_list_type=" + encodeURIComponent(device_list_type) + "&device_seq=" + encodeURIComponent(device_seq) + "&start_date=" + encodeURIComponent(startDate) + "&end_date=" + encodeURIComponent(endDate) + "&search_type=" + encodeURIComponent(searchType);
           // alert(locationHref)
           return location.href = locationHref;
-          // `/trend?device_seq=${device_seq}&start_date=${startDate}&end_date=${endDate}&search_type=${searchType}`;
         }
 
         // 장치 타입 변경 시

@@ -10,10 +10,16 @@ SELECT inverter.*,
 	ROUND(d_wh / 10, 1) AS d_wh,
 	ROUND(c_wh / 10, 1) AS c_wh,
 	ROUND((c_wh - (SELECT MAX(c_wh) FROM inverter_data WHERE inverter_seq = id.inverter_seq AND writedate>= CURDATE() - 1 AND writedate< CURDATE())) / 10, 1) AS daily_power_wh,
-	writedate
+	writedate,
+	pv.amount AS pv_amount
 	FROM inverter_data id
 	LEFT JOIN inverter
 		ON inverter.inverter_seq = id.inverter_seq
+	LEFT JOIN relation_upms ru
+		ON ru.inverter_seq = id.inverter_seq
+	LEFT JOIN photovoltaic pv
+		ON pv.photovoltaic_seq = ru.photovoltaic_seq
+		
 	WHERE inverter_data_seq IN (
 		SELECT MAX(inverter_data_seq)
 		FROM inverter_data

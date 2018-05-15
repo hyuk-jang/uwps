@@ -52,6 +52,7 @@ const BU = require('base-util-jh').baseUtil;
  * @property {string=} groupKey rowDataPacketList를 Group 처리 할 Key
  * @property {string=} sortKey 정렬 순위를 참조할 Key
  * @property {string=} colorKey Chart Line 색상
+ * @property {boolean=} hasArea Area로 설정할 여부
  */
 
 /**
@@ -437,12 +438,13 @@ exports.refineSelectedInverterStatus = refineSelectedInverterStatus;
  * @return {chartData}
  */
 function makeDynamicChartData(rowDataPacketList, chartOption) {
-  BU.CLI(chartOption);
+  // BU.CLI(chartOption);
   const selectKey = chartOption.selectKey;
   const dateKey = chartOption.dateKey;
   const groupKey = chartOption.groupKey;
   const colorKey = chartOption.colorKey;
   const sortKey = chartOption.sortKey;
+  const hasArea = chartOption.hasArea;
 
   // 반환 데이터 유형
   let returnValue = {
@@ -460,6 +462,10 @@ function makeDynamicChartData(rowDataPacketList, chartOption) {
         name: gKey,
         data: []
       };
+
+      if(hasArea) {
+        addObj.type = 'area';
+      }
 
       let dataRow =  _.head(groupObj);
       if(colorKey){
@@ -486,6 +492,10 @@ function makeDynamicChartData(rowDataPacketList, chartOption) {
       name: '',
       data: []
     };
+
+    if(hasArea) {
+      addObj.type = 'area';
+    }
 
     addObj.data = _(rowDataPacketList).groupBy(dateKey).toPairs().sortBy().map(currentItem => _.nth(currentItem, 1)).map(dataPacket => _.sum(_.map(dataPacket, selectKey))).value();
     returnValue.series.push(addObj);

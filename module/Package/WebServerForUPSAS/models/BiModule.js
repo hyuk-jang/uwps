@@ -33,12 +33,14 @@ class BiModule extends bmjh.BM {
     searchRange = searchRange ? searchRange : this.getSearchRange();
     let dateFormat = this.makeDateFormatForReport(searchRange, 'applydate');
 
+    // BU.CLI(dateFormat);
     let sql = `
       SELECT
         twl.inverter_seq,
         ROUND(AVG(water_level), 1) AS water_level,
         DATE_FORMAT(applydate,'%H') AS hour_time,
-        ${dateFormat.selectViewDate}
+        ${dateFormat.selectViewDate},
+        ${dateFormat.selectGroupDate}
         FROM temp_water_level twl
         WHERE applydate>= "${searchRange.strBetweenStart}" and applydate<"${searchRange.strBetweenEnd}"
     `;
@@ -46,7 +48,7 @@ class BiModule extends bmjh.BM {
       sql += `AND twl.inverter_seq IN (${inverter_seq_list})`;
     }
     sql += `
-          GROUP BY twl.inverter_seq
+          GROUP BY ${dateFormat.firstGroupByFormat}, twl.inverter_seq
           ORDER BY twl.inverter_seq, applydate
     `;
     return this.db.single(sql, '', false);
@@ -506,7 +508,7 @@ class BiModule extends bmjh.BM {
           COUNT(*) AS first_count
         FROM weather_device_data
         WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
-        AND DATE_FORMAT(writedate, '%H') > '05' AND DATE_FORMAT(writedate, '%H') < '21'
+        AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '21'
         GROUP BY ${dateFormat.firstGroupByFormat}) AS result_wdd
      GROUP BY ${dateFormat.groupByFormat}
     `;

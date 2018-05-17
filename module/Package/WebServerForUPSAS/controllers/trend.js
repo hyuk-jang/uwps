@@ -135,14 +135,49 @@ module.exports = function (app) {
     let excelContents = excelUtil.makeExcelWorkBook(workSheetInfo.sheetName, [workSheetInfo]);
     // let excelContents = excelUtil.makeExcelWorkBook(workSheetInfo.sheetName, [workSheetInfo]);
 
-    powerChartData.series = _.concat(powerChartData.series, weatherChartData.series);
+
+
+    powerChartData.series = _.concat(powerChartData.series, _.pullAt(weatherChartData.series, 0));
     
-    // BU.CLI(chartDecoration);
-    // BU.CLI(powerChartData);
+
+    // TEST Water Level Add Chart Code Start *****************
+    let chartOption = {
+      selectKey: 'water_level',
+      dateKey: 'group_date',
+      groupKey: 'target_name',
+      colorKey: 'chart_color',
+      sortKey: 'chart_sort_rank'
+    };
+
+    webUtil.addKeyToReport(waterLevelDataPacketList, viewInverterPacketList, 'chart_color', 'inverter_seq');
+    webUtil.addKeyToReport(waterLevelDataPacketList, viewInverterPacketList, 'chart_sort_rank', 'inverter_seq');
+    webUtil.addKeyToReport(waterLevelDataPacketList, viewInverterPacketList, 'target_name', 'inverter_seq');
+    let testWeatherInfoPacketList = [];
+    if(['min', 'min10', 'hour'].includes(searchRange.searchType)){
+      betweenDatePoint.fullTxtPoint.forEach(date => {
+        waterLevelDataPacketList.forEach(currentItem => {
+          let addObj = {
+            target_name: currentItem.target_name,
+            water_level: currentItem.water_level,
+            chart_color: currentItem.chart_color,
+            chart_sort_rank: currentItem.chart_sort_rank,
+            group_date: date,
+          };
+          testWeatherInfoPacketList.push(addObj);
+        });
+      });
+    } else {
+      testWeatherInfoPacketList = waterLevelDataPacketList;
+    }
+    let testWeatherInfoChart = webUtil.makeStaticChartData(testWeatherInfoPacketList, betweenDatePoint, chartOption);
+
+    testWeatherInfoChart.series = _.concat(testWeatherInfoChart.series, weatherChartData.series);
+    // TEST Water Level Add Chart Code End *****************
+
     req.locals.searchOption = searchOption;
     req.locals.powerChartData = powerChartData;
     req.locals.chartDecorator = chartDecoration;
-    // req.locals.weatherChartData = weatherChartData;
+    req.locals.weatherChartData = testWeatherInfoChart;
     req.locals.workBook = excelContents;
     return res.render('./trend/trend.html', req.locals);
   }));

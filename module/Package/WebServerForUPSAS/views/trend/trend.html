@@ -85,11 +85,11 @@
           <p class="re_p" style="margin-top: 10px">※ 인버터 발전량 차트의 각 데이터 포인트는 <span> <%- chartDecorator.inverterComment %></span> 입니다. </p>
           <p class="re_p" style="margin: 5px 0px 0px">※ 단: 단결정, 다: 다결정</p>
 
-          <!-- <div class="row row_title">
-            <div class="title title_trend">기상 장치 정보</div>
+          <div class="row row_title">
+            <div class="title title_trend">환경 정보</div>
           </div>
 
-          <div class="title_box2" id="weatherChart"></div> -->
+          <div class="title_box2" id="weatherChart"></div>
 
         </div>
       </div>
@@ -105,10 +105,6 @@
         } else {
           fileName = searchRange.rangeStart
         }
-        // var elt = document.getElementById('data-table');
-        // var wb = XLSX.utils.table_to_book(elt, { sheet: "Sheet JS" });
-        // return dl ?
-          // XLSX.write(workBook, { bookType: type, bookSST: true, type: 'base64' }) :
           XLSX.writeFile(workBook, fileName + ".xlsx");
       }
 
@@ -225,7 +221,7 @@
         $('#moduleChart_1').highcharts({
               chart: {
                   type: "spline",
-                  zoomType: 'x',
+                  zoomType: 'xy',
                 },
               title: {
                 text: chartDecorator.mainTitle
@@ -271,12 +267,15 @@
       </script>
 
       <!-- 날씨 차트 -->
-      <!-- <script>
+      <script>
+        var weatherChartData = <%- JSON.stringify(weatherChartData) %>;
       console.log('weatherChartData.series', weatherChartData.series)
+
       if(weatherChartData.series.length){
         Highcharts.chart('weatherChart', {
           chart: {
-            type: 'spline'
+            type: 'spline',
+            zoomType: 'xy',
           },
           title: {
             text: ''
@@ -289,20 +288,19 @@
             categories: weatherChartData.range
           },
           yAxis: [{
+            min: 0,
+            max: 10,
+            title: {
+              text: '수위 (cm)'
+            }
+          },{
             // min: -10,
             // max: 40,
             title: {
-              text: '기온'
-            }
-          }, {
-            min: 0,
-            max: 1500,
-            title: {
-              text: '일사량'
+              text: '기온 (℃)'
             },
             opposite: true
           }],
-  
           plotOptions: {
             column: {
               pointPadding: 0.2,
@@ -353,7 +351,7 @@
       } else {
         $("#weatherChart").html("기상 관측 내역이 존재하지 않습니다.").css({"line-height": "240px", "font-size": "25px"});
       }
-    </script> -->
+    </script>
 
 
 </body>

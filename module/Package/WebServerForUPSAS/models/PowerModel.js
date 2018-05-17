@@ -151,7 +151,7 @@ class PowerModel extends BiModule {
     {
       name: '기온(℃)',
       color: 'green',
-      yAxis: 0,
+      yAxis: 1,
       selectKey: 'avg_temp',
       maxKey: 'avg_temp',
       minKey: 'avg_temp',
@@ -166,8 +166,8 @@ class PowerModel extends BiModule {
     };
 
     weatherChartOptionList.forEach(chartOption => {
-      let staicChart = webUtil.makeStaticChartData(weatherTrend, betweenDatePoint, chartOption);
-      let chart = _.head(staicChart.series);
+      let staticChart = webUtil.makeStaticChartData(weatherTrend, betweenDatePoint, chartOption);
+      let chart = _.head(staticChart.series);
       chart.name = chartOption.name;
       chart.color = chartOption.color;
       chart.yAxis = chartOption.yAxis;

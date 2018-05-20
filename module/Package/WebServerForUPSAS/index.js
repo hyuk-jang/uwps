@@ -7,9 +7,7 @@ const Promise = require('bluebird');
 const InitSetter = require('./config/InitSetter.js');
 
 const config = require('./config.js');
-const BU = require('base-util-jh').baseUtil;
-let DU = require('base-util-jh').domUtil;
-let SU = require('base-util-jh').salternUtil;
+const {BU, DU, SU} = require('base-util-jh');
 const _ = require('underscore');
 
 global.BU = BU;

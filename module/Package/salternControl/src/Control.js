@@ -269,10 +269,10 @@ class Control {
 
   /**
    * Saltern Device로 부터 데이터 갱신이 이루어 졌을때 자동 업데이트 됨.
-   * @param {SalternDevice} salternController 
+   * @param {SalternDevice} salternDevice 
    */
-  notifyData(salternController) {
-    this.model.onData(salternController);
+  notifyData(salternDevice) {
+    this.model.onData(salternDevice);
 
     // this.socketServer.
     let commandStorage = this.model.commandStorage;
@@ -287,8 +287,15 @@ class Control {
    * Device Client로부터 Error 수신
    * @param {dcError} dcError 명령 수행 결과 데이터
    */
-  notifyError(dcError){
+  notifyError(dcError, salternDevice){
+    this.model.onData(salternDevice);
+    
+    let commandStorage = this.model.commandStorage;
+    let deviceStorage = this.model.getAllDeviceModelStatus();
+    BU.CLI(commandStorage);
+    BU.CLI(deviceStorage);
 
+    this.socketServer.emitToClientList({commandStorage, deviceStorage});
   }
 
   /**

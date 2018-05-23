@@ -21,7 +21,7 @@ if (require !== undefined && require.main === module) {
   config.current.deviceSavedInfo.connect_type = 'serial';
   config.current.deviceSavedInfo.port = 'COM3';
   config.current.deviceSavedInfo.dialing.data = [0x30, 0x30, 0x32];
-  config.current.deviceSavedInfo.baud_rate = 4800;
+  config.current.deviceSavedInfo.baud_rate = 9600;
 
   const control = new Control(config);
   control.init()

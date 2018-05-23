@@ -25,7 +25,7 @@ class Model {
     this.map = controller.map;
     this.routerList = controller.routerList;
 
-    this.baseModel = new BaseModel.Saltern('xbee');
+    this.baseModel = new BaseModel.Saltern(controller.config.deviceInfo.protocol_info);
 
     // Device Model Storage 초기화
     this.init();
@@ -111,17 +111,17 @@ class Model {
   }
 
   /**
-   * @param {SalternDevice} salternController 
+   * @param {SalternDevice} salternDevice 
    */
-  onData(salternController){
-    let operationInfo = salternController.getDeviceOperationInfo();
+  onData(salternDevice){
+    let operationInfo = salternDevice.getDeviceOperationInfo();
 
-    const commandStorage = salternController.manager.commandStorage;
-    commandStorage.standbyCommandSetList;
+    const commandStorage = salternDevice.manager.commandStorage;
+    // commandStorage.standbyCommandSetList;
 
-    let currentCommandSet = _.clone(commandStorage.currentCommandSet);
-    currentCommandSet.commandId;
-    currentCommandSet.commandName;
+    // let currentCommandSet = _.clone(commandStorage.currentCommandSet);
+    // currentCommandSet.commandId;
+    // currentCommandSet.commandName;
     this.commandStorage = {
       currentCommandSet: _.pick(commandStorage.currentCommandSet, ['commandType', 'commandId', 'commandName']),
       standbyCommandSetList: [],
@@ -134,7 +134,7 @@ class Model {
       });
     });
 
-    commandStorage.currentCommandSet;
+    // commandStorage.currentCommandSet;
 
     _.forEach(commandStorage.delayCommandSetList, storage => {
       this.commandStorage.delayCommandSetList.push(_.pick(storage, ['commandType', 'commandId', 'commandName']));
@@ -142,7 +142,7 @@ class Model {
 
     operationInfo.controller.nodeModelList.forEach(modelId => {
       let foundIt = this.findDataStorage(modelId);
-      foundIt.model.targetData = salternController.getDeviceData(foundIt.category);
+      foundIt.model.targetData = salternDevice.getDeviceData(foundIt.category);
     });
   }
 

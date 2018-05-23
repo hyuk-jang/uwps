@@ -21,7 +21,7 @@ class Control extends AbstDeviceClient {
 
     
     this.converter = new AbstConverter(this.config.deviceInfo.protocol_info);
-    this.baseModel = new BaseModel.Weathercast(this.config.deviceInfo.protocol_info.subCategory);
+    this.baseModel = new BaseModel.Weathercast(this.config.deviceInfo.protocol_info);
     
     this.model = new Model(this);
     /** 주기적으로 LOOP 명령을 내릴 시간 인터벌 */

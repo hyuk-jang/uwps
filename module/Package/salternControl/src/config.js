@@ -31,7 +31,7 @@ module.exports = {
         type: 'zigbee',
         subType: 'xbee',
         baudRate: 9600,
-        port: 'COM19',
+        port: 'COM6',
         
       },
     },

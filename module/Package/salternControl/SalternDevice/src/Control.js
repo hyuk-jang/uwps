@@ -33,7 +33,7 @@ class Control extends AbstDeviceClient {
 
 
     this.converter = new AbstConverter(this.config.deviceInfo.protocol_info);
-    this.baseModel = new BaseModel.Saltern(this.config.deviceInfo.protocol_info.subCategory);
+    this.baseModel = new BaseModel.Saltern(this.config.deviceInfo.protocol_info);
 
     this.model = new Model(this);
 
@@ -180,13 +180,17 @@ class Control extends AbstDeviceClient {
    * @param {dcError} dcError 명령 수행 결과 데이터
    */
   onDcError(dcError){
+    // this.deleteCommandSet(dcError.commandSet.commandId);
     // 옵저버에게 에러 전달
     _.forEach(this.observerList, observer => {
-      observer.notifyError(dcError);
+      observer.notifyError(dcError, this);
     });
 
+    // 선택지 1: 에러가 발생할 경우 해당 명령 무시하고 다음 명령 수행
+    this.requestTakeAction(this.definedCommanderResponse.NEXT);
+
     // 에러가 발생하면 해당 명령을 모두 제거
-    return this.deleteCommandSet(dcError.commandSet.commandId);
+    // return this.deleteCommandSet(dcError.commandSet.commandId);
     // return this.requestTakeAction(this.definedCommanderResponse.NEXT);
   }
 

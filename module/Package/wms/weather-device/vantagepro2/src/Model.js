@@ -22,7 +22,7 @@ class Model {
     this.tempDeviceData = controller.baseModel.baseFormat;
     
     let averConfig = {
-      maxStorageNumber: 10, // 최대 저장 데이터 수
+      maxStorageNumber: 30, // 최대 저장 데이터 수
       keyList: Object.keys(this.deviceData)
     };
 
@@ -47,9 +47,10 @@ class Model {
         onTick: () => {
           // 평균 값 도출
           _.isEmpty(this.tempDeviceData) ? this.averageStorage.shiftDataStorage() : this.averageStorage.onData(this.tempDeviceData);
-          this.deviceData =  this.averageStorage.getAverageStorage();
+          this.deviceData = this.averageStorage.getAverageStorage();
           // 임시 저장소 초기화
           this.tempDeviceData = {};
+          // BU.CLI(this.deviceData);
         },
         start: true,
       });

@@ -27,7 +27,6 @@ class Control {
     this.eventHandler();
     let result = await Promise.all([
       this.createInverterController(),
-      this.createConnectorController(this.config.connectorList)
     ]);
 
     return result;
@@ -43,15 +42,7 @@ class Control {
       const controller = new Inverter(config);
       return controller.init();
     });
-    // console.time('AAAAAAAAAAAA');
-    // let inverterControllerList = [];
-    // await Promise.each(inverterConfigList, ivtConfig => {
-    //   const inverterObj = new InverterController(ivtConfig);
-    //   return Promise.delay(1000).then(() => {
-    //     return inverterObj.init().then(controller => inverterControllerList.push(controller));
-    //   });  
-    // });
-    // console.timeEnd('AAAAAAAAAAAA');
+
     // BU.CLI(inverterControllerList);
     this.model.setDeviceController('inverter', inverterControllerList);
 

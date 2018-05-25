@@ -22,7 +22,7 @@
     "mocha": "^4.1.0"
   },
   "dependencies": {
-    "base-util-jh": "^1.1.4",
+    "base-util-jh": "^1.1.5",
     "device-client-controller-jh": "^0.1.22",
     "device-protocol-converter-jh": "^0.1.9"
   }

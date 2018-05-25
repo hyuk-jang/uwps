@@ -19,6 +19,14 @@ if (require !== undefined && require.main === module) {
   control.init();
 
 
+  let systemCmdInfo = control.converter.generationCommand(control.baseModel.BASE.PV.COMMAND.STATUS);
+  BU.CLI(systemCmdInfo);
+
+  setTimeout(() => {
+    control.orderOperation(systemCmdInfo);
+  }, 300);
+
+
   process.on('uncaughtException', function (err) {
     // BU.debugConsole();
     console.error(err.stack);

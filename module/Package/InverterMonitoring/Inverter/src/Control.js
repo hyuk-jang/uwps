@@ -32,17 +32,15 @@ class Control extends AbstDeviceClient {
     return this.config.deviceInfo.target_id;
   }
 
-  /**
-   * 개발 버젼일 경우 Echo Server 구동
-   */
+  /** device client 설정 및 프로토콜 바인딩 */
   init(){
+    /** 개발 버젼일 경우 Echo Server 구동 */
     if(this.config.hasDev){
       const EchoServer = require('../../../../module/device-echo-server-jh');
       const echoServer = new EchoServer(this.config.deviceInfo.connect_info.port);
-      echoServer.attachDevice([this.config.deviceInfo.protocol_info]);
-
-      this.setDeviceClient(this.config.deviceInfo);
+      echoServer.attachDevice(this.config.deviceInfo.protocol_info);
     }
+    this.setDeviceClient(this.config.deviceInfo);
     this.converter.setProtocolConverter(this.config.deviceInfo);
   }
 
@@ -60,6 +58,24 @@ class Control extends AbstDeviceClient {
       troubleList: [],
       measureDate: new Date()
     };
+  }
+
+
+  /**
+   * 
+   * @param {commandInfo} commandInfo 
+   */
+  orderOperation(commandInfo){
+    this.baseModel.BASE.DEFAULT.COMMAND.STATUS;
+
+    let commandSet = this.generationManualCommand({
+      cmdList: commandInfo,
+      commandId: this.id,
+    });
+
+    // BU.CLIN(commandSet);
+
+    this.executeCommand(commandSet);
   }
 
 
@@ -127,19 +143,13 @@ class Control extends AbstDeviceClient {
   onDcData(dcData){
     try {
       BU.CLI('data', dcData.data.toString());
-
-      // if (this.config.deviceInfo.connect_info.type === 'socket') {
-      //   dcData.data = JSON.parse(dcData.data.toString());
-      //   dcData.data.data = Buffer.from(dcData.data.data);
-      // }
-
       const parsedData = this.converter.parsingUpdateData(dcData);
 
       // 만약 파싱 에러가 발생한다면 명령 재 요청
-      // BU.CLI(parsedData.eventCode);
       if (parsedData.eventCode === this.definedCommanderResponse.ERROR) {
         BU.errorLog('inverter', 'parsingError', parsedData.data);
-        return this.requestTakeAction(this.definedCommanderResponse.RETRY);
+        // return this.requestTakeAction(this.definedCommanderResponse.RETRY);
+        return this.requestTakeAction(this.definedCommanderResponse.NEXT);
       }
 
       // Device Client로 해당 이벤트 Code를 보냄

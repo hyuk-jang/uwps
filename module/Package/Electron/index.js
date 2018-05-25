@@ -33,10 +33,19 @@ app.on('window-all-closed', () => {
 
 
 // TEST
-const { BU } = require('../../module/base-util-jh');
-const Inverter = require('../InverterMonitoring/Inverter');
-// const config = require('../InverterMonitoring/Inverter/src/config');
-const config = require('./config');
+const config = require('./src/config');
+const Control = require('./src/Control');
+
+const control = new Control(config);
+
+control.init();
+
+
+
+// const { BU } = require('../../module/base-util-jh');
+// const Inverter = require('../InverterMonitoring/Inverter');
+// // const config = require('../InverterMonitoring/Inverter/src/config');
+// const config = require('./config');
 // const control = new Inverter(config);
 
 
@@ -60,24 +69,24 @@ const config = require('./config');
 // }];
 // control.attachDevice(deviceList);
 
-const _ = require('lodash');
+// const _ = require('lodash');
 
 // control.init();
 
 
-const net = require('net');
+// const net = require('net');
 
-let client = net.createConnection(config.current.deviceInfo.connect_info.port);
+// let client = net.createConnection(config.current.deviceInfo.connect_info.port);
 
-client.on('data', data => {
-  BU.CLIO(data.toString());
-});
+// client.on('data', data => {
+//   BU.CLIO(data.toString());
+// });
 
 
-// Sytem
-setTimeout(() => {
-  client.write('^P001MOD');
-}, 100);
+// // Sytem
+// setTimeout(() => {
+//   client.write('^P001MOD');
+// }, 100);
 
 // let cmdInfo = _.find(map.controlList, {cmdName: '저수조 → 증발지 1A'});
 // BU.CLI(cmdInfo);

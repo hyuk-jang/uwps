@@ -1,4 +1,3 @@
-
 module.exports = {
   current: {
     hasDev: true, // 장치 연결을 실제로 하는지 여부
@@ -14,16 +13,16 @@ module.exports = {
         hasDcMessage: true,
         hasTransferCommand: true
       },
+      controlInfo: {
+        hasErrorHandling: true,
+        hasOneAndOne: false,
+        hasReconnect: true
+      },
       protocol_info: {
         mainCategory: 'inverter',
         subCategory: 'das_1.3',
         deviceId: '001',
         option: true
-      },
-      controlInfo: {
-        hasErrorHandling: true,
-        hasOneAndOne: false,
-        hasReconnect: true
       },
       // connect_info: {
       //   type: 'serial',

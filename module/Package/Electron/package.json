@@ -18,9 +18,11 @@
   "license": "CC0-1.0",
   "devDependencies": {
     "devtron": "^1.4.0",
-    "electron": "^2.0.2"
+    "electron": "^2.0.2",
+    "electron-rebuild": "^1.7.3"
   },
   "dependencies": {
+    "device-client-controller-jh": "^0.1.22",
     "lodash": "^4.17.10"
   }
 }

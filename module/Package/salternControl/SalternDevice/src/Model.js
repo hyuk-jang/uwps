@@ -5,13 +5,17 @@ const {BU, CU} = require('base-util-jh');
 
 const Control = require('./Control');
 
+
+const {
+  BaseModel
+} = require('../../../../module/device-protocol-converter-jh');
 class Model {
   /**
-   * 
    * @param {Control} controller 
    */
   constructor(controller) {
-    this.deviceData = controller.baseModel.baseFormat;
+    this.controller = controller;
+    this.deviceData = BaseModel.Saltern.BASE_MODEL;
   }
 
   getData(category){

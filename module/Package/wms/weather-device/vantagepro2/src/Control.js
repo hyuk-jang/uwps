@@ -125,7 +125,7 @@ class Control extends AbstDeviceClient {
       // BU.CLI(resultParsing);
       
       resultParsing.eventCode === this.definedCommanderResponse.DONE && this.model.onData(resultParsing.data);
-      // BU.CLIN(this.getDeviceOperationInfo());
+      BU.CLIN(this.getDeviceOperationInfo().data[BaseModel.Weathercast.BASE_KEY.SolarRadiation]);
     } catch (error) {
       // BU.CLI(error);
       BU.logFile(error);      

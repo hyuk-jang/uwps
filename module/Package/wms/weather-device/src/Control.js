@@ -41,7 +41,7 @@ class Control {
         // BU.CLI('Stop')
         this.scheduler.stop();
       }
-      // 10분마다 요청
+      // 1분마다 요청
       this.scheduler = new cron.CronJob({
         cronTime: `0 */${scheduleIntervalMin} * * * *`,
         // cronTime: '*/10 * * * * *',

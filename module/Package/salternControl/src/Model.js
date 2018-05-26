@@ -8,9 +8,7 @@ const Control = require('./Control');
 const SalternDevice = require('../SalternDevice'); 
 
 
-// const baseFormat = require('device-protocol-converter-jh').baseFormat.saltern;
 // const map =require('../config/map');
-
 const {BaseModel} = require('../../../module/device-protocol-converter-jh');
 
 

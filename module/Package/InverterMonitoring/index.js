@@ -19,6 +19,11 @@ if (require !== undefined && require.main === module) {
 
   control.init();
 
+  setTimeout(() => {
+    control.measureDate = new Date();
+    control.measureRegularInverter();
+  }, 1000);
+
 
 
 

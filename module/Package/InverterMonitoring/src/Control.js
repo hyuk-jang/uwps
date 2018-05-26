@@ -51,10 +51,10 @@ class Control {
     });
 
     // 시스템 초기화 후 5초 후에 장치 계측 스케줄러 실행
-    Promise.delay(1000 * 5)
-      .then(() => {
-        this.runCronMeasure();
-      });
+    // Promise.delay(1000 * 5)
+    //   .then(() => {
+    //     this.runCronMeasure();
+    //   });
   }
 
   /**
@@ -66,6 +66,7 @@ class Control {
     // this.cronInverterList = 
     _.remove(this.cronInverterList, cronInverter => {
       if(_.isEqual(cronInverter, inverter)){
+        // BU.CLIN(inverter.getDeviceOperationInfo());
         // 인버터 데이터 모델에 반영
         this.model.onInverterData(inverter);
         return true;
@@ -74,6 +75,8 @@ class Control {
 
     // 모든 인버터의 계측이 완료되었다면 
     if(this.cronInverterList.length === 0){
+
+      
       this.model.updateDeviceCategory(this.measureDate, 'inverter');
     }
 

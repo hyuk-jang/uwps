@@ -13,7 +13,10 @@ module.exports = [{
   troubleTableInfo: {
     tableName: 'inverter_trouble_data',
     /** @type {Array.<tableParamFormat>} */
-    addParamList: [],
+    addParamList: [{
+      fromKey: 'inverter_seq',
+      toKey: 'inverter_seq',
+    }],
     changeColumnKeyInfo: {
       isErrorKey: 'is_system_error',
       codeKey: 'code',

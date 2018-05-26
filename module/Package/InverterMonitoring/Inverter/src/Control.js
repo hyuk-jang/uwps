@@ -64,7 +64,7 @@ class Control extends AbstDeviceClient {
       data: this.model.deviceData,
       // systemErrorList: [{code: 'new Code2222', msg: '에러 테스트 메시지22', occur_date: new Date() }],
       systemErrorList: this.systemErrorList,
-      troubleList: [],
+      troubleList: this.model.deviceData.operTroubleList,
       measureDate: new Date()
     };
   }
@@ -163,10 +163,11 @@ class Control extends AbstDeviceClient {
         return this.requestTakeAction(this.definedCommanderResponse.RETRY);
       }
 
-      // Device Client로 해당 이벤트 Code를 보냄
-      this.requestTakeAction(parsedData.eventCode);
       
       parsedData.eventCode === this.definedCommanderResponse.DONE && this.model.onData(parsedData.data);
+      
+      // Device Client로 해당 이벤트 Code를 보냄
+      return this.requestTakeAction(parsedData.eventCode);
       // BU.CLIN(this.getDeviceOperationInfo());
     } catch (error) {
       // BU.CLI(error);

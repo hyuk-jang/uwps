@@ -9,6 +9,16 @@ if (require !== undefined && require.main === module) {
   console.log('__main__');
 
 
+  const _ = require('lodash');
+  const {BU} = require('base-util-jh');
+
+  const config = require('./src/config');
+
+
+  const control = new Control(config);
+
+  control.init();
+
 
 
 

@@ -27,7 +27,7 @@ module.exports = {
           'inverter_seq': 1,
           'target_id': 'IVT_001',
           'target_name': '600W 급',
-          'target_type': 'inverter',
+          'target_category': 'inverter',
           'protocol_info': {
             'mainCategory': 'inverter',
             'subCategory': 'das_1.3',
@@ -57,7 +57,7 @@ module.exports = {
           'inverter_seq': 2,
           'target_id': 'IVT_002',
           'target_name': '3.3 kW 급',
-          'target_type': 'inverter',
+          'target_category': 'inverter',
           'protocol_info': {
             'mainCategory': 'inverter',
             'subCategory': 'das_1.3',

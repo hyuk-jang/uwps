@@ -1,4 +1,5 @@
 'use strict';
+
 const _ = require('lodash');
 const {BU} = require('base-util-jh');
 
@@ -26,6 +27,7 @@ class Control extends AbstDeviceClient {
     
     this.model = new Model(this);
     
+    this.observerList = [];
   }
 
   get id(){
@@ -44,6 +46,13 @@ class Control extends AbstDeviceClient {
     this.converter.setProtocolConverter(this.config.deviceInfo);
   }
 
+  /**
+   * 
+   * @param {Object} parent 
+   */
+  attach(parent){
+    this.observerList.push(parent);
+  }
 
   /**
    * 장치의 현재 데이터 및 에러 내역을 가져옴
@@ -63,13 +72,12 @@ class Control extends AbstDeviceClient {
 
   /**
    * 
-   * @param {commandInfo} commandInfo 
+   * @param {commandInfo[]} commandInfoList 
    */
-  orderOperation(commandInfo){
-    this.baseModel.BASE.DEFAULT.COMMAND.STATUS;
-
+  orderOperation(commandInfoList){
+    // this.baseModel.BASE.DEFAULT.COMMAND.STATUS;
     let commandSet = this.generationManualCommand({
-      cmdList: commandInfo,
+      cmdList: commandInfoList,
       commandId: this.id,
     });
 
@@ -124,9 +132,12 @@ class Control extends AbstDeviceClient {
    */
   onDcMessage(dcMessage){
     switch (dcMessage.msgCode) {
-    // 계측이 완료되면 EventEmitter 발생
+    // 계측이 완료되면 Observer에게 알림
     case this.definedCommandSetMessage.COMMANDSET_EXECUTION_TERMINATE:
-      this.emit('done', this.getDeviceOperationInfo());
+      this.observerList.forEach(observer => {
+        observer.notifyInverterData(this);
+      });
+      // this.emit('done', this.getDeviceOperationInfo());
       break;
     default:
       break;
@@ -149,7 +160,7 @@ class Control extends AbstDeviceClient {
       if (parsedData.eventCode === this.definedCommanderResponse.ERROR) {
         BU.errorLog('inverter', 'parsingError', parsedData.data);
         // return this.requestTakeAction(this.definedCommanderResponse.RETRY);
-        return this.requestTakeAction(this.definedCommanderResponse.NEXT);
+        return this.requestTakeAction(this.definedCommanderResponse.RETRY);
       }
 
       // Device Client로 해당 이벤트 Code를 보냄

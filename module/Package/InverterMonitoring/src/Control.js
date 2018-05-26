@@ -1,9 +1,15 @@
 'use strict';
 
-const {BU} = require('base-util-jh');
+const _ = require('lodash');
+const cron = require('cron');
+const Promise = require('bluebird');
+
+const {BU, CU} = require('base-util-jh');
 
 const Model = require('./Model');
 const config = require('./config');
+
+const moment = require('moment');
 
 
 const Inverter = require('../Inverter');
@@ -15,21 +21,20 @@ class Control {
 
     this.model = new Model(this);
 
-    
+    // 인버터를 계측하기 위한 스케줄러 객체
+    this.cronScheduler = null;
+
+    /** @type {Array.<Inverter>} */
+    this.inverterList = [];
+    // 인버터 계측이 완료되었는지 체크하기 위한 배열
+    this.cronInverterList = [];
   }
 
   /**
-   * UnterWater Photovoltaic Controller Initialize 
-   * EventHandler 등록, 인버터 컨트롤러 객체 및 접속반 컨트롤러 객체 생성
-   * @return {Promise} true or exception
+   * 인버터 컨트롤러 리스트 생성
    */
-  async init() {
-    this.eventHandler();
-    let result = await Promise.all([
-      this.createInverterController(),
-    ]);
-
-    return result;
+  init() {
+    this.createInverterController();
   }
 
   /**
@@ -38,16 +43,80 @@ class Control {
    */
   async createInverterController() {
     BU.CLI('createInverterController');
-    let inverterControllerList = await Promise.map(this.config.inverterList, config => {
-      const controller = new Inverter(config);
-      return controller.init();
+    this.config.inverterList.forEach(inverterInfo => {
+      const inverter = new Inverter(inverterInfo);
+      inverter.init();
+      inverter.attach(this);
+      this.inverterList.push(inverter);
     });
 
-    // BU.CLI(inverterControllerList);
-    this.model.setDeviceController('inverter', inverterControllerList);
-
-    return inverterControllerList;
+    // 시스템 초기화 후 5초 후에 장치 계측 스케줄러 실행
+    Promise.delay(1000 * 5)
+      .then(() => {
+        this.runCronMeasure();
+      });
   }
+
+  /**
+   * 인버터로부터 계측 명령을 완료했다고 알려옴
+   * @param {Inverter} inverter 
+   */
+  notifyInverterData(inverter){
+    // 알려온 Inverter 데이터가 
+    // this.cronInverterList = 
+    _.remove(this.cronInverterList, cronInverter => {
+      if(_.isEqual(cronInverter, inverter)){
+        // 인버터 데이터 모델에 반영
+        this.model.onInverterData(inverter);
+        return true;
+      }
+    });
+
+    // 모든 인버터의 계측이 완료되었다면 
+    if(this.cronInverterList.length === 0){
+      this.model.updateDeviceCategory(this.measureDate, 'inverter');
+    }
+
+  }
+
+  // Cron 구동시킬 시간
+  runCronMeasure() {
+    try {
+      if (this.cronScheduler !== null) {
+        // BU.CLI('Stop')
+        this.cronScheduler.stop();
+      }
+      // 1분마다 요청
+      this.cronScheduler = new cron.CronJob({
+        cronTime: '0 */1 * * * *',
+        onTick: () => {
+          this.measureDate = moment();
+          this.measureRegularInverter();
+        },
+        start: true,
+      });
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /** 정기적인 Inverter Status 탐색 */
+  measureRegularInverter(){
+    // 응답을 기다리는 인버터 초기화
+    this.cronInverterList = this.inverterList;
+    
+    // 모든 인버터에 계측 명령 요청
+    this.inverterList.forEach(inverter => {
+      let commandInfoList = inverter.converter.generationCommand(inverter.baseModel.BASE.DEFAULT.COMMAND.STATUS);
+
+      inverter.orderOperation(commandInfoList);
+    });
+
+  }
+
+
+
 
 
 }

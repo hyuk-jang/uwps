@@ -1,6 +1,6 @@
 module.exports = {
   current: {
-    hasDev: true, // 장치 연결을 실제로 하는지 여부
+    hasDev: false, // 장치 연결을 실제로 하는지 여부
     deviceInfo: {
       target_id: 'IVT_001',
       target_name: '인버터 계측 프로그램',

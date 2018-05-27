@@ -18,7 +18,7 @@ module.exports = {
     },
     'inverterList': [{
       'current': {
-        'hasDev': true,
+        'hasDev': false,
         'ivtDummyData': {
           'dailyKwh': 0,
           'cpKwh': 0
@@ -34,6 +34,19 @@ module.exports = {
             'deviceId': '001',
             'option': true
           },
+          logOption: {
+            hasCommanderResponse: true,
+            hasDcError: true,
+            hasDcEvent: true,
+            hasReceiveData: true,
+            hasDcMessage: true,
+            hasTransferCommand: true
+          },
+          controlInfo: {
+            hasErrorHandling: true,
+            hasOneAndOne: false,
+            hasReconnect: false
+          },
           'connect_info': {
             'type': 'socket',
             'port': 9000
@@ -48,7 +61,7 @@ module.exports = {
       }
     }, {
       'current': {
-        'hasDev': true,
+        'hasDev': false,
         'ivtDummyData': {
           'dailyKwh': 0,
           'cpKwh': 0
@@ -58,6 +71,19 @@ module.exports = {
           'target_id': 'IVT_002',
           'target_name': '3.3 kW 급',
           'target_category': 'inverter',
+          logOption: {
+            hasCommanderResponse: true,
+            hasDcError: true,
+            hasDcEvent: true,
+            hasReceiveData: true,
+            hasDcMessage: true,
+            hasTransferCommand: true
+          },
+          controlInfo: {
+            hasErrorHandling: true,
+            hasOneAndOne: false,
+            hasReconnect: false
+          },
           'protocol_info': {
             'mainCategory': 'inverter',
             'subCategory': 'das_1.3',

@@ -43,8 +43,10 @@ class Model {
    * @param {Inverter} inverter 
    */
   onInverterData(inverter){
+    BU.CLI('onInverterData');
     // 인버터 컨트롤러의 동작 상태 정보를 가져옴
     let deviceOperationInfo = inverter.getDeviceOperationInfo();
+    BU.CLIN(deviceOperationInfo);
     // 모델에 데이터 갱신
     let dataStorageContainer = this.deviceClientModel.onDeviceOperationInfo(deviceOperationInfo, 'inverter');
 
@@ -61,14 +63,19 @@ class Model {
    * @param {string} category Update 처리 할 카테고리
    */
   async updateDeviceCategory(measureDate, category) {
-    // Storage에 저장되어 있는 데이터(장치 데이터,)
-    const convertDataList = await this.deviceClientModel.refineTheDataToSaveDB(category, measureDate);
-    BU.CLIN(convertDataList, 2);
-
-    const resultSaveToDB = await this.deviceClientModel.saveDataToDB(category);
-    // BU.CLIN(resultSaveToDB);
-
-    return true;
+    try {
+      // Storage에 저장되어 있는 데이터(장치 데이터,)
+      BU.CLI('뭐가 어떻게 돌아가고 있어?');
+      const convertDataList = await this.deviceClientModel.refineTheDataToSaveDB(category, measureDate);
+      BU.CLIN(convertDataList, 2);
+  
+      const resultSaveToDB = await this.deviceClientModel.saveDataToDB(category);
+      // BU.CLIN(resultSaveToDB);
+  
+      return true;
+    } catch (error) {
+      BU.errorLog('updateDeviceCategory', _.get(error, 'message'), error);
+    }
   }
 
 

@@ -4,7 +4,7 @@ const _ = require('lodash');
 const cron = require('cron');
 const Promise = require('bluebird');
 
-const {BU, CU} = require('base-util-jh');
+const {BU} = require('base-util-jh');
 
 const Model = require('./Model');
 const config = require('./config');
@@ -50,7 +50,7 @@ class Control {
       this.inverterList.push(inverter);
     });
 
-    // 시스템 초기화 후 5초 후에 장치 계측 스케줄러 실행
+    // // 시스템 초기화 후 5초 후에 장치 계측 스케줄러 실행
     // Promise.delay(1000 * 5)
     //   .then(() => {
     //     this.runCronMeasure();
@@ -62,11 +62,11 @@ class Control {
    * @param {Inverter} inverter 
    */
   notifyInverterData(inverter){
+    BU.CLI('notifyInverterData', inverter.id);
     // 알려온 Inverter 데이터가 
-    // this.cronInverterList = 
     _.remove(this.cronInverterList, cronInverter => {
       if(_.isEqual(cronInverter, inverter)){
-        // BU.CLIN(inverter.getDeviceOperationInfo());
+        // BU.CLIN(inverter.getDeviceOperationInfo().systemErrorList);
         // 인버터 데이터 모델에 반영
         this.model.onInverterData(inverter);
         return true;
@@ -74,11 +74,20 @@ class Control {
     });
 
     // 모든 인버터의 계측이 완료되었다면 
+    // BU.CLI(this.cronInverterList.length);
     if(this.cronInverterList.length === 0){
-
-      
       this.model.updateDeviceCategory(this.measureDate, 'inverter');
     }
+
+  }
+
+  /**
+   * 인버터로부터 계측 명령을 완료했다고 알려옴
+   * TODO 에러 처리 필요할 경우 기입
+   * @param {Inverter} inverter 
+   * @param {dcError} dcError 
+   */
+  notifyInverterError(inverter, dcError) {
 
   }
 
@@ -106,13 +115,20 @@ class Control {
 
   /** 정기적인 Inverter Status 탐색 */
   measureRegularInverter(){
+    BU.CLI('measureRegularInverter');
     // 응답을 기다리는 인버터 초기화
-    this.cronInverterList = this.inverterList;
+    this.cronInverterList = _.clone(this.inverterList);
+
+    // Promise.map(this.inverterList, inverter => {
+    //   BU.CLI('@@@@@@@@@@@@@@@@@@@', this.inverterList.length);
+    //   BU.CLIN(inverter, 2);
+    //   let commandInfoList = inverter.converter.generationCommand(inverter.baseModel.BASE.DEFAULT.COMMAND.STATUS);
+    //   return inverter.orderOperation(commandInfoList);
+    // });
     
     // 모든 인버터에 계측 명령 요청
     this.inverterList.forEach(inverter => {
       let commandInfoList = inverter.converter.generationCommand(inverter.baseModel.BASE.DEFAULT.COMMAND.STATUS);
-
       inverter.orderOperation(commandInfoList);
     });
 

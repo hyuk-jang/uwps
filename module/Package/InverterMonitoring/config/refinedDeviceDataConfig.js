@@ -76,7 +76,7 @@ module.exports = [{
     },{
       fromKey: keyInfo.powerPf,
       toKey: 'p_f',
-      calculate: 10,
+      calculate: `${keyInfo.powerGridKw} / ${keyInfo.pvKw} * 1000`,
       toFixed: 0
     },{
       fromKey: keyInfo.powerCpKwh,

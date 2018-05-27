@@ -22,7 +22,12 @@ if (require !== undefined && require.main === module) {
   setTimeout(() => {
     control.measureDate = new Date();
     control.measureRegularInverter();
-  }, 1000);
+  }, 2000);
+
+  // setInterval(() => {
+  //   control.measureDate = new Date();
+  //   control.measureRegularInverter();
+  // }, 1000 * 60);
 
 
 

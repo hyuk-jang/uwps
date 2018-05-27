@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const {BU} = require('base-util-jh');
+const { BU } = require('base-util-jh');
 
 // const AbstDeviceClient = require('device-client-controller-jh');
 const AbstDeviceClient = require('../../../../module/device-client-controller-jh');
@@ -11,33 +11,33 @@ const Model = require('./Model');
 let config = require('./config');
 
 // const {AbstConverter, controlFormat} = require('../../../../../../module/device-protocol-converter-jh');
-const {AbstConverter, BaseModel} = require('../../../../module/device-protocol-converter-jh');
+const { AbstConverter, BaseModel } = require('../../../../module/device-protocol-converter-jh');
 // const {AbstConverter} = require('device-protocol-converter-jh');
 
 class Control extends AbstDeviceClient {
   /** @param {config} config */
   constructor(config) {
     super();
-    
+
     this.config = config.current;
 
-    
+
     this.converter = new AbstConverter(this.config.deviceInfo.protocol_info);
     this.baseModel = new BaseModel.Inverter(this.config.deviceInfo.protocol_info);
-    
+
     this.model = new Model(this);
-    
+
     this.observerList = [];
   }
 
-  get id(){
+  get id() {
     return this.config.deviceInfo.target_id;
   }
 
   /** device client 설정 및 프로토콜 바인딩 */
-  init(){
+  init() {
     /** 개발 버젼일 경우 Echo Server 구동 */
-    if(this.config.hasDev){
+    if (this.config.hasDev) {
       const EchoServer = require('../../../../module/device-echo-server-jh');
       const echoServer = new EchoServer(this.config.deviceInfo.connect_info.port);
       echoServer.attachDevice(this.config.deviceInfo.protocol_info);
@@ -50,7 +50,7 @@ class Control extends AbstDeviceClient {
    * 
    * @param {Object} parent 
    */
-  attach(parent){
+  attach(parent) {
     this.observerList.push(parent);
   }
 
@@ -74,16 +74,23 @@ class Control extends AbstDeviceClient {
    * 
    * @param {commandInfo[]} commandInfoList 
    */
-  orderOperation(commandInfoList){
-    // this.baseModel.BASE.DEFAULT.COMMAND.STATUS;
-    let commandSet = this.generationManualCommand({
-      cmdList: commandInfoList,
-      commandId: this.id,
-    });
+  orderOperation(commandInfoList) {
+    BU.CLI(commandInfoList);
+    try {
+      let commandSet = this.generationManualCommand({
+        cmdList: commandInfoList,
+        commandId: this.id,
+      });
 
-    // BU.CLIN(commandSet);
+      // BU.CLIN(commandSet);
 
-    this.executeCommand(commandSet);
+      this.executeCommand(commandSet);
+    } catch (error) {
+      this.observerList.forEach(observer => {
+        observer.notifyInverterData(this);
+      });
+      BU.CLI(error.message);
+    }
   }
 
 
@@ -92,7 +99,7 @@ class Control extends AbstDeviceClient {
    * @param {dcEvent} dcEvent 
    */
   updatedDcEventOnDevice(dcEvent) {
-    BU.log('updateDcEvent\t', dcEvent.eventName);
+    BU.CLI('updateDcEvent\t', dcEvent.eventName);
     try {
       switch (dcEvent.eventName) {
       case this.definedControlEvent.CONNECT:
@@ -100,9 +107,10 @@ class Control extends AbstDeviceClient {
       default:
         break;
       }
-      
+
     } catch (error) {
-      BU.CLI(error);
+
+      BU.CLI(error.message);
     }
   }
 
@@ -111,26 +119,42 @@ class Control extends AbstDeviceClient {
    * @param {dcError} dcError 현재 장비에서 실행되고 있는 명령 객체
    */
   onDcError(dcError) {
-    BU.CLI('dcError', dcError.errorInfo);
-    _.forEach(this.observerList, observer => {
-      observer.notifyError(dcError, this);
-    });
+    BU.CLI(this.id, dcError.errorInfo);
 
-    // 선택지 1: 에러가 발생할 경우 해당 명령 무시하고 다음 명령 수행
-    this.requestTakeAction(this.definedCommanderResponse.NEXT);
+    try {
+      switch (_.get(dcError, 'errorInfo.message')) {
+      case this.definedControlEvent.DISCONNECT:
+        BU.CLI(this.definedControlEvent.DISCONNECT);
+        // 명령 수행 중 에러가 발생하였을 경우 상위 객체에 현재 수행중인 명령이 완료되었다고 알려줌
+        _.forEach(this.observerList, observer => {
+          observer.notifyInverterData(this);
+        });
+        break;
+      default:
+      // 선택지 1: 에러가 발생할 경우 해당 명령 무시하고 다음 명령 수행
+        this.requestTakeAction(this.definedCommanderResponse.NEXT);
+        break;
+      }
 
-    
+      // 명령 수행 중 에러가 발생하였을 경우 상위 객체에 알려줌
+      _.forEach(this.observerList, observer => {
+        observer.notifyInverterError(this, dcError);
+      });
 
-    // 에러가 발생하면 해당 명령을 모두 제거
-    // return this.deleteCommandSet(dcError.commandSet.commandId);
 
+      // 에러가 발생하면 해당 명령을 모두 제거
+      // return this.deleteCommandSet(dcError.commandSet.commandId);
+    } catch (error) {
+      BU.errorLog('onDcError', _.get(error, 'message'), error);
+    }
   }
 
   /**
    * 메시지 발생 핸들러
    * @param {dcMessage} dcMessage 
    */
-  onDcMessage(dcMessage){
+  onDcMessage(dcMessage) {
+    BU.CLI(dcMessage.msgCode);
     switch (dcMessage.msgCode) {
     // 계측이 완료되면 Observer에게 알림
     case this.definedCommandSetMessage.COMMANDSET_EXECUTION_TERMINATE:
@@ -142,7 +166,7 @@ class Control extends AbstDeviceClient {
     default:
       break;
     }
-    
+
   }
 
 
@@ -151,7 +175,7 @@ class Control extends AbstDeviceClient {
    * @interface
    * @param {dcData} dcData 현재 장비에서 실행되고 있는 명령 객체
    */
-  onDcData(dcData){
+  onDcData(dcData) {
     try {
       BU.CLI('data', dcData.data.toString());
       const parsedData = this.converter.parsingUpdateData(dcData);
@@ -163,15 +187,15 @@ class Control extends AbstDeviceClient {
         return this.requestTakeAction(this.definedCommanderResponse.RETRY);
       }
 
-      
+
       parsedData.eventCode === this.definedCommanderResponse.DONE && this.model.onData(parsedData.data);
-      
+
       // Device Client로 해당 이벤트 Code를 보냄
       return this.requestTakeAction(parsedData.eventCode);
       // BU.CLIN(this.getDeviceOperationInfo());
     } catch (error) {
       // BU.CLI(error);
-      BU.logFile(error);      
+      BU.logFile(error);
     }
   }
 }

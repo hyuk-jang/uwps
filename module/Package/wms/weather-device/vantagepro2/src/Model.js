@@ -2,7 +2,7 @@
 const _ = require('lodash');
 
 // const {BU, CU} = require('../../../../../module/base-util-jh');
-const {BU, CU} = require('../../../../../module/base-util-jh');
+const {BU, CU} = require('base-util-jh');
 
 const Control = require('./Control');
 

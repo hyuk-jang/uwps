@@ -114,7 +114,7 @@ class Control extends AbstDeviceClient {
    */
   onDcData(dcData){
     try {
-      BU.CLI('data', dcData.data.toString());
+      // BU.CLI('data', dcData.data.toString());
 
       if (this.config.deviceInfo.connect_info.type === 'socket') {
         dcData.data = JSON.parse(dcData.data.toString());

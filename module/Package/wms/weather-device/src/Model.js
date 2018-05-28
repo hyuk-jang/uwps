@@ -70,7 +70,7 @@ class Model extends AbstDeviceClientModel {
 
     // DB에 입력
     const convertDataList = await this.refineTheDataToSaveDB(this.deviceCategory, measureDate);
-    // BU.CLI(convertDataList);
+    BU.CLI(convertDataList);
 
     const resultSaveToDB = await this.saveDataToDB(this.deviceCategory);
     BU.CLI(resultSaveToDB);

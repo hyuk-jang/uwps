@@ -121,7 +121,7 @@ const map = {
         targetId: 'R_GLS_015',
         deviceId: '0013A20040F7B474',
         nodeModelList: ['WD_015']
-      },{
+      }, {
         targetId: 'R_GLS_016',
         deviceId: '0013A20040F7AB98',
         nodeModelList: ['WD_016']
@@ -147,8 +147,12 @@ const map = {
         nodeModelList: ['V_006']
       }, {
         targetId: 'R_V_007',
-        deviceId: '0013A20040F7B4A7',
-        nodeModelList: ['V_007']
+        deviceId: '0013A20040F7B451',
+        nodeModelList: ['P_001']
+      }, {
+        targetId: 'R_P_001',
+        deviceId: '0013A20040F7B446',
+        nodeModelList: ['P_002']
       }, {
         targetId: 'R_P_002',
         deviceId: '0013A20040F7B446',
@@ -172,8 +176,7 @@ const map = {
         nodeModelList: []
       }
       ]
-    }
-    ],
+    }],
     modelInfo: {
       waterDoor: [{
         targetId: 'WD_005',
@@ -244,6 +247,9 @@ const map = {
         targetName: '수문4'
       }],
       pump: [{
+        targetId: 'P_001',
+        targetName: '펌프1'
+      }, {
         targetId: 'P_002',
         targetName: '펌프2'
       }, {
@@ -288,6 +294,11 @@ const map = {
 
   },
   controlList: [{
+    cmdName: '바다 → 저수지',
+    trueList: ['P_001'],
+    falseList: []
+  },
+  {
     cmdName: '저수조 → 증발지 1',
     trueList: ['V_006', 'V_001', 'V_002', 'V_003', 'V_004', 'P_002'],
     falseList: ['V_101', 'V_102', 'V_103', 'V_104', 'WD_005']
@@ -300,7 +311,7 @@ const map = {
     cmdName: '해주 2 → 증발지 2',
     trueList: ['P_004'],
     falseList: ['WD_006']
-  },{
+  }, {
     cmdName: '해주 2 → 증발지 2, 3, 4',
     trueList: ['P_004', 'WD_006', 'WD_007'],
     falseList: ['WD_008']
@@ -396,7 +407,8 @@ const map = {
     cmdName: '증발지 1D → 해주 1',
     trueList: ['V_104', 'WD_013', 'WD_010'],
     falseList: []
-  },],
+  },
+  ],
 
 };
 

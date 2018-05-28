@@ -60,23 +60,23 @@ const map = {
       subType: 'xbee',
       baudRate: 9600,
       // port: 9000,
-      port: 'COM5',
+      port: 'COM6',
       deviceRouterList: [{
         targetId: 'R_V_101',
         deviceId: '0013A20040F7B4AD',
-        nodeModelList: ['V_101', 'WL_001', 'MRT_001']
+        nodeModelList: ['V_101', 'WL_001']
       }, {
         targetId: 'R_V_102',
         deviceId: '0013A20040F7B454',
-        nodeModelList: ['V_102', 'WL_002', 'MRT_002']
+        nodeModelList: ['V_102', 'WL_002']
       }, {
         targetId: 'R_V_103',
         deviceId: '0013A20040F7B42D',
-        nodeModelList: ['V_103', 'WL_003', 'MRT_003']
+        nodeModelList: ['V_103', 'WL_003']
       }, {
         targetId: 'R_V_104',
         deviceId: '0013A20040F7B433',
-        nodeModelList: ['V_104', 'WL_004', 'MRT_004']
+        nodeModelList: ['V_104', 'WL_004']
       }, {
         targetId: 'R_GLS_005',
         deviceId: '0013A20040F7ACC8',
@@ -121,34 +121,38 @@ const map = {
         targetId: 'R_GLS_015',
         deviceId: '0013A20040F7B474',
         nodeModelList: ['WD_015']
-      },{
+      }, {
         targetId: 'R_GLS_016',
         deviceId: '0013A20040F7AB98',
         nodeModelList: ['WD_016']
       }, {
         targetId: 'R_V_001',
         deviceId: '0013A20040F7B47F',
-        nodeModelList: ['V_001']
+        nodeModelList: ['V_001', 'MRT_001']
       }, {
         targetId: 'R_V_002',
         deviceId: '0013A20040F7B4A4',
-        nodeModelList: ['V_002']
+        nodeModelList: ['V_002', 'MRT_002']
       }, {
         targetId: 'R_V_003',
         deviceId: '0013A20040F7B455',
-        nodeModelList: ['V_003']
+        nodeModelList: ['V_003', 'MRT_003']
       }, {
         targetId: 'R_V_004',
         deviceId: '0013A20040F7B43C',
-        nodeModelList: ['V_004']
+        nodeModelList: ['V_004', 'MRT_004']
       }, {
         targetId: 'R_V_006',
         deviceId: '0013A20040F7B469',
         nodeModelList: ['V_006']
       }, {
         targetId: 'R_V_007',
-        deviceId: '0013A20040F7B4A7',
-        nodeModelList: ['V_007']
+        deviceId: '0013A20040F7B451',
+        nodeModelList: ['P_001']
+      }, {
+        targetId: 'R_P_001',
+        deviceId: '0013A20040F7B446',
+        nodeModelList: ['P_002']
       }, {
         targetId: 'R_P_002',
         deviceId: '0013A20040F7B446',
@@ -172,8 +176,7 @@ const map = {
         nodeModelList: []
       }
       ]
-    }
-    ],
+    }],
     modelInfo: {
       waterDoor: [{
         targetId: 'WD_005',
@@ -244,6 +247,9 @@ const map = {
         targetName: '수문4'
       }],
       pump: [{
+        targetId: 'P_001',
+        targetName: '펌프1'
+      }, {
         targetId: 'P_002',
         targetName: '펌프2'
       }, {
@@ -288,6 +294,11 @@ const map = {
 
   },
   controlList: [{
+    cmdName: '바다 → 저수지',
+    trueList: ['P_001'],
+    falseList: []
+  },
+  {
     cmdName: '저수조 → 증발지 1',
     trueList: ['V_006', 'V_001', 'V_002', 'V_003', 'V_004', 'P_002'],
     falseList: ['V_101', 'V_102', 'V_103', 'V_104', 'WD_005']
@@ -300,7 +311,7 @@ const map = {
     cmdName: '해주 2 → 증발지 2',
     trueList: ['P_004'],
     falseList: ['WD_006']
-  },{
+  }, {
     cmdName: '해주 2 → 증발지 2, 3, 4',
     trueList: ['P_004', 'WD_006', 'WD_007'],
     falseList: ['WD_008']
@@ -396,7 +407,8 @@ const map = {
     cmdName: '증발지 1D → 해주 1',
     trueList: ['V_104', 'WD_013', 'WD_010'],
     falseList: []
-  },],
+  },
+  ],
 
 };
 

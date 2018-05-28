@@ -10,7 +10,8 @@ let mainWindow;
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 500,
-    height: 300
+    height: 300,
+    icon: __dirname + '/icons/icon.ico'
   });
   
   mainWindow.loadURL(url.format({

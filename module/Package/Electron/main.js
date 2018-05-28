@@ -9,12 +9,18 @@ const url = require('url');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
+/** @type {BrowserWindow} */
 let mainWindow;
 
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 800, height: 600, 
+    alwaysOnTop: true,
+    x: 1920,
+    y: 0,
+    // fullscreen: true
+
     // webPreferences: {
     //   nodeIntegration: false,
     //   // preload: './preload.js'
@@ -27,7 +33,7 @@ function createWindow() {
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
-    slashes: true
+    slashes: true,
   }));
 
   // Open the DevTools.
@@ -40,6 +46,21 @@ function createWindow() {
     // when you should delete the corresponding element.
     mainWindow = null;
   });
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.send('ping', 'whoooooooh!');
+  });
+
+
+  
+  // TEST
+  const config = require('./src/config');
+  const Control = require('./src/Control');
+
+  const control = new Control(config, mainWindow);
+
+  control.init();
+
 }
 
 // This method will be called when Electron has finished
@@ -92,3 +113,30 @@ global.eval = function () {
 //       return callback(false);
 //     }
 //   });
+
+
+// let win = null;
+  
+// app.on('ready', () => {
+// win = new BrowserWindow({width: 800, height: 600});
+// win.loadURL(`file://${__dirname}/index.html`);
+// win. webContents.on('did-finish-load', () => {
+//   win.webContents.send('ping', 'whoooooooh!');
+// });
+
+// });
+
+
+const {ipcMain} = require('electron');
+ipcMain.on('asynchronous-message', (event, arg) => {
+  console.log(arg); // prints "ping"
+  event.sender.send('asynchronous-reply', 'pong');
+});
+
+ipcMain.on('synchronous-message', (event, arg) => {
+  console.log(arg); // prints "ping"
+  event.returnValue = 'pong';
+});
+
+
+

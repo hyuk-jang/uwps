@@ -9,14 +9,22 @@ const Model = require('./Model');
 
 let config = require('./config');
 
+
+const {BrowserWindow} = require('electron');
+
 class Control extends AbstDeviceClient {
-  /** @param {config} config */
-  constructor(config) {
+  /** 
+   * @param {config} config 
+   * @param {BrowserWindow} mainWindow
+   * */
+  constructor(config, mainWindow) {
     super();
     this.config = config.current;
 
     // BU.CLI(this.config);
     this.model = new Model(this);
+
+    this.mainWindow = mainWindow;
   }
 
   /**
@@ -51,6 +59,14 @@ class Control extends AbstDeviceClient {
    */
   updatedDcEventOnDevice(dcEvent) {
     BU.log('updateDcEvent\t', dcEvent.eventName);
+    switch (dcEvent.eventName) {
+    case this.definedControlEvent.CONNECT:
+      var commandSet = this.generationAutoCommand();
+      this.executeCommand(commandSet);
+      break;
+    default:
+      break;
+    }
   }
 
 
@@ -61,6 +77,10 @@ class Control extends AbstDeviceClient {
    */
   onDcData(dcData) {
     BU.CLI(dcData.data.toString());
+    // this.mainWindow.webContents.on('did-finish-load', () => {
+    BU.CLIN(this.mainWindow);
+    this.mainWindow.webContents.send('ping', dcData.data.toString());
+    // });
     // const resultData = this.model.onData(dcData.data);
 
     // BU.CLI(this.getDeviceOperationInfo().data); 

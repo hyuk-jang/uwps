@@ -10,7 +10,7 @@ module.exports = {
     dbInfo: {
       host: process.env.INVERTER_HOST ? process.env.INVERTER_HOST : 'localhost',
       user: process.env.INVERTER_USER ? process.env.INVERTER_USER : 'root',
-      password: process.env.INVERTER_PW ? process.env.INVERTER_PW : 'reaper83',
+      password: process.env.INVERTER_PW ? process.env.INVERTER_PW : 'akdntm007!',
       database: process.env.INVERTER_DB ? process.env.INVERTER_DB : 'power_monitoring'
     },
     deviceInfo: {
@@ -45,7 +45,7 @@ module.exports = {
           controlInfo: {
             hasErrorHandling: true,
             hasOneAndOne: false,
-            hasReconnect: false
+            hasReconnect: true
           },
           'connect_info': {
             'type': 'socket',

@@ -50,7 +50,7 @@ class Control {
       this.inverterList.push(inverter);
     });
 
-    // // 시스템 초기화 후 5초 후에 장치 계측 스케줄러 실행
+    // 시스템 초기화 후 5초 후에 장치 계측 스케줄러 실행
     // Promise.delay(1000 * 5)
     //   .then(() => {
     //     this.runCronMeasure();

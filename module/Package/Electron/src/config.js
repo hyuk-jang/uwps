@@ -5,7 +5,6 @@ module.exports = {
       target_id: 'SI1',
       target_name: 'SmRainSensor',
       target_category: 'weather',
-      hasOneAndOne: true,
       logOption: {
         hasCommanderResponse: false,
         hasDcError: false,
@@ -13,6 +12,11 @@ module.exports = {
         hasReceiveData: false,
         hasDcMessage: false,
         hasTransferCommand: false
+      },
+      controlInfo: {
+        hasErrorHandling: false,
+        hasOneAndOne: true,
+        hasReconnect: true
       },
       connect_info: {
         type: 'serial',

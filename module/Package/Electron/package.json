@@ -24,7 +24,6 @@
       "icon": "./icons/icon.icns"
     },
     "win": {
-      "oneClick": true,
       "target": [
         "nsis"
       ],
@@ -75,7 +74,7 @@
     "electron-rebuild": "^1.7.3"
   },
   "dependencies": {
-    "device-client-controller-jh": "^0.1.22",
+    "device-client-controller-jh": "^0.1.25",
     "lodash": "^4.17.10"
   }
 }

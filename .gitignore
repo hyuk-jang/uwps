@@ -8,6 +8,7 @@
 **/.vscode/
 **/out/
 **/docs/
+**/dist/
 
 # 와일드카드도 사용가능
 # ignore-file*

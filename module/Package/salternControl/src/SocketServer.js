@@ -88,6 +88,9 @@ class SocketServer {
   emitToClientList(salternDeviceDataStorage) {
     try {
       let encodingData = this.baseConverter.encodingDefaultRequestMsgForTransfer(JSON.stringify(salternDeviceDataStorage));
+
+
+      BU.CLI(encodingData.slice(encodingData.length - 5));
   
       this.clientList.forEach(client => {
         client.write(encodingData);

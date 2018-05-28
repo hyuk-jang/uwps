@@ -55,12 +55,12 @@ const map = {
   },
   setInfo: {
     connectInfoList: [{
-      // type: 'socket',
-      type: 'zigbee',
+      type: 'socket',
+      // type: 'zigbee',
       subType: 'xbee',
       baudRate: 9600,
-      // port: 9000,
-      port: 'COM6',
+      port: 9000,
+      // port: 'COM6',
       deviceRouterList: [{
         targetId: 'R_V_101',
         deviceId: '0013A20040F7B4AD',

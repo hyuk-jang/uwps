@@ -199,7 +199,7 @@ class Control extends AbstDeviceClient {
    * @param {dcData} dcData 명령 수행 결과 데이터
    */
   onDcData(dcData) {
-    // BU.CLIS(dcData.data);
+    BU.CLIS(dcData.data);
     try {
       // BU.CLI(dcData.data.toString());
       // BU.CLIN(this.commander.currentCommand);
@@ -212,7 +212,7 @@ class Control extends AbstDeviceClient {
       let parsedData = this.converter.parsingUpdateData(dcData);
 
       // 만약 파싱 에러가 발생한다면 명령 재 요청
-      // BU.CLI(parsedData.eventCode);
+      BU.CLI(parsedData);
       if (parsedData.eventCode === this.definedCommanderResponse.ERROR) {
         BU.errorLog('salternDevice', 'parsingError', parsedData.data);
         return this.requestTakeAction(this.definedCommanderResponse.RETRY);

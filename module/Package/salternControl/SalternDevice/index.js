@@ -20,15 +20,15 @@ if (require !== undefined && require.main === module) {
   control.init();
 
 
-  // orderOperation Test
-  setTimeout(() => {
-    control.orderOperation({
-      hasTrue: true,
-      commandId: 'test',
-      modelId: 'WD_001'
-    });
+  // // orderOperation Test
+  // setTimeout(() => {
+  //   control.orderOperation({
+  //     hasTrue: true,
+  //     commandId: 'test',
+  //     modelId: 'WD_001'
+  //   });
     
-  }, 1000);
+  // }, 1000);
 
 
   // Direct Test
@@ -39,10 +39,10 @@ if (require !== undefined && require.main === module) {
   control_2.init();
   const {BaseModel} = require('../../../module/device-protocol-converter-jh');
 
-  const baseModel = new BaseModel.Saltern('xbee');
+  const baseModel = new BaseModel.Saltern(config.current.deviceInfo.protocol_info);
 
   BU.CLI(baseModel.VALVE.COMMAND.CLOSE);
-  let cmdList = control_2.converter.generationCommand(baseModel.VALVE.COMMAND.CLOSE);
+  let cmdList = control_2.converter.generationCommand(baseModel.VALVE.COMMAND.STATUS);
   BU.CLI(cmdList);
   if(cloneConfig.current.deviceInfo.connect_info.type === 'socket'){
     cmdList.forEach(currentItem => {

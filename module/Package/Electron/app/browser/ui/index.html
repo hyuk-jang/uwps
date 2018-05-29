@@ -8,71 +8,71 @@
   <script>
     window.$ = window.jQuery = require('jquery');
   </script>
+  
+  <link href="../resources/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../resources/css/datepicker3.css" rel="stylesheet" />
+  <link href="../resources/css/StyleSheet.css" rel="stylesheet" />
 
-  <link href="../public/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="../public/css/datepicker3.css" rel="stylesheet" />
-  <link href="../public/css/StyleSheet.css" rel="stylesheet" />
+  <script src="../resources/js/underscore-min.js"></script>
 
-  <script src="../public/js/underscore-min.js"></script>
-
-  <script src="../public/js/common-html/date-picker.js"></script>
+  <script src="../resources/js/common-html/date-picker.js"></script>
 
   <!-- 모든 컴파일된 플러그인을 포함합니다 (아래), 원하지 않는다면 필요한 각각의 파일을 포함하세요 -->
-  <script src="../public/js/bootstrap.min.js"></script>
-  <script src="../public/js/bootstrap-datepicker.js"></script>
-  <script src="../public/js/bootstrap-datepicker.kr.js"></script>
+  <script src="../resources/js/bootstrap.min.js"></script>
+  <script src="../resources/js/bootstrap-datepicker.js"></script>
+  <script src="../resources/js/bootstrap-datepicker.kr.js"></script>
   <!-- 차트 관련 -->
   <!-- <script src="https://www.gstatic.com/charts/loader.js"></script> -->
-  <link href="../public/fonts/font-awesome.min.css" rel="stylesheet" />
+  <link href="../resources/fonts/font-awesome.min.css" rel="stylesheet" />
 
-  <script src="../public/js/hichart/highcharts.src.js"></script>
-  <script src="../public/js/hichart/highcharts-more.js"></script>
-  <script src="../public/js/hichart/solid-gauge.js"></script>
+  <script src="../resources/js/hichart/highcharts.src.js"></script>
+  <script src="../resources/js/hichart/highcharts-more.js"></script>
+  <script src="../resources/js/hichart/solid-gauge.js"></script>
 </head>
 
 <body>
   <!--메인-->
-  <div class="wrap">
-    <!--네비-->
-    <nav class="navbar navbar-inverse navbar-inverse_st ">
+  <div id="wrap" class="wrap">
+      <!--네비-->
+  <nav class="navbar navbar-inverse navbar-inverse_st ">
       <div class="container-fluid container-fluid_st">
         <div class="navbar-header">
           <a class="navbar-brand navbar-brand_st" href="/">
-            <img src="../public/image/kepco-01.png" />
+            <img src="../resources/image/kepco-01.png" />
             <h4> &nbsp;&nbsp; 수중 태양광 발전 시스템 모니터링</h4>
-            <!--<img src="../public/image/logo_w-04_180.png" />-->
+            <!--<img src="image/logo_w-04_180.png" />-->
           </a>
         </div>
-
-        <ul class="nav nav-pills navbar-nav_st" role="tablist" id="navigation">
-          <li class="active">
-            <a href="#" id="navi-main">
-              <i class="fa fa-home fa-home_st" aria-hidden="true"></i>홈</a>
-          </li>
-          <li class="#">
-            <a id="navi-inverter">
-              <i class="fa fa-server fa-home_st" aria-hidden="true"></i>인버터</a>
-          </li>
-          <li class="">
-            <a href="#" id="navi-trend">
-              <i class="fa fa-bar-chart fa-home_st" aria-hidden="true"></i>트렌드</a>
-          </li>
-          <li class="">
-            <a href="#" id="navi-report">
-              <i class="fa fa-pencil-square-o fa-home_st" aria-hidden="true"></i>보고서</a>
-          </li>
-          <li class="">
-            <a href="#" id="navi-alarm" style="border:0;">
-              <i class="fa fa-bullhorn fa-home_st" aria-hidden="true"></i>경보</a>
-          </li>
-        </ul>
-
+        
+          <ul class="nav nav-pills navbar-nav_st" role="tablist" id="navigation" >
+            <li class="active">
+              <a href="#"  id="navi-main">
+                <i class="fa fa-home fa-home_st" aria-hidden="true"></i>홈</a>
+            </li>
+            <li class="#" >
+              <a id="navi-inverter">
+                <i class="fa fa-server fa-home_st" aria-hidden="true"></i>인버터</a>
+            </li>
+            <li class="" >
+              <a href="#" id="navi-trend">
+                <i class="fa fa-bar-chart fa-home_st" aria-hidden="true"></i>트렌드</a>
+            </li>
+            <li class="">
+              <a href="#" id="navi-report">
+                <i class="fa fa-pencil-square-o fa-home_st" aria-hidden="true"></i>보고서</a>
+            </li>
+            <li class="">
+              <a href="#"  id="navi-alarm" style="border:0;">
+                <i class="fa fa-bullhorn fa-home_st" aria-hidden="true"></i>경보</a>
+            </li>
+          </ul>
+       
       </div>
-
+  
       <!-- <div class="row nav_row">
         <div class="nav_row_st">
           <div class="nav_row_st_img">
-            <img src="../public/image/con_p.png" />
+            <img src="../resources/image/con_p.png" />
             <span>6kW급 테스트베드</span>
           </div>
   
@@ -88,7 +88,7 @@
             </script>
             <span>날씨</span>
             
-            <img src="../public/image/weather_1.png" />
+            <img src="../resources/image/weather_1.png" />
             <input type="text" class="form-control" style="text-align: center" value="11">
             <span class="Temperature">℃</span>
           </div>
@@ -97,167 +97,163 @@
     </nav>
     <div class="jumbotron text-center jumbotron_st">
       <div class="row row_st">
-
+  
         <!--콘텐츠왼쪽-->
         <div class="col-xs-3 power">
           <div class="row power_1" style="border-radius: 0px;">
             <h4>전력 생산 현황</h4>
           </div>
-
+  
           <div class="row power_2">
             <p>현재출력 </p>
-            <input type="text" id="currKw" name="powerInfo" value="1">
+            <input type="text" name="kW" value="1">
             <span>kW</span>
           </div>
-
+  
           <div class="row power_2">
             <p>금일발전량</p>
-            <input type="text" id="dailyPower" name="powerInfo" value="1">
+            <input type="text" name="kW" value="1">
             <span>kWh</span>
           </div>
-
+  
           <div class="row power_2">
             <p>당월발전량</p>
-            <input type="text" id="monthPower" name="powerInfo" value="1">
+            <input type="text" name="kW" value="1">
             <span>kWh</span>
           </div>
-
+  
           <div class="row power_2">
             <p>누적발전량</p>
-            <input type="text" id="cumulativePower" name="powerInfo" value="1">
+            <input type="text" name="kW" value="1">
             <span>MWh</span>
           </div>
-
+  
           <div class="row power_2">
             <p>CO₂ 저감량</p>
-            <input type="text" id="co2" key="CO₂" name="powerInfo" value="1">
+            <input type="text" name="CO₂" value="1">
             <span>Ton</span>
           </div>
-
+  
           <div class="row power_3">
             <!-- <div class="col-xs-6 power_3in">
-              <img src="../public/image/sun_03.png" />
-              <p>일사량</p>
-              <input type="text" name="W/m²" readonly value="<%- powerGenerationInfo.solarRadiation %> W/m²">
-            </div>
-            <div class="col-xs-6 power_3in">
-              <img src="../public/image/sun_06.png" />
-              <p>모듈온도</p>
-              <input type="text" name="℃" value=" ℃">
-            </div> -->
+                <img src="../resources/sun_03.png" />
+                <p>일사량</p>
+                <input type="text" name="W/m²" readonly value="<%- powerGenerationInfo.solarRadiation %> W/m²">
+              </div>
+              <div class="col-xs-6 power_3in">
+                <img src="../resources/sun_06.png" />
+                <p>모듈온도</p>
+                <input type="text" name="℃" value=" ℃">
+              </div> -->
             <div class="col-xs-12" style="height:105px; width:270px; background-color:#f5f5f5;border:1px solid #ddd; margin: 6px 0 0 6px; padding:10px 0 0 12px; ">
-
-
+  
+  
               <span style="font-size: 17px; font-weight: bold;" id="today">2018.5.28(월)</span>
               <script>
                 var today = new Date();
                 var week = new Array('일', '월', '화', '수', '목', '금', '토');
                 $('#today').html(today.getFullYear() + '.' + (today.getMonth() + 1) + '.' + today.getDate() + '(' + week[
                   today.getDay()] + ')');
-
-
               </script>
-
+  
               <br>
               <div style="margin-top: 13px;">
                 <span style="font-size: 15px; color: #333; font-weight: bold;">날씨</span>
-
-                <img src="../public/image/weather_4.png">
-                <!-- <img src="../public/image/weather_1.png" /> -->
-
+  
+                <img src="../resources/image/weather_4.png">
+                <!-- <img src="../resources/weather_1.png" /> -->
+  
                 <input type="text" class="form-control" style="text-align: center; width:100px; display:inline-block;" value="21">
                 <span class="Temperature" style="margin:0px; float:none;">℃</span>
               </div>
-
-
-
+  
+  
+  
             </div>
-
-
+  
+  
             <div class="col-xs-6 power_3in">
-              <img src="../public/image/sun_10.png" />
+              <img src="../resources/image/sun_10.png" />
               <p>인버터</p>
               <!--<input type="text" name="Wm" value="RUN">-->
-
-              <button type="button" id="inverterOperation" class="btn ">
-
+              <button type="button" class="btn ">
               </button>
             </div>
             <div class="col-xs-6 power_3in">
-              <img src="../public/image/sun_11.png" />
+              <img src="../resources/image/sun_11.png" />
               <p style="margin-left:10px;">경보</p>
               <!--<input type="text" name="Wm" value="정상">-->
               <button type="button" class="btn btn-warning">정상</button>
-
+  
             </div>
-
+  
           </div>
         </div>
-
-
-
-
+  
+  
+  
+  
         <!--콘텐츠중앙-->
-
+  
         <div class="col-xs-9 col-sm-9_st">
           <div class="col-xs-6 con_1 con_1_main" style="height: 230px; border-radius: 5px; background: linear-gradient(to top, #E7F0F9,#FEFEFE);  margin: 0;
-          border: 7px solid transparent;
-          -moz-border-image: -moz-linear-gradient(top left, #90BAE3 0%, #C6D8EA 50%, #90BBE3 100%);
-          -webkit-border-image: -webkit-linear-gradient(top left, #90BAE3 0%, #C6D8EA 50%, #90BBE3 100%);
-          border-image: linear-gradient(to bottom right, #90BAE3 0%, #C6D8EA 50%, #90BBE3 100%);
-          border-image-slice: 1; 
-          margin-left: 35px; margin-bottom: 30px;">
-            <div class="con_1_title" style="width: 180px; height: 50px; margin-top: -20px; margin-left:92px; position:absolute; background-image: url('../public/image/btn_03.png'); ">
+            border: 7px solid transparent;
+            -moz-border-image: -moz-linear-gradient(top left, #90BAE3 0%, #C6D8EA 50%, #90BBE3 100%);
+            -webkit-border-image: -webkit-linear-gradient(top left, #90BAE3 0%, #C6D8EA 50%, #90BBE3 100%);
+            border-image: linear-gradient(to bottom right, #90BAE3 0%, #C6D8EA 50%, #90BBE3 100%);
+            border-image-slice: 1; 
+            margin-left: 35px; margin-bottom: 30px;">
+            <div class="con_1_title" style="width: 180px; height: 50px; margin-top: -20px; margin-left:92px; position:absolute; background-image: url('../resources/image/btn_03.png'); ">
               <h5 style="color:#fff; font-weight:500; margin-top:15px; font-size:16px;">현재 출력</h5>
             </div>
             <div class="con_1_con" style="width: 300px; height: 180px;  margin: 0 auto; margin-top:40px;">
               <div id="chart_div_1" style="width: 300px; height: 180px;"></div>
             </div>
             <!-- <div class="con_1_bot" style="width: 180px; height: 70px; margin-left: 90px; margin-top:-5px; background-image: url('image/btn_09.png'); ">
-              <p style="color:#fff; font-weight:500; font-size:16px; padding-top:10px; margin-bottom:5px;">출력량</p>
-              <p style="color:#333; font-weight:500; font-size:16px;  ">2.3kW</p>
-            </div> -->
-
+                <p style="color:#fff; font-weight:500; font-size:16px; padding-top:10px; margin-bottom:5px;">출력량</p>
+                <p style="color:#333; font-weight:500; font-size:16px;  ">2.3kW</p>
+              </div> -->
+  
             <!--<div class="row con_2"><h5>현재 출력</h5></div>
-        <div class="row con_2_1" >
-            <div class="row con_2_2" >
-                <img src="../public/image/chart_1.png" />
-            </div>
-            <div class="row con_2_3" >
-                <p style="margin-right:35px;">출력량 </p>
-                <input type="text" name="kW" value="2.0"><span>kW</span>
-            </div>
-            <div class="row con_2_3" style="margin-left:74px; ">
-                <p>발전효율 </p>
-                <input type="text" name="kW" value="76.66"><span>%</span>
-            </div>
-            </div>-->
+          <div class="row con_2_1" >
+              <div class="row con_2_2" >
+                  <img src="../resources/chart_1.png" />
+              </div>
+              <div class="row con_2_3" >
+                  <p style="margin-right:35px;">출력량 </p>
+                  <input type="text" name="kW" value="2.0"><span>kW</span>
+              </div>
+              <div class="row con_2_3" style="margin-left:74px; ">
+                  <p>발전효율 </p>
+                  <input type="text" name="kW" value="76.66"><span>%</span>
+              </div>
+              </div>-->
           </div>
-
+  
           <div class="col-xs-6 con_1 con_1_main" style="height: 230px; border-radius: 5px; background: linear-gradient(to top, #E7F0F9,#FEFEFE);  margin: 0;
-          border: 7px solid transparent;
-          -moz-border-image: -moz-linear-gradient(top left, #90BAE3 0%, #C6D8EA 50%, #90BBE3 100%);
-          -webkit-border-image: -webkit-linear-gradient(top left, #90BAE3 0%, #C6D8EA 50%, #90BBE3 100%);
-          border-image: linear-gradient(to bottom right, #90BAE3 0%, #C6D8EA 50%, #90BBE3 100%);
-          border-image-slice: 1;
-          margin-left: 55px; margin-bottom: 30px;">
-
-            <div class="con_1_title" style="width: 180px; height: 50px; margin-top: -20px; margin-left:92px; position:absolute; background-image: url('../public/image/btn_03.png'); 
-            ">
+            border: 7px solid transparent;
+            -moz-border-image: -moz-linear-gradient(top left, #90BAE3 0%, #C6D8EA 50%, #90BBE3 100%);
+            -webkit-border-image: -webkit-linear-gradient(top left, #90BAE3 0%, #C6D8EA 50%, #90BBE3 100%);
+            border-image: linear-gradient(to bottom right, #90BAE3 0%, #C6D8EA 50%, #90BBE3 100%);
+            border-image-slice: 1;
+            margin-left: 55px; margin-bottom: 30px;">
+  
+            <div class="con_1_title" style="width: 180px; height: 50px; margin-top: -20px; margin-left:92px; position:absolute; background-image: url('../resources/image/btn_03.png'); 
+              ">
               <h5 style="color:#fff; font-weight:500; margin-top:15px; font-size:16px;">금일 발전량</h5>
             </div>
             <div class="con_1_con" style="width: 300px; height: 180px;  margin: 0 auto; margin-top:40px;">
               <div id="chart_div_2" style="width: 300px; height: 180px;"></div>
             </div>
             <!-- <div class="con_1_bot" style="width: 180px; height: 70px; margin-left: 90px; margin-top:-5px; background-image: url('image/btn_09.png'); ">
-              <p style="color:#fff; font-weight:500; font-size:16px; padding-top:10px; margin-bottom:5px;">금일 발전량</p>
-              <p style="color:#333; font-weight:500; font-size:16px;  ">14.75kWh</p>
-            </div> -->
+                <p style="color:#fff; font-weight:500; font-size:16px; padding-top:10px; margin-bottom:5px;">금일 발전량</p>
+                <p style="color:#333; font-weight:500; font-size:16px;  ">14.75kWh</p>
+              </div> -->
           </div>
-
-
-
-
+  
+  
+  
+  
           <div class="col-xs-12 con_4" style="margin-left:35px;width:842px;">
             <div class="row con_2" style="border-radius: 0px;">
               <h5 style="float:left; margin-left:20px;">금일 발전 현황 </h5>
@@ -268,20 +264,22 @@
             <p class="re_p" style="margin-top: 5px">※ 발전량(kWh) 데이터는 모든 인버터에서 측정한
               <span>시간당 발전량의 합 </span> 입니다. </p>
           </div>
-
+  
         </div>
       </div>
-
-
-
+  
+  
+  
+  
       <!--콘텐츠하단-->
+  
       <div class="row row_title" style="width: 1180px;">
         <div class="title" style="float: none; margin-bottom: 10px; margin-top:50px;"> 실시간 인버터 모니터링
           <span style="position: absolute;color: black;width: 300px; text-align: left; text-indent: 30px">
             측정시간: 2018-05-29 11:05:00
           </span>
         </div>
-
+  
         <div class="table-responsive">
           <table class="table table-hover " style="background: #fff;">
             <thead>
@@ -311,18 +309,18 @@
                   <br>(kWh)</th>
                 <th style="width:5%; text-align:center;">장치
                   <br>상태</th>
-
+  
               </tr>
             </thead>
             <tbody id="myTable">
-
-
+  
+  
               <tr class="sel">
                 <td class="td1">
                   육상 일반 (다)
                 </td>
                 <td>
-
+  
                 </td>
                 <td>
                   100
@@ -355,17 +353,17 @@
                   696.95
                 </td>
                 <td class="center_ball">
-                  <img src="../public/image/green.png">
+                  <img src="../resources/image/green.png">
                 </td>
               </tr>
-
-
+  
+  
               <tr class="sel">
                 <td class="td1">
                   육상 G2G (다)
                 </td>
                 <td>
-
+  
                 </td>
                 <td>
                   100
@@ -398,7 +396,7 @@
                   639.18
                 </td>
                 <td class="center_ball">
-                  <img src="../public/image/green.png">
+                  <img src="../resources/image/green.png">
                 </td>
               </tr>
               <tr class="sel">
@@ -418,21 +416,22 @@
               </tr>
             </tbody>
           </table>
-
+  
         </div>
         <p class="re_p">※ 금일 발전량, 누적 발전량, 장치 상태를 제외한 위의 데이터는 모두 해당
           <span> 실시간 데이터</span> 입니다. </p>
-
-
+  
+  sssssssssssss
       </div>
-
+  
+  
+  
     </div>
-  </div>
+  </div>  
 
-  <script src="./renderer.js"></script>
+  <script src="../api/renderer.js"></script>
 
-
-  <!-- 
+<!-- 
   <script>
     // You can also require other files to run in this process
     // require('./renderer.js')

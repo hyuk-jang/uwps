@@ -1,52 +1,50 @@
 const electron = require('electron');
 // Module to control application life.
 const app = electron.app;
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow;
 
-const path = require('path');
-const url = require('url');
+const Navigation = require('./src/Navigation');
+const naviation = new Navigation();
 
-require('./common/ipcMain');
+
+
+const {ipcMain} = require('electron');
+ipcMain.on('asynchronous-message', (event, arg) => {
+  console.log(arg); // prints "ping"
+  event.sender.send('asynchronous-reply', 'pong');
+});
+
+ipcMain.on('synchronous-message', (event, arg) => {
+  console.log(arg); // prints "ping"
+  event.returnValue = 'pong';
+});
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
+// /** @type {BrowserWindow} */
+// let mainWindow;
 
-function createWindow() {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    width: 1770, height: 1000, 
-    // alwaysOnTop: true,
-    x: 2320,
-    y: 0,
-    // webPreferences: {
-    //   nodeIntegration: false,
-    //   // preload: './preload.js'
-    // }
-  });
+// ipcMain.on('connect-device', (event, port) => {
+//   // TEST
+//   const config = require('./src/config');
+//   const Control = require('./src/Control');
 
-  mainWindow.webContents.openDevTools();
+//   // config.current.deviceInfo.connect_info.port = port;
 
-  // and load the index.html of the app.
-  mainWindow.loadFile('view/index.html');
+//   // const control = new Control(config, naviation.mainWindow);
+//   // control.init();
+// });
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
-
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null;
-  });
-}
+ipcMain.on('navigationMenu', (event, msg) => {
+  naviation.createWindow(msg);
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+// app.on('ready', createWindow);
+app.on('ready', () => {
+  naviation.createWindow();
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -60,8 +58,8 @@ app.on('window-all-closed', function () {
 app.on('activate', function () {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow();
+  if (naviation.mainWindow === null) {
+    naviation.createWindow();
   }
 });
 
@@ -73,11 +71,6 @@ app.on('activate', function () {
 global.eval = function () {
   throw new Error('이 앱은 window.eval()을 지원하지 않습니다.');
 };
-
-
-
-
-
 
 
 // //  원격 콘텐츠에서 세션 권한 요청 처리
@@ -98,3 +91,16 @@ global.eval = function () {
 //       return callback(false);
 //     }
 //   });
+
+
+// let win = null;
+  
+// app.on('ready', () => {
+// win = new BrowserWindow({width: 800, height: 600});
+// win.loadURL(`file://${__dirname}/index.html`);
+// win. webContents.on('did-finish-load', () => {
+//   win.webContents.send('ping', 'whoooooooh!');
+// });
+
+// });
+

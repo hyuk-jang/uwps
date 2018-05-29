@@ -60,7 +60,21 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-ipcMain.on('navigationMenu', (event, msg) => {
-  createWindow();
-  // naviation.navigation(msg);
+const bmjh = require('base-model-jh');
+const bm = new bmjh.BM({
+  // host: process.env.SALTERN_HOST ? process.env.SALTERN_HOST : 'localhost',
+  host: 'smtb.iptime.org',
+  port: '7498',
+  user: process.env.SALTERN_USER ? process.env.SALTERN_USER : 'root',
+  // password: process.env.SALTERN_PW ? process.env.SALTERN_PW : 'root',
+  password: 'upsas1111',
+  database: process.env.SALTERN_DB ? process.env.SALTERN_DB : 'saltpond_controller'
 });
+
+
+bm.getTable('inverter').then(r => {
+  console.dir(r);
+})
+  .catch(err => {
+    console.error(err);
+  });

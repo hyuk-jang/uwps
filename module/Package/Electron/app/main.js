@@ -7,6 +7,8 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require('path');
 const url = require('url');
 
+require('./common/ipcMain');
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -14,7 +16,10 @@ let mainWindow;
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800, height: 600, 
+    width: 1770, height: 1000, 
+    // alwaysOnTop: true,
+    x: 1920,
+    y: 0,
     // webPreferences: {
     //   nodeIntegration: false,
     //   // preload: './preload.js'
@@ -24,11 +29,7 @@ function createWindow() {
   mainWindow.webContents.openDevTools();
 
   // and load the index.html of the app.
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
-    protocol: 'file:',
-    slashes: true
-  }));
+  mainWindow.loadFile('browser/ui/index.html');
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -72,6 +73,11 @@ app.on('activate', function () {
 global.eval = function () {
   throw new Error('이 앱은 window.eval()을 지원하지 않습니다.');
 };
+
+
+
+
+
 
 
 // //  원격 콘텐츠에서 세션 권한 요청 처리

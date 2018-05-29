@@ -87,7 +87,7 @@ class BiModule extends bmjh.BM {
       GROUP BY ${dateFormat.groupByFormat}
       ORDER BY writedate
     `;
-    return this.db.single(sql, '', true);
+    return this.db.single(sql, '', false);
   }
 
   /**
@@ -214,6 +214,7 @@ class BiModule extends bmjh.BM {
    * @return {Array.<{temp: number, pty: number, wf: number, pop: number, r12: number, ws:number, wd: number, reh: number, applydate: Date}>} 날씨 정보
    */
   getCurrWeatherCast() {
+    BU.CLI('@');
     let sql = `
       SELECT *, 
               ABS(CURRENT_TIMESTAMP() - applydate) AS cur_interval 
@@ -221,7 +222,7 @@ class BiModule extends bmjh.BM {
       ORDER BY cur_interval 
       LIMIT 1
     `;
-    return this.db.single(sql, '', false);
+    return this.db.single(sql, '', true);
   }
 
 

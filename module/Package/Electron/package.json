@@ -1,16 +1,16 @@
 {
-  "name": "electron",
+  "name": "inverter-monitoring",
   "version": "0.1.0",
-  "description": "A minimal Electron application",
+  "description": "Inverter Monitoring",
   "main": "main.js",
   "build": {
-    "productName": "HelloElectron",
+    "productName": "InverterMonitoring",
     "appId": "com.electron.hello",
     "asar": true,
     "protocols": {
       "name": "helloElectron",
       "schemes": [
-        "helloelectron"
+        "InverterMonitoring"
       ]
     },
     "mac": {
@@ -75,6 +75,7 @@
   },
   "dependencies": {
     "device-client-controller-jh": "^0.1.25",
+    "jquery": "^3.3.1",
     "lodash": "^4.17.10"
   }
 }

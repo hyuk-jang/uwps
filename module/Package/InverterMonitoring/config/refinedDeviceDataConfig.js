@@ -18,7 +18,7 @@ module.exports = [{
       toKey: 'inverter_seq',
     }],
     changeColumnKeyInfo: {
-      isErrorKey: 'is_system_error',
+      isErrorKey: 'is_error',
       codeKey: 'code',
       msgKey: 'msg',
       occurDateKey: 'occur_date',

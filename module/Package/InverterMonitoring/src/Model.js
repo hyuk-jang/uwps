@@ -65,7 +65,7 @@ class Model {
   async updateDeviceCategory(measureDate, category) {
     try {
       // Storage에 저장되어 있는 데이터(장치 데이터,)
-      BU.CLI('뭐가 어떻게 돌아가고 있어?');
+      BU.CLI('updateDeviceCategory');
       const convertDataList = await this.deviceClientModel.refineTheDataToSaveDB(category, measureDate);
       BU.CLIN(convertDataList, 2);
   
@@ -76,43 +76,6 @@ class Model {
     } catch (error) {
       BU.errorLog('updateDeviceCategory', _.get(error, 'message'), error);
     }
-  }
-
-
-  /**
-   * 하부 기상 관측 장비 데이터 처리
-   * @param {Date} measureDate 
-   */
-  async getWeatherDeviceData(measureDate) {
-    BU.CLI('getWeatherDeviceData');
-    
-    let smInfraredData = this.controller.smInfrared.getDeviceOperationInfo();
-    let vantagepro2Data = this.controller.vantagepro2.getDeviceOperationInfo();
-
-    this.systemErrorList = _.unionBy(smInfraredData.systemErrorList, vantagepro2Data.systemErrorList, 'code');
-    this.troubleList = _.unionBy(smInfraredData.troubleList, vantagepro2Data.troubleList, 'code');
-
-    // SM 적외선 데이터와 VantagePro2 객체 데이터를 합침
-    this.deviceData = Object.assign(smInfraredData.data, vantagepro2Data.data);
-
-    // BU.CLI(vantagepro2Data.data);
-    /* 데이터에 null이 포함되어있다면 아직 준비가 안된것으로 판단 */
-    if (_.includes(vantagepro2Data.data, null)) {
-      BU.log('장치의 데이터 수집이 준비가 안되었습니다.');
-      // BU.logFile('장치의 데이터 수집이 준비가 안되었습니다.');
-      return false;
-    }
-
-    let returnValue = this.deviceClientModel.onDeviceOperationInfo(this.controller.getDeviceOperationInfo(), this.deviceCategory);
-    
-    // BU.CLIN(returnValue, 3);
-
-    // DB에 입력
-    const convertDataList = await this.deviceClientModel.refineTheDataToSaveDB(this.deviceCategory, measureDate);
-    // BU.CLI(convertDataList);
-
-    const resultSaveToDB = await this.deviceClientModel.saveDataToDB(this.deviceCategory);
-    BU.CLI(resultSaveToDB);
   }
 }
 

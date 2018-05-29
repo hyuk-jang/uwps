@@ -49,6 +49,19 @@ describe('Config Setter Test', () => {
     inverterList.forEach((element, index) => {
       element.protocol_info = JSON.parse(_.get(element, 'protocol_info'));
       element.connect_info = JSON.parse(_.get(element, 'connect_info'));
+      element.logOption = {
+        hasCommanderResponse: true,
+        hasDcError: true,
+        hasDcEvent: true,
+        hasReceiveData: true,
+        hasDcMessage: true,
+        hasTransferCommand: true
+      };
+      element.logOption = {
+        hasErrorHandling: true,
+        hasOneAndOne: false,
+        hasReconnect: true
+      };
       // element.protocol_info = _.replace() _.get(element, 'protocol_info') ;
       let addObj = {
         hasDev: true,

@@ -411,10 +411,10 @@ function refineSelectedInverterStatus(viewInverterStatus) {
       addObj.d_wh = data.d_wh;
       addObj.compare_efficiency = data.compare_efficiency;
       addObj.water_level = data.water_level;
-      addObj.d_kwh = _.isNumber(data.daily_power_wh) ? calcValue(data.daily_power_wh, 0.001, 3) : '';
-      addObj.c_kwh = _.isNumber(data.c_wh) ? calcValue(data.c_wh, 0.001, 2) : '';
       addObj.hasOperation = true;
     }
+    addObj.d_kwh = _.isNumber(data.daily_power_wh) ? calcValue(data.daily_power_wh, 0.001, 3) : '';
+    addObj.c_kwh = _.isNumber(data.c_wh) ? calcValue(data.c_wh, 0.001, 2) : '';
     currInverterDataList.push(addObj);
   });
   // currInverterDataList = _.sortBy(currInverterDataList, 'target_name');

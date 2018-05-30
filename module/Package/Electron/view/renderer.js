@@ -7,46 +7,37 @@ const Highcharts = require('highcharts');
 const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
 
-let list = document.querySelectorAll('#navigation');
-
-list.forEach(ele => {
+let navigationList = document.querySelectorAll('#navigation a');
+navigationList.forEach(ele => {
   ele.addEventListener('click', event => {
-    console.log(event.target.id);
-    let msg;
-    switch (event.target.id) {
+    let id;
+    if(event.target.tagName === 'I'){
+      id = event.target.parentNode.id;
+    } else {
+      id = event.target.id;
+    }
+
+    switch (id) {
     case 'navi-main':
-      ipcRenderer.send('navigationMenu', event.target.id);
+      ipcRenderer.send('navigationMenu', id);
       break;
     case 'navi-trend':
-      ipcRenderer.send('navigationMenu', event.target.id);
+      ipcRenderer.send('navigationMenu', id);
       break;
     default:
       break;
     }
-
   });
-
 });
 
-let list = document.querySelectorAll('input[name=searchType]');
-list.forEach(ele => {
+// 트렌드 버튼 클릭
+let trendSelectList = document.querySelectorAll('#sel_type_div_area input');
+trendSelectList.forEach(ele => {
   ele.addEventListener('click', event => {
-    console.log(event.target.value);
-    let msg;
-    switch (event.target.id) {
-    case 'navi-main':
-      ipcRenderer.send('navigationMenu', event.target.id);
-      break;
-    case 'navi-trend':
-      ipcRenderer.send('navigationMenu', event.target.id);
-      break;
-    default:
-      break;
-    }
-
+    setterSelectType(event.target.value);
   });
-
 });
+
 
 document.querySelector('#searchTrend').addEventListener('click', event => {
   let searchInfo = searchTrend();
@@ -55,13 +46,14 @@ document.querySelector('#searchTrend').addEventListener('click', event => {
 
 
 
-
+let saveSearchRange;
 const XLSX = require('xlsx');
 ipcRenderer.on('trend-replay', (event, data) => {
   $('#navigation li').removeClass('active');
   $('#navi-trend').parent().addClass('active');
   
   var searchRange = _.get(data, 'searchOption.search_range');
+  saveSearchRange = searchRange;
   var searchType = _.get(data, 'searchOption.search_type');
   var selectedObj = $('#sel_type_div_area').find('input[value=' + searchType + ']');
   // document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
@@ -101,12 +93,6 @@ ipcRenderer.on('trend-replay', (event, data) => {
 });
 
 function downloadExcel(searchRange, workBook) {
-  // var fileName = '';
-  // if (searchRange.rangeEnd) {
-  //   fileName = searchRange.rangeStart + '~' + searchRange.rangeEnd;
-  // } else {
-  //   fileName = searchRange.rangeStart;
-  // }
   /* from app code, require('electron').remote calls back to main process */
   var dialog = require('electron').remote.dialog;
 
@@ -114,7 +100,6 @@ function downloadExcel(searchRange, workBook) {
   var o = dialog.showSaveDialog();
 
   XLSX.writeFile(workBook, o);
-  // XLSX.writeFile(workBook, fileName + '.xlsx');
 }
 
 const mainChart = require('./mainChart');
@@ -147,6 +132,50 @@ ipcRenderer.on('main-reply', (data, mainData) => {
 
   mainChart.makeMainChart(mainData.dailyPowerChartData);
   // mainChart.makeGaugeChart(mainData.powerGenerationInfo);
+
+
+  const inverterStatus = _.get(mainData, 'inverterStatus');
+  var total_in_kw = inverterStatus.totalInfo.in_kw;
+  var total_out_kw = inverterStatus.totalInfo.out_kw;
+  var total_d_kwh = inverterStatus.totalInfo.d_kwh;
+  var total_c_kwh = inverterStatus.totalInfo.c_kwh;
+
+  let myTable = document.querySelector('#myTable');
+  myTable.innerHTML = '';
+  _.forEach(inverterStatus.dataList, inverterData => {
+    var tr = document.createElement('tr');
+    // let target_name = document.createElement('td');
+    // target_name.textContent = inverterData.target_name;
+    // target_name.className = 'td1';
+
+    let columnKey = ['target_name', 'in_v', 'in_a', 'in_kw', 'out_v', 'out_a', 'out_kw', 'p_f', 'd_kwh', 'c_kwh', 'hasOperation'];
+    columnKey.forEach((key, index) => {
+      let td = document.createElement('td');
+      if(index === 0){
+        td.className = 'td1';
+      }
+      if(columnKey.length === index + 1){
+        td.className = 'center_ball';
+        let img = document.createElement('img');
+        var deviceOperationImgName = inverterData[key] ? 'green' : 'red';
+        console.log('deviceOperationImgName', deviceOperationImgName);
+        img.src = `../public/image/${deviceOperationImgName}.png`;
+        td.appendChild(img);
+      } else {
+        td.innerText = inverterData[key];
+      }
+      tr.appendChild(td);
+    });
+
+    myTable.appendChild(tr);
+    
+
+    // let compiled = _.template('<td><%= data %></td>');
+    // let res = compiled({data: inverterData.target_name});
+    // BU.CLI(res);
+
+    
+  });
 });
 
 // ipcRenderer.send('navigationMenu', 'navi-main');
@@ -158,14 +187,15 @@ ipcRenderer.send('navigationMenu', 'navi-trend');
  * @param {Dom} input[name='searchType']
  * @return {void} 
  */
-function setterSelectType(target, searchRange) {
-  var checkedSearchType = target;
+function setterSelectType(selectType) {
+  // let searchRange = saveSearchRange;
+  var checkedSearchType = selectType;
   var startDateDom = document.querySelector('#start_date_input');
   var endDateDom = document.querySelector('#end_date_input');
 
-  var startDate = new Date(searchRange.strStartDateInputValue);
-  var endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
-            'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
+  var startDate = new Date(saveSearchRange.strStartDateInputValue);
+  var endDate = saveSearchRange.strEndDateInputValue === '' || new Date(saveSearchRange.strEndDateInputValue) ===
+            'Invalid Date' ? startDate : new Date(saveSearchRange.strEndDateInputValue);
 
   var viewMode = 0;
   var sliceEndIndex = 10;

@@ -18,7 +18,7 @@ module.exports = {
     },
     'inverterList': [{
       'current': {
-        'hasDev': false,
+        'hasDev': true,
         'ivtDummyData': {
           'dailyKwh': 0,
           'cpKwh': 0
@@ -61,7 +61,7 @@ module.exports = {
       }
     }, {
       'current': {
-        'hasDev': false,
+        'hasDev': true,
         'ivtDummyData': {
           'dailyKwh': 0,
           'cpKwh': 0

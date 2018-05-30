@@ -18,7 +18,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1770, height: 1000, 
     // alwaysOnTop: true,
-    fullscreen: true,
+    // fullscreen: true,
     x: 2120,
     y: 0,
     // webPreferences: {

@@ -160,7 +160,6 @@ function makeChartDataToExcelWorkSheet(resource) {
   // BU.CLI(powerChartData);
   let inverterTrend = resource.inverterTrend;
   let powerChartDecoration = resource.powerChartDecoration;
-  let weatherChartOptionList = resource.weatherChartOptionList;
   let weatherCastRowDataPacketList = resource.weatherCastRowDataPacketList;
   let searchRange = resource.searchRange;
 

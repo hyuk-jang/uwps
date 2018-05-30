@@ -15,11 +15,9 @@ const moment = require('moment');
 const Inverter = require('../Inverter');
 
 class Control {
-  /** @param {config} config */
+  /** @param {config=} config */
   constructor(config) {
-    this.config = config.current;
-
-    this.model = new Model(this);
+    this.config = config.current || {};
 
     // 인버터를 계측하기 위한 스케줄러 객체
     this.cronScheduler = null;
@@ -32,9 +30,54 @@ class Control {
 
   /**
    * 인버터 컨트롤러 리스트 생성
+   * @param {dbInfo=} dbInfo
    */
-  init() {
+  async init(dbInfo) {
+    if(dbInfo){
+      this.config.dbInfo = dbInfo;
+      const bmjh = require('base-model-jh');
+      const BM = new bmjh.BM(dbInfo);
+
+      let returnValue = [];
+      let inverterList = await BM.getTable('inverter');
+      inverterList.forEach(element => {
+        element.protocol_info = JSON.parse(_.get(element, 'protocol_info'));
+        element.connect_info = JSON.parse(_.get(element, 'connect_info'));
+        element.logOption = {
+          hasCommanderResponse: true,
+          hasDcError: true,
+          hasDcEvent: true,
+          hasReceiveData: true,
+          hasDcMessage: true,
+          hasTransferCommand: true
+        };
+        element.controlInfo = {
+          hasErrorHandling: true,
+          hasOneAndOne: false,
+          hasReconnect: true
+        };
+        // element.protocol_info = _.replace() _.get(element, 'protocol_info') ;
+        let addObj = {
+          hasDev: false,
+          deviceInfo: element
+        };
+  
+        returnValue.push({
+          current: addObj
+        });
+      });
+  
+      this.config.inverterList = returnValue;
+    }
+    
+    
+    this.model = new Model(this);
+
     this.createInverterController();
+  }
+
+  makeConfig() {
+
   }
 
   /**

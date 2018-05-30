@@ -1,12 +1,9 @@
 const _ = require('lodash');
 const $ = require('jquery');
 const Highcharts = require('highcharts');
-require('highcharts-solid-gauge');
-require('highcharts-more');
 
 function makeMainChart(chartDataObj) {
   // var chartDataObj = mainData.dailyPowerChartData;
-  console.log('chartDataObj', chartDataObj);
   if (chartDataObj.series.length) {
     $('#dailyPowerChart').highcharts({
       chart: {
@@ -85,84 +82,136 @@ function makeMainChart(chartDataObj) {
 exports.makeMainChart = makeMainChart;
 
 function makeGaugeChart(powerGenerationInfo) {
+  console.dir(powerGenerationInfo);
+
+  let currKw = _.get(powerGenerationInfo, 'currKw');
+  currKw = 1.7;
+  let currKwYaxisMax = _.get(powerGenerationInfo, 'currKwYaxisMax');
+
+  let percentageKw = _.round(_.multiply(_.divide(currKw, currKwYaxisMax), 100), 2);
+  let maxKw = _.round(_.subtract(100, percentageKw), 2);
+
+  let todayMaxKw = _.multiply(currKwYaxisMax, 6);
+  let dailyPower = _.round(_.get(powerGenerationInfo, 'dailyPower'), 2);
+
+  let percentageDailyPower = _.round(_.multiply(_.divide(dailyPower, todayMaxKw), 100), 2);
+  let remainDailyPower = _.round(_.subtract(100, percentageDailyPower), 2);
+
   // var powerGenerationInfo = mainData.powerGenerationInfo;
-  var gaugeOptions = {
+  Highcharts.chart('chart_div_1', {
     chart: {
-      type: 'solidgauge',
-      backgroundColor: 'none'
+      plotBackgroundColor: null,
+      plotBorderWidth: 0,
+      plotShadow: false,
+      backgroundColor: 'none',
+      // Edit chart spacing
+      spacingBottom: 15,
+      spacingTop: 10,
+      spacingLeft: -100,
+      spacingRight: 10,
     },
-    title: null,
-    pane: {
-      center: ['50%', '85%'],
-      size: '140%',
-      startAngle: -90,
-      endAngle: 90,
-      background: {
-        backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#fff',
-        innerRadius: '60%',
-        outerRadius: '100%',
-        shape: 'arc'
-      }
+    title: {
+      text: `출력<br/>${currKw} kW`,
+      align: 'center',
+      verticalAlign: 'middle',
+      y: -20
     },
     tooltip: {
+      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
       enabled: false
-    },
-    // the value axis
-    yAxis: {
-      stops: [
-        [0.1, '#55BF3B'], // green
-        [0.5, '#DDDF0D'], // yellow
-        [0.9, '#DF5353'] // red
-      ],
-      lineWidth: 0,
-      minorTickInterval: null,
-      tickAmount: 2,
-      title: {
-        y: -70
-      },
-      labels: {
-        y: 16
-      }
     },
     plotOptions: {
-      solidgauge: {
+      pie: {
         dataLabels: {
-          y: 10,
-          borderWidth: 0,
-          useHTML: true
-        }
-      }
-    }
-  };
-
-  var currentPower = Highcharts.chart('chart_div_1', Highcharts.merge(gaugeOptions, {
-    yAxis: {
-      min: 0,
-      max: powerGenerationInfo.currKwYaxisMax,
-      tickPositioner: function () {
-        return [this.min, this.max];
-      },
-      title: {
-        text: '현재 출력'
+          enabled: true,
+          distance: -30,
+          style: {
+            fontWeight: 'bold',
+            color: 'white'
+          }
+        },
+        startAngle: -90,
+        endAngle: 90,
+        center: ['50%', '50%'],
       }
     },
+    colors: ['#f45b5b', '#8085e9', '#8d4654', '#7798BF', '#aaeeee',
+      '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],    
+    series: [{
+      type: 'pie',
+      name: 'Browser share',
+      innerSize: '50%',
+      data: [
+        [`${percentageKw}%`, percentageKw],
+        [`${maxKw}%`, maxKw],
+        
+      ]
+    }],
     credits: {
+      enabled: false,
+    }
+  });
+
+  Highcharts.chart('chart_div_2', {
+    chart: {
+      plotBackgroundColor: null,
+      plotBorderWidth: 0,
+      plotShadow: false,
+      backgroundColor: 'none',
+      // Edit chart spacing
+      spacingBottom: 15,
+      spacingTop: 10,
+      spacingLeft: -100,
+      spacingRight: 10,
+    },
+    title: {
+      text: `발전량<br/>${dailyPower} kW`,
+      align: 'center',
+      verticalAlign: 'middle',
+      y: -20
+    },
+    tooltip: {
+      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
       enabled: false
     },
-    series: [{
-      name: '현재 출력',
-      data: [Number(powerGenerationInfo.currKw.toFixed(2))],
-      dataLabels: {
-        format: '<div style="text-align:center"><span style="font-size:25px;color:' +
-          ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
-          '<span style="font-size:12px;color:silver">kW</span></div>'
-      },
-      tooltip: {
-        valueSuffix: 'kW'
+    plotOptions: {
+      pie: {
+        dataLabels: {
+          enabled: true,
+          distance: -30,
+          style: {
+            fontWeight: 'bold',
+            color: 'white'
+          }
+        },
+        startAngle: -90,
+        endAngle: 90,
+        center: ['50%', '50%'],
       }
-    }]
-  }));
+    },
+    legend: { //범례
+      itemStyle: {
+        fontWeight: 'bold',
+        fontSize: '13px'
+      }
+    },
+    colors: ['#f45b5b', '#8085e9', '#8d4654', '#7798BF', '#aaeeee',
+      '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
+    series: [{
+      type: 'pie',
+      name: 'Browser share',
+      innerSize: '50%',
+      data: [
+        [`${percentageDailyPower}%`, percentageDailyPower],
+        [`${remainDailyPower}%`, remainDailyPower],
+      ]
+    }],
+    credits: {
+      enabled: false,
+    }
+  });
 
+  
   // var dailyPowerChart = Highcharts.chart('chart_div_2', Highcharts.merge(gaugeOptions, {
   //   yAxis: {
   //     min: 0,

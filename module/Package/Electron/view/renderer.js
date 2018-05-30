@@ -7,6 +7,12 @@ const Highcharts = require('highcharts');
 const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
 
+
+const mainChart = require('./mainChart');
+
+ipcRenderer.send('navigationMenu', 'navi-main');
+// ipcRenderer.send('navigationMenu', 'navi-trend');
+
 let navigationList = document.querySelectorAll('#navigation a');
 navigationList.forEach(ele => {
   ele.addEventListener('click', event => {
@@ -44,9 +50,13 @@ document.querySelector('#searchTrend').addEventListener('click', event => {
   ipcRenderer.send('navigationMenu', 'navi-trend', JSON.stringify(searchInfo) );
 });
 
+document.querySelector('#downloadExcel').addEventListener('click', event => {
+  writeFileExcel(excelFile);
+});
 
 
 let saveSearchRange;
+let excelFile;
 const XLSX = require('xlsx');
 ipcRenderer.on('trend-replay', (event, data) => {
   $('#navigation li').removeClass('active');
@@ -86,29 +96,31 @@ ipcRenderer.on('trend-replay', (event, data) => {
 
 
   mainChart.makeTrendChart(_.get(data, 'powerChartData'), _.get(data, 'chartDecorator'));
-
-  $('#downloadExcel').on('click', () => {
-    downloadExcel(searchRange, _.get(data, 'workBook'));
-  });
+  excelFile = _.get(data, 'workBook');
 });
 
-function downloadExcel(searchRange, workBook) {
-  /* from app code, require('electron').remote calls back to main process */
-  var dialog = require('electron').remote.dialog;
-
+/* from app code, require('electron').remote calls back to main process */
+const dialog = require('electron').remote.dialog;
+function writeFileExcel() {
   /* show a file-open dialog and read the first selected file */
-  var o = dialog.showSaveDialog();
-
-  XLSX.writeFile(workBook, o);
+  try {
+    var o = dialog.showSaveDialog();
+    console.log(excelFile);
+    XLSX.writeFile(excelFile, o);
+  } catch (error) {
+    console.error(error);    
+  }
 }
-
-const mainChart = require('./mainChart');
-
 
 ipcRenderer.on('main-reply', (data, mainData) => {
   $('#navigation li').removeClass('active');
   $('#navi-main').parent().addClass('active');
 
+  const weatherCastInfo = _.get(mainData, 'weatherCastInfo');
+
+  document.querySelector('#weatherTemperature').value = _.get(weatherCastInfo, 'temp');
+  document.querySelector('#weatherImg').src = `../public/image/weather_${_.get(weatherCastInfo, 'wf')}.png` ;
+  document.querySelector('#measureTime').innerHTML = `측정시간: ${`${BU.convertDateToText(new Date(), '', 4)}:00`}` ;
 
   var powerGenerationInfo = mainData.powerGenerationInfo;
 
@@ -130,24 +142,22 @@ ipcRenderer.on('main-reply', (data, mainData) => {
   $('#menu-main').removeClass('hidden');
   $('#menu-trend').addClass('hidden');
 
+  $('#testest').trigger('click');
+
   mainChart.makeMainChart(mainData.dailyPowerChartData);
-  // mainChart.makeGaugeChart(mainData.powerGenerationInfo);
+  mainChart.makeGaugeChart(mainData.powerGenerationInfo);
 
 
   const inverterStatus = _.get(mainData, 'inverterStatus');
-  var total_in_kw = inverterStatus.totalInfo.in_kw;
-  var total_out_kw = inverterStatus.totalInfo.out_kw;
-  var total_d_kwh = inverterStatus.totalInfo.d_kwh;
-  var total_c_kwh = inverterStatus.totalInfo.c_kwh;
+  // var total_in_kw = inverterStatus.totalInfo.in_kw;
+  // var total_out_kw = inverterStatus.totalInfo.out_kw;
+  // var total_d_kwh = inverterStatus.totalInfo.d_kwh;
+  // var total_c_kwh = inverterStatus.totalInfo.c_kwh;
 
   let myTable = document.querySelector('#myTable');
   myTable.innerHTML = '';
   _.forEach(inverterStatus.dataList, inverterData => {
     var tr = document.createElement('tr');
-    // let target_name = document.createElement('td');
-    // target_name.textContent = inverterData.target_name;
-    // target_name.className = 'td1';
-
     let columnKey = ['target_name', 'in_v', 'in_a', 'in_kw', 'out_v', 'out_a', 'out_kw', 'p_f', 'd_kwh', 'c_kwh', 'hasOperation'];
     columnKey.forEach((key, index) => {
       let td = document.createElement('td');
@@ -158,7 +168,6 @@ ipcRenderer.on('main-reply', (data, mainData) => {
         td.className = 'center_ball';
         let img = document.createElement('img');
         var deviceOperationImgName = inverterData[key] ? 'green' : 'red';
-        console.log('deviceOperationImgName', deviceOperationImgName);
         img.src = `../public/image/${deviceOperationImgName}.png`;
         td.appendChild(img);
       } else {
@@ -168,18 +177,10 @@ ipcRenderer.on('main-reply', (data, mainData) => {
     });
 
     myTable.appendChild(tr);
-    
-
-    // let compiled = _.template('<td><%= data %></td>');
-    // let res = compiled({data: inverterData.target_name});
-    // BU.CLI(res);
-
-    
   });
 });
 
-// ipcRenderer.send('navigationMenu', 'navi-main');
-ipcRenderer.send('navigationMenu', 'navi-trend');
+
 
 
 /**

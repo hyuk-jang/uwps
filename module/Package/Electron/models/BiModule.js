@@ -214,7 +214,6 @@ class BiModule extends bmjh.BM {
    * @return {Array.<{temp: number, pty: number, wf: number, pop: number, r12: number, ws:number, wd: number, reh: number, applydate: Date}>} 날씨 정보
    */
   getCurrWeatherCast() {
-    BU.CLI('@');
     let sql = `
       SELECT *, 
               ABS(CURRENT_TIMESTAMP() - applydate) AS cur_interval 

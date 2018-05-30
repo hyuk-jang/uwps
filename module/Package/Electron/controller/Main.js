@@ -12,7 +12,7 @@ const PowerModel = require('../models/PowerModel');
 const config = require('../config/config');
 
 
-const defaultRangeFormat = 'min';
+const defaultRangeFormat = 'min10';
 class Main {
   constructor(dbInfo) {
     
@@ -21,10 +21,7 @@ class Main {
   }
 
   async getWeather() {
-    BU.CLI('getMain');
-    BU.CLIN(this.powerModel);
     let currWeatherCastList = await this.powerModel.getCurrWeatherCast();
-    BU.CLI('getMain');
     let currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
     return webUtil.convertWeatherCast(currWeatherCastInfo);
   }
@@ -35,6 +32,7 @@ class Main {
    */
   async getMain(ipcRender){
     let weatherCastInfo = await this.getWeather();
+    // BU.CLI(weatherCastInfo);
 
     // console.time('0');
     let searchRange = this.powerModel.getSearchRange('day');
@@ -47,12 +45,13 @@ class Main {
     // 검색 조건이 시간당으로 검색되기 때문에 금일 날짜로 date Format을 지정하기 위해 hour --> day 로 변경
     let cumulativePowerList = await this.powerModel.getInverterCumulativePower();
     let cumulativePower = webUtil.calcValue(webUtil.reduceDataList(cumulativePowerList, 'max_c_wh'), 0.000001, 3) ;
-    BU.CLI('getMain');
+    // BU.CLI('getMain');
     // console.timeEnd('0');
     // console.time('0.5');
     // 금일 발전 현황 데이터
-    // searchRange = this.powerModel.getSearchRange('min10');
-    searchRange = this.powerModel.getSearchRange('min10', '2018-05-22');
+    // TEST
+    searchRange = this.powerModel.getSearchRange('min10');
+    // searchRange = this.powerModel.getSearchRange('min10', '2018-05-15');
  
     let inverterTrend = await this.powerModel.getInverterTrend(searchRange);
  
@@ -86,7 +85,7 @@ class Main {
       };
       webUtil.calcRangePower(inverterTrend, calcOption);
     }    
-    BU.CLI('getMain');
+    // BU.CLI('getMain');
     let dailyPower = _.round(webUtil.reduceDataList(inverterTrend, 'interval_power') * 0.001, 2) ;
      
     let chartOption = { selectKey: 'interval_power', dateKey: 'view_date', hasArea: true };
@@ -98,17 +97,7 @@ class Main {
     webUtil.mappingChartDataName(chartData, '인버터 시간별 발전량');
  
     // console.timeEnd('0.5');
-
-
  
- 
-    // let weatherDeviceStatus = await this.biModule.getWeather();
-    // // 인버터 발전 현황 데이터 검증
-    // let validWeatherDeviceStatus = webUtil.checkDataValidation(weatherDeviceStatus, new Date(), 'writedate');
-    // let validWeatherDevice = _.head(validWeatherDeviceStatus);
-    // console.timeEnd('1');
-    // BU.CLI(validModuleStatusList);
-    // console.time('2');
     let v_upsas_profile = await this.powerModel.getTable('v_upsas_profile');
     // console.timeEnd('2');
     // 금일 발전 현황
@@ -149,12 +138,12 @@ class Main {
    * @param {{device_type: string, device_list_type: string, device_seq: string, search_type: string, start_date: string, end_date: string}} trendOption 
    */
   async getTrend(ipcRender, trendOption){
-    BU.CLI(trendOption);
-    BU.logFile(trendOption);
+    // BU.CLI(trendOption);
+    // BU.logFile(trendOption);
     if(_.isString(trendOption)){
       trendOption = JSON.parse(trendOption);
     }
-    let weatherCastInfo = await this.getWeather();
+    // let weatherCastInfo = await this.getWeather();
 
     // 장비 종류 여부 (전체, 인버터, 접속반)
     let deviceType = _.get(trendOption, 'device_type')  === 'inverter' || _.get(trendOption, 'device_type') === 'connector' ? _.get(trendOption, 'device_type') : _.get(trendOption, 'device_type') === undefined ? 'inverter' : 'all';
@@ -168,6 +157,8 @@ class Main {
     let searchType = _.get(trendOption, 'search_type') ? _.get(trendOption, 'search_type') : defaultRangeFormat;
     // 지정된 SearchType으로 설정 구간 정의
     let searchRange = this.powerModel.getSearchRange(searchType, _.get(trendOption, 'start_date'), _.get(trendOption, 'end_date'));
+    // TEST
+    // let searchRange = this.powerModel.getSearchRange('min10', '2018-05-22');
     // BU.CLI(searchRange);
     // 검색 조건이 기간 검색이라면 검색 기간의 차를 구하여 실제 searchType을 구함.
     if (searchType === 'range') {
@@ -178,6 +169,8 @@ class Main {
         searchRange.searchInterval = searchRange.searchType = realSearchType;
       }
     }
+
+    // BU.logFile(searchRange);
 
     // BU.CLI('@', searchRange);
     // 장비 선택 리스트 가져옴
@@ -270,7 +263,7 @@ class Main {
       chartDecorator: chartDecoration,
       workBook: excelContents
     };
-    BU.CLI('@', returnValue.searchOption);
+    // BU.CLI('@', excelContents);
     // BU.CLIN(searchOption);
     ipcRender.sender.send('trend-replay', returnValue);
   }

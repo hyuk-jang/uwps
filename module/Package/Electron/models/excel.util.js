@@ -261,11 +261,11 @@ function makeChartDataToExcelWorkSheet(resource) {
     // 한칸 띄우기
     row.push('');
 
-    // 기상청 데이터 추출
-    weatherCastOptionList.forEach(weatherCastOption => {
-      const foundIt = _.find(weatherCastRowDataPacketList, {view_date: defaultRange[index]});
-      row.push(_.isEmpty(foundIt) ? '' : foundIt[weatherCastOption.selectKey]);
-    });
+    // // 기상청 데이터 추출
+    // weatherCastOptionList.forEach(weatherCastOption => {
+    //   const foundIt = _.find(weatherCastRowDataPacketList, {view_date: defaultRange[index]});
+    //   row.push(_.isEmpty(foundIt) ? '' : foundIt[weatherCastOption.selectKey]);
+    // });
 
 
     // let weatherCastData = _.find(weatherCastRowDataPacketList, {view_date: defaultRange[index]});
@@ -289,7 +289,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   /* TEST: properties */
   wb.Props = {
     Title: sheetName,
-    Subject: '6kW TB',
+    Subject: 'monitoring',
     Author: 'SmSoft',
     Manager: '',
     Company: 'SmSoft',

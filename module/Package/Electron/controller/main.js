@@ -144,6 +144,10 @@ class Main {
    */
   async getTrend(ipcRender, trendOption){
     BU.CLI(trendOption);
+    BU.logFile(trendOption);
+    if(_.isString(trendOption)){
+      trendOption = JSON.parse(trendOption);
+    }
     let weatherCastInfo = await this.getWeather();
 
     BU.CLI('@');

@@ -8,6 +8,7 @@ const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
 
 let list = document.querySelectorAll('#navigation');
+
 list.forEach(ele => {
   ele.addEventListener('click', event => {
     console.log(event.target.id);
@@ -27,10 +28,29 @@ list.forEach(ele => {
 
 });
 
+let list = document.querySelectorAll('input[name=searchType]');
+list.forEach(ele => {
+  ele.addEventListener('click', event => {
+    console.log(event.target.value);
+    let msg;
+    switch (event.target.id) {
+    case 'navi-main':
+      ipcRenderer.send('navigationMenu', event.target.id);
+      break;
+    case 'navi-trend':
+      ipcRenderer.send('navigationMenu', event.target.id);
+      break;
+    default:
+      break;
+    }
+
+  });
+
+});
+
 document.querySelector('#searchTrend').addEventListener('click', event => {
   let searchInfo = searchTrend();
-  BU.CLI(searchInfo);
-  ipcRenderer.send('navigationMenu', ['navi-trend', searchInfo]);
+  ipcRenderer.send('navigationMenu', 'navi-trend', JSON.stringify(searchInfo) );
 });
 
 
@@ -40,10 +60,7 @@ const XLSX = require('xlsx');
 ipcRenderer.on('trend-replay', (event, data) => {
   $('#navigation li').removeClass('active');
   $('#navi-trend').parent().addClass('active');
-
-  BU.CLI(data.chartDecorator);
-  BU.CLI(data.searchOption);
-
+  
   var searchRange = _.get(data, 'searchOption.search_range');
   var searchType = _.get(data, 'searchOption.search_type');
   var selectedObj = $('#sel_type_div_area').find('input[value=' + searchType + ']');
@@ -73,7 +90,7 @@ ipcRenderer.on('trend-replay', (event, data) => {
     listDom.add(option);
   });
 
-
+  setterSelectType(_.get(data, 'searchOption.search_type'), _.get(data, 'searchOption.search_range'));
 
 
   mainChart.makeTrendChart(_.get(data, 'powerChartData'), _.get(data, 'chartDecorator'));
@@ -141,13 +158,14 @@ ipcRenderer.send('navigationMenu', 'navi-trend');
  * @param {Dom} input[name='searchType']
  * @return {void} 
  */
-function setterSelectType(target) {
-  var checkedSearchType = target.value;
+function setterSelectType(target, searchRange) {
+  var checkedSearchType = target;
   var startDateDom = document.querySelector('#start_date_input');
   var endDateDom = document.querySelector('#end_date_input');
 
-  var startDate = new Date();
-  var endDate = new Date();
+  var startDate = new Date(searchRange.strStartDateInputValue);
+  var endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
+            'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
 
   var viewMode = 0;
   var sliceEndIndex = 10;
@@ -173,7 +191,6 @@ function setterSelectType(target) {
 
 // 검색 클릭 시
 function searchTrend() {
-  console.log('@@@@@@@@@@@@@@@@@@@@@@', 'searchTrend');
   var $deviceListDom = $('#device_list_sel option:checked');
   var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
   var startDate = document.getElementById('start_date_input').value;
@@ -187,13 +204,12 @@ function searchTrend() {
   }
   var device_list_type = $deviceListDom.data('type');
   var device_seq = $deviceListDom.val();
-  console.log('ttt');
   return {
     device_list_type,
     device_seq,
-    startDate,
-    endDate,
-    searchType
+    start_date: startDate,
+    end_date: endDate,
+    search_type: searchType
   };
 
   // BU.CLI({
@@ -238,7 +254,7 @@ function makeDatePicker(dom, viewMode) {
   }
 
   $(dom).datepicker('remove');
-  console.log('dateFormat', dateFormat, viewMode);
+  // console.log('dateFormat', dateFormat, viewMode);
   $(dom).datepicker({
     format: dateFormat,
     language: 'kr',

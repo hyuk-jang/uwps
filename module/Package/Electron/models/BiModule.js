@@ -222,7 +222,7 @@ class BiModule extends bmjh.BM {
       ORDER BY cur_interval 
       LIMIT 1
     `;
-    return this.db.single(sql, '', true);
+    return this.db.single(sql, '', false);
   }
 
 

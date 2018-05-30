@@ -6,33 +6,118 @@ const Highcharts = require('highcharts');
 
 const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
-let list = document.querySelectorAll('#navigation');
 
+let list = document.querySelectorAll('#navigation');
 list.forEach(ele => {
   ele.addEventListener('click', event => {
     console.log(event.target.id);
-  
-    ipcRenderer.send('navigationMenu', event.target.id);
+    let msg;
+    switch (event.target.id) {
+    case 'navi-main':
+      ipcRenderer.send('navigationMenu', event.target.id);
+      break;
+    case 'navi-trend':
+      ipcRenderer.send('navigationMenu', event.target.id);
+      break;
+    default:
+      break;
+    }
+
   });
 
+});
+
+document.querySelector('#searchTrend').addEventListener('click', event => {
+  let searchInfo = searchTrend();
+  BU.CLI(searchInfo);
+  ipcRenderer.send('navigationMenu', ['navi-trend', searchInfo]);
 });
 
 
 
 
+const XLSX = require('xlsx');
+ipcRenderer.on('trend-replay', (event, data) => {
+  $('#navigation li').removeClass('active');
+  $('#navi-trend').parent().addClass('active');
+
+  BU.CLI(data.chartDecorator);
+  BU.CLI(data.searchOption);
+
+  var searchRange = _.get(data, 'searchOption.search_range');
+  var searchType = _.get(data, 'searchOption.search_type');
+  var selectedObj = $('#sel_type_div_area').find('input[value=' + searchType + ']');
+  // document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
+
+  $(selectedObj).trigger('click');
+
+  $('#menu-trend').removeClass('hidden');
+  $('#menu-main').addClass('hidden');
+
+
+  var device_list = _.get(data, 'searchOption.device_list');
+
+  let listDom = document.getElementById('device_list_sel');
+  listDom.innerHTML = '';
+  _.forEach(device_list, deviceInfo => {
+    var option = document.createElement('option');
+    option.text = _.get(deviceInfo, 'target_name');
+    // option.attributes = ('data-type', _.get(deviceInfo, 'type'));
+    option.value = _.get(deviceInfo, 'seq');
+    if(_.get(deviceInfo, 'seq') === _.get(data, 'searchOption.device_seq')){
+      option.selected = true;
+    } else {
+      option.selected = false;
+    }
+
+    listDom.add(option);
+  });
+
+
+
+
+  mainChart.makeTrendChart(_.get(data, 'powerChartData'), _.get(data, 'chartDecorator'));
+
+  $('#downloadExcel').on('click', () => {
+    downloadExcel(searchRange, _.get(data, 'workBook'));
+  });
+});
+
+function downloadExcel(searchRange, workBook) {
+  // var fileName = '';
+  // if (searchRange.rangeEnd) {
+  //   fileName = searchRange.rangeStart + '~' + searchRange.rangeEnd;
+  // } else {
+  //   fileName = searchRange.rangeStart;
+  // }
+  /* from app code, require('electron').remote calls back to main process */
+  var dialog = require('electron').remote.dialog;
+
+  /* show a file-open dialog and read the first selected file */
+  var o = dialog.showSaveDialog();
+
+  XLSX.writeFile(workBook, o);
+  // XLSX.writeFile(workBook, fileName + '.xlsx');
+}
+
+const mainChart = require('./mainChart');
+
+
 ipcRenderer.on('main-reply', (data, mainData) => {
-  console.log('@@@@@@@@', data, mainData);
+  $('#navigation li').removeClass('active');
+  $('#navi-main').parent().addClass('active');
+
 
   var powerGenerationInfo = mainData.powerGenerationInfo;
 
   const list = document.querySelectorAll('input[name=powerInfo]');
-  
+
   list.forEach(ele => {
     ele.value = _.get(powerGenerationInfo, ele.id);
   });
 
   let inverterOperation = document.querySelector('#inverterOperation');
-  if(_.get(powerGenerationInfo, 'hasOperationInverter') === true){
+  if (_.get(powerGenerationInfo, 'hasOperationInverter') === true) {
     inverterOperation.className = 'btn btn-primary';
     inverterOperation.textContent = 'RUN';
   } else {
@@ -40,205 +125,127 @@ ipcRenderer.on('main-reply', (data, mainData) => {
     inverterOperation.textContent = 'STOP';
   }
 
+  $('#menu-main').removeClass('hidden');
+  $('#menu-trend').addClass('hidden');
 
-  // // var powerGenerationInfo = mainData.powerGenerationInfo;
-  // var gaugeOptions = {
-  //   chart: {
-  //     type: 'solidgauge',
-  //     backgroundColor: 'none'
-  //   },
-  //   title: null,
-  //   pane: {
-  //     center: ['50%', '85%'],
-  //     size: '140%',
-  //     startAngle: -90,
-  //     endAngle: 90,
-  //     background: {
-  //       backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#fff',
-  //       innerRadius: '60%',
-  //       outerRadius: '100%',
-  //       shape: 'arc'
-  //     }
-  //   },
-  //   tooltip: {
-  //     enabled: false
-  //   },
-  //   // the value axis
-  //   yAxis: {
-  //     stops: [
-  //       [0.1, '#55BF3B'], // green
-  //       [0.5, '#DDDF0D'], // yellow
-  //       [0.9, '#DF5353'] // red
-  //     ],
-  //     lineWidth: 0,
-  //     minorTickInterval: null,
-  //     tickAmount: 2,
-  //     title: {
-  //       y: -70
-  //     },
-  //     labels: {
-  //       y: 16
-  //     }
-  //   },
-  //   plotOptions: {
-  //     solidgauge: {
-  //       dataLabels: {
-  //         y: 10,
-  //         borderWidth: 0,
-  //         useHTML: true
-  //       }
-  //     }
-  //   }
-  // };
-
-  // var currentPower = Highcharts.chart('chart_div_1', Highcharts.merge(gaugeOptions, {
-  //   yAxis: {
-  //     min: 0,
-  //     max: powerGenerationInfo.currKwYaxisMax,
-  //     tickPositioner: function () {
-  //       return [this.min, this.max];
-  //     },
-  //     title: {
-  //       text: '현재 출력'
-  //     }
-  //   },
-  //   credits: {
-  //     enabled: false
-  //   },
-  //   series: [{
-  //     name: '현재 출력',
-  //     data: [Number(powerGenerationInfo.currKw.toFixed(2))],
-  //     dataLabels: {
-  //       format: '<div style="text-align:center"><span style="font-size:25px;color:' +
-  //         ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
-  //         '<span style="font-size:12px;color:silver">kW</span></div>'
-  //     },
-  //     tooltip: {
-  //       valueSuffix: 'kW'
-  //     }
-  //   }]
-  // }));
-
-  // var dailyPowerChart = Highcharts.chart('chart_div_2', Highcharts.merge(gaugeOptions, {
-  //   yAxis: {
-  //     min: 0,
-  //     max: powerGenerationInfo.currKwYaxisMax * 6,
-  //     tickPositioner: function () {
-  //       return [this.min, this.max];
-  //     },
-  //     title: {
-  //       text: ''
-  //     }
-  //   },
-  //   credits: {
-  //     enabled: false
-  //   },
-  //   series: [{
-  //     name: '금일 발전량',
-  //     data: [Number(powerGenerationInfo.dailyPower.toFixed(2))],
-  //     dataLabels: {
-  //       format: '<div style="text-align:center"><span style="font-size:25px;color:' +
-  //         ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
-  //         '<span style="font-size:12px;color:silver">kWh</span></div>'
-  //     },
-  //     tooltip: {
-  //       valueSuffix: 'kWh'
-  //     }
-  //   }]
-  // }));
-
-  var chartDataObj = mainData.dailyPowerChartData;
-  console.log('chartDataObj', chartDataObj);
-  if (chartDataObj.series.length) {
-    $('#dailyPowerChart').highcharts({
-      chart: {
-        type: 'spline',
-        zoomType: 'x',
-      },
-      title: {
-        text: ''
-      },
-      xAxis: {
-        // opposite: true,
-        title: {
-          text: '시간(시)'
-        },
-        // tickInterval: 6
-        categories: chartDataObj.range
-      },
-      yAxis: {
-        min: 0,
-        // max: powerGenerationInfo.currKwYaxisMax,
-        title: {
-          text: '발전량(kWh)'
-        }
-      },
-      plotOptions: {
-        area: {
-          fillColor: {
-            linearGradient: {
-              x1: 0,
-              y1: 0,
-              x2: 0,
-              y2: 1
-            },
-            stops: [
-              [0, Highcharts.getOptions().colors[0]],
-              [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-            ]
-          },
-          marker: {
-            radius: 2
-          },
-          lineWidth: 1,
-          states: {
-            hover: {
-              lineWidth: 1
-            }
-          },
-          threshold: null
-        },
-        series: {
-          pointStart: 0
-        }
-      },
-      legend: { //범례
-        itemHoverStyle: {
-          color: '#FF0000'
-        },
-        // layout: 'vertical',
-        align: 'right',
-        floating: true,
-        // verticalAlign: 'middle',
-        // borderWidth: 0,
-      },
-      series: chartDataObj.series,
-      credits: {
-        enabled: false
-      },
-    });
-  } else {
-    $('#dailyPowerChart').html('발전 내역이 존재하지 않습니다.').css({
-      'line-height': '300px',
-      'font-size': '25px'
-    });
-  }
-
-
-  // document.querySelector('#currKw').value =  powerGenerationInfo.currKw;
-  // document.querySelector('#dailyPower').value =  powerGenerationInfo.dailyPower;
-  // document.querySelector('#monthPower').value =  powerGenerationInfo.monthPower;
-  // document.querySelector('#currKw').value =  powerGenerationInfo.currKw;
-
-  // _.forEach(powerGenerationInfo, (powerInfo, key) => {
-  //   BU.CLI(powerInfo);
-  //   document.querySelector(`#${key}`).value =  powerInfo;
-  //   document.querySelector(`#${key}`).value =  powerInfo;
-  // });
-
-
-
+  mainChart.makeMainChart(mainData.dailyPowerChartData);
+  // mainChart.makeGaugeChart(mainData.powerGenerationInfo);
 });
 
-ipcRenderer.send('navigationMenu', 'main');
+// ipcRenderer.send('navigationMenu', 'navi-main');
+ipcRenderer.send('navigationMenu', 'navi-trend');
 
+
+/**
+ * 검색 기간 Radio 클릭 시 날짜 영역 설정
+ * @param {Dom} input[name='searchType']
+ * @return {void} 
+ */
+function setterSelectType(target) {
+  var checkedSearchType = target.value;
+  var startDateDom = document.querySelector('#start_date_input');
+  var endDateDom = document.querySelector('#end_date_input');
+
+  var startDate = new Date();
+  var endDate = new Date();
+
+  var viewMode = 0;
+  var sliceEndIndex = 10;
+
+  checkedSearchType === 'range' ? $('#end_date_input').show() : $('#end_date_input').hide();
+
+  if (checkedSearchType == 'month') {
+    viewMode = 2;
+    sliceEndIndex = 4;
+  } else if (checkedSearchType == 'day') {
+    viewMode = 1;
+    sliceEndIndex = 7;
+  } else if (checkedSearchType == 'range') {
+    makeDatePicker(endDateDom, 0);
+    endDateDom.value = endDate.toISOString().substring(0, sliceEndIndex);
+  } else {
+    viewMode = 0;
+    sliceEndIndex = 10;
+  }
+  startDateDom.value = startDate.toISOString().substring(0, sliceEndIndex);
+  makeDatePicker(startDateDom, viewMode);
+}
+
+// 검색 클릭 시
+function searchTrend() {
+  console.log('@@@@@@@@@@@@@@@@@@@@@@', 'searchTrend');
+  var $deviceListDom = $('#device_list_sel option:checked');
+  var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
+  var startDate = document.getElementById('start_date_input').value;
+  var endDate = '';
+
+  if (searchType === 'range') {
+    endDate = document.getElementById('end_date_input').value;
+    if (startDate > endDate) {
+      return alert('종료일이 시작일보다 빠를 수 없습니다.');
+    }
+  }
+  var device_list_type = $deviceListDom.data('type');
+  var device_seq = $deviceListDom.val();
+  console.log('ttt');
+  return {
+    device_list_type,
+    device_seq,
+    startDate,
+    endDate,
+    searchType
+  };
+
+  // BU.CLI({
+  //   device_list_type,
+  //   device_seq,
+  //   startDate,
+  //   endDate,
+  //   searchType
+  // });
+
+  // ipcRenderer.send('navigationMenu', 'navi-trend', {
+  //   device_list_type,
+  //   device_seq,
+  //   startDate,
+  //   endDate,
+  //   searchType
+  // });
+
+  // var locationHref = 'trend?device_list_type=' + encodeURIComponent(device_list_type) + '&device_seq=' + encodeURIComponent(device_seq) + '&start_date=' + encodeURIComponent(startDate) + '&end_date=' + encodeURIComponent(endDate) + '&search_type=' + encodeURIComponent(searchType);
+  // // alert(locationHref)
+  // return location.href = locationHref;
+}
+
+
+
+function makeDatePicker(dom, viewMode) {
+  viewMode = $.isNumeric(viewMode) ? viewMode : 0;
+
+  var dateFormat = '';
+  switch (viewMode) {
+  case 0:
+    dateFormat = 'yyyy-mm-dd';
+    break;
+  case 1:
+    dateFormat = 'yyyy-mm';
+    break;
+  case 2:
+    dateFormat = 'yyyy';
+    break;
+  default:
+    break;
+  }
+
+  $(dom).datepicker('remove');
+  console.log('dateFormat', dateFormat, viewMode);
+  $(dom).datepicker({
+    format: dateFormat,
+    language: 'kr',
+    autoclose: 1,
+    todayHighlight: 1,
+    clearBtn: 1,
+    minViewMode: viewMode
+    //mode: 0-일,1-월,2-년
+  });
+}

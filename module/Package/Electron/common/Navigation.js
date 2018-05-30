@@ -1,6 +1,5 @@
 
 const electron = require('electron');
-const {ipcMain} = require('electron');
 const BrowserWindow = electron.BrowserWindow;
 
 const path = require('path');
@@ -28,7 +27,7 @@ class Navigation {
   navigation(addr) {
     let data;
     switch (addr) {
-    case 'main':
+    case 'navi-main':
       data = require('../controller/main');
       break;
     

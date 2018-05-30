@@ -28,6 +28,8 @@
   <script src="../public/js/hichart/highcharts.src.js"></script>
   <script src="../public/js/hichart/highcharts-more.js"></script>
   <script src="../public/js/hichart/solid-gauge.js"></script>
+
+  <!-- <script src="https://code.highcharts.com/modules/solid-gauge.js"></script> -->
 </head>
 
 <body>
@@ -49,22 +51,22 @@
             <a href="#" id="navi-main">
               <i class="fa fa-home fa-home_st" aria-hidden="true"></i>홈</a>
           </li>
-          <li class="#">
+          <!-- <li class="#">
             <a id="navi-inverter">
               <i class="fa fa-server fa-home_st" aria-hidden="true"></i>인버터</a>
-          </li>
+          </li> -->
           <li class="">
             <a href="#" id="navi-trend">
               <i class="fa fa-bar-chart fa-home_st" aria-hidden="true"></i>트렌드</a>
           </li>
-          <li class="">
+          <!-- <li class="">
             <a href="#" id="navi-report">
               <i class="fa fa-pencil-square-o fa-home_st" aria-hidden="true"></i>보고서</a>
           </li>
           <li class="">
             <a href="#" id="navi-alarm" style="border:0;">
               <i class="fa fa-bullhorn fa-home_st" aria-hidden="true"></i>경보</a>
-          </li>
+          </li> -->
         </ul>
 
       </div>
@@ -95,7 +97,7 @@
         </div>
       </div> -->
     </nav>
-    <div class="jumbotron text-center jumbotron_st">
+    <div id="menu-main" class="jumbotron text-center jumbotron_st">
       <div class="row row_st">
 
         <!--콘텐츠왼쪽-->
@@ -152,10 +154,9 @@
               <script>
                 var today = new Date();
                 var week = new Array('일', '월', '화', '수', '목', '금', '토');
-                $('#today').html(today.getFullYear() + '.' + (today.getMonth() + 1) + '.' + today.getDate() + '(' + week[
-                  today.getDay()] + ')');
-
-
+                $('#today').html(today.getFullYear() + '.' + (today.getMonth() + 1) + '.' + today.getDate() + '(' +
+                  week[
+                    today.getDay()] + ')');
               </script>
 
               <br>
@@ -427,10 +428,76 @@
       </div>
 
     </div>
+
+    <div id="menu-trend" class="jumbotron text-center jumbotron_line">
+      <div class="row row_st_line min_h_780">
+        <div class="row row_width  top_box">
+          <div class="col-xs-2 sel_box">
+            인버터
+            <select class="form-control form-control_st" id="device_list_sel" name="device_seq">
+              <option data-type="1" value="2">
+                hi
+              </option>
+            </select>
+          </div>
+
+
+          <div class="col-xs-4 ">
+            <div id="sel_type_div_area" class="input_st" style="height:58px; margin:10px">
+              <label class="radio-inline">
+                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="min">일일(1분)</label>
+              <label class="radio-inline">
+                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="min10">일일(10분)</label>
+              <label class="radio-inline">
+                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="hour">일일(1시간)</label>
+              <label class="radio-inline">
+                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="day">월간</label>
+              <label class="radio-inline">
+                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="month">년간</label>
+              <label class="radio-inline">
+                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="range">기간선택</label>
+            </div>
+          </div>
+
+          <div class="serch_st sel_box_data">
+            날짜 &nbsp;
+            <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
+
+            <input class="input_tre" name="end" id="end_date_input" type="text" readonly hidden="hidden">
+            <button id="searchTrend" type="button" class="btn btn-primary" style="margin-bottom:3px; height:28px;" id="search">검색</button>
+
+          </div>
+        </div>
+        <div class="row_width">
+
+          <div class="row row_title">
+            <div class="title title_trend">발전량</div>
+            <div class="title_trend_exc">
+              <input id='downloadExcel' class="title_trend_exc_in" type="submit" value="Download Excel">
+            </div>
+
+            <p class="title_p" id="during">
+            </p>
+          </div>
+
+          <div class="title_box2" id="moduleChart_1" style="height: 500px;">
+          </div>
+          <p class="re_p" style="margin-top: 10px">※ 인버터 발전량 차트의 각 데이터 포인트는
+            <span>
+              hi
+            </span> 입니다. </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   </div>
 
   <script src="./renderer.js"></script>
 
+  <script>
+  </script>
 
   <!-- 
   <script>

@@ -6,8 +6,6 @@ const BU = require('base-util-jh').baseUtil;
 const BiModule = require('../models/BiModule.js');
 let webUtil = require('../models/web.util');
 let excelUtil = require('../models/excel.util');
-// TEST
-const tempSacle = require('../temp/tempSacle');
 
 const Promise = require('bluebird');
 
@@ -109,7 +107,7 @@ class PowerModel extends BiModule {
     };
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
     inverterPowerChartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, chartOption);
-    this.tempApplyScaleInverter(inverterPowerChartData);
+    
     chartOption = {
       selectKey: 'avg_out_w',
       maxKey: 'max_c_wh',
@@ -277,25 +275,7 @@ class PowerModel extends BiModule {
   }
 
 
-  /**
-   * Scale 적용
-   * @param {chartData} chartData 
-   */
-  tempApplyScaleInverter(chartData) {
-    chartData.series.forEach(currentItem => {
-      let foundIt = _.find(tempSacle.inverterScale, {
-        target_id: currentItem.name
-      });
-      currentItem.option.scale = foundIt.scale;
-      currentItem.data.forEach((data, index) => {
-        currentItem.data[index] = data === '' ? '' : Number((data * foundIt.scale).scale(1, 1));
-      });
-    });
-  }
-
-
-
-
+  
   /**
    * 접속반 차트 반환
    * @param {{device_type: string, device_list_type: string, device_type_list: [], device_seq: string, search_type: string}} searchOption
@@ -342,17 +322,6 @@ class PowerModel extends BiModule {
 
     // BU.CLI(chartData);
 
-    /* Scale 적용 */
-    chartData.series.forEach(currentItem => {
-      let foundIt = _.find(tempSacle.moduleScale, { photovoltaic_seq: Number(currentItem.name) });
-      currentItem.scale = foundIt.scale;
-      currentItem.data.forEach((data, index) => {
-        currentItem.data[index] = data === '' ? '' : Number((data * foundIt.scale).scale(1, 1));
-      });
-    });
-
-
-    // BU.CLI(chartData);
     /** Grouping Chart에 의미있는 이름을 부여함. */
     webUtil.mappingChartDataNameForModule(chartData, upsasProfile);
     /** searchRange 조건에 따라서 Chart Data의 비율을 변경 */

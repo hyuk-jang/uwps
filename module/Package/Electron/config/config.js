@@ -5,8 +5,8 @@ module.exports = {
     port: '3306',
     user: 'root',
     // password: process.env.SALTERN_PW ? process.env.SALTERN_PW : 'root',
-    password: 'reaper83',
-    database: 'upsas'
+    password: 'akdntm007!',
+    database: 'power_monitoring'
   }
 
 };

@@ -6,12 +6,18 @@ const Main = require('../controller/Main');
 
 const Promise = require('bluebird');
 
-ipcMain.on('navigationMenu', (event, menu) => {
-  console.log(menu); // prints "ping"
+ipcMain.on('navigationMenu', (event, menu, msg) => {
+  console.log('???????????', menu); // prints "ping"
   const main = new Main();
   switch (menu) {
-  case 'main':
+  case 'navi-main':
+    console.log('?????');
     main.getMain(event);
+    break;
+  case 'navi-trend':
+    console.log('###');
+    BU.CLI(msg);
+    main.getTrend(event, msg);
     break;
   
   default:

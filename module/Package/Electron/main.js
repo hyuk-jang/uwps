@@ -18,7 +18,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1770, height: 1000, 
     // alwaysOnTop: true,
-    x: 2320,
+    fullscreen: true,
+    x: 2120,
     y: 0,
     // webPreferences: {
     //   nodeIntegration: false,
@@ -98,3 +99,21 @@ global.eval = function () {
 //       return callback(false);
 //     }
 //   });
+
+
+
+
+process.on('uncaughtException', function (err) {
+  // BU.debugConsole();
+  console.error(err.stack);
+  console.log(err.message);
+  console.log('Node NOT Exiting...');
+});
+
+
+process.on('unhandledRejection', function (err) {
+  // BU.debugConsole();
+  console.error(err.stack);
+  console.log(err.message);
+  console.log('Node NOT Exiting...');
+});

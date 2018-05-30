@@ -3,24 +3,24 @@ function makeDatePicker(dom, viewMode) {
 
   var dateFormat = '';
   switch (viewMode) {
-    case 0:
-      dateFormat = 'yyyy-mm-dd'
-      break;
-    case 1:
-      dateFormat = 'yyyy-mm'
-      break;
-    case 2:
-      dateFormat = 'yyyy'
-      break;
-    default:
-      break;
+  case 0:
+    dateFormat = 'yyyy-mm-dd';
+    break;
+  case 1:
+    dateFormat = 'yyyy-mm';
+    break;
+  case 2:
+    dateFormat = 'yyyy';
+    break;
+  default:
+    break;
   }
 
   $(dom).datepicker('remove');
-  console.log('dateFormat',dateFormat, viewMode)
+  console.log('dateFormat',dateFormat, viewMode);
   $(dom).datepicker({
     format: dateFormat,
-    language: "kr",
+    language: 'kr',
     autoclose: 1,
     todayHighlight: 1,
     clearBtn: 1,

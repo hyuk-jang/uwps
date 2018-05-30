@@ -12,7 +12,7 @@ module.exports = {
     inverterMonitoring.init(config.dbInfo);
 
     // 기상 관측 데이터 수집 프로그램 구동
-    let weatherCast =  new WeatherCast(config.weatherCast);    
-    weatherCast.init();
+    let weatherCast =  new WeatherCast();    
+    weatherCast.init(config.dbInfo);
   }
 };

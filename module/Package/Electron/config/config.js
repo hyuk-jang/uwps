@@ -3,8 +3,8 @@ module.exports = {
     host: 'localhost',
     port: '3306',
     user: 'root',
-    password: 'reaper83',
-    database: 'upsas',
+    password: 'akdntm007!',
+    database: 'power_monitoring',
   },
   weatherCast: {
     /** @property {Object} current 현재 기상청 날씨 가져오기 위한 설정 정보 */

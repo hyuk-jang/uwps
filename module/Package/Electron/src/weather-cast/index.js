@@ -12,9 +12,14 @@ if (require !== undefined && require.main === module) {
   const config = require('./src/config');
 
   const control = new Control(config);
-  control.init();
 
- 
+
+  const parentConfig = require('../../config/config');
+  control.init(parentConfig.dbInfo);
+
+  // control.init();
+
+  
   
 
   process.on('uncaughtException', function (err) {

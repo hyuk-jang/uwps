@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
 const BU = require('base-util-jh').baseUtil;
-
+const _ = require('lodash');
 const P_WeatherCast = require('./P_WeatherCast.js');
 const Model = require('./Model');
 
@@ -12,18 +12,37 @@ class Control extends EventEmitter {
   constructor(config) {
     super();
     // 개발자모드(File load or 기상청 Rss) 좌표 정보, dao 정보, gcm 설정 정보
-    this.config = config.current;
+    this.config = _.get(config, 'current') || {};
     // BU.CLI(this.config);
     
+    
+  }
+
+  // 초기 구동 시
+  async init(dbInfo) {
+    if(dbInfo){
+      this.config.dbInfo = dbInfo;
+      const bmjh = require('base-model-jh');
+      const BM = new bmjh.BM(dbInfo);
+
+      let axisList = await  BM.db.single(`SELECT weather_location.x, weather_location.y FROM upsas 
+      LEFT OUTER JOIN weather_location
+      ON upsas.weather_location_seq = weather_location.weather_location_seq`);
+
+      let axis = _.head(axisList);
+
+      BU.CLI(axis);
+      this.config.locationInfo = {};
+      this.config.locationInfo.x = _.get(axis, 'x');
+      this.config.locationInfo.y = _.get(axis, 'y');
+    }
+
     // Procss
     this.p_WeatherCast = new P_WeatherCast(this);
 
     // Model
     this.model = new Model(this);
-  }
 
-  // 초기 구동 시
-  init() {
     // BU.CLI('weatherCast init',this.config)
     // TEST: file 로딩
     return new Promise(resolve => {

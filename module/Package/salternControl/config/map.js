@@ -55,12 +55,12 @@ const map = {
   },
   setInfo: {
     connectInfoList: [{
-      type: 'socket',
-      // type: 'zigbee',
+      // type: 'socket',
+      type: 'zigbee',
       subType: 'xbee',
       baudRate: 9600,
-      port: 9000,
-      // port: 'COM6',
+      // port: 9000,
+      port: 'COM42',
       deviceRouterList: [{
         targetId: 'R_V_101',
         deviceId: '0013A20040F7B4AD',
@@ -147,12 +147,12 @@ const map = {
         nodeModelList: ['V_006']
       }, {
         targetId: 'R_V_007',
-        deviceId: '0013A20040F7B451',
-        nodeModelList: ['P_001']
+        deviceId: '0013A20040F7B4A7',
+        nodeModelList: ['V_007']
       }, {
         targetId: 'R_P_001',
-        deviceId: '0013A20040F7B446',
-        nodeModelList: ['P_002']
+        deviceId: '0013A20040F7B451',
+        nodeModelList: ['P_001']
       }, {
         targetId: 'R_P_002',
         deviceId: '0013A20040F7B446',

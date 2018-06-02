@@ -25,6 +25,8 @@ class Control extends AbstDeviceClient {
     this.model = new Model(this);
 
     this.observerList = [];
+
+    this.tempBuffer = null;
   }
 
   get id() {
@@ -176,21 +178,37 @@ class Control extends AbstDeviceClient {
   onDcData(dcData) {
     try {
       BU.CLI('data', dcData.data.toString());
+      if(this.tempBuffer !== null){
+        this.tempBuffer = Buffer.concat([this.tempBuffer, dcData.data]);  
+        dcData.data = this.tempBuffer;
+      }
+      // BU.CLI('data', dcData.data.toString());
       const parsedData = this.converter.parsingUpdateData(dcData);
+      // BU.CLI('data', parsedData);
 
       // 만약 파싱 에러가 발생한다면 명령 재 요청
-      if (parsedData.eventCode === this.definedCommanderResponse.ERROR) {
+      if (parsedData.eventCode !== this.definedCommanderResponse.DONE) {
+        if(this.tempBuffer === null){
+          this.tempBuffer = dcData.data;
+        } else {
+          this.tempBuffer += Buffer.concat(this.tempBuffer, dcData.data);  
+        }
         BU.errorLog('inverter', 'parsingError', parsedData.data);
         // return this.requestTakeAction(this.definedCommanderResponse.RETRY);
-        return this.requestTakeAction(this.definedCommanderResponse.RETRY);
+        return this.requestTakeAction(this.definedCommanderResponse.WAIT);
       }
 
+      if(parsedData.eventCode === this.definedCommanderResponse.DONE){
+        this.tempBuffer = null;
+        this.model.onData(parsedData.data);
+      }
 
-      parsedData.eventCode === this.definedCommanderResponse.DONE && this.model.onData(parsedData.data);
+      // BU.CLI('data', parsedData.data);
+      // parsedData.eventCode === this.definedCommanderResponse.DONE && this.model.onData(parsedData.data);
 
       // Device Client로 해당 이벤트 Code를 보냄
+      BU.CLIN(this.getDeviceOperationInfo());
       return this.requestTakeAction(parsedData.eventCode);
-      // BU.CLIN(this.getDeviceOperationInfo());
     } catch (error) {
       // BU.CLI(error);
       BU.logFile(error);

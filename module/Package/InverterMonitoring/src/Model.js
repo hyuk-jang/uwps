@@ -46,9 +46,9 @@ class Model {
     BU.CLI('onInverterData');
     // 인버터 컨트롤러의 동작 상태 정보를 가져옴
     let deviceOperationInfo = inverter.getDeviceOperationInfo();
-    // BU.CLIN(deviceOperationInfo);
+    BU.CLIN(deviceOperationInfo);
     // 모델에 데이터 갱신
-    let dataStorageContainer = this.deviceClientModel.onDeviceOperationInfo(deviceOperationInfo, 'inverter');
+    let dataStorageContainer = this.deviceClientModel.onDeviceOperationInfo(deviceOperationInfo, inverter.config.deviceInfo.target_category);
 
     // BU.CLIN(dataStorageContainer, 4);
   }
@@ -70,10 +70,11 @@ class Model {
       BU.CLIN(convertDataList, 2);
   
       const resultSaveToDB = await this.deviceClientModel.saveDataToDB(category);
-      // BU.CLIN(resultSaveToDB);
+      BU.CLIN(resultSaveToDB);
   
       return true;
     } catch (error) {
+      BU.CLI(error);
       BU.errorLog('updateDeviceCategory', _.get(error, 'message'), error);
     }
   }

@@ -19,7 +19,7 @@ if (require !== undefined && require.main === module) {
   control.init();
 
 
-  let systemCmdInfo = control.converter.generationCommand(control.baseModel.BASE.DEFAULT.COMMAND.STATUS);
+  let systemCmdInfo = control.converter.generationCommand(control.baseModel.BASE.PV.COMMAND.STATUS);
   BU.CLI(systemCmdInfo);
 
   setTimeout(() => {

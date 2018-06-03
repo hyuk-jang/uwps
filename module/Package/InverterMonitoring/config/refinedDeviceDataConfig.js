@@ -1,6 +1,6 @@
 
-const Converter =  require('../../../module/device-protocol-converter-jh');
-let keyInfo = Converter.BaseModel.Inverter.BASE_KEY;
+const Converter = require('../../../module/device-protocol-converter-jh');
+let keyInfo = Converter.BaseModel.ESS.BASE_KEY;
 
 /**
  * @typedef {Object} tableParamFormat
@@ -9,26 +9,8 @@ let keyInfo = Converter.BaseModel.Inverter.BASE_KEY;
  */
 
 module.exports = [{
-  deviceCategory: 'inverter',
+  deviceCategory: 'PCS',
   troubleTableInfo: {
-    tableName: 'inverter_trouble_data',
-    /** @type {Array.<tableParamFormat>} */
-    addParamList: [{
-      fromKey: 'inverter_seq',
-      toKey: 'inverter_seq',
-    }],
-    changeColumnKeyInfo: {
-      isErrorKey: 'is_error',
-      codeKey: 'code',
-      msgKey: 'msg',
-      occurDateKey: 'occur_date',
-      fixDateKey: 'fix_date',
-    },
-    insertDateKey: 'writedate',
-    indexInfo: {
-      primaryKey: 'inverter_trouble_data_seq',
-      foreignKey: 'inverter_seq'
-    }
   },
   dataTableInfo: {
     tableName: 'inverter_data',
@@ -53,38 +35,104 @@ module.exports = [{
       toKey: 'in_w',
       calculate: 10000,
       toFixed: 0
-    },{
+    }, {
       fromKey: keyInfo.gridRAmp,
       toKey: 'out_a',
       calculate: 10,
       toFixed: 0
-    },{
+    }, {
       fromKey: keyInfo.gridRsVol,
       toKey: 'out_v',
       calculate: 10,
       toFixed: 0
-    },{
+    }, {
       fromKey: keyInfo.powerGridKw,
       toKey: 'out_w',
       calculate: 10000,
       toFixed: 0
-    },{
-      fromKey: keyInfo.gridLf,
-      toKey: 'lf',
-      calculate: 10,
-      toFixed: 0
-    },{
-      fromKey: keyInfo.powerPf,
-      toKey: 'p_f',
-      calculate: `${keyInfo.powerGridKw} / ${keyInfo.pvKw} * 1000`,
-      toFixed: 0
-    },{
-      fromKey: keyInfo.powerCpKwh,
+    },
+    // {
+    //   fromKey: keyInfo.powerDailyKwh,
+    //   toKey: 'd_wh',
+    //   calculate: 10000,
+    //   toFixed: 0
+    // },
+    {
+      fromKey: keyInfo.powerTotalKwh,
       toKey: 'c_wh',
       calculate: 10000,
       toFixed: 0
     },
+    {
+      fromKey: keyInfo.operIsError,
+      toKey: 'operation_has_v',
+    }, {
+      fromKey: keyInfo.operMode,
+      toKey: 'operation_mode',
+    }, {
+      fromKey: keyInfo.operStatus,
+      toKey: 'operation_status',
+    },{
+      fromKey: keyInfo.batteryVol,
+      toKey: 'battery_v',
+      calculate: 10,
+      toFixed: 0
+    },{
+      fromKey: keyInfo.batteryAmp,
+      toKey: 'battery_a',
+      calculate: 10,
+      toFixed: 0
+    },{
+      fromKey: keyInfo.batteryChargingKw,
+      toKey: 'battery_charging_w',
+      calculate: 10000,
+      toFixed: 0
+    },{
+      fromKey: keyInfo.batteryDischargingKw,
+      toKey: 'battery_discharging_w',
+      calculate: 10000,
+      toFixed: 0
+    },{
+      fromKey: keyInfo.batteryTotalChargingKw,
+      toKey: 'battery_total_charging_wh',
+      calculate: 10000,
+      toFixed: 0
+    },{
+      fromKey: keyInfo.batteryTotalDischargingKw,
+      toKey: 'battery_total_discharging_wh',
+      calculate: 10000,
+      toFixed: 0
+    },{
+      fromKey: keyInfo.ledDcVol,
+      toKey: 'led_dc_v',
+      calculate: 10,
+      toFixed: 0
+    },{
+      fromKey: keyInfo.ledDcAmp,
+      toKey: 'led_dc_a',
+      calculate: 10,
+      toFixed: 0
+    },{
+      fromKey: keyInfo.ledUsingKw,
+      toKey: 'led_using_w',
+      calculate: 10000,
+      toFixed: 0
+    },{
+      fromKey: keyInfo.ledTotalUsingKwh,
+      toKey: 'led_total_using_wh',
+      calculate: 10000,
+      toFixed: 0
+    },{
+      fromKey: keyInfo.inputLineKw,
+      toKey: 'input_line_w',
+      calculate: 10000,
+      toFixed: 0
+    },{
+      fromKey: keyInfo.inputLineTotalKwh,
+      toKey: 'input_total_line_wh',
+      calculate: 10000,
+      toFixed: 0
+    }
     ]
-  },
-  
+  }
 }];

@@ -16,13 +16,13 @@ if (require !== undefined && require.main === module) {
 
 
   const control = new Control(config);
-
-  control.init({
-    host: process.env.INVERTER_HOST ? process.env.INVERTER_HOST : 'localhost',
-    user: process.env.INVERTER_USER ? process.env.INVERTER_USER : 'root',
-    password: process.env.INVERTER_PW ? process.env.INVERTER_PW : 'reaper83',
-    database: process.env.INVERTER_DB ? process.env.INVERTER_DB : 'power_monitoring'
-  });
+  control.init();
+  // control.init({
+  //   host: process.env.INVERTER_HOST ? process.env.INVERTER_HOST : 'localhost',
+  //   user: process.env.INVERTER_USER ? process.env.INVERTER_USER : 'root',
+  //   password: process.env.INVERTER_PW ? process.env.INVERTER_PW : 'reaper83',
+  //   database: process.env.INVERTER_DB ? process.env.INVERTER_DB : 'pv_led'
+  // });
 
   setTimeout(() => {
     control.measureDate = new Date();

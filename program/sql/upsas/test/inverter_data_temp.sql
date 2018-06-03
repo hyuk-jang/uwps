@@ -1,0 +1,2 @@
+SELECT inverter_seq, round(in_a / 10, 1) in_a, round(in_v / 10, 1) in_v, round(in_w / 10, 1) in_w, round(out_a / 10, 1) out_a, round(out_v / 10, 1) out_v, round(out_w / 10, 1) out_w, round(c_wh / 10, 1) c_wh, writedate, CONCAT(LEFT(DATE_FORMAT(writedate,"%Y-%m-%d %H:%i:%s"), 18), "0") strDate  FROM inverter_data
+	WHERE writedate > '2018-05-01'

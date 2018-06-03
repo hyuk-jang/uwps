@@ -13,7 +13,7 @@ class Model {
    */
   constructor(controller) {
     this.controller = controller;
-    this.deviceData = BaseModel.ESS.BASE_MODEL;
+    this.deviceData = BaseModel.Inverter.BASE_MODEL;
   }
 
   /**

@@ -17,7 +17,7 @@ const Inverter = require('../Inverter');
 class Control {
   /** @param {config=} config */
   constructor(config) {
-    this.config = config.current || {};
+    this.config = _.get(config, 'current', {});
 
     // 인버터를 계측하기 위한 스케줄러 객체
     this.cronScheduler = null;
@@ -85,7 +85,7 @@ class Control {
    * @returns {Promise} 인버터 계측 컨트롤러 생성 결과 Promise
    */
   async createInverterController() {
-    BU.CLI('createInverterController');
+    // BU.CLI('createInverterController');
     this.config.inverterList.forEach(inverterInfo => {
       const inverter = new Inverter(inverterInfo);
       inverter.init();
@@ -117,9 +117,9 @@ class Control {
     });
 
     // 모든 인버터의 계측이 완료되었다면 
-    // BU.CLI(this.cronInverterList.length);
+    BU.CLI(this.cronInverterList.length);
     if(this.cronInverterList.length === 0){
-      this.model.updateDeviceCategory(this.measureDate, 'inverter');
+      this.model.updateDeviceCategory(this.measureDate, 'PCS');
     }
 
   }

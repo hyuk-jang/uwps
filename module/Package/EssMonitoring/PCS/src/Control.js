@@ -19,11 +19,11 @@ class Control extends AbstDeviceClient {
   constructor(config) {
     super();
 
-    this.config = _.get(config, 'current', {});
+    this.config = config.current;
 
 
     this.converter = new AbstConverter(this.config.deviceInfo.protocol_info);
-    this.baseModel = new BaseModel.ESS(this.config.deviceInfo.protocol_info);
+    this.baseModel = new BaseModel.Inverter(this.config.deviceInfo.protocol_info);
 
     this.model = new Model(this);
 
@@ -121,7 +121,6 @@ class Control extends AbstDeviceClient {
   onDcError(dcError) {
     BU.CLI(this.id, dcError.errorInfo);
 
-    this.converter.resetTrackingDataBuffer();
     try {
       switch (_.get(dcError, 'errorInfo.message')) {
       case this.definedControlEvent.DISCONNECT:
@@ -155,7 +154,7 @@ class Control extends AbstDeviceClient {
    * @param {dcMessage} dcMessage 
    */
   onDcMessage(dcMessage) {
-    // BU.CLI(dcMessage.msgCode);
+    BU.CLI(dcMessage.msgCode);
     switch (dcMessage.msgCode) {
     // 계측이 완료되면 Observer에게 알림
     case this.definedCommandSetMessage.COMMANDSET_EXECUTION_TERMINATE:
@@ -192,8 +191,8 @@ class Control extends AbstDeviceClient {
       parsedData.eventCode === this.definedCommanderResponse.DONE && this.model.onData(parsedData.data);
 
       // Device Client로 해당 이벤트 Code를 보냄
-      BU.CLIN(this.getDeviceOperationInfo().data);
       return this.requestTakeAction(parsedData.eventCode);
+      // BU.CLIN(this.getDeviceOperationInfo());
     } catch (error) {
       // BU.CLI(error);
       BU.logFile(error);

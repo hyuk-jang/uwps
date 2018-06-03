@@ -1,5 +1,7 @@
+require('./define');
 
-module.exports = {
+/** @type {{current: {hasDev: boolean, deviceInfo: deviceInfo}}} */
+const config = {
   current: {
     hasDev: true, // 장치 연결을 실제로 하는지 여부
     deviceInfo: {
@@ -16,7 +18,10 @@ module.exports = {
       },
       protocol_info: {
         mainCategory: 'weathercast',
-        subCategory: 'vantagepro2'
+        subCategory: 'vantagepro2',
+        protocolOptionInfo: {
+          hasTrackingData: true
+        }
       },
       controlInfo: {
         hasErrorHandling: false,
@@ -26,7 +31,7 @@ module.exports = {
       connect_info: {
         type: 'serial',
         baudRate: 19200,
-        port: 'COM8'
+        port: 'COM8',
       },
       // connect_info: {
       //   type: 'socket',
@@ -35,3 +40,4 @@ module.exports = {
     }
   }
 };
+module.exports = config;

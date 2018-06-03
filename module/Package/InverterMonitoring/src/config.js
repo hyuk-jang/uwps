@@ -4,7 +4,7 @@ module.exports = {
       host: process.env.INVERTER_HOST ? process.env.INVERTER_HOST : 'localhost',
       user: process.env.INVERTER_USER ? process.env.INVERTER_USER : 'root',
       password: process.env.INVERTER_PW ? process.env.INVERTER_PW : 'reaper83',
-      database: process.env.INVERTER_DB ? process.env.INVERTER_DB : 'power_monitoring'
+      database: process.env.INVERTER_DB ? process.env.INVERTER_DB : 'pv_led'
     },
     'inverterList': [{
       'current': {
@@ -15,14 +15,19 @@ module.exports = {
         },
         'deviceInfo': {
           'inverter_seq': 1,
-          'target_id': 'IVT_001',
+          'target_id': 'PCS_001',
           'target_name': '600W 급',
-          'target_category': 'inverter',
+          'target_category': 'PCS',
           'protocol_info': {
-            'mainCategory': 'inverter',
-            'subCategory': 'das_1.3',
-            'deviceId': '001',
-            'option': true
+            mainCategory: 'ess',
+            subCategory: 'das_pv_led',
+            'deviceId': '000',
+            protocolOptionInfo: {
+              hasTrackingData: true
+            },
+            option: {
+              isUseKw: false
+            }
           },
           logOption: {
             hasCommanderResponse: true,
@@ -42,7 +47,7 @@ module.exports = {
             'port': 9000
           },
           'code': '123',
-          'amount': 33000,
+          'amount': 6000,
           'director_name': '에스엠소프트',
           'director_tel': '061-285-3411',
           'chart_color': 'black',
@@ -58,9 +63,9 @@ module.exports = {
         },
         'deviceInfo': {
           'inverter_seq': 2,
-          'target_id': 'IVT_002',
+          'target_id': 'PCS_002',
           'target_name': '3.3 kW 급',
-          'target_category': 'inverter',
+          'target_category': 'PCS',
           logOption: {
             hasCommanderResponse: true,
             hasDcError: true,
@@ -72,20 +77,25 @@ module.exports = {
           controlInfo: {
             hasErrorHandling: true,
             hasOneAndOne: false,
-            hasReconnect: false
+            hasReconnect: true
           },
           'protocol_info': {
-            'mainCategory': 'inverter',
-            'subCategory': 'das_1.3',
+            mainCategory: 'ess',
+            subCategory: 'das_pv_led',
             'deviceId': '002',
-            'option': false
+            protocolOptionInfo: {
+              hasTrackingData: true
+            },
+            option: {
+              isUseKw: false
+            }
           },
           'connect_info': {
             'type': 'socket',
             'port': 9000
           },
           'code': '234',
-          'amount': 6000,
+          'amount': 33000,
           'director_name': '에스엠소프트',
           'director_tel': '061-285-3411',
           'chart_color': 'red',

@@ -1,8 +1,3 @@
-'use strict';
-
-require('./define.js');
-
-/** @type {{current: {hasDev: boolean, deviceInfo: deviceInfo}}} */
 module.exports = {
   current: {
     hasDev: false, // 장치 연결을 실제로 하는지 여부
@@ -24,15 +19,10 @@ module.exports = {
         hasReconnect: true
       },
       protocol_info: {
-        mainCategory: 'ess',
-        subCategory: 'das_pv_led',
-        deviceId: '000',
-        protocolOptionInfo: {
-          hasTrackingData: true
-        },
-        option: {
-          isUseKw: false
-        }
+        mainCategory: 'inverter',
+        subCategory: 'das_1.3',
+        deviceId: '001',
+        option: true
       },
       // connect_info: {
       //   type: 'serial',
@@ -41,8 +31,7 @@ module.exports = {
       // },
       connect_info: {
         type: 'socket',
-        port: 9000,
-
+        port: 9000
       },
     }
   }

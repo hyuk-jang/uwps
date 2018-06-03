@@ -147,14 +147,14 @@ class Control {
     // scenario_1: 저수조 → 증발지 1
     if(!this.hasOperationScenario_1) return false;
     this.excuteAutomaticControl(scenario_1);
-    // 10초 딜레이 40 초 동안 급수 진행
+    // 10초 딜레이 50 초 동안 급수 진행
     await Promise.delay(1000 * 50);
     if(!this.hasOperationScenario_1) return false;
     this.cancelAutomaticControl(scenario_1);
 
 
 
-    // 밸브 닫는 시간 + 염수 증발 시간 할애
+    // 밸브 닫는 시간 + 염수 증발 시간 할애  10초
     await Promise.delay(1000 * 10);
     if(!this.hasOperationScenario_1) return false;
 
@@ -179,7 +179,7 @@ class Control {
 
     // scenario_3: 해주 1 → 증발지 1
     this.excuteAutomaticControl(scenario_3);
-    // 10초 딜레이 40 초 동안 급수 진행
+    // 10초 딜레이 50 초 동안 급수 진행
     await Promise.delay(1000 * 50);
     if(!this.hasOperationScenario_1) return false;
     this.cancelAutomaticControl(scenario_3);
@@ -194,7 +194,7 @@ class Control {
 
     // scenario_4: 증발지 1 → 해주 2
     this.excuteAutomaticControl(scenario_4);
-    // 30 초 동안 염수 이동 진행
+    // 20 초 동안 염수 이동 진행
     await Promise.delay(1000 * 20);
     if(!this.hasOperationScenario_1) return false;
     // 수로 수문을 너무 일찍 닫기 때문에 사용하지 않음.
@@ -205,13 +205,7 @@ class Control {
     this.excuteSingleControl({modelId: 'V_103', hasTrue: false});
     this.excuteSingleControl({modelId: 'V_104', hasTrue: false});
     this.excuteSingleControl({modelId: 'WD_005', hasTrue: false});
-    
-
-
-    // // 명령 사이의 딜레이
-    // await Promise.delay(1000 * 5);
-    // if(!this.hasOperationScenario_1) return false;
-
+ 
 
     // scenario_5: 해주 2 → 증발지 2, 3, 4
     this.excuteAutomaticControl(scenario_5);
@@ -222,28 +216,22 @@ class Control {
 
 
 
-    // 염수 증발 시키기
+    // 염수 증발 시키기 5초
     await Promise.delay(1000 * 5);
     if(!this.hasOperationScenario_1) return false;
 
     
     // scenario_6: 증발지 4 → 해주3
     this.excuteAutomaticControl(scenario_6);
-    // 30 초 동안 염수 이동 진행
+    // 20 초 동안 염수 이동 진행
     await Promise.delay(1000 * 20);
     if(!this.hasOperationScenario_1) return false;
     this.cancelAutomaticControl(scenario_6);
 
 
-
-    // // 명령 사이의 딜레이
-    // await Promise.delay(1000 * 5);
-    // if(!this.hasOperationScenario_1) return false;
-    
-
     // scenario_7: 해주 3 → 결정지
     this.excuteAutomaticControl(scenario_7);
-    // 30 초 동안 염수 이동 진행
+    // 40 초 동안 염수 이동 진행
     await Promise.delay(1000 * 40);
     if(!this.hasOperationScenario_1) return false;
     this.cancelAutomaticControl(scenario_7);

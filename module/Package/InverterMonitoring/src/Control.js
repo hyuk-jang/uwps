@@ -29,6 +29,16 @@ class Control {
   }
 
   /**
+   * @param {string} comName 포트를 바꾸고자 할 경우
+   */
+  setDbConnectPort(comName) {
+    this.config.inverterList.forEach(element => {
+      _.set(element, 'current.deviceInfo.connect_info.port', comName);
+    });
+    return true;
+  }
+
+  /**
    * 인버터 컨트롤러 리스트 생성
    * @param {dbInfo=} dbInfo
    */
@@ -72,13 +82,8 @@ class Control {
     
     
     this.model = new Model(this);
-
-    this.createInverterController();
   }
 
-  makeConfig() {
-
-  }
 
   /**
    * 인버터 설정 값에 따라 인버터 계측 컨트롤러 생성 및 계측 스케줄러 실행

@@ -16,7 +16,13 @@ if (require !== undefined && require.main === module) {
 
 
   const control = new Control(config);
-  control.init();
+
+  // control.setDbConnectPort('COM18');
+
+  BU.CLI(control.config.inverterList);
+
+  // control
+  // control.init();
   // control.init({
   //   host: process.env.INVERTER_HOST ? process.env.INVERTER_HOST : 'localhost',
   //   user: process.env.INVERTER_USER ? process.env.INVERTER_USER : 'root',
@@ -24,10 +30,10 @@ if (require !== undefined && require.main === module) {
   //   database: process.env.INVERTER_DB ? process.env.INVERTER_DB : 'pv_led'
   // });
 
-  setTimeout(() => {
-    control.measureDate = new Date();
-    control.measureRegularInverter();
-  }, 2000);
+  // setTimeout(() => {
+  //   control.measureDate = new Date();
+  //   control.measureRegularInverter();
+  // }, 2000);
 
   // setInterval(() => {
   //   control.measureDate = new Date();

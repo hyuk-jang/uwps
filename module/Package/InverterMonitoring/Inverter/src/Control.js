@@ -183,7 +183,7 @@ class Control extends AbstDeviceClient {
 
       // 만약 파싱 에러가 발생한다면 명령 재 요청
       if (parsedData.eventCode === this.definedCommanderResponse.ERROR) {
-        BU.errorLog('inverter', 'parsingError', parsedData.data);
+        BU.errorLog('inverter', 'parsingError', parsedData);
         // return this.requestTakeAction(this.definedCommanderResponse.RETRY);
         return this.requestTakeAction(this.definedCommanderResponse.RETRY);
       }

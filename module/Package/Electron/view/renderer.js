@@ -44,15 +44,20 @@ trendSelectList.forEach(ele => {
   });
 });
 
+document.querySelector('#searchMain').addEventListener('click', event => {
+  let searchInfo = searchTrend();
+  ipcRenderer.send('navigationMenu', 'navi-main', JSON.stringify(searchInfo) );
+});
+
 
 document.querySelector('#searchTrend').addEventListener('click', event => {
   let searchInfo = searchTrend();
   ipcRenderer.send('navigationMenu', 'navi-trend', JSON.stringify(searchInfo) );
 });
 
-document.querySelector('#downloadExcel').addEventListener('click', event => {
-  writeFileExcel(excelFile);
-});
+// document.querySelector('#downloadExcel').addEventListener('click', event => {
+//   writeFileExcel(excelFile);
+// });
 
 
 let saveSearchRange;
@@ -116,68 +121,92 @@ ipcRenderer.on('main-reply', (data, mainData) => {
   $('#navigation li').removeClass('active');
   $('#navi-main').parent().addClass('active');
 
-  const weatherCastInfo = _.get(mainData, 'weatherCastInfo');
+  var searchRange = _.get(mainData, 'searchOption.search_range');
+  saveSearchRange = searchRange;
+  var searchType = _.get(mainData, 'searchOption.search_type');
+  var selectedObj = $('#sel_type_div_area').find('input[value=' + searchType + ']');
+  // document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
 
-  document.querySelector('#weatherTemperature').value = _.get(weatherCastInfo, 'temp');
-  document.querySelector('#weatherImg').src = `../public/image/weather_${_.get(weatherCastInfo, 'wf')}.png` ;
-  document.querySelector('#measureTime').innerHTML = `측정시간: ${`${BU.convertDateToText(new Date(), '', 4)}:00`}` ;
+  $(selectedObj).trigger('click');
 
-  var powerGenerationInfo = mainData.powerGenerationInfo;
+  const chartData = _.get(mainData, 'chartData');
+  const largeInverter = _.get(mainData, 'largeInverter');
+  const smallInverter = _.get(mainData, 'smallInverter');
+  // const weatherCastInfo = _.get(mainData, 'weatherCastInfo');
+  // document.querySelector('#weatherTemperature').value = _.get(weatherCastInfo, 'temp');
+  // document.querySelector('#weatherImg').src = `../public/image/weather_${_.get(weatherCastInfo, 'wf')}.png` ;
+  // document.querySelector('#measureTime').innerHTML = `측정시간: ${`${BU.convertDateToText(new Date(), '', 4)}:00`}` ;
 
-  const list = document.querySelectorAll('input[name=powerInfo]');
+  // var powerGenerationInfo = mainData.powerGenerationInfo;
 
-  list.forEach(ele => {
-    ele.value = _.get(powerGenerationInfo, ele.id);
+  const largeInputDomList = document.querySelectorAll('input[name=large]');
+  largeInputDomList.forEach(ele => {
+    let comment = '';
+    if(ele.dataset.type){
+      comment = ` ${ele.dataset.type}`;
+    }
+    ele.value = _.get(largeInverter, ele.dataset.id, '') + comment;
+  });
+  const smallInputDomList = document.querySelectorAll('input[name=small]');
+  smallInputDomList.forEach(ele => {
+    let comment = '';
+    if(ele.dataset.type){
+      comment = ` ${ele.dataset.type}`;
+    }
+    ele.value = _.get(smallInverter, ele.dataset.id, '') + comment;
   });
 
-  let inverterOperation = document.querySelector('#inverterOperation');
-  if (_.get(powerGenerationInfo, 'hasOperationInverter') === true) {
-    inverterOperation.className = 'btn btn-primary';
-    inverterOperation.textContent = 'RUN';
-  } else {
-    inverterOperation.className = 'btn btn-warning';
-    inverterOperation.textContent = 'STOP';
-  }
+  const largeTdDomList = document.querySelectorAll('td[name=large]');
+  largeTdDomList.forEach(ele => {
+    ele.innerHTML = _.get(largeInverter, ele.dataset.id, '');
+  });
+  const smallTdDomList = document.querySelectorAll('td[name=small]');
+  smallTdDomList.forEach(ele => {
+    ele.innerHTML = _.get(smallInverter, ele.dataset.id, '');
+  });
+
+
 
   $('#menu-main').removeClass('hidden');
   $('#menu-trend').addClass('hidden');
 
   $('#testest').trigger('click');
 
-  mainChart.makeMainChart(mainData.dailyPowerChartData);
-  mainChart.makeGaugeChart(mainData.powerGenerationInfo);
+  mainChart.makeMainChart(chartData);
+  mainChart.makeGaugeChart(largeInverter, 'chart_div_1');
+  mainChart.makeGaugeChart(smallInverter, 'chart_div_2');
 
 
-  const inverterStatus = _.get(mainData, 'inverterStatus');
+  // const inverterStatus = _.get(mainData, 'inverterStatus');
   // var total_in_kw = inverterStatus.totalInfo.in_kw;
   // var total_out_kw = inverterStatus.totalInfo.out_kw;
   // var total_d_kwh = inverterStatus.totalInfo.d_kwh;
   // var total_c_kwh = inverterStatus.totalInfo.c_kwh;
 
-  let myTable = document.querySelector('#myTable');
-  myTable.innerHTML = '';
-  _.forEach(inverterStatus.dataList, inverterData => {
-    var tr = document.createElement('tr');
-    let columnKey = ['target_name', 'in_v', 'in_a', 'in_kw', 'out_v', 'out_a', 'out_kw', 'p_f', 'd_kwh', 'c_kwh', 'hasOperation'];
-    columnKey.forEach((key, index) => {
-      let td = document.createElement('td');
-      if(index === 0){
-        td.className = 'td1';
-      }
-      if(columnKey.length === index + 1){
-        td.className = 'center_ball';
-        let img = document.createElement('img');
-        var deviceOperationImgName = inverterData[key] ? 'green' : 'red';
-        img.src = `../public/image/${deviceOperationImgName}.png`;
-        td.appendChild(img);
-      } else {
-        td.innerText = inverterData[key];
-      }
-      tr.appendChild(td);
-    });
+  // let myTable = document.querySelector('#myTable');
+  // myTable.innerHTML = '';
+  // _.forEach(inverterStatus.dataList, inverterData => {
+  //   var tr = document.createElement('tr');
+  //   let columnKey = ['target_name', 'in_v', 'in_a', 'in_kw', 'out_v', 'out_a', 'out_kw', 'p_f', 'd_kwh', 'c_kwh', 'hasOperation'];
+  //   columnKey.forEach((key, index) => {
+  //     let td = document.createElement('td');
+  //     if(index === 0){
+  //       td.className = 'td1';
+  //     }
+  //     if(columnKey.length === index + 1){
+  //       td.className = 'center_ball';
+  //       let img = document.createElement('img');
+  //       var deviceOperationImgName = inverterData[key] ? 'green' : 'red';
+  //       img.src = `../public/image/${deviceOperationImgName}.png`;
+  //       td.appendChild(img);
+  //     } else {
+  //       td.innerText = inverterData[key];
+  //     }
+  //     tr.appendChild(td);
+  //   });
 
-    myTable.appendChild(tr);
-  });
+  //   myTable.appendChild(tr);
+  // });
 });
 
 

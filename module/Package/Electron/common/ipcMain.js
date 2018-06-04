@@ -6,7 +6,7 @@ ipcMain.on('navigationMenu', (event, menu, msg) => {
   const main = new Main();
   switch (menu) {
   case 'navi-main':
-    main.getMain(event);
+    main.getMain(event, msg);
     break;
   case 'navi-trend':
     main.getTrend(event, msg);

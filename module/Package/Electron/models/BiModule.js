@@ -455,9 +455,9 @@ class BiModule extends bmjh.BM {
         inverter_seq,
         writedate, 
         ${dateFormat.selectViewDate},
-        ROUND(AVG(out_w) / 10, 1) AS out_w,
-        ROUND(MAX(c_wh) / 10, 1) AS max_c_wh,
-        ROUND((MAX(c_wh) - MIN(c_wh)) / 10, 1) AS interval_power
+        ROUND(AVG(out_kw), 3)  AS out_kw,
+        MAX(c_kwh) AS max_c_kwh,
+        (MAX(c_kwh) - MIN(c_kwh)) AS interval_power
         FROM inverter_data
         WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
         `;
@@ -470,7 +470,7 @@ class BiModule extends bmjh.BM {
     LEFT OUTER JOIN inverter ivt
     ON ivt.inverter_seq = main.inverter_seq
     `;
-    return this.db.single(sql, '', false);
+    return this.db.single(sql, '', true);
   }
 
   

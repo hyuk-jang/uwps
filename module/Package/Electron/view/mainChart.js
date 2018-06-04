@@ -1,11 +1,13 @@
 const _ = require('lodash');
 const $ = require('jquery');
 const Highcharts = require('highcharts');
+const BU = require('base-util-jh').baseUtil;
 
 function makeMainChart(chartDataObj) {
+  // BU.CLI(chartDataObj);
   // var chartDataObj = mainData.dailyPowerChartData;
   if (chartDataObj.series.length) {
-    $('#dailyPowerChart').highcharts({
+    Highcharts.chart('dailyPowerChart', {
       chart: {
         type: 'spline',
         zoomType: 'x',
@@ -21,13 +23,22 @@ function makeMainChart(chartDataObj) {
         // tickInterval: 6
         categories: chartDataObj.range
       },
-      yAxis: {
+      yAxis: [{
         min: 0,
+        max: 4,
         // max: powerGenerationInfo.currKwYaxisMax,
         title: {
-          text: '발전량(kWh)'
+          text: '출력(kW)'
         }
-      },
+      }, {
+        min: 0,
+        max: 1,
+        // max: powerGenerationInfo.currKwYaxisMax,
+        title: {
+          text: '출력(kW)'
+        },
+        opposite: true
+      }],
       plotOptions: {
         area: {
           fillColor: {
@@ -81,24 +92,24 @@ function makeMainChart(chartDataObj) {
 }
 exports.makeMainChart = makeMainChart;
 
-function makeGaugeChart(powerGenerationInfo) {
-  console.dir(powerGenerationInfo);
+function makeGaugeChart(powerGenerationInfo, domId) {
+  // console.dir(powerGenerationInfo);
 
-  let currKw = _.get(powerGenerationInfo, 'currKw');
-  currKw = 1.7;
-  let currKwYaxisMax = _.get(powerGenerationInfo, 'currKwYaxisMax');
+  let currKw = _.get(powerGenerationInfo, 'out_kw');
+  // currKw = 1.7;
+  let currKwYaxisMax = _.get(powerGenerationInfo, 'amount');
 
   let percentageKw = _.round(_.multiply(_.divide(currKw, currKwYaxisMax), 100), 2);
   let maxKw = _.round(_.subtract(100, percentageKw), 2);
 
-  let todayMaxKw = _.multiply(currKwYaxisMax, 6);
-  let dailyPower = _.round(_.get(powerGenerationInfo, 'dailyPower'), 2);
+  // let todayMaxKw = _.multiply(currKwYaxisMax, 6);
+  // let dailyPower = _.round(_.get(powerGenerationInfo, 'dailyPower'), 2);
 
-  let percentageDailyPower = _.round(_.multiply(_.divide(dailyPower, todayMaxKw), 100), 2);
-  let remainDailyPower = _.round(_.subtract(100, percentageDailyPower), 2);
+  // let percentageDailyPower = _.round(_.multiply(_.divide(dailyPower, todayMaxKw), 100), 2);
+  // let remainDailyPower = _.round(_.subtract(100, percentageDailyPower), 2);
 
   // var powerGenerationInfo = mainData.powerGenerationInfo;
-  Highcharts.chart('chart_div_1', {
+  Highcharts.chart(domId, {
     chart: {
       plotBackgroundColor: null,
       plotBorderWidth: 0,
@@ -152,64 +163,64 @@ function makeGaugeChart(powerGenerationInfo) {
     }
   });
 
-  Highcharts.chart('chart_div_2', {
-    chart: {
-      plotBackgroundColor: null,
-      plotBorderWidth: 0,
-      plotShadow: false,
-      backgroundColor: 'none',
-      // Edit chart spacing
-      spacingBottom: 15,
-      spacingTop: 10,
-      spacingLeft: -100,
-      spacingRight: 10,
-    },
-    title: {
-      text: `발전량<br/>${dailyPower} kW`,
-      align: 'center',
-      verticalAlign: 'middle',
-      y: -20
-    },
-    tooltip: {
-      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
-      enabled: false
-    },
-    plotOptions: {
-      pie: {
-        dataLabels: {
-          enabled: true,
-          distance: -30,
-          style: {
-            fontWeight: 'bold',
-            color: 'white'
-          }
-        },
-        startAngle: -90,
-        endAngle: 90,
-        center: ['50%', '50%'],
-      }
-    },
-    legend: { //범례
-      itemStyle: {
-        fontWeight: 'bold',
-        fontSize: '13px'
-      }
-    },
-    colors: ['#f45b5b', '#8085e9', '#8d4654', '#7798BF', '#aaeeee',
-      '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
-    series: [{
-      type: 'pie',
-      name: 'Browser share',
-      innerSize: '50%',
-      data: [
-        [`${percentageDailyPower}%`, percentageDailyPower],
-        [`${remainDailyPower}%`, remainDailyPower],
-      ]
-    }],
-    credits: {
-      enabled: false,
-    }
-  });
+  // Highcharts.chart('chart_div_2', {
+  //   chart: {
+  //     plotBackgroundColor: null,
+  //     plotBorderWidth: 0,
+  //     plotShadow: false,
+  //     backgroundColor: 'none',
+  //     // Edit chart spacing
+  //     spacingBottom: 15,
+  //     spacingTop: 10,
+  //     spacingLeft: -100,
+  //     spacingRight: 10,
+  //   },
+  //   title: {
+  //     text: `발전량<br/>${dailyPower} kW`,
+  //     align: 'center',
+  //     verticalAlign: 'middle',
+  //     y: -20
+  //   },
+  //   tooltip: {
+  //     pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
+  //     enabled: false
+  //   },
+  //   plotOptions: {
+  //     pie: {
+  //       dataLabels: {
+  //         enabled: true,
+  //         distance: -30,
+  //         style: {
+  //           fontWeight: 'bold',
+  //           color: 'white'
+  //         }
+  //       },
+  //       startAngle: -90,
+  //       endAngle: 90,
+  //       center: ['50%', '50%'],
+  //     }
+  //   },
+  //   legend: { //범례
+  //     itemStyle: {
+  //       fontWeight: 'bold',
+  //       fontSize: '13px'
+  //     }
+  //   },
+  //   colors: ['#f45b5b', '#8085e9', '#8d4654', '#7798BF', '#aaeeee',
+  //     '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
+  //   series: [{
+  //     type: 'pie',
+  //     name: 'Browser share',
+  //     innerSize: '50%',
+  //     data: [
+  //       [`${percentageDailyPower}%`, percentageDailyPower],
+  //       [`${remainDailyPower}%`, remainDailyPower],
+  //     ]
+  //   }],
+  //   credits: {
+  //     enabled: false,
+  //   }
+  // });
 
   
   // var dailyPowerChart = Highcharts.chart('chart_div_2', Highcharts.merge(gaugeOptions, {

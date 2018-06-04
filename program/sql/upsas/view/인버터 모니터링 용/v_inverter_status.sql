@@ -1,23 +1,11 @@
-SELECT inverter.*, 
-	inverter_data_seq,
-	ROUND(in_a / 10, 1) AS in_a,
-	ROUND(in_v / 10, 1) AS in_v,
-	ROUND(in_w / 10, 1) AS in_w,
-	ROUND(out_a / 10, 1) AS out_a,
-	ROUND(out_v / 10, 1) AS out_v,
-	ROUND(out_w / 10, 1) AS out_w,
-	ROUND(p_f / 10, 1) AS p_f,
-	ROUND(c_wh / 10, 1) AS c_wh,
-	ROUND((c_wh - (SELECT MAX(c_wh) FROM inverter_data WHERE inverter_seq = id.inverter_seq AND writedate>= CURDATE() - 1 AND writedate< CURDATE())) / 10, 1) AS daily_power_wh,
-	writedate,
-	pv.amount AS pv_amount
+SELECT ivt.target_id, ivt.target_name, ivt.target_category, ivt.protocol_info, ivt.connect_info, ivt.amount, ivt.chart_color, ivt.chart_sort_rank,
+	id.*
+
 	FROM inverter_data id
-	LEFT JOIN inverter
-		ON inverter.inverter_seq = id.inverter_seq
+	LEFT JOIN inverter ivt
+		ON ivt.inverter_seq = id.inverter_seq
 	LEFT JOIN relation_upms ru
 		ON ru.inverter_seq = id.inverter_seq
-	LEFT JOIN photovoltaic pv
-		ON pv.photovoltaic_seq = ru.photovoltaic_seq
 		
 	WHERE inverter_data_seq IN (
 		SELECT MAX(inverter_data_seq)

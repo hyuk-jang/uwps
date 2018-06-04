@@ -36,7 +36,7 @@
   <!--메인-->
   <div class="wrap">
     <!--네비-->
-    <nav class="navbar navbar-inverse navbar-inverse_st ">
+    <nav class="navbar navbar-inverse navbar-inverse_st" hidden>
       <div class="container-fluid container-fluid_st">
         <div class="navbar-header">
           <a class="navbar-brand navbar-brand_st">
@@ -45,108 +45,66 @@
             <!--<img src="../public/image/logo_w-04_180.png" />-->
           </a>
         </div>
-
         <ul class="nav nav-pills navbar-nav_st" role="tablist" id="navigation">
           <li class="active">
             <a href="#" id="navi-main" name="navi-main">
               <i class="fa fa-home fa-home_st" name="navi-main" aria-hidden="true"></i>홈</a>
           </li>
-          <!-- <li class="#">
-            <a id="navi-inverter">
-              <i class="fa fa-server fa-home_st" aria-hidden="true"></i>인버터</a>
-          </li> -->
           <li class="">
             <a href="#" id="navi-trend" name="navi-trend">
-              <i class="fa fa-bar-chart fa-home_st" aria-hidden="true" name="navi-trend"></i>트렌드</a>
+              <i class="fa fa-pencil-square-o fa-home_st" aria-hidden="true" name="navi-trend"></i>통신 패킷</a>
           </li>
-          <!-- <li class="">
-            <a href="#" id="navi-report">
-              <i class="fa fa-pencil-square-o fa-home_st" aria-hidden="true"></i>보고서</a>
-          </li>
-          <li class="">
-            <a href="#" id="navi-alarm" style="border:0;">
-              <i class="fa fa-bullhorn fa-home_st" aria-hidden="true"></i>경보</a>
-          </li> -->
         </ul>
 
       </div>
-
-      <!-- <div class="row nav_row">
-        <div class="nav_row_st">
-          <div class="nav_row_st_img">
-            <img src="../public/image/con_p.png" />
-            <span>6kW급 테스트베드</span>
-          </div>
-  
-          <div class="nav_row_st_right">
-            <span style="margin-right:40px;" id="today"></span>
-            <script>
-              var today = new Date();
-              var week = new Array('일', '월', '화', '수', '목', '금', '토');
-              $('#today').html(today.getFullYear() + '.' + (today.getMonth() + 1) + '.' + today.getDate() + '(' + week[
-                today.getDay()] + ')');
-  
-              
-            </script>
-            <span>날씨</span>
-            
-            <img src="../public/image/weather_1.png" />
-            <input type="text" class="form-control" style="text-align: center" value="11">
-            <span class="Temperature">℃</span>
-          </div>
-        </div>
-      </div> -->
     </nav>
-    <div id="menu-main"  class="jumbotron text-center jumbotron_st">
+    <div id="menu-main" class="jumbotron text-center jumbotron_st">
       <div class="row row_st">
 
         <!--콘텐츠왼쪽-->
         <div class="col-xs-3 power" style="height: 620px;">
           <div class="row power_1" style="border-radius: 0px; height: 35px;">
-            <h4 style="font-size: 15px;">발전현황</h4>
+            <h4 style="font-size: 15px;">태양광 발전 현황</h4>
           </div>
-
-       
-
           <div class="row power_3">
             <div class="col-xs-6 power_3in">
               <p>3.3kW 발전</p>
-              <input type="text" name="" value=" kW">
+              <input type="text" name="large" data-id="out_kw" data-type="kW" value="kW">
             </div>
             <div class="col-xs-6 power_3in">
               <p>3.3kW 발전량</p>
-              <input type="text" name="" value=" kWh">
+              <input type="text" name="large" data-id="c_kwh" data-type="kWh" value="kWh">
             </div>
             <div class="col-xs-6 power_3in">
               <p>600W 발전</p>
-              <input type="text" name="" value=" kW">
+              <input type="text" name="small" data-id="out_kw" data-type="kW" value="kW">
             </div>
             <div class="col-xs-6 power_3in">
               <p>600W 발전량</p>
-              <input type="text" name="" value=" kWh">
+              <input type="text" name="small" data-id="c_kwh" data-type="kWh" value="kWh">
             </div>
 
           </div>
           <div class="row power_1" style="border-radius: 0px; height: 35px;">
-            <h4 style="font-size: 15px;">LED 전력 소모량</h4>
+            <h4 style="font-size: 15px;">LED 전력 소모 현황</h4>
           </div>
           <div class="row power_3">
             <div class="col-xs-6 power_3in">
               <p>3.3kW 소모량</p>
-              <input type="text" name="kW" value=" kW">
+              <input type="text" name="large" data-id="led_using_kw" data-type="kW" value="kW">
             </div>
             <div class="col-xs-6 power_3in">
               <p style=" padding: 0 0 0 0px;">3.3kW 누적 소모량</p>
-              <input type="text" name="kW" value=" kWh">
+              <input type="text" name="large" data-id="led_total_using_kwh" data-type="kWh" value="kWh">
             </div>
             <div class="col-xs-6 power_3in">
               <p>600W 소모량</p>
-              <input type="text" name="kW" value=" kW">
-                </button>
+              <input type="text" name="small" data-id="led_using_kw" data-type="kW" value="kW">
+              </button>
             </div>
             <div class="col-xs-6 power_3in">
               <p style="padding: 0 0 0 0px;"> 600W 누적 소모량</p>
-              <input type="text" name="kW" value=" kWh">
+              <input type="text" name="small" data-id="led_total_using_kwh" data-type="kWh" value="kWh">
             </div>
 
           </div>
@@ -157,25 +115,36 @@
           <div class="row power_3">
             <div class="col-xs-6 power_3in">
               <p>3.3kW 전력</p>
-              <input type="text" name="kW" value=" kW">
+              <input type="text" name="large" data-id="input_line_kw" data-type="kW" value="kW">
             </div>
             <div class="col-xs-6 power_3in">
               <p style="padding: 0 0 0 0px;">3.3kW 누적 충전량</p>
-              <input type="text" name="kW" value=" kWh">
+              <input type="text" name="large" data-id="input_total_line_kwh" data-type="kWh" value="kWh">
             </div>
             <div class="col-xs-6 power_3in">
-              <p >600kW 전력</p>
-              <input type="text" name="kW" value=" kW">
+              <p>600kW 전력</p>
+              <input type="text" name="small" data-id="input_line_kw" data-type="kW" value="kW">
             </div>
             <div class="col-xs-6 power_3in">
-              <p style="padding: 0 0 0 0px;">600kW 누적 충전량</p>
-              <input type="text" name="kW" value=" kWh">
+              <p style="padding: 0 0 0 0px;">600W 누적 충전량</p>
+              <input type="text" name="small" data-id="input_total_line_kwh" data-type="kWh" value="kWh">
             </div>
           </div>
-
-
-
-
+          <div class="row power_1" style="border-radius: 0px; height: 35px;">
+            <h4 style="font-size: 15px;">Mode State & Fault</h4>
+          </div>
+          <div class="row power_3" style="position: relative; height: 220px;">
+            <div class="col-xs-6 power_3in" style="width: 270px; height: 100px;">
+              <p>3.3kW</p>
+              <input type="text" name="large" style="width: 245px; margin-bottom: 5px" data-id="operation_mode">
+              <input type="text" name="large" style="width: 245px; margin-bottom: 5px" data-id="operation_status">
+            </div>
+            <div class="col-xs-6 power_3in" style="width: 270px; height: 100px;">
+              <p>600W</p>
+              <input type="text" name="small" style="width: 245px; margin-bottom: 5px" data-id="operation_mode">
+              <input type="text" name="small" style="width: 245px; margin-bottom: 5px" data-id="operation_status">
+            </div>
+          </div>
         </div>
 
 
@@ -192,7 +161,7 @@
           border-image-slice: 1; 
           margin-left: 35px; margin-bottom: 30px;">
             <div class="con_1_title" style="width: 180px; height: 50px; margin-top: -20px; margin-left:92px; position:absolute; background-image: url('../public/image/btn_03.png'); ">
-              <h5 style="color:#fff; font-weight:500; margin-top:15px; font-size:16px;">현재 출력</h5>
+              <h5 style="color:#fff; font-weight:500; margin-top:15px; font-size:16px;">3.3kW 태양광 출력</h5>
             </div>
             <div class="con_1_con" style="width: 300px; height: 180px;  margin: 0 auto; margin-top:40px;">
               <div id="chart_div_1" style="width: 400px; height: 280px;"></div>
@@ -228,7 +197,7 @@
 
             <div class="con_1_title" style="width: 180px; height: 50px; margin-top: -20px; margin-left:92px; position:absolute; background-image: url('../public/image/btn_03.png'); 
             ">
-              <h5 style="color:#fff; font-weight:500; margin-top:15px; font-size:16px;">금일 발전량</h5>
+              <h5 style="color:#fff; font-weight:500; margin-top:15px; font-size:16px;">600W 태양광 출력</h5>
             </div>
             <div class="con_1_con" style="width: 300px; height: 180px;  margin: 0 auto; margin-top:40px;">
               <div id="chart_div_2" style="width: 400px; height: 280px;"></div>
@@ -244,13 +213,47 @@
 
           <div class="col-xs-12 con_4" style="margin-left:35px;width:842px;">
             <div class="row con_2" style="border-radius: 0px;">
-              <h5 style="float:left; margin-left:20px;">금일 발전 현황 </h5>
-              <span style="float:right; margin-right:20px; font-size:12px; color:#ddd; line-height:4;  color:burlywood; ">
+              <h5 style="float:left; margin-left:20px;">태양광 출력 그래프 </h5>
+
+              <span style="float:right; margin-right:3px; font-size:12px; color:#ddd; line-height:3;  color:burlywood; ">
+                <!-- <button type="button" class="btn btn-warning" id="download_excel">Download Excel</button> -->
+              </span>
             </div>
-            <div class="row con_2_1" style="height:312px; background: #fff; " id="dailyPowerChart">
+            <div class="row con_2_1" style="height:312px; background: #fff; " >
+              <div class="row row_width  top_box" style="margin: 0px; padding: 0px; width: auto">
+                <div class="col-xs-8 " style="padding: 5px">
+                  <div id="sel_type_div_area" class="input_st" style="margin:3px; width: 470px; padding: 3px; height: auto;">
+                    <label class="radio-inline">
+                      <input type="radio" class="" name="searchType" value="min">일일(1분)</label>
+                    <label class="radio-inline">
+                      <input type="radio" class="" name="searchType" value="min10">일일(10분)</label>
+                    <label class="radio-inline">
+                      <input type="radio" class="" name="searchType" value="hour">일일(1시간)</label>
+                    <label class="radio-inline">
+                      <input type="radio" class="" name="searchType" value="day">월간</label>
+                    <!-- <label class="radio-inline">
+                            <input type="radio" class="" name="searchType" value="month">년간</label>
+                          <label class="radio-inline">
+                            <input type="radio" class="" name="searchType" value="range">기간선택</label> -->
+                  </div>
+                </div>
+
+                <div class="serch_st sel_box_data" style="margin:0px">
+                  날짜 &nbsp;
+                  <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
+
+                  <input class="input_tre" name="end" id="end_date_input" type="text" readonly hidden="hidden">
+                  <button id="searchMain" type="button" class="btn btn-primary" style="margin-bottom:3px; height:28px;" id="search">검색</button>
+
+                </div>
+              </div>
+              <div  id="dailyPowerChart" class="title_box2" style="height: 300px;">
+
+              </div>
+
             </div>
-            <p class="re_p" style="margin-top: 5px">※ 발전량(kWh) 데이터는 모든 인버터에서 측정한
-              <span>시간당 발전량의 합 </span> 입니다. </p>
+            <!-- <p class="re_p" style="margin-top: 5px">※ 발전량(kWh) 데이터는 모든 인버터에서 측정한
+              <span>시간당 발전량의 합 </span> 입니다. </p> -->
           </div>
 
         </div>
@@ -259,13 +262,16 @@
 
 
       <!--콘텐츠하단-->
-      <div class="row row_title" style="width: 1180px;">
-        <div class="title" style="float: none; margin-bottom: 10px; margin-top:50px;"> Battery 현황
+      <div class="row row_title" style="width: 1170px;">
+
+
+
+        <div class="title" style="float: none; margin-bottom: 10px; margin-top:50px; margin-left: 331px"> Battery 현황
           <span id="measureTime" style="position: absolute;color: black;width: 300px; text-align: left; text-indent: 30px">
           </span>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" style="margin-left: 331px">
           <table class="table table-hover " style="background: #fff;">
             <thead>
               <tr>
@@ -282,38 +288,38 @@
                   <br>(kWh)</th>
                 <th style="width:8%;">누적 방전 전력
                   <br>(kWh)</th>
-                <th style="width:8%;">계통 전압 여부
+                <!-- <th style="width:8%;">계통 전압 여부
                   <br>(0: Y, 1: N)</th>
                 <th style="width:10%;">Mode
                   <br>State
                 </th>
-                <th style="width:14%;">Fault</th>
+                <th style="width:14%; vertical-align: middle">Fault</th> -->
               </tr>
             </thead>
             <tbody id="myTable">
               <tr class="sel">
-                <td class="td1" style="text-align:right;">600 W</td>
-                <td>100</td>
-                <td>1.5</td>
-                <td>346.2</td>
-                <td>317.6</td>
-                <td>7.826</td>
-                <td>7.586</td>
-                <td>1</td>
-                <td>주간모드</td>
-                <td>DC48V OC(Over Current)</td>
+                <td class="td1" style="text-align:right;vertical-align: middle">3.3 kW</td>
+                <td name="large" style="vertical-align: middle" data-id="battery_v">100</td>
+                <td name="large" style="vertical-align: middle" data-id="battery_a">1.5</td>
+                <td name="large" style="vertical-align: middle" data-id="battery_charging_kw">346.2</td>
+                <td name="large" style="vertical-align: middle" data-id="battery_discharging_kw">317.6</td>
+                <td name="large" style="vertical-align: middle" data-id="battery_total_charging_kwh">7.826</td>
+                <td name="large" style="vertical-align: middle" data-id="battery_total_discharging_kwh">7.586</td>
+                <!-- <td name="large" style="vertical-align: middle" data-id="operation_has_v">1</td>
+                <td name="large" style="vertical-align: middle" data-id="operation_mode">주간모드</td>
+                <td name="large" style="vertical-align: middle" data-id="operation_status">DC48V OC(Over Current)</td> -->
               </tr>
               <tr class="sel">
-                <td class="td1" style="text-align:right;">3.3 kW</td>
-                <td>100</td>
-                <td>1.5</td>
-                <td>346.2</td>
-                <td>317.6</td>
-                <td>7.826</td>
-                <td>7.586</td>
-                <td>1</td>
-                <td>주간모드</td>
-                <td>DC48V OC(Over Current)</td>
+                <td class="td1" style="text-align:right;vertical-align: middle">600 W</td>
+                <td name="small" style="vertical-align: middle" data-id="battery_v">100</td>
+                <td name="small" style="vertical-align: middle" data-id="battery_a">1.5</td>
+                <td name="small" style="vertical-align: middle" data-id="battery_charging_kw">346.2</td>
+                <td name="small" style="vertical-align: middle" data-id="battery_discharging_kw">317.6</td>
+                <td name="small" style="vertical-align: middle" data-id="battery_total_charging_kwh">7.826</td>
+                <td name="small" style="vertical-align: middle" data-id="battery_total_discharging_kwh">7.586</td>
+                <!-- <td name="small" style="vertical-align: middle" data-id="operation_has_v">1</td>
+                <td name="small" style="vertical-align: middle" data-id="operation_mode">주간모드</td>
+                <td name="small" style="vertical-align: middle" data-id="operation_status">DC48V OC(Over Current)</td> -->
               </tr>
             </tbody>
           </table>
@@ -322,7 +328,7 @@
 
     </div>
 
-    <div id="menu-trend" class="jumbotron text-center jumbotron_line">
+    <div id="menu-trend" hidden class="jumbotron text-center jumbotron_line">
       <div class="row row_st_line min_h_780">
         <div class="row row_width  top_box">
           <div class="col-xs-2 sel_box">
@@ -336,7 +342,7 @@
 
 
           <div class="col-xs-4 ">
-            <div id="sel_type_div_area" class="input_st" style="height:58px; margin:10px">
+            <div id="" class="input_st" style="height:58px; margin:10px">
               <label class="radio-inline">
                 <input type="radio" class="" name="searchType" value="min">일일(1분)</label>
               <label class="radio-inline">
@@ -354,9 +360,9 @@
 
           <div class="serch_st sel_box_data">
             날짜 &nbsp;
-            <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
+            <input class="input_tre" name="start" id="" type="text" readonly>
 
-            <input class="input_tre" name="end" id="end_date_input" type="text" readonly hidden="hidden">
+            <input class="input_tre" name="end" id="" type="text" readonly hidden="hidden">
             <button id="searchTrend" type="button" class="btn btn-primary" style="margin-bottom:3px; height:28px;" id="search">검색</button>
 
           </div>
@@ -366,7 +372,7 @@
           <div class="row row_title">
             <div class="title title_trend">발전량</div>
             <div class="title_trend_exc">
-              <input id='downloadExcel' class="title_trend_exc_in" type="submit" value="Download Excel">
+              <!-- <input id='downloadExcel' class="title_trend_exc_in" type="submit" value="Download Excel"> -->
             </div>
 
             <p class="title_p" id="during">

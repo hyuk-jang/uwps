@@ -101,7 +101,7 @@ ul li{list-style:none;}
 .power_3in{height:65px; width:132px; background-color:#fcfce7;border:1px solid #ddd; margin: 3px 0 0 6px; padding:0 0 0 12px; }
 .power_3in>img{float:left; margin:12px 5px 5px 5px;}
 .power_3in>p{font-size:13px; float:left; font-weight:normal; margin-top:10px; margin-bottom:0;     padding: 0 0 0 15px;}
-.power_3in>input{float: left; width:105px; height:28px;  border-radius:3px; color: #bcbcbc;  text-align: right; border: 1px solid #bcbcbc; padding:0 5px 0 0 ; }
+.power_3in>input{float: left; width:105px; height:28px;  border-radius:3px; color: #636363;  text-align: right; border: 1px solid #bcbcbc; padding:0 5px 0 0 ; }
 .power_3in>button{float: left; width:105px; height:30px;  padding:0 5px 0 0 ; }
 
 

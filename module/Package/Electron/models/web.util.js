@@ -26,7 +26,7 @@ const BU = require('base-util-jh').baseUtil;
  */
 
 
- 
+
 /**
  * @typedef {Object} chartData 차트 그리기 위한 데이터 형태
  * @property {Array} range 날짜 범위
@@ -41,7 +41,7 @@ const BU = require('base-util-jh').baseUtil;
   * @property {chartDataOption} option 차트 색상
   */
 
-  
+
 /**
  * @typedef {Object} chartOption
  * @property {string} selectKey Chart에 표현할 Key
@@ -80,9 +80,9 @@ const BU = require('base-util-jh').baseUtil;
  * @return {{temp: number, wf: number}} 
  */
 function convertWeatherCast(weatherCastInfo) {
-  let returnValue = {temp: 0, wf: 0};
+  let returnValue = { temp: 0, wf: 0 };
 
-  if(_.isEmpty(weatherCastInfo)){
+  if (_.isEmpty(weatherCastInfo)) {
     return returnValue;
   }
 
@@ -159,7 +159,7 @@ exports.calcValidDataList = calcValidDataList;
  * @return {number|string} 계산 결과 값 or ''
  */
 function reduceDataList(dataList, key) {
-  let returnNumber = _.sum(_.map(dataList, key)); 
+  let returnNumber = _.sum(_.map(dataList, key));
   return _.isNumber(returnNumber) ? returnNumber : '';
 }
 exports.reduceDataList = reduceDataList;
@@ -187,9 +187,9 @@ exports.calcValue = calcValue;
  * @param {Object[]} rowDataPacketList 
  * @param {calcRowPacketIntervalOption} calcOption 
  */
-function calcRangePower(rowDataPacketList, calcOption){
+function calcRangePower(rowDataPacketList, calcOption) {
   // BU.CLI(calcOption);
-  
+
   // 같은 Key 끼리 그루핑
   if (calcOption.groupKey) {
     // BU.CLI(groupKey);
@@ -200,40 +200,40 @@ function calcRangePower(rowDataPacketList, calcOption){
     const hasCalcDate = hasCalcRange && calcOption.rangeOption.dateKey.length ? true : false;
     // 데이터 분포군 개수로는 계산하지 않음.
     // const hasCalcCount = hasCalcRange && calcOption.rangeOption.minRequiredCountKey.length ? true : false;
-    
+
     _.forEach(groupRowDataPacketList, rowList => {
       let prevValue;
       let prevDate;
       rowList.forEach((rowData, index) => {
         let hasError = false;
-        if(index === 0){
+        if (index === 0) {
           prevValue = _.isEmpty(calcOption.calcMinKey) ? rowData[calcOption.calcMaxKey] : rowData[calcOption.calcMinKey];
-        } 
+        }
         // BU.CLI(prevDate);
         // 날짜 계산 옵션이 있다면 날짜 임계치를 벗어났는지 체크
 
-        if(hasCalcDate && prevDate instanceof Date){
+        if (hasCalcDate && prevDate instanceof Date) {
           /** @type {Date} */
           let currDate = rowData[calcOption.rangeOption.dateKey];
           currDate = typeof currDate === 'string' ? BU.convertTextToDate(currDate) : currDate;
           // BU.CLI(BU.convertDateToText(prevDate), BU.convertDateToText(currDate));
           let thisCritical = (currDate.getTime() - prevDate.getTime()) * 0.001;
           // BU.CLIS(prevDate.getTime(), currDate.getTime(), currDate.getTime() - prevDate.getTime());
-          if(thisCritical >= calcOption.rangeOption.maxRequiredDateSecondValue){
+          if (thisCritical >= calcOption.rangeOption.maxRequiredDateSecondValue) {
             hasError = true;
           }
-        } 
+        }
 
         // if(hasCalcCount && calcOption.rangeOption.minRequiredCountValue > rowData[calcOption.rangeOption.minRequiredCountKey]){
         //   hasError = true;
         // }
 
         // BU.CLI(hasError);
-        rowData[calcOption.resultKey] = hasError ?  '' : rowData[calcOption.calcMaxKey] - prevValue;
+        rowData[calcOption.resultKey] = hasError ? '' : rowData[calcOption.calcMaxKey] - prevValue;
         // BU.CLI(rowData);
         prevValue = rowData[calcOption.calcMaxKey];
 
-        if(hasCalcDate){
+        if (hasCalcDate) {
           prevDate = rowData[calcOption.rangeOption.dateKey];
           prevDate = typeof prevDate === 'string' ? BU.convertTextToDate(prevDate) : prevDate;
         }
@@ -242,8 +242,8 @@ function calcRangePower(rowDataPacketList, calcOption){
     });
 
     return groupRowDataPacketList;
-    
-  } 
+
+  }
 }
 exports.calcRangePower = calcRangePower;
 
@@ -253,11 +253,11 @@ exports.calcRangePower = calcRangePower;
  * @param {searchRange} searchRange 
  * @param {string} cumulativePowerKey
  */
-function calcRangeGridOutW(rowDataPacketList, searchRange, cumulativePowerKey ){
+function calcRangeGridOutW(rowDataPacketList, searchRange, cumulativePowerKey) {
   rowDataPacketList.forEach(rowDataPacket => {
     let cPower = rowDataPacket[cumulativePowerKey];
     rowDataPacketList.grid_out_w = '';
-    if(typeof cPower === 'number'){
+    if (typeof cPower === 'number') {
       switch (searchRange.searchType) {
       case 'min':
         rowDataPacket.grid_out_w = cPower * 60;
@@ -281,7 +281,7 @@ function calcRangeGridOutW(rowDataPacketList, searchRange, cumulativePowerKey ){
         break;
       }
       rowDataPacket.grid_out_w = _.round(rowDataPacket.grid_out_w, 2);
-    } 
+    }
   });
 
 }
@@ -293,7 +293,7 @@ exports.calcRangeGridOutW = calcRangeGridOutW;
  * @param {searchRange} searchRange 
  * @param {string[]} dataKeyList
  */
-function calcScaleRowDataPacket(rowDataPacketList, searchRange, dataKeyList ){
+function calcScaleRowDataPacket(rowDataPacketList, searchRange, dataKeyList) {
   rowDataPacketList.forEach(rowDataPacket => {
     dataKeyList.forEach(dataKey => {
       rowDataPacket[dataKey] = convertValueBySearchType(rowDataPacket[dataKey], searchRange.searchType);
@@ -373,48 +373,29 @@ function refineSelectedInverterStatus(viewInverterStatus) {
   let currInverterDataList = [];
   _.forEach(viewInverterStatus, info => {
     // BU.CLI(info)
+
     let hasValidData = info.hasValidData;
     let data = info.data;
-    let addObj = {
-      inverter_seq: data.inverter_seq,
-      target_id: data.target_id,
-      target_name: data.target_name,
-      in_a: '',
-      in_v: '',
-      in_w: '',
-      in_kw: '',
-      out_a: '',
-      out_v: '',
-      out_w: '',
-      out_kw: '',
-      p_f: '',
-      d_wh: '',
-      d_kwh: '',
-      c_kwh: '',
-      compare_efficiency: '',
-      water_level: '',
-      writedate: data.writedate,
-      hasOperation: false
-    };
+
+
+
+    let addObj = _.clone(data);
+    _.forEach(addObj, (ele, key) => addObj[key] = '');
+
+    addObj.amount = data.amount;
+    addObj.inverter_seq = data.inverter_seq;
+    addObj.target_id = data.target_id;
+    addObj.target_name = data.target_name;
+    addObj.writedate = data.writedate;
+    addObj.hasOperation = false;
 
     // if (true) {
     if (hasValidData) {
-      addObj.in_a = data.in_a;
-      addObj.in_v = data.in_v;
-      addObj.in_w = data.in_w;
-      addObj.in_kw = _.isNumber(data.in_w) ? calcValue(data.in_w, 0.001, 3) : '';
-      addObj.out_a = data.out_a;
-      addObj.out_v = data.out_v;
-      addObj.out_w = data.out_w;
-      addObj.out_kw = _.isNumber(data.out_w) ? calcValue(data.out_w, 0.001, 3) : '';
-      addObj.p_f = data.p_f;
-      addObj.d_wh = data.d_wh;
-      addObj.compare_efficiency = data.compare_efficiency;
-      addObj.water_level = data.water_level;
+      addObj = _.clone(data);
       addObj.hasOperation = true;
     }
-    addObj.d_kwh = _.isNumber(data.daily_power_wh) ? calcValue(data.daily_power_wh, 0.001, 3) : '';
-    addObj.c_kwh = _.isNumber(data.c_wh) ? calcValue(data.c_wh, 0.001, 2) : '';
+    // addObj.d_kwh = _.isNumber(data.daily_power_wh) ? calcValue(data.daily_power_wh, 0.001, 3) : '';
+    // addObj.c_kwh = _.isNumber(data.c_wh) ? calcValue(data.c_wh, 0.001, 2) : '';
     currInverterDataList.push(addObj);
   });
   // currInverterDataList = _.sortBy(currInverterDataList, 'target_name');
@@ -463,15 +444,15 @@ function makeDynamicChartData(rowDataPacketList, chartOption) {
         data: []
       };
 
-      if(hasArea) {
+      if (hasArea) {
         addObj.type = 'area';
       }
 
-      let dataRow =  _.head(groupObj);
-      if(colorKey){
+      let dataRow = _.head(groupObj);
+      if (colorKey) {
         addObj.color = dataRow[chartOption.colorKey];
       }
-      if(sortKey){
+      if (sortKey) {
         addObj.sort = dataRow[chartOption.sortKey];
       }
 
@@ -482,18 +463,18 @@ function makeDynamicChartData(rowDataPacketList, chartOption) {
       returnValue.series.push(addObj);
     });
 
-    if(sortKey){
-      returnValue.series = _.sortBy(returnValue.series, obj => obj.sort );
+    if (sortKey) {
+      returnValue.series = _.sortBy(returnValue.series, obj => obj.sort);
     } else {
-      returnValue.series = _.sortBy(returnValue.series, obj => obj.name );
+      returnValue.series = _.sortBy(returnValue.series, obj => obj.name);
     }
-  } else {  
+  } else {
     let addObj = {
       name: '',
       data: []
     };
 
-    if(hasArea) {
+    if (hasArea) {
       addObj.type = 'area';
     }
 
@@ -520,7 +501,7 @@ function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
   const groupKey = chartOption.groupKey;
   const colorKey = chartOption.colorKey;
   const sortKey = chartOption.sortKey;
-  
+
   // 반환 데이터 유형
   /** @type {chartData} */
   let returnValue = {
@@ -542,9 +523,9 @@ function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
         option: {}
       };
 
-      let dataRow =  _.head(groupObj);
+      let dataRow = _.head(groupObj);
       // 색상 키가 있다면 입력
-      if(colorKey){
+      if (colorKey) {
         addObj.color = dataRow[colorKey];
       }
 
@@ -563,10 +544,10 @@ function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
       returnValue.series.push(addObj);
     });
 
-    if(sortKey){
-      returnValue.series = _.sortBy(returnValue.series, obj => obj.option.sort );
+    if (sortKey) {
+      returnValue.series = _.sortBy(returnValue.series, obj => obj.option.sort);
     } else {
-      returnValue.series = _.sortBy(returnValue.series, obj => obj.name );
+      returnValue.series = _.sortBy(returnValue.series, obj => obj.name);
     }
   } else {
 
@@ -581,7 +562,7 @@ function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
         [dateKey]: fullTxtDate
       });
 
-        // BU.CLI(findGridObj)
+      // BU.CLI(findGridObj)
       let data = _.isEmpty(resultFind) ? '' : resultFind[selectKey];
       addObj.data.push(data);
     });
@@ -601,7 +582,7 @@ exports.makeStaticChartData = makeStaticChartData;
  * @param {chartOption} chartOption 
  * @return {chartDataOption}
  */
-function calcStatisticsReport(rowDataPacketList, chartOption){
+function calcStatisticsReport(rowDataPacketList, chartOption) {
   /** @type {chartDataOption} */
   const returnValue = {};
   const sortKey = chartOption.sortKey;
@@ -609,34 +590,34 @@ function calcStatisticsReport(rowDataPacketList, chartOption){
   const minKey = chartOption.minKey;
   const averKey = chartOption.averKey;
 
-  let dataRow =  _.head(rowDataPacketList);
+  let dataRow = _.head(rowDataPacketList);
 
   // 데이터가 없다면 빈 객체 반환
-  if(_.isEmpty(dataRow)){
+  if (_.isEmpty(dataRow)) {
     return returnValue;
   }
 
   // 정렬 우선 순위가 있다면 입력
-  if(sortKey){
+  if (sortKey) {
     returnValue.sort = dataRow[sortKey];
   }
   // 최대 값을 구한다면
-  if(maxKey){
+  if (maxKey) {
     let row = _.maxBy(rowDataPacketList, rowPacket => rowPacket[maxKey]);
     returnValue.max = row[maxKey];
   }
   // 최소 값을 구한다면
-  if(minKey){
+  if (minKey) {
     let row = _.minBy(rowDataPacketList, rowPacket => rowPacket[minKey]);
     returnValue.min = row[minKey];
   }
   // TODO 
-  if(averKey){
+  if (averKey) {
     returnValue.aver = 0;
     let sum = reduceDataList(rowDataPacketList, averKey);
-    if(_.isNumber(sum)){
+    if (_.isNumber(sum)) {
       returnValue.aver = sum / rowDataPacketList.length;
-    } 
+    }
     returnValue.aver = 0;
   }
 
@@ -678,16 +659,16 @@ exports.convertValueBySearchType = convertValueBySearchType;
 function applyScaleChart(chartData, searchType) {
   // BU.CLI(searchType);
   chartData.series.forEach(chart => {
-    if(chart.option){
+    if (chart.option) {
       let option = chart.option;
-      if(option.max){
-        option.max =  _.isNumber(option.max) ? convertValueBySearchType(option.max, searchType) : '';
+      if (option.max) {
+        option.max = _.isNumber(option.max) ? convertValueBySearchType(option.max, searchType) : '';
       }
-      if(option.min){
-        option.min =  _.isNumber(option.min) ? convertValueBySearchType(option.min, searchType) : '';
+      if (option.min) {
+        option.min = _.isNumber(option.min) ? convertValueBySearchType(option.min, searchType) : '';
       }
-      if(option.aver){
-        option.aver =  _.isNumber(option.aver) ? convertValueBySearchType(option.aver, searchType) : '';
+      if (option.aver) {
+        option.aver = _.isNumber(option.aver) ? convertValueBySearchType(option.aver, searchType) : '';
       }
     }
     chart.data.forEach((data, index) => {
@@ -746,7 +727,7 @@ function makeChartDecorator(searchRange) {
     yAxisTitle = '발전량(Wh)';
     inverterComment = '1분 동안의 발전량(Wh)';
     connectorComment = '1분 동안의 평균 출력(W)';
-    break;    
+    break;
   default:
     break;
   }
@@ -812,7 +793,7 @@ function mappingChartDataNameForModule(chartData, mappingTarget) {
     let upsasInfo = _.find(mappingTarget, {
       photovoltaic_seq: Number(chart.name)
     });
-    chart.name = `${upsasInfo.cnt_target_name} ${upsasInfo.pv_target_name} (${upsasInfo.pv_module_type.slice(0,1)})`;
+    chart.name = `${upsasInfo.cnt_target_name} ${upsasInfo.pv_target_name} (${upsasInfo.pv_module_type.slice(0, 1)})`;
     // chart.name = upsasInfo.ivt_target_name;
   });
   chartData.series = _.sortBy(chartData.series, 'ivt_target_name');
@@ -828,12 +809,12 @@ exports.mappingChartDataNameForModule = mappingChartDataNameForModule;
  * @param {string} addKey 
  * @param {string} referenceKey 
  */
-function addKeyToReport(sourceList, referenceList, addKey, referenceKey){
+function addKeyToReport(sourceList, referenceList, addKey, referenceKey) {
   // BU.CLIS(sourceList, referenceList);
   sourceList.forEach(currentItem => {
-    const findIt = _.find(referenceList, {[referenceKey]: currentItem[referenceKey]});
+    const findIt = _.find(referenceList, { [referenceKey]: currentItem[referenceKey] });
 
-    currentItem[addKey] = _.isEmpty(findIt) ? '' : findIt[addKey]; 
+    currentItem[addKey] = _.isEmpty(findIt) ? '' : findIt[addKey];
   });
 
   return sourceList;
@@ -841,6 +822,152 @@ function addKeyToReport(sourceList, referenceList, addKey, referenceKey){
 }
 exports.addKeyToReport = addKeyToReport;
 
+
+/**
+ * 
+ * @param {Object[]} inverterStatusList 
+ */
+function convertOperationStatus(inverterStatusList) {
+  inverterStatusList.forEach(currentItem => {
+    let data = '';
+    switch (_.get(currentItem, 'operation_status')) {
+    case '0':
+      data = 'Ready';
+      break;
+    case '1':
+      data = 'PV over current';
+      break;
+    case '2':
+      data = 'PV over voltage';
+      break;
+    case '3':
+      data = 'PV Under voltage';
+      break;
+    case '4':
+      data = 'DC Link over voltage';
+      break;
+    case '5':
+      data = 'DC Link under voltage';
+      break;
+    case '6':
+      data = 'Inverter over current';
+      break;
+    case '7':
+      data = 'Line over voltage';
+      break;
+    case '8':
+      data = 'Line under voltage';
+      break;
+    case '9':
+      data = 'Inverter OverHeat1';
+      break;
+    case 'A':
+      data = 'Line over frequency';
+      break;
+    case 'B':
+      data = 'Line under frequency';
+      break;
+    case 'C':
+      data = 'PV Waiting';
+      break;
+    case 'D':
+      data = 'BAT OV( Over Voltage)';
+      break;
+    case 'E':
+      data = 'BAT UV(Under Voltage)';
+      break;
+    case 'F':
+      data = 'BAT OC(Over Current)';
+      break;
+    case 'H':
+      data = 'DC48V IGBT Fault';
+      break;
+    case 'I':
+      data = 'DC48V OC(Over Current)';
+      break;
+    case 'J':
+      data = 'IGBT Boost fault';
+      break;
+    case 'K':
+      data = 'IGBT inverter fault';
+      break;
+    case 'L':
+      data = 'Inverter Leakage Current fault';
+      break;
+    case 'M':
+      data = 'Over Heat ( over 95°C)';
+      break;
+    case 'N':
+      data = 'Earth fault';
+      break;
+    case 'O':
+      data = 'Anti islanding Passive';
+      break;
+    case 'P':
+      data = 'Anti islanding Active';
+      break;
+    case 'S':
+      data = 'DC48V OV(Over Voltage)';
+      break;
+    case 'U':
+      data = 'Stand Alone시 계통연계';
+      break;
+    case 'V':
+      data = 'Continuous fault';
+      break;
+    case 'X':
+      data = 'Power Down (95%)';
+      break;
+    case 'Y':
+      data = 'Power Down (90%)';
+      break;
+    default:
+      break;
+    }
+    currentItem.operation_status = data;
+  });
+}
+exports.convertOperationStatus = convertOperationStatus;
+
+
+/**
+ * 
+ * @param {Object[]} inverterStatusList 
+ */
+function convertOperationMode(inverterStatusList) {
+  // BU.CLI(inverterStatusList);
+  inverterStatusList.forEach(currentItem => {
+    let data = '';
+    switch (_.get(currentItem, 'operation_mode')) {
+    case '0':
+      data = '대기 mode ( 모드변경, 또는  동작 시간 대기 모드)';
+      break;
+    case '1':
+      data = 'stop(fault 정지)';
+      break;
+    case '2':
+      data = 'Battery Charging from line(야간모드중)';
+      break;
+    case '3':
+      data = 'Battery Charging from PV(주간모드)';
+      break;
+    case '4':
+      data = 'Battery Discharging to line( 테스트모드)';
+      break;
+    case '5':
+      data = 'Night Start (야간모드 시작)';
+      break;
+    case '6':
+      data = 'run( 배터리 충전없이 태양광발전)';
+      break;
+
+    default:
+      break;
+    }
+    currentItem.operation_mode = data;
+  });
+}
+exports.convertOperationMode = convertOperationMode;
 
 // /**
 //  * Range에 맞는 차트 데이터 구성
@@ -857,13 +984,13 @@ exports.addKeyToReport = addKeyToReport;
 //     const group = _.groupBy(rowDataPacketList, groupKey);
 //     BU.CLI(group);
 //     _.each(group, (list, key) => {
-      
+
 //       let reverseList = (_.sortBy(list, ele => {
 //         return ele[sortKey];
 //       })).reverse();
 
 //       _.reduce(reverseList, (prev, next) => {
-        
+
 //       });
 
 //       BU.CLI(reverseList);

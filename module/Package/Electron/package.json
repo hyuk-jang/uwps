@@ -68,8 +68,7 @@
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
-    "das-ess-monitoring": "^0.1.1",
-    "device-protocol-converter-jh": "^0.1.11",
+    "das-ess-monitoring": "^0.1.2",
     "devtron": "^1.4.0",
     "electron": "^2.0.2",
     "electron-builder": "^20.15.1",
@@ -83,6 +82,6 @@
     "highcharts": "^6.1.0",
     "jquery": "^3.3.1",
     "lodash": "^4.17.10",
-    "xlsx": "^0.12.13"
+    "xlsx": "^0.13.0"
   }
 }

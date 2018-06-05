@@ -1,16 +1,16 @@
 {
-  "name": "inverter-monitoring",
+  "name": "pv-led",
   "version": "0.1.0",
-  "description": "Inverter Monitoring",
+  "description": "PV LED Monitoring",
   "main": "main.js",
   "build": {
-    "productName": "InverterMonitoring",
+    "productName": "PV LED Monitoring",
     "appId": "com.electron.hello",
     "asar": true,
     "protocols": {
       "name": "helloElectron",
       "schemes": [
-        "InverterMonitoring"
+        "Monitoring"
       ]
     },
     "mac": {
@@ -20,7 +20,7 @@
       "icon": "./icons/icon.icns"
     },
     "dmg": {
-      "title": "HelloElectron",
+      "title": "PV LED Monitoring",
       "icon": "./icons/icon.icns"
     },
     "win": {
@@ -68,7 +68,6 @@
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
-    "das-ess-monitoring": "^0.1.2",
     "devtron": "^1.4.0",
     "electron": "^2.0.2",
     "electron-builder": "^20.15.1",
@@ -78,6 +77,7 @@
     "base-model-jh": "^1.0.11",
     "base-util-jh": "^1.1.6",
     "bluebird": "^3.5.1",
+    "das-ess-monitoring": "^0.1.2",
     "device-client-controller-jh": "^0.1.26",
     "highcharts": "^6.1.0",
     "jquery": "^3.3.1",

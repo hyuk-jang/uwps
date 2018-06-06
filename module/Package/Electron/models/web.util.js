@@ -683,50 +683,43 @@ exports.applyScaleChart = applyScaleChart;
 /**
  * 차트를 생성하는데 필요한 부가적인 정보 생성
  * @param {searchRange} searchRange 검색 옵션
- * @return {{mainTitle: string, xAxisTitle: string, yAxisTitle: string, inverterComment: string, connectorComment: string}} x, y, title Text
+ * @return {{mainTitle: string, xAxisTitle: string, yAxisTitle: string, comment: string}} x, y, title Text
  */
 function makeChartDecorator(searchRange) {
   let mainTitle = '';
   let xAxisTitle = '';
   let yAxisTitle = '';
-  let inverterComment = '';
-  let connectorComment = '';
+  let comment = '';
   switch (searchRange.searchType) {
   case 'year':
     xAxisTitle = '시간(년)';
-    yAxisTitle = '발전량(MWh)';
-    inverterComment = '1년 동안의 발전량(MWh)';
-    connectorComment = '1년 동안의 평균 출력의 출력(MWh)';
+    yAxisTitle = '출력(kW)';
+    comment = '1년 동안 시간당 평균 출력의 합(kW)';
     break;
   case 'month':
     xAxisTitle = '시간(월)';
-    yAxisTitle = '발전량(kWh)';
-    inverterComment = '1개월 동안의 발전량(kWh)';
-    connectorComment = '1개월 동안 시간당 평균 출력의 합(kW)';
+    yAxisTitle = '출력(kW)';
+    comment = '1개월 동안 시간당 평균 출력의 합(kW)';
     break;
   case 'day':
     xAxisTitle = '시간(일)';
-    yAxisTitle = '발전량(kWh)';
-    inverterComment = '1일 동안의 발전량(kWh)';
-    connectorComment = '1일 동안 시간당 평균 출력(kW)의 합';
+    yAxisTitle = '출력(kW)';
+    comment = '1일 동안 시간당 평균 출력(kW)의 합';
     break;
   case 'hour':
     xAxisTitle = '시간';
-    yAxisTitle = '발전량(Wh)';
-    inverterComment = '1시간 동안의 발전량(Wh)';
-    connectorComment = '1시간 동안의 평균 출력(W)';
+    yAxisTitle = '출력(kW)';
+    comment = '1시간 동안의 평균 출력(W)';
     break;
   case 'min10':
     xAxisTitle = '시간';
-    yAxisTitle = '발전량(Wh)';
-    inverterComment = '10분 동안의 발전량(Wh)';
-    connectorComment = '10분 동안의 평균 출력(W)';
+    yAxisTitle = '출력(kW)';
+    comment = '10분 동안의 평균 출력(W)';
     break;
   case 'min':
     xAxisTitle = '시간';
-    yAxisTitle = '발전량(Wh)';
-    inverterComment = '1분 동안의 발전량(Wh)';
-    connectorComment = '1분 동안의 평균 출력(W)';
+    yAxisTitle = '출력(kW)';
+    comment = '1분 동안의 평균 출력(W)';
     break;
   default:
     break;
@@ -741,8 +734,7 @@ function makeChartDecorator(searchRange) {
     mainTitle,
     xAxisTitle,
     yAxisTitle,
-    inverterComment,
-    connectorComment
+    comment
   };
 }
 exports.makeChartDecoration = makeChartDecorator;

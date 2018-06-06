@@ -45,7 +45,8 @@ exports.inverterScale = [{
   inverter_seq: 3,
   target_id: 'IVT5',
   target_name: '수중 G2G (단)',
-  scale: 	0.939450921
+  scale: 	0.987561
+  // scale: 	0.939450921
   // scale: 1
 },{
   inverter_seq: 4,

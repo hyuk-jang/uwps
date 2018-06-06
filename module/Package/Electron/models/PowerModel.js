@@ -130,85 +130,6 @@ class PowerModel extends BiModule {
 
 
   /**
-   * 기상 관측 차트 반환
-   * @param {searchRange} searchRange 
-   * @param {{fullTxtPoint: [], shortTxtPoint: []}} betweenDatePoint
-   */
-  async getWeatherChart(searchRange, betweenDatePoint) {
-
-    let weatherTrend = await this.getWeatherTrend(searchRange);
-    webUtil.calcScaleRowDataPacket(weatherTrend, searchRange, ['total_interval_solar']);
-
-    let weatherChartOptionList = [{
-      name: '일사량(W/m²)',
-      color: 'red',
-      yAxis: 1,
-      selectKey: 'avg_solar',
-      dateKey: 'group_date'
-    },
-    {
-      name: '기온(℃)',
-      color: 'green',
-      yAxis: 1,
-      selectKey: 'avg_temp',
-      maxKey: 'avg_temp',
-      minKey: 'avg_temp',
-      averKey: 'avg_temp',
-      dateKey: 'group_date'
-    },
-    ];
-
-    let weatherChartData = {
-      range: betweenDatePoint.shortTxtPoint,
-      series: []
-    };
-
-    weatherChartOptionList.forEach(chartOption => {
-      let staticChart = webUtil.makeStaticChartData(weatherTrend, betweenDatePoint, chartOption);
-      let chart = _.head(staticChart.series);
-      chart.name = chartOption.name;
-      chart.color = chartOption.color;
-      chart.yAxis = chartOption.yAxis;
-
-      weatherChartData.series.push(chart);
-    });
-
-    let addWeatherChartOptionList = [{
-      name: '풍향',
-      color: 'brown',
-      yAxis: 0,
-      selectKey: 'avg_wd',
-      dateKey: 'group_date'
-    },
-    {
-      name: '풍속(m/s)',
-      color: 'purple',
-      yAxis: 0,
-      selectKey: 'avg_ws',
-      dateKey: 'group_date'
-    },
-    {
-      name: '습도(%)',
-      color: 'pink',
-      yAxis: 0,
-      selectKey: 'avg_reh',
-      dateKey: 'group_date'
-    },
-      // { name: '자외선(uv)', color: 'skyblue', yAxis:0, selectKey: 'avg_uv', dateKey: 'group_date'},
-    ];
-
-    weatherChartOptionList = weatherChartOptionList.concat(addWeatherChartOptionList);
-
-
-    // BU.CLI(chartData);
-    return {
-      weatherChartData,
-      weatherTrend,
-      weatherChartOptionList
-    };
-  }
-
-  /**
    * @param {searchRange} searchRange 
    * @param {number} searchInterval 
    */
@@ -249,17 +170,11 @@ class PowerModel extends BiModule {
       device_seq: 'all',
     };
     let betweenDatePoint = BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchInterval);
-    let {inverterPowerChartData, inverterTrend, viewInverterPacketList} = await this.getInverterChart(searchOption, searchRange, betweenDatePoint);
-
-    // BU.CLI(inverterPowerChartData);
-    let {weatherTrend, weatherChartOptionList} = await this.getWeatherChart(searchRange, betweenDatePoint);
-    // BU.CLI(weatherTrend);
-    let weatherCastRowDataPacketList =  await this.getWeatherCastAverage(searchRange);
     let chartDecoration = webUtil.makeChartDecoration(searchRange);
-    let powerChartData = inverterPowerChartData;
 
-    let waterLevelDataPacketList = await this.getWaterLevel(searchRange);
-    
+
+    let {inverterPowerChartData, inverterTrend, viewInverterPacketList} = await this.getAllOriginalData(searchOption, searchRange, betweenDatePoint);
+
     let createExcelOption = {
       viewInverterPacketList,
       inverterTrend,
@@ -273,6 +188,7 @@ class PowerModel extends BiModule {
     };
     return excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
   }
+
 
 
   

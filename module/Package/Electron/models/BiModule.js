@@ -23,207 +23,29 @@ class BiModule extends bmjh.BM {
 
   }
 
-  /**
-   * 수위
-   * @param {searchRange} searchRange  검색 옵션
-   * @param {number[]=} inverter_seq_list 
-   * @return {Promise} SQL 실행 결과
-   */
-  getWaterLevel(searchRange, inverter_seq_list){
-    searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'applydate');
 
-    // BU.CLI(dateFormat);
+  /**
+   * 장치 데이터 가져옴
+   * @param {searchRange} searchRange
+   * @param {number[]=} inverter_seq 
+   * @return {{inverterPowerChartData: chartData, inverterTrend: Object[], viewInverterPacketList: Array.<viewInverterDataPacket>}} chartData
+   */
+  async getAllOriginalData(searchRange, inverter_seq) {
+    // searchRange = searchRange ? searchRange : this.getSearchRange();
+    // let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
     let sql = `
-      SELECT
-        twl.inverter_seq,
-        ROUND(AVG(water_level), 1) AS water_level,
-        DATE_FORMAT(applydate,'%H') AS hour_time,
-        ${dateFormat.selectViewDate},
-        ${dateFormat.selectGroupDate}
-        FROM temp_water_level twl
-        WHERE applydate>= "${searchRange.strBetweenStart}" and applydate<"${searchRange.strBetweenEnd}"
-    `;
-    if (inverter_seq_list) {
-      sql += `AND twl.inverter_seq IN (${inverter_seq_list})`;
+    SELECT * FROM 
+      inverter_data
+      WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}
+      `;
+    if (inverter_seq !== '' && inverter_seq && inverter_seq !== 'all') {
+      sql += `AND inverter_seq = ${inverter_seq}`;
     }
-    sql += `
-          GROUP BY ${dateFormat.firstGroupByFormat}, twl.inverter_seq
-          ORDER BY twl.inverter_seq, applydate
+    sql +=  `
+      ORDER BY writedate, inverter_seq
     `;
     return this.db.single(sql, '', false);
   }
-
-  /**
-   * 기상 관측 장비의 최신 데이터 1row를 가져옴.
-   */
-  getWeather() {
-    let sql = 'SELECT * FROM weather_device_data ORDER BY writedate DESC LIMIT 1';
-    return this.db.single(sql, '', false);
-  }
-
-  /**
-   * 기상 계측 장치 평균을 구해옴
-   * @param {searchRange} searchRange  검색 옵션
-   * @return {weatherRowDataPacketList}
-   */
-  getWeatherDeviceAverage(searchRange) {
-    searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
-    let sql = `
-      SELECT
-          writedate,
-          ${dateFormat.selectViewDate},
-          ${dateFormat.selectGroupDate},
-          AVG(temp) AS avg_temp,
-          AVG(reh) AS avg_reh,
-          AVG(ws) AS avg_ws,
-          AVG(solar) AS avg_solar,
-          ROUND(AVG(solar) / 6, 1) AS interval_solar,
-          COUNT(*) AS first_count
-      FROM weather_device_data wdd
-      WHERE writedate>= "${searchRange.strBetweenStart}" and writedate<"${searchRange.strBetweenEnd}"
-      AND DATE_FORMAT(writedate, '%H') > '05' AND DATE_FORMAT(writedate, '%H') < '20'
-      GROUP BY ${dateFormat.groupByFormat}
-      ORDER BY writedate
-    `;
-    return this.db.single(sql, '', false);
-  }
-
-  /**
-   * 날씨 평균을 구해옴
-   * @param {searchRange} searchRange  검색 옵션
-   * @return {weatherRowDataPacketList}
-   */
-  getWeatherCastAverage(searchRange) {
-    searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'applydate');
-    // BU.CLI(dateFormat);
-    // BU.CLI(searchRange);
-
-    let sql = `
-    SELECT main.*,
-    ${dateFormat.selectViewDate},
-    ${dateFormat.selectGroupDate},
-    ROUND(AVG(main.scale_sky), 1) AS avg_sky
-     FROM
-    (
-    SELECT *,
-        CASE
-        WHEN sky = 1 THEN 1
-        WHEN sky = 2 THEN 4
-        WHEN sky = 3 THEN 7
-        WHEN sky = 4 THEN 9.5
-        END AS scale_sky
-    FROM kma_data	
-    WHERE applydate>= "${searchRange.strBetweenStart}" and applydate<"${searchRange.strBetweenEnd}"
-    AND DATE_FORMAT(applydate, '%H') > '05' AND DATE_FORMAT(applydate, '%H') < '21'
-    ) main
-    GROUP BY ${dateFormat.groupByFormat}
-    ORDER BY applydate
-    `;
-    return this.db.single(sql, '', false);
-  }
-
-
-  /**
-   * 접속반 기준 Module 최신 데이터 가져옴
-   *  
-   * @param {number|Array} photovoltatic_seq Format => Number or Array or undefinded
-   * @return {Promise} 최신 데이터 리스트
-   */
-  getModuleStatus(photovoltatic_seq) {
-    let sql = `
-      SELECT
-        pv.*,
-        ru.connector_ch,
-      curr_data.*	 		  
-        FROM
-        photovoltaic pv
-        JOIN relation_upms ru
-          ON ru.photovoltaic_seq = pv.photovoltaic_seq
-        LEFT JOIN saltern_block sb
-          ON sb.saltern_block_seq = ru.saltern_block_seq
-        LEFT OUTER JOIN 
-        (
-        SELECT 
-            md.photovoltaic_seq,
-          ROUND(md.amp / 10, 1) AS amp,
-          ROUND(md.vol / 10, 1) AS vol,
-          md.writedate
-      FROM module_data md
-      INNER JOIN
-        (
-          SELECT MAX(module_data_seq) AS module_data_seq
-          FROM module_data
-          GROUP BY photovoltaic_seq
-        ) b
-      ON md.module_data_seq = b.module_data_seq
-        ) curr_data
-          ON curr_data.photovoltaic_seq = pv.photovoltaic_seq
-    `;
-    if (Number.isInteger(photovoltatic_seq)) {
-      sql += `WHERE pv.photovoltaic_seq = (${photovoltatic_seq})`;
-    } else if (Array.isArray(photovoltatic_seq)) {
-      sql += `WHERE pv.photovoltaic_seq IN (${photovoltatic_seq})`;
-    }
-    sql += 'ORDER BY pv.target_id';
-
-    return this.db.single(sql, '', false);
-  }
-
-
-  /**
-   * 접속반 메뉴 에서 쓸 데이터 
-   * @param {searchRange} searchRange  검색 옵션
-   * @param {number[]=} module_seq_list null, String, Array
-   * @return {Promise} SQL 실행 결과
-   */
-  getConnectorPower(searchRange, module_seq_list) {
-    searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
-
-    let sql = `
-      SELECT
-        md.photovoltaic_seq,
-        ROUND(AVG(amp / 10), 1) AS amp,
-        ROUND(AVG(vol / 10), 1) AS vol,
-        ROUND(AVG(amp) * AVG(vol) / 100, 1) AS wh,
-        DATE_FORMAT(writedate,'%H') AS hour_time,
-        ${dateFormat.selectViewDate},
-        pv.chart_color,
-        pv.chart_sort_rank
-        FROM module_data md
-        LEFT OUTER JOIN photovoltaic pv
-        ON pv.photovoltaic_seq = md.photovoltaic_seq        
-        WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
-    `;
-    if (module_seq_list) {
-      sql += `AND md.photovoltaic_seq IN (${module_seq_list})`;
-    }
-    sql += `
-          GROUP BY ${dateFormat.firstGroupByFormat}, md.photovoltaic_seq
-          ORDER BY md.photovoltaic_seq, writedate
-    `;
-    return this.db.single(sql, '', false);
-  }
-
-
-  /** 
-   * 기상청 날씨를 가져옴
-   * @return {Array.<{temp: number, pty: number, wf: number, pop: number, r12: number, ws:number, wd: number, reh: number, applydate: Date}>} 날씨 정보
-   */
-  getCurrWeatherCast() {
-    let sql = `
-      SELECT *, 
-              ABS(CURRENT_TIMESTAMP() - applydate) AS cur_interval 
-       FROM kma_data
-      ORDER BY cur_interval 
-      LIMIT 1
-    `;
-    return this.db.single(sql, '', false);
-  }
-
 
 
   /**
@@ -235,7 +57,7 @@ class BiModule extends bmjh.BM {
    */
   getSearchRange(searchType, start_date, end_date) {
     // BU.CLIS(searchType, start_date, end_date);
-    let startDate = start_date instanceof Date ? start_date : _.isString(start_date) ? BU.convertTextToDate(start_date) : new Date();
+    let startDate = start_date instanceof Date ? start_date : _.isString(start_date) && start_date !== '' ? BU.convertTextToDate(start_date) : new Date();
     let endDate = end_date instanceof Date ? end_date : searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : startDate;
     // let endDate = searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : new Date(startDate);
     let convertEndDate = null;
@@ -307,64 +129,6 @@ class BiModule extends bmjh.BM {
   }
 
   /**
-   * 장치 타입 종류 가져옴
-   * @param {string} deviceType 장치 타입
-   */
-  async getDeviceList(deviceType) {
-    let returnValue = [];
-    deviceType = deviceType ? deviceType : 'all';
-    if (deviceType === 'all' || deviceType === 'inverter') {
-      let inverterList = await this.getTable('inverter');
-      inverterList = _.sortBy(inverterList, 'chart_sort_rank');
-      _.each(inverterList, info => {
-        returnValue.push({type: 'inverter', seq: info.inverter_seq, target_name: info.target_name});
-      });
-    }
-    // 인버터 이름순으로 정렬
-    // returnValue = _.sortBy(returnValue, 'target_name');
-    
-    if (deviceType === 'all' || deviceType === 'connector') {
-      let connectorList = await this.getTable('connector');
-      connectorList = _.sortBy(connectorList, 'chart_sort_rank');
-      _.each(connectorList, info => {
-        returnValue.push({type: 'connector', seq: info.connector_seq, target_name: info.target_name});
-      });
-    }
-    // 모든 셀렉트 박스 정리 끝낸 후 최상단에 보일 셀렉트 박스 정의
-    returnValue.unshift({
-      type: 'all',
-      seq: 'all',
-      target_name: '전체'
-    });
-    return returnValue;
-  }
-
-
-
-  
-  /**
-   * 종료일과 시작일 사이의 간격을 기준으로 조회 Interval Text 구함
-   * @param {String} strEndDate 
-   * @param {String} strStartDate 
-   * @return {String} searchType
-   */
-  convertSearchTypeWithCompareDate(strEndDate, strStartDate) {
-    let searchType = '';
-    let gapDate = BU.calcDateInterval(strEndDate, strStartDate);
-    let sumValues = Object.values(gapDate).sum();
-    if (gapDate.remainDay >= 365) {
-      searchType = 'year';
-    } else if (gapDate.remainDay > 29) {
-      searchType = 'month';
-    } else if (gapDate.remainDay > 0 && sumValues > 1) {
-      searchType = 'day';
-    } else {
-      searchType = 'hour';
-    }
-    return searchType;
-  }
-
-  /**
    * searchType을 받아 dateFormat String 변환하여 반환
    * @param {string} searchType 
    * @return {string} dateFormat
@@ -397,6 +161,26 @@ class BiModule extends bmjh.BM {
     return dateFormat;
   }
 
+  /**
+   * 장치 타입 종류 가져옴
+   */
+  async getDeviceList() {
+    let returnValue = [];
+    let inverterList = await this.getTable('inverter');
+    inverterList = _.sortBy(inverterList, 'chart_sort_rank');
+    _.each(inverterList, info => {
+      returnValue.push({type: 'inverter', seq: info.inverter_seq, target_name: info.target_name});
+    });
+
+    // 모든 셀렉트 박스 정리 끝낸 후 최상단에 보일 셀렉트 박스 정의
+    returnValue.unshift({
+      type: 'all',
+      seq: 'all',
+      target_name: '전체'
+    });
+    return returnValue;
+  }
+  
 
   /**
    * searchRange Type
@@ -436,10 +220,10 @@ class BiModule extends bmjh.BM {
   /**
    * 인버터 발전량 구해옴
    * @param {searchRange} searchRange  검색 옵션
-   * @param {number[]=} inverter_seq_list 
+   * @param {number} inverter_seq 
    * @return {{inverter_seq: number, group_date: string, }}
    */
-  getInverterPower(searchRange, inverter_seq_list) {
+  getInverterPower(searchRange, inverter_seq) {
     searchRange = searchRange ? searchRange : this.getSearchRange();
     // let dateFormat = this.convertSearchType2DateFormat(searchRange.searchType);
     let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
@@ -461,8 +245,8 @@ class BiModule extends bmjh.BM {
         FROM inverter_data
         WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
         `;
-    if (Array.isArray(inverter_seq_list)) {
-      sql += ` AND inverter_seq IN (${inverter_seq_list})`;
+    if (inverter_seq !== '' && inverter_seq && inverter_seq !== 'all') {
+      sql += ` AND inverter_seq IN (${inverter_seq})`;
     }
     sql += `        
     GROUP BY ${dateFormat.firstGroupByFormat}, inverter_seq
@@ -470,51 +254,9 @@ class BiModule extends bmjh.BM {
     LEFT OUTER JOIN inverter ivt
     ON ivt.inverter_seq = main.inverter_seq
     `;
-    return this.db.single(sql, '', true);
-  }
-
-  
-  /**
-   * 기상 관측 데이터 구해옴
-   * @param {searchRange} searchRange  검색 옵션
-   */
-  getWeatherTrend(searchRange) {
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
-    // BU.CLI(dateFormat);
-    // BU.CLI(searchRange);
-    let sql = `
-      SELECT
-        ${dateFormat.selectViewDate},
-        ${dateFormat.selectGroupDate},
-          ROUND(AVG(avg_sm_infrared), 1) AS avg_sm_infrared,
-          ROUND(AVG(avg_temp), 1) AS avg_temp,
-          ROUND(AVG(avg_reh), 1) AS avg_reh,
-          ROUND(AVG(avg_solar), 0) AS avg_solar,
-          ROUND(SUM(interval_solar), 1) AS total_interval_solar,
-          ROUND(AVG(avg_wd), 0) AS avg_wd,	
-          ROUND(AVG(avg_ws), 1) AS avg_ws,	
-          ROUND(AVG(avg_uv), 0) AS avg_uv
-      FROM
-        (SELECT 
-          writedate,
-          AVG(sm_infrared) AS avg_sm_infrared,
-          AVG(temp) AS avg_temp,
-          AVG(reh) AS avg_reh,
-          AVG(solar) AS avg_solar,
-          AVG(solar) / ${dateFormat.devideTimeNumber} AS interval_solar,
-          AVG(wd) AS avg_wd,	
-          AVG(ws) AS avg_ws,	
-          AVG(uv) AS avg_uv,
-          COUNT(*) AS first_count
-        FROM weather_device_data
-        WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
-        AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '21'
-        GROUP BY ${dateFormat.firstGroupByFormat}) AS result_wdd
-     GROUP BY ${dateFormat.groupByFormat}
-    `;
     return this.db.single(sql, '', false);
   }
-  
+
   /**
    * 인버터 발전량 구해옴
    * @param {searchRange} searchRange  검색 옵션
@@ -572,60 +314,6 @@ class BiModule extends bmjh.BM {
     GROUP BY id_group.inverter_seq, ${dateFormat.groupByFormat}
     `;
 
-    return this.db.single(sql, '', false);
-  }
-
-
-  /**
-   * 모듈 Seq List와 SearchRange 객체를 받아 Report 생성 및 반환
-   * @param {Array} moduleSeqList [photovoltaic_seq]
-   * @param {searchRange} searchRange getSearchRange() Return 객체
-   * @return {Object[]} {betweenDatePointObj, gridPowerInfo}
-   */
-  getConnectorTrend(moduleSeqList, searchRange) {
-    // TEST
-    // endtDate = new Date('2017-11-16');
-    // strEndDate = BU.convertDateToText(endtDate)
-    // TEST
-
-    // 기간 검색일 경우 시작일과 종료일의 날짜 차 계산하여 searchType 정의
-    if (searchRange.searchType === 'range') {
-      searchRange.searchType = this.convertSearchTypeWithCompareDate(searchRange.strEndDate, searchRange.strStartDate);
-    }
-
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
-
-    let sql = `
-      SELECT
-        md_group.photovoltaic_seq,
-        ${dateFormat.selectViewDate},
-        ${dateFormat.selectGroupDate},
-        ROUND(SUM(avg_amp), 1) AS total_amp,
-        ROUND(AVG(avg_vol), 1) AS avg_vol,
-        ROUND(SUM(avg_amp) * AVG(avg_vol), 1) AS total_wh,
-        pv.chart_color, pv.chart_sort_rank
-        FROM
-        (
-        SELECT
-          md.photovoltaic_seq,
-          writedate,
-          ROUND(AVG(amp / 10), 1) AS avg_amp,
-          ROUND(AVG(vol / 10), 1) AS avg_vol,
-          DATE_FORMAT(writedate,"%H") AS hour_time
-          FROM module_data md
-        WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
-    `;
-    if (moduleSeqList.length) {
-      sql += `AND photovoltaic_seq IN (${moduleSeqList})`;
-    }
-    sql += `
-        GROUP BY ${dateFormat.firstGroupByFormat}, photovoltaic_seq
-        ORDER BY photovoltaic_seq, writedate
-      ) md_group
-      LEFT OUTER JOIN photovoltaic pv
-        ON pv.photovoltaic_seq = md_group.photovoltaic_seq	
-      GROUP BY ${dateFormat.groupByFormat}, md_group.photovoltaic_seq
-    `;
     return this.db.single(sql, '', false);
   }
 
@@ -765,247 +453,6 @@ class BiModule extends bmjh.BM {
       report: resMainQuery
     };
   }
-
-  /**
-   * 경보 페이지. 인버터 접속반 둘다 가져옴.
-   * @param {string} errorStatus 오류 상태 (all, deviceError, systemError)
-   * @param {searchRange} searchRange 
-   * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
-   */
-  async getAlarmReport(errorStatus, searchRange) {
-    let sql = `
-      SELECT trouble_list.* 
-        FROM
-        ( 
-          SELECT itd_list.*
-          FROM
-            (SELECT 
-                itd.inverter_seq AS device_seq,
-                itd.is_error AS is_error,
-                itd.code AS code,
-                itd.msg AS msg,
-                itd.occur_date AS occur_date,
-                itd.fix_date AS fix_date,
-                ivt.target_name AS target_name,
-                'inverter' AS device_e_name,
-                '인버터' AS device_k_name
-            FROM
-              (SELECT * FROM inverter_trouble_data
-                WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
-                `;
-    if(errorStatus === 'deviceError'){
-      sql += 'AND is_error = "0"';
-    } else if(errorStatus === 'systemError'){
-      sql += 'AND is_error = "1"';
-    }
-    sql += `
-              ) AS itd
-            JOIN inverter ivt
-              ON ivt.inverter_seq = itd.inverter_seq ) AS itd_list
-          UNION
-          SELECT ctd_list.*
-          FROM
-            (SELECT 
-                ctd.connector_seq AS device_seq,
-                ctd.is_error AS is_error,
-                ctd.code AS code,
-                ctd.msg AS msg,
-                ctd.occur_date AS occur_date,
-                ctd.fix_date AS fix_date,
-                cnt.target_name AS target_name,
-                'connector' AS device_e_name,
-                '접속반' AS device_k_name
-            FROM
-              (SELECT * FROM connector_trouble_data
-                WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
-                `;
-    if(errorStatus === 'deviceError'){
-      sql += 'AND is_error = "0"';
-    } else if(errorStatus === 'systemError'){
-      sql += 'AND is_error = "1"';
-    }
-    sql += `
-              ) AS ctd
-            JOIN connector cnt
-              ON cnt.connector_seq = ctd.connector_seq 
-            ) AS ctd_list
-        ) AS trouble_list
-        ORDER BY trouble_list.occur_date DESC
-    `;
-
-
-    // 총 갯수 구하는 Query 생성
-    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
-    // Report 가져오는 Query 생성
-      
-    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
-    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
-    let totalCount = resTotalCountQuery[0].total_count;
-    let resMainQuery = await this.db.single(mainQuery, '', false);
-
-    return {
-      totalCount,
-      report: resMainQuery
-    };
-
-  }
-
-
-  /**
-   * 인버터 에러만 가져옴
-   * @param {string} errorStatus 오류 상태 (all, deviceError, systemError)
-   * @param {searchRange} searchRange 
-   * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
-   */
-  async getAlarmReportForInverter(errorStatus, searchRange) {
-    let sql = `
-        SELECT 
-            itd.inverter_seq AS device_seq,
-            itd.is_error AS is_error,
-            itd.code AS code,
-            itd.msg AS msg,
-            itd.occur_date AS occur_date,
-            itd.fix_date AS fix_date,
-            ivt.target_name AS target_name,
-            'inverter' AS device_e_name,
-            '인버터' AS device_k_name
-        FROM
-          (SELECT * FROM inverter_trouble_data
-            WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
-            `;
-    if(errorStatus === 'deviceError'){
-      sql += 'AND is_error = "0"';
-    } else if(errorStatus === 'systemError'){
-      sql += 'AND is_error = "1"';
-    }
-    sql += `
-            ) AS itd
-        JOIN inverter ivt
-          ON ivt.inverter_seq = itd.inverter_seq
-        ORDER BY itd.occur_date DESC	
-    `;
-
-
-    // 총 갯수 구하는 Query 생성
-    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
-    // Report 가져오는 Query 생성
-      
-    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
-    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
-    let totalCount = resTotalCountQuery[0].total_count;
-    let resMainQuery = await this.db.single(mainQuery, '', false);
-
-    return {
-      totalCount,
-      report: resMainQuery
-    };
-
-  }
-
-  /**
-   * 인버터 에러만 가져옴
-   * @param {string} errorStatus 오류 상태 (all, deviceError, systemError)
-   * @param {searchRange} searchRange 
-   * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
-   */
-  async getAlarmReportForConnector(errorStatus, searchRange) {
-    let sql = `
-        SELECT 
-            ctd.connector_seq AS device_seq,
-            ctd.is_error AS is_error,
-            ctd.code AS code,
-            ctd.msg AS msg,
-            ctd.occur_date AS occur_date,
-            ctd.fix_date AS fix_date,
-            cnt.target_name AS target_name,
-            'connector' AS device_e_name,
-            '접속반' AS device_k_name
-        FROM
-            (SELECT * FROM connector_trouble_data
-              WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
-              `;
-    if(errorStatus === 'deviceError'){
-      sql += 'AND is_error = "0"';
-    } else if(errorStatus === 'systemError'){
-      sql += 'AND is_error = "1"';
-    }
-    sql += `
-            ) AS ctd
-        JOIN connector cnt
-          ON cnt.connector_seq = ctd.connector_seq 
-        ORDER BY ctd.occur_date DESC	
-    `;
-
-
-    // 총 갯수 구하는 Query 생성
-    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
-    // Report 가져오는 Query 생성
-      
-    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
-    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
-    let totalCount = resTotalCountQuery[0].total_count;
-    let resMainQuery = await this.db.single(mainQuery, '', false);
-
-    return {
-      totalCount,
-      report: resMainQuery
-    };
-
-  }
-
-
-
-  /**
-   * 접속반, Relation, trend를 융합하여 chart data 를 뽑아냄
-   * @param {Object} connectorInfo 
-   * @param {Array} upsasProfile 
-   * @param {Array} moduleReportList 
-   */
-  processModuleReport(upsasProfile, moduleReportList, searchRange) {
-    // BU.CLI('processTrendByConnector', searchRange)
-    // 트렌드를 구할 모듈 정보 초기화
-    let trendReportList = [];
-
-    // 모듈 기본정보 입력
-    _.each(moduleReportList.gridPowerInfo, (moduleDataList, moduleSeq) => {
-      // BU.CLI(moduleSeq)
-      let findProfile = _.findWhere(upsasProfile, {
-        photovoltaic_seq: Number(moduleSeq)
-      });
-      // BU.CLI(findProfile)
-      let trendReportObj = {};
-      trendReportObj.id = `id_${moduleSeq}`;
-      trendReportObj.name = `CH_${findProfile.connector_ch} ${findProfile.pv_target_name}`;
-      trendReportObj.group_date = moduleReportList.betweenDatePointObj.fullTxtPoint;
-      trendReportObj.data = [];
-
-      moduleReportList.betweenDatePointObj.fullTxtPoint.forEach((strDateFormat, ftpIndex) => {
-        // BU.CLIS(strDateFormat, moduleDataList)
-        let findGridObj = _.findWhere(moduleDataList, {
-          group_date: strDateFormat
-        });
-
-        // BU.CLI(findGridObj)
-        let data = _.isEmpty(findGridObj) ? '' : this.convertValueBySearchType(searchRange.searchType, findGridObj.total_wh);
-        trendReportObj.data.push(data);
-      });
-      trendReportList.push(trendReportObj);
-    });
-
-    // BU.CLI(trendReportList);
-
-    let chartDecorationInfo = this.makeChartDecorator(searchRange);
-    // BU.CLI('moudlePowerReport', moudlePowerReport);
-    return {
-      hasData: _.isEmpty(moduleReportList.gridPowerInfo) ? false : true,
-      columnList: moduleReportList.betweenDatePointObj.shortTxtPoint,
-      chartDecorationInfo,
-      series: trendReportList
-    };
-  }
-
-
-
 
   /**
    * 

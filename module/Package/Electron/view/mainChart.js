@@ -3,7 +3,12 @@ const $ = require('jquery');
 const Highcharts = require('highcharts');
 const BU = require('base-util-jh').baseUtil;
 
-function makeMainChart(chartDataObj) {
+/**
+ * 
+ * @param {*} chartDataObj 
+ * @param {{mainTitle: string, xAxisTitle: string, yAxisTitle: string, comment: string}} chartDecoration 
+ */
+function makeMainChart(chartDataObj, chartDecoration) {
   // BU.CLI(chartDataObj);
   // var chartDataObj = mainData.dailyPowerChartData;
   if (chartDataObj.series.length) {
@@ -13,12 +18,12 @@ function makeMainChart(chartDataObj) {
         zoomType: 'x',
       },
       title: {
-        text: ''
+        text: chartDecoration.mainTitle
       },
       xAxis: {
         // opposite: true,
         title: {
-          text: '시간(시)'
+          text: chartDecoration.xAxisTitle
         },
         // tickInterval: 6
         categories: chartDataObj.range
@@ -28,14 +33,14 @@ function makeMainChart(chartDataObj) {
         max: 4,
         // max: powerGenerationInfo.currKwYaxisMax,
         title: {
-          text: '출력(kW)'
+          text: chartDecoration.yAxisTitle
         }
       }, {
         min: 0,
         max: 1,
         // max: powerGenerationInfo.currKwYaxisMax,
         title: {
-          text: '출력(kW)'
+          text: chartDecoration.yAxisTitle
         },
         opposite: true
       }],
@@ -95,10 +100,8 @@ exports.makeMainChart = makeMainChart;
 function makeGaugeChart(powerGenerationInfo, domId) {
   // console.dir(powerGenerationInfo);
 
-  let currKw = _.get(powerGenerationInfo, 'out_kw');
-  // currKw = 1.7;
-  let currKwYaxisMax = _.get(powerGenerationInfo, 'amount');
-
+  let currKw = _.get(powerGenerationInfo, 'out_kw', '');
+  let currKwYaxisMax = _.get(powerGenerationInfo, 'amount',);
   let percentageKw = _.round(_.multiply(_.divide(currKw, currKwYaxisMax), 100), 2);
   let maxKw = _.round(_.subtract(100, percentageKw), 2);
 
@@ -154,7 +157,7 @@ function makeGaugeChart(powerGenerationInfo, domId) {
       innerSize: '50%',
       data: [
         [`${percentageKw}%`, percentageKw],
-        [`${maxKw}%`, maxKw],
+        ['', maxKw],
         
       ]
     }],

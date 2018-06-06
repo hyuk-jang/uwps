@@ -2,15 +2,17 @@ const {
   ipcRenderer
 } = require('electron');
 const $ = require('jquery');
-const Highcharts = require('highcharts');
+
+const moment = require('moment');
 
 const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
 
+let excelUtil = require('../models/excel.util');
 
 const mainChart = require('./mainChart');
 
-ipcRenderer.send('navigationMenu', 'navi-main');
+ipcRenderer.send('navigationMenu', 'navi-main', searchTrend());
 // ipcRenderer.send('navigationMenu', 'navi-trend');
 
 let navigationList = document.querySelectorAll('#navigation a');
@@ -36,7 +38,7 @@ navigationList.forEach(ele => {
   });
 });
 
-// 트렌드 버튼 클릭
+// 검색 타입 클릭
 let trendSelectList = document.querySelectorAll('#sel_type_div_area input');
 trendSelectList.forEach(ele => {
   ele.addEventListener('click', event => {
@@ -44,20 +46,20 @@ trendSelectList.forEach(ele => {
   });
 });
 
-document.querySelector('#searchMain').addEventListener('click', event => {
+document.querySelector('#searchPower').addEventListener('click', () => {
   let searchInfo = searchTrend();
-  ipcRenderer.send('navigationMenu', 'navi-main', JSON.stringify(searchInfo) );
+  ipcRenderer.send('powerChart', searchInfo);
 });
 
 
-document.querySelector('#searchTrend').addEventListener('click', event => {
+document.querySelector('#searchTrend').addEventListener('click', () => {
   let searchInfo = searchTrend();
   ipcRenderer.send('navigationMenu', 'navi-trend', JSON.stringify(searchInfo) );
 });
 
-// document.querySelector('#downloadExcel').addEventListener('click', event => {
-//   writeFileExcel(excelFile);
-// });
+document.querySelector('#download_excel').addEventListener('click', () => {
+  writeFileExcel(excelFile);
+});
 
 
 let saveSearchRange;
@@ -117,27 +119,59 @@ function writeFileExcel() {
   }
 }
 
-ipcRenderer.on('main-reply', (data, mainData) => {
+ipcRenderer.on('main-chart', (event, data) => {
+  makeMainPowerChart(data);
+});
+
+/**
+ * 
+ * @param {{chartData: chartData, chartDecoration: chartDecoration}} data 
+ */
+function makeMainPowerChart(data) {
+  const chartData = _.get(data, 'chartData');
+  mainChart.makeMainChart(chartData, _.get(data, 'chartDecoration', {}));
+}
+
+ipcRenderer.on('main-reply', (event, data) => {
   $('#navigation li').removeClass('active');
   $('#navi-main').parent().addClass('active');
 
-  var searchRange = _.get(mainData, 'searchOption.search_range');
+  var searchRange = _.get(data, 'searchOption.search_range');
   saveSearchRange = searchRange;
-  var searchType = _.get(mainData, 'searchOption.search_type');
+  var searchType = _.get(data, 'searchOption.search_type');
   var selectedObj = $('#sel_type_div_area').find('input[value=' + searchType + ']');
   // document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
 
   $(selectedObj).trigger('click');
 
-  const chartData = _.get(mainData, 'chartData');
-  const largeInverter = _.get(mainData, 'largeInverter');
-  const smallInverter = _.get(mainData, 'smallInverter');
+
+  const largeInverter = _.get(data, 'largeInverter');
+  const smallInverter = _.get(data, 'smallInverter');
   // const weatherCastInfo = _.get(mainData, 'weatherCastInfo');
   // document.querySelector('#weatherTemperature').value = _.get(weatherCastInfo, 'temp');
   // document.querySelector('#weatherImg').src = `../public/image/weather_${_.get(weatherCastInfo, 'wf')}.png` ;
   // document.querySelector('#measureTime').innerHTML = `측정시간: ${`${BU.convertDateToText(new Date(), '', 4)}:00`}` ;
 
   // var powerGenerationInfo = mainData.powerGenerationInfo;
+
+  var device_list = _.get(data, 'searchOption.device_list');
+  console.log(data.searchOption);
+
+  let selectListDom = document.getElementById('device_list_sel');
+  selectListDom.innerHTML = '';
+  _.forEach(device_list, deviceInfo => {
+    var option = document.createElement('option');
+    option.text = _.get(deviceInfo, 'target_name');
+    // option.attributes = ('data-type', _.get(deviceInfo, 'type'));
+    option.value = _.get(deviceInfo, 'seq');
+    if(_.get(deviceInfo, 'seq') === _.get(data, 'searchOption.device_seq')){
+      option.selected = true;
+    } else {
+      option.selected = false;
+    }
+    selectListDom.add(option);
+  });
+
 
   const largeInputDomList = document.querySelectorAll('input[name=large]');
   largeInputDomList.forEach(ele => {
@@ -165,48 +199,14 @@ ipcRenderer.on('main-reply', (data, mainData) => {
     ele.innerHTML = _.get(smallInverter, ele.dataset.id, '');
   });
 
-
+  makeMainPowerChart(data);
 
   $('#menu-main').removeClass('hidden');
   $('#menu-trend').addClass('hidden');
 
-  $('#testest').trigger('click');
-
-  mainChart.makeMainChart(chartData);
+  // BU.CLI(largeInverter);
   mainChart.makeGaugeChart(largeInverter, 'chart_div_1');
   mainChart.makeGaugeChart(smallInverter, 'chart_div_2');
-
-
-  // const inverterStatus = _.get(mainData, 'inverterStatus');
-  // var total_in_kw = inverterStatus.totalInfo.in_kw;
-  // var total_out_kw = inverterStatus.totalInfo.out_kw;
-  // var total_d_kwh = inverterStatus.totalInfo.d_kwh;
-  // var total_c_kwh = inverterStatus.totalInfo.c_kwh;
-
-  // let myTable = document.querySelector('#myTable');
-  // myTable.innerHTML = '';
-  // _.forEach(inverterStatus.dataList, inverterData => {
-  //   var tr = document.createElement('tr');
-  //   let columnKey = ['target_name', 'in_v', 'in_a', 'in_kw', 'out_v', 'out_a', 'out_kw', 'p_f', 'd_kwh', 'c_kwh', 'hasOperation'];
-  //   columnKey.forEach((key, index) => {
-  //     let td = document.createElement('td');
-  //     if(index === 0){
-  //       td.className = 'td1';
-  //     }
-  //     if(columnKey.length === index + 1){
-  //       td.className = 'center_ball';
-  //       let img = document.createElement('img');
-  //       var deviceOperationImgName = inverterData[key] ? 'green' : 'red';
-  //       img.src = `../public/image/${deviceOperationImgName}.png`;
-  //       td.appendChild(img);
-  //     } else {
-  //       td.innerText = inverterData[key];
-  //     }
-  //     tr.appendChild(td);
-  //   });
-
-  //   myTable.appendChild(tr);
-  // });
 });
 
 
@@ -221,38 +221,35 @@ function setterSelectType(selectType) {
   // let searchRange = saveSearchRange;
   var checkedSearchType = selectType;
   var startDateDom = document.querySelector('#start_date_input');
-  var endDateDom = document.querySelector('#end_date_input');
+  // var endDateDom = document.querySelector('#end_date_input');
 
-  var startDate = new Date(saveSearchRange.strStartDateInputValue);
-  var endDate = saveSearchRange.strEndDateInputValue === '' || new Date(saveSearchRange.strEndDateInputValue) ===
-            'Invalid Date' ? startDate : new Date(saveSearchRange.strEndDateInputValue);
-
+  console.log(startDateDom.value);
+  var startDate = startDateDom.value ? moment(startDateDom.value) : moment();
+  
   var viewMode = 0;
-  var sliceEndIndex = 10;
-
   checkedSearchType === 'range' ? $('#end_date_input').show() : $('#end_date_input').hide();
 
-  if (checkedSearchType == 'month') {
+  if (checkedSearchType === 'month') {
     viewMode = 2;
-    sliceEndIndex = 4;
-  } else if (checkedSearchType == 'day') {
+    startDate = startDate.format('YYYY');
+  } else if (checkedSearchType === 'day') {
     viewMode = 1;
-    sliceEndIndex = 7;
-  } else if (checkedSearchType == 'range') {
-    makeDatePicker(endDateDom, 0);
-    endDateDom.value = endDate.toISOString().substring(0, sliceEndIndex);
+    startDate = startDate.format('YYYY-MM');
+  } else if (checkedSearchType === 'range') {
+    // makeDatePicker(endDateDom, 0);
+    // endDateDom.value = endDate.toISOString().substring(0, sliceEndIndex);
   } else {
     viewMode = 0;
-    sliceEndIndex = 10;
+    startDate = startDate.format('YYYY-MM-DD');
   }
-  startDateDom.value = startDate.toISOString().substring(0, sliceEndIndex);
+  startDateDom.value = startDate;
   makeDatePicker(startDateDom, viewMode);
 }
 
 // 검색 클릭 시
 function searchTrend() {
   var $deviceListDom = $('#device_list_sel option:checked');
-  var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
+  var searchType = _.get(document.querySelector('#sel_type_div_area input[name="searchType"]:checked'), 'value');
   var startDate = document.getElementById('start_date_input').value;
   var endDate = '';
 
@@ -262,10 +259,8 @@ function searchTrend() {
       return alert('종료일이 시작일보다 빠를 수 없습니다.');
     }
   }
-  var device_list_type = $deviceListDom.data('type');
   var device_seq = $deviceListDom.val();
   return {
-    device_list_type,
     device_seq,
     start_date: startDate,
     end_date: endDate,

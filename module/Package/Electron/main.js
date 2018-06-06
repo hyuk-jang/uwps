@@ -36,17 +36,6 @@ function createWindow() {
   // and load the index.html of the app.
   mainWindow.loadFile('view/index.html');
 
-  mainWindow.webContents.executeJavaScript(`
-  var path = require('path');
-  module.paths.push(path.resolve('node_modules'));
-  module.paths.push(path.resolve('../node_modules'));
-  module.paths.push(path.resolve(__dirname, '..', '..', 'electron', 'node_modules'));
-  module.paths.push(path.resolve(__dirname, '..', '..', 'electron.asar', 'node_modules'));
-  module.paths.push(path.resolve(__dirname, '..', '..', 'app', 'node_modules'));
-  module.paths.push(path.resolve(__dirname, '..', '..', 'app.asar', 'node_modules'));
-  path = undefined;
-`);
-
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 

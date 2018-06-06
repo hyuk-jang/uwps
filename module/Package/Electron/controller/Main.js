@@ -20,25 +20,22 @@ class Main {
     this.powerModel = new PowerModel(config.dbInfo);
   }
 
-  async getWeather() {
-    let currWeatherCastList = await this.powerModel.getCurrWeatherCast();
-    let currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
-    return webUtil.convertWeatherCast(currWeatherCastInfo);
-  }
-
   /**
    * 
    * @param {Object} ipcRender 
-   * @param {{device_type: string, device_list_type: string, device_seq: string, search_type: string, start_date: string, end_date: string}} trendOption 
+   * @param {{device_seq: string, search_type: string, start_date: string, end_date: string}} trendOption 
    */
   async getMain(ipcRender, trendOption){
+    BU.CLI('getMain', trendOption);
     if(_.isString(trendOption)){
       trendOption = JSON.parse(trendOption);
     }
-
+    
     let searchType = _.get(trendOption, 'search_type') ? _.get(trendOption, 'search_type') : defaultRangeFormat;
     // 지정된 SearchType으로 설정 구간 정의
     let searchRange = this.powerModel.getSearchRange(searchType, _.get(trendOption, 'start_date'), _.get(trendOption, 'end_date'));
+
+    const {chartData, chartDecoration} = await this.getPowerChart(trendOption);
 
     // 금일 발전 현황
     // 인버터 현재 발전 현황
@@ -56,44 +53,72 @@ class Main {
     let smallInverter = _.find(refinedInverterStatus.dataList, {amount: 0.6});
     let largeInverter = _.find(refinedInverterStatus.dataList, {amount: 3.3});
 
-    // const searchRange = this.powerModel.getSearchRange('min10');
-    let inverterPowerList = await this.powerModel.getInverterPower(searchRange);
-    
-    // BU.CLI(inverterPowerList);
-    let chartOption = {selectKey: 'out_kw', dateKey: 'view_date', groupKey: 'ivt_target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
-
-    let chartData = webUtil.makeDynamicChartData(inverterPowerList, chartOption);
-
-    chartData.series.forEach((info, index) => {
-      if(info.name === 'PCS_001'){
-        info.yAxis = 1;
-      } else {
-        info.yAxis = 0;
-      }
-    });
-    webUtil.mappingChartDataName(chartData, inverterDataList, 'target_id', 'target_name');
-    BU.CLI(chartData);
 
  
-    // BU.CLI(refinedInverterStatus);
+    // 장비 선택 리스트 가져옴
+    let deviceList = await this.powerModel.getDeviceList();
 
     // 차트 제어 및 자질 구래한 데이터 모음
     let searchOption = {
       search_range: searchRange,
-      search_type: searchType
+      search_type: searchType,
+      device_list: deviceList,
     };
 
-    BU.CLI(searchOption);
-
     const returnValue = {
+      deviceList,
       searchOption,
       chartData,
+      chartDecoration,
       // powerGenerationInfo: powerGenerationInfo,
       smallInverter,
       largeInverter,
     };
 
     ipcRender.sender.send('main-reply', returnValue);
+  }
+
+  /**
+   * 출력 차트를 그림
+   * @param {{device_seq: string, search_type: string, start_date: string, end_date: string}} trendOption 
+   * @return {{chartData: chartData, chartDecoration: chartDecoration}}
+   */
+  async getPowerChart(trendOption) {
+    if(_.isString(trendOption)){
+      trendOption = JSON.parse(trendOption);
+    }
+    let deviceSeq = _.get(trendOption, 'device_seq') ? _.get(trendOption, 'device_seq') : 'all';
+    BU.CLI(deviceSeq);
+    let searchType = _.get(trendOption, 'search_type') ? _.get(trendOption, 'search_type') : defaultRangeFormat;
+    // 지정된 SearchType으로 설정 구간 정의
+    let searchRange = this.powerModel.getSearchRange(searchType, _.get(trendOption, 'start_date'), _.get(trendOption, 'end_date'));
+    // const searchRange = this.powerModel.getSearchRange('min10');
+    let inverterPowerList = await this.powerModel.getInverterPower(searchRange, deviceSeq);
+    
+    // BU.CLI(inverterPowerList);
+    let chartOption = {selectKey: 'out_kw', dateKey: 'view_date', groupKey: 'ivt_target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
+
+    let chartData = webUtil.makeDynamicChartData(inverterPowerList, chartOption);
+
+    chartData.series.forEach((info) => {
+      if(info.name === 'PCS_001'){
+        info.yAxis = 1;
+      } else {
+        info.yAxis = 0;
+      }
+    });
+    let inverterDataList = await this.powerModel.getTable('v_inverter_status');
+    webUtil.mappingChartDataName(chartData, inverterDataList, 'target_id', 'target_name');
+    // BU.CLI(chartData);
+    // /** 차트를 표현하는데 필요한 Y축, X축, Title Text 설정 객체 생성 */
+    let chartDecoration = webUtil.makeChartDecoration(searchRange);
+    BU.CLI(chartDecoration);
+
+    return {
+      chartData,
+      chartDecoration,
+      searchRange
+    };
   }
 
   /**
@@ -230,6 +255,26 @@ class Main {
     // BU.CLI('@', excelContents);
     // BU.CLIN(searchOption);
     ipcRender.sender.send('trend-replay', returnValue);
+  }
+
+  /**
+   * 
+   * @param {*} ipcRender 
+   * @param {{search_type: string, start_date: string}} excelOption 
+   */
+  async makeExcel(ipcRender, excelOption){
+    BU.CLI('getMain');
+    if(_.isString(excelOption)){
+      excelOption = JSON.parse(excelOption);
+    }
+
+    let searchRange = this.powerModel.getSearchRange(excelOption.searchType, excelOption.startDate);
+    searchRange.searchInterval = 'min';
+
+    let excelWorkBook = await this.powerModel.makeExcelSheet(searchRange, searchRange.searchInterval);
+
+
+    ipcRender.sender.send('excel-reply', excelWorkBook);
   }
 
 }

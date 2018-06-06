@@ -216,13 +216,17 @@
               <h5 style="float:left; margin-left:20px;">태양광 출력 그래프 </h5>
 
               <span style="float:right; margin-right:3px; font-size:12px; color:#ddd; line-height:3;  color:burlywood; ">
-                <!-- <button type="button" class="btn btn-warning" id="download_excel">Download Excel</button> -->
+                <button type="button" class="btn btn-warning" id="download_excel">Download Excel</button>
               </span>
             </div>
-            <div class="row con_2_1" style="height:312px; background: #fff; " >
+            <div class="row con_2_1" style="height:347px; background: #fff; " >
               <div class="row row_width  top_box" style="margin: 0px; padding: 0px; width: auto">
                 <div class="col-xs-8 " style="padding: 5px">
-                  <div id="sel_type_div_area" class="input_st" style="margin:3px; width: 470px; padding: 3px; height: auto;">
+                    <!-- <div class="col-xs-2 sel_box"> -->
+                        <select class="form-control form-control_st" id="device_list_sel" name="device_seq" style="height: 30px; padding: 0 10px">
+                        </select>
+                      <!-- </div> -->
+                  <div id="sel_type_div_area" class="input_st" style="margin:3px; width: 380px; padding: 3px; height: auto;">
                     <label class="radio-inline">
                       <input type="radio" class="" name="searchType" value="min">일일(1분)</label>
                     <label class="radio-inline">
@@ -238,12 +242,12 @@
                   </div>
                 </div>
 
-                <div class="serch_st sel_box_data" style="margin:0px">
+                <div class="serch_st sel_box_data" style="margin:2px 0 0">
                   날짜 &nbsp;
                   <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
 
                   <input class="input_tre" name="end" id="end_date_input" type="text" readonly hidden="hidden">
-                  <button id="searchMain" type="button" class="btn btn-primary" style="margin-bottom:3px; height:28px;" id="search">검색</button>
+                  <button id="searchPower" type="button" class="btn btn-primary" style="margin-bottom:3px; height:28px;" id="search">검색</button>
 
                 </div>
               </div>
@@ -333,7 +337,7 @@
         <div class="row row_width  top_box">
           <div class="col-xs-2 sel_box">
             인버터
-            <select class="form-control form-control_st" id="device_list_sel" name="device_seq">
+            <select class="form-control form-control_st" id="" name="device_seq">
               <option data-type="1" value="2">
                 hi
               </option>

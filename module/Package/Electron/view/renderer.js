@@ -8,11 +8,12 @@ const moment = require('moment');
 const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
 
-let excelUtil = require('../models/excel.util');
+// jsdoc intelligence 를 위함
+require('../models/excel.util');
 
 const mainChart = require('./mainChart');
 
-ipcRenderer.send('navigationMenu', 'navi-main', searchTrend());
+ipcRenderer.send('navigationMenu', 'navi-main', getSearchOption());
 // ipcRenderer.send('navigationMenu', 'navi-trend');
 
 let navigationList = document.querySelectorAll('#navigation a');
@@ -47,30 +48,28 @@ trendSelectList.forEach(ele => {
 });
 
 document.querySelector('#searchPower').addEventListener('click', () => {
-  let searchInfo = searchTrend();
+  let searchInfo = getSearchOption();
   ipcRenderer.send('powerChart', searchInfo);
 });
 
 
 document.querySelector('#searchTrend').addEventListener('click', () => {
-  let searchInfo = searchTrend();
+  let searchInfo = getSearchOption();
   ipcRenderer.send('navigationMenu', 'navi-trend', JSON.stringify(searchInfo) );
 });
 
 document.querySelector('#download_excel').addEventListener('click', () => {
-  writeFileExcel(excelFile);
+  ipcRenderer.send('makeExcel', getSearchOption());
+  // writeFileExcel(excelFile, getSearchOption());
 });
 
 
-let saveSearchRange;
 let excelFile;
 const XLSX = require('xlsx');
 ipcRenderer.on('trend-replay', (event, data) => {
   $('#navigation li').removeClass('active');
   $('#navi-trend').parent().addClass('active');
   
-  var searchRange = _.get(data, 'searchOption.search_range');
-  saveSearchRange = searchRange;
   var searchType = _.get(data, 'searchOption.search_type');
   var selectedObj = $('#sel_type_div_area').find('input[value=' + searchType + ']');
   // document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
@@ -136,8 +135,6 @@ ipcRenderer.on('main-reply', (event, data) => {
   $('#navigation li').removeClass('active');
   $('#navi-main').parent().addClass('active');
 
-  var searchRange = _.get(data, 'searchOption.search_range');
-  saveSearchRange = searchRange;
   var searchType = _.get(data, 'searchOption.search_type');
   var selectedObj = $('#sel_type_div_area').find('input[value=' + searchType + ']');
   // document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
@@ -247,45 +244,17 @@ function setterSelectType(selectType) {
 }
 
 // 검색 클릭 시
-function searchTrend() {
+function getSearchOption() {
   var $deviceListDom = $('#device_list_sel option:checked');
   var searchType = _.get(document.querySelector('#sel_type_div_area input[name="searchType"]:checked'), 'value');
   var startDate = document.getElementById('start_date_input').value;
-  var endDate = '';
 
-  if (searchType === 'range') {
-    endDate = document.getElementById('end_date_input').value;
-    if (startDate > endDate) {
-      return alert('종료일이 시작일보다 빠를 수 없습니다.');
-    }
-  }
   var device_seq = $deviceListDom.val();
   return {
     device_seq,
     start_date: startDate,
-    end_date: endDate,
     search_type: searchType
   };
-
-  // BU.CLI({
-  //   device_list_type,
-  //   device_seq,
-  //   startDate,
-  //   endDate,
-  //   searchType
-  // });
-
-  // ipcRenderer.send('navigationMenu', 'navi-trend', {
-  //   device_list_type,
-  //   device_seq,
-  //   startDate,
-  //   endDate,
-  //   searchType
-  // });
-
-  // var locationHref = 'trend?device_list_type=' + encodeURIComponent(device_list_type) + '&device_seq=' + encodeURIComponent(device_seq) + '&start_date=' + encodeURIComponent(startDate) + '&end_date=' + encodeURIComponent(endDate) + '&search_type=' + encodeURIComponent(searchType);
-  // // alert(locationHref)
-  // return location.href = locationHref;
 }
 
 

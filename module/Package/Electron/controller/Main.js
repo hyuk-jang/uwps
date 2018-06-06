@@ -88,7 +88,6 @@ class Main {
       trendOption = JSON.parse(trendOption);
     }
     let deviceSeq = _.get(trendOption, 'device_seq') ? _.get(trendOption, 'device_seq') : 'all';
-    BU.CLI(deviceSeq);
     let searchType = _.get(trendOption, 'search_type') ? _.get(trendOption, 'search_type') : defaultRangeFormat;
     // 지정된 SearchType으로 설정 구간 정의
     let searchRange = this.powerModel.getSearchRange(searchType, _.get(trendOption, 'start_date'), _.get(trendOption, 'end_date'));
@@ -112,7 +111,6 @@ class Main {
     // BU.CLI(chartData);
     // /** 차트를 표현하는데 필요한 Y축, X축, Title Text 설정 객체 생성 */
     let chartDecoration = webUtil.makeChartDecoration(searchRange);
-    BU.CLI(chartDecoration);
 
     return {
       chartData,
@@ -269,6 +267,7 @@ class Main {
     }
 
     let searchRange = this.powerModel.getSearchRange(excelOption.searchType, excelOption.startDate);
+    // 1분단위로 출력
     searchRange.searchInterval = 'min';
 
     let excelWorkBook = await this.powerModel.makeExcelSheet(searchRange, searchRange.searchInterval);

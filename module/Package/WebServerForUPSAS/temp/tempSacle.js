@@ -17,7 +17,8 @@ exports.moduleScale = [{
 },{
   photovoltaic_seq: 4,
   target_name: '수중 일반 (단)',
-  scale: 	0.998509363
+  scale: 	0.987561
+  // scale: 	0.998509363
   // scale: 1.024210526
 },{
   photovoltaic_seq: 5,
@@ -45,14 +46,14 @@ exports.inverterScale = [{
   inverter_seq: 3,
   target_id: 'IVT5',
   target_name: '수중 G2G (단)',
-  scale: 	0.987561
-  // scale: 	0.939450921
+  scale: 	0.939450921
   // scale: 1
 },{
   inverter_seq: 4,
   target_id: 'IVT6',
   target_name: '수중 일반 (단)',
-  scale: 	0.998509363
+  scale: 	0.987561
+  // scale: 	0.998509363
   // scale: 1.024210526
 },{
   inverter_seq: 5,

@@ -138,6 +138,10 @@ class PowerModel extends BiModule {
     let endDate = new Date(searchRange.strBetweenEnd);
     let searchRangeList = [searchRange];
 
+
+
+
+
     if(_.includes(['min', 'min10', 'hour'], searchRange.searchType) === false){
       while (startDate < endDate) {
         let newSearchRange = this.getSearchRange(searchInterval, startDate, endDate);
@@ -172,21 +176,18 @@ class PowerModel extends BiModule {
     let betweenDatePoint = BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchInterval);
     let chartDecoration = webUtil.makeChartDecoration(searchRange);
 
+    const inverterList = await this.getTable('inverter');
 
-    let {inverterPowerChartData, inverterTrend, viewInverterPacketList} = await this.getAllOriginalData(searchOption, searchRange, betweenDatePoint);
+    let allDataList = await this.getAllOriginalData(searchOption, searchRange, betweenDatePoint);
 
-    let createExcelOption = {
-      viewInverterPacketList,
-      inverterTrend,
-      powerChartData, 
-      powerChartDecoration: chartDecoration, 
-      waterLevelDataPacketList,
-      weatherCastRowDataPacketList,
-      weatherTrend, 
-      weatherChartOptionList,
-      searchRange
-    };
-    return excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
+    BU.CLI(allDataList);
+    // let createExcelOption = {
+    //   inverterList,
+    //   allDataList,
+    //   searchRange,
+    //   chartDecoration
+    // };
+    // return excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
   }
 
 

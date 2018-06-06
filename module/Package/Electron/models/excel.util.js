@@ -128,12 +128,6 @@ const BU = require('base-util-jh').baseUtil;
   * @property {string} yAxisTitle
   */
 
-  
-const weatherCastOptionList= [
-  { name: '운량', selectKey: 'avg_sky', dateKey: 'group_date'},
-];
-
-
 /**
  * 차트 데이터
  * @param {string} char 
@@ -152,55 +146,16 @@ function getNextAlphabet(char, nextIndex) {
 function makeChartDataToExcelWorkSheet(resource) {
   let ws = XLSX.utils.aoa_to_sheet([]);
 
-  let powerChartData = resource.powerChartData;
 
-  let viewInverterPacketList = _.sortBy(resource.viewInverterPacketList, 'chart_sort_rank');
-  // BU.CLI(viewInverterPacketList);
+  let allDataList = resource.allDataList;
 
-  // BU.CLI(powerChartData);
-  let inverterTrend = resource.inverterTrend;
-  let powerChartDecoration = resource.powerChartDecoration;
-  let weatherCastRowDataPacketList = resource.weatherCastRowDataPacketList;
-  let searchRange = resource.searchRange;
+  let keysData = _.keys(_.head(allDataList));
 
-  let searchList = [];
-  let sumIntervalPowerList = [];
-
-  // 데이터 그래프
-  const resourceList = powerChartData.series;
-  // BU.CLI(powerChartData.series);
-  // 검색 기간
-  let rangeStart = searchRange.rangeStart;
-  let sheetName = rangeStart + (searchRange.rangeEnd === '' ? '' : ` ~ ${searchRange.rangeEnd}`);
+  keysData.forEach(currentItem => {
+    
+  });
 
 
-
-  /** 개요 구성 시작 */
-  searchList = ['검색 기간', powerChartDecoration.mainTitle];
-
-  let powerName = '';
-  // 기간 발전량 
-  switch (searchRange.searchType) {
-  case 'hour':
-  case 'min10':
-  case 'min':
-    powerName = '1일';
-    break;
-  default:
-    powerName = '총';
-    break;
-  }
-
-
-
-  // 총 발전량
-
-  const optionList = _.map(resourceList, resource => resource.option);
-  let powerTitleList = _.map(powerChartData.series, 'name');
-  ws['B4'] = { t: 's', v: `\n${powerName} ${powerChartDecoration.yAxisTitle}` };
-  
-  ws['B13'] = { t: 's', v: powerChartDecoration.xAxisTitle };
-  
   // 시작 지점 입력
   const fixedSummeryColumn = 'C';
   let summeryColumn = fixedSummeryColumn;
@@ -212,7 +167,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   });
 
   // 인버터 리스트 반복
-  ws[fixedSummeryColumn + 12] = { t: 's', v: '인버터 출력(W)' };
+  ws[fixedSummeryColumn + 3] = { t: 's', v: '인버터 출력(W)' };
   ws[getNextAlphabet(fixedSummeryColumn, viewInverterPacketList.length) + '12'] = { t: 's', v: `인버터 ${powerChartDecoration.yAxisTitle}` };
   viewInverterPacketList.forEach((viewInverterPacket, index) => {
     let foundOptionIt = _.find(optionList, {sort: viewInverterPacket.chart_sort_rank});
@@ -289,11 +244,11 @@ function makeChartDataToExcelWorkSheet(resource) {
   /* TEST: properties */
   wb.Props = {
     Title: sheetName,
-    Subject: 'monitoring',
+    Subject: 'pv_led',
     Author: 'SmSoft',
     Manager: '',
     Company: 'SmSoft',
-    Category: 'UPMS',
+    Category: 'pv_led',
     Keywords: 'Power',
     Comments: 'Nothing to say here',
     LastAuthor: 'j.hyuk',

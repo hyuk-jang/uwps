@@ -28,14 +28,46 @@ class BiModule extends bmjh.BM {
    * 장치 데이터 가져옴
    * @param {searchRange} searchRange
    * @param {number[]=} inverter_seq 
-   * @return {{inverterPowerChartData: chartData, inverterTrend: Object[], viewInverterPacketList: Array.<viewInverterDataPacket>}} chartData
+   * @return {Object[]} chartData
    */
   async getAllOriginalData(searchRange, inverter_seq) {
     // searchRange = searchRange ? searchRange : this.getSearchRange();
-    // let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
+    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
     let sql = `
-    SELECT * FROM 
-      inverter_data
+    SELECT 
+          ${dateFormat.selectViewDate},
+          main.target_name AS PCS_Name,
+          main.in_a,
+          main.in_v,
+          main.in_kw,
+          main.out_a,
+          main.out_v,
+          main.out_kw,
+          main.c_kwh,
+          main.operation_has_v,
+          main.operation_mode,
+          main.operation_status,
+          main.battery_v,
+          main.battery_a,
+          main.battery_charging_kw,
+          main.battery_discharging_kw,
+          main.battery_total_charging_kwh,
+          main.battery_total_discharging_kwh,
+          main.led_dc_v,
+          main.led_dc_a,
+          main.led_using_kw,
+          main.led_total_using_kwh,
+          main.input_line_kw,
+          main.input_total_line_kwh,
+    FROM
+    (
+    SELECT 
+          inverter.target_name,
+          inverter_data.*
+     FROM 
+    inverter_data
+    LEFT OUTER JOIN inverter
+      ON inverter.inverter_seq = inverter_data.inverter_seq
       WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}
       `;
     if (inverter_seq !== '' && inverter_seq && inverter_seq !== 'all') {
@@ -43,6 +75,7 @@ class BiModule extends bmjh.BM {
     }
     sql +=  `
       ORDER BY writedate, inverter_seq
+    ) main
     `;
     return this.db.single(sql, '', false);
   }

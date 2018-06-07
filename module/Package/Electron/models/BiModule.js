@@ -32,33 +32,32 @@ class BiModule extends bmjh.BM {
    */
   async getAllOriginalData(searchRange, inverter_seq) {
     // searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
     let sql = `
     SELECT 
-          ${dateFormat.selectViewDate},
+          DATE_FORMAT(writedate,"%Y-%m-%d %H:%i") AS 측정날짜,
           main.target_name AS PCS_Name,
-          main.in_a,
-          main.in_v,
-          main.in_kw,
-          main.out_a,
-          main.out_v,
-          main.out_kw,
-          main.c_kwh,
-          main.operation_has_v,
-          main.operation_mode,
-          main.operation_status,
-          main.battery_v,
-          main.battery_a,
-          main.battery_charging_kw,
-          main.battery_discharging_kw,
-          main.battery_total_charging_kwh,
-          main.battery_total_discharging_kwh,
-          main.led_dc_v,
-          main.led_dc_a,
-          main.led_using_kw,
-          main.led_total_using_kwh,
-          main.input_line_kw,
-          main.input_total_line_kwh,
+          main.in_a AS PV_V,
+          main.in_v AS PV_A,
+          main.in_kw AS 'PV_P(kW)',
+          main.out_a AS Grid_A,
+          main.out_v AS Grid_V,
+          main.out_kw AS 'Grid_P(kW)',
+          main.c_kwh AS 'Power_Total_Power(kWh)',
+          main.operation_has_v AS Mode_PowerLoss,
+          main.operation_mode AS Mode_State,
+          main.operation_status AS Mode_Fault,
+          main.battery_v AS Battery_V,
+          main.battery_a AS Battery_A,
+          main.battery_charging_kw AS 'Battery_Charging_Power(kW)',
+          main.battery_discharging_kw AS 'Battery_Discharging_Power(kW)',
+          main.battery_total_charging_kwh AS 'Battery_Total_Charging_Power(kWh)',
+          main.battery_total_discharging_kwh 'AS Battery_Total_Discharging_Power(kWh)',
+          main.led_dc_v AS LED_DC_V,
+          main.led_dc_a AS LED_DC_A,
+          main.led_using_kw AS 'LED_Using_P(kW)',
+          main.led_total_using_kwh AS 'LED_Total_Using_P(kWh)',
+          main.input_line_kw AS 'Input_Power_From_Linepower(kW)',
+          main.input_total_line_kwh AS 'Total_Input_From_Line(kWh)'
     FROM
     (
     SELECT 
@@ -68,10 +67,10 @@ class BiModule extends bmjh.BM {
     inverter_data
     LEFT OUTER JOIN inverter
       ON inverter.inverter_seq = inverter_data.inverter_seq
-      WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}
+      WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
       `;
     if (inverter_seq !== '' && inverter_seq && inverter_seq !== 'all') {
-      sql += `AND inverter_seq = ${inverter_seq}`;
+      sql += `AND inverter_data.inverter_seq = ${inverter_seq}`;
     }
     sql +=  `
       ORDER BY writedate, inverter_seq
@@ -90,6 +89,7 @@ class BiModule extends bmjh.BM {
    */
   getSearchRange(searchType, start_date, end_date) {
     // BU.CLIS(searchType, start_date, end_date);
+    searchType = searchType ? searchType : 'min';
     let startDate = start_date instanceof Date ? start_date : _.isString(start_date) && start_date !== '' ? BU.convertTextToDate(start_date) : new Date();
     let endDate = end_date instanceof Date ? end_date : searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : startDate;
     // let endDate = searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : new Date(startDate);

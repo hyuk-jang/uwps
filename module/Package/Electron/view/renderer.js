@@ -13,6 +13,29 @@ require('../models/excel.util');
 
 const mainChart = require('./mainChart');
 
+
+
+
+let remainReloadSec = 60;
+function initRemainReloadSec() {
+  remainReloadSec = 60; 
+}
+function reloadMain(){
+  console.log('reloadMain');
+  setInterval(() => {
+    remainReloadSec--;
+    document.querySelector('#reload-sec').innerHTML = remainReloadSec;
+
+    // 시간이 다되면 새로 고침
+    if(remainReloadSec === 0){
+      ipcRenderer.send('navigationMenu', 'navi-main', getSearchOption());
+    }
+  }, 1000);
+}
+// 한번만 실행
+_.once(reloadMain);
+reloadMain();
+
 ipcRenderer.send('navigationMenu', 'navi-main', getSearchOption());
 // ipcRenderer.send('navigationMenu', 'navi-trend');
 
@@ -48,66 +71,36 @@ trendSelectList.forEach(ele => {
 });
 
 document.querySelector('#searchPower').addEventListener('click', () => {
+  initRemainReloadSec();
   let searchInfo = getSearchOption();
   ipcRenderer.send('powerChart', searchInfo);
 });
 
 
-document.querySelector('#searchTrend').addEventListener('click', () => {
-  let searchInfo = getSearchOption();
-  ipcRenderer.send('navigationMenu', 'navi-trend', JSON.stringify(searchInfo) );
+// document.querySelector('#searchTrend').addEventListener('click', () => {
+//   let searchInfo = getSearchOption();
+//   ipcRenderer.send('navigationMenu', 'navi-trend', JSON.stringify(searchInfo) );
+// });
+
+document.querySelector('#reload').addEventListener('click', () => {
+  ipcRenderer.send('navigationMenu', 'navi-main', getSearchOption());
 });
 
 document.querySelector('#download_excel').addEventListener('click', () => {
+  initRemainReloadSec();
   ipcRenderer.send('makeExcel', getSearchOption());
   // writeFileExcel(excelFile, getSearchOption());
 });
 
 
-let excelFile;
-const XLSX = require('xlsx');
-ipcRenderer.on('trend-replay', (event, data) => {
-  $('#navigation li').removeClass('active');
-  $('#navi-trend').parent().addClass('active');
-  
-  var searchType = _.get(data, 'searchOption.search_type');
-  var selectedObj = $('#sel_type_div_area').find('input[value=' + searchType + ']');
-  // document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
-
-  $(selectedObj).trigger('click');
-
-  $('#menu-trend').removeClass('hidden');
-  $('#menu-main').addClass('hidden');
-
-
-  var device_list = _.get(data, 'searchOption.device_list');
-
-  let listDom = document.getElementById('device_list_sel');
-  listDom.innerHTML = '';
-  _.forEach(device_list, deviceInfo => {
-    var option = document.createElement('option');
-    option.text = _.get(deviceInfo, 'target_name');
-    // option.attributes = ('data-type', _.get(deviceInfo, 'type'));
-    option.value = _.get(deviceInfo, 'seq');
-    if(_.get(deviceInfo, 'seq') === _.get(data, 'searchOption.device_seq')){
-      option.selected = true;
-    } else {
-      option.selected = false;
-    }
-
-    listDom.add(option);
-  });
-
-  setterSelectType(_.get(data, 'searchOption.search_type'), _.get(data, 'searchOption.search_range'));
-
-
-  mainChart.makeTrendChart(_.get(data, 'powerChartData'), _.get(data, 'chartDecorator'));
-  excelFile = _.get(data, 'workBook');
+ipcRenderer.on('download-excel', (event, data) => {
+  writeFileExcel(data);
 });
 
 /* from app code, require('electron').remote calls back to main process */
 const dialog = require('electron').remote.dialog;
-function writeFileExcel() {
+function writeFileExcel(excelFile) {
+  const XLSX = require('xlsx');
   /* show a file-open dialog and read the first selected file */
   try {
     var o = dialog.showSaveDialog();
@@ -134,6 +127,8 @@ function makeMainPowerChart(data) {
 ipcRenderer.on('main-reply', (event, data) => {
   $('#navigation li').removeClass('active');
   $('#navi-main').parent().addClass('active');
+
+  initRemainReloadSec(); 
 
   var searchType = _.get(data, 'searchOption.search_type');
   var selectedObj = $('#sel_type_div_area').find('input[value=' + searchType + ']');
@@ -289,3 +284,43 @@ function makeDatePicker(dom, viewMode) {
     //mode: 0-일,1-월,2-년
   });
 }
+
+
+ipcRenderer.on('trend-replay', (event, data) => {
+  $('#navigation li').removeClass('active');
+  $('#navi-trend').parent().addClass('active');
+  
+  var searchType = _.get(data, 'searchOption.search_type');
+  var selectedObj = $('#sel_type_div_area').find('input[value=' + searchType + ']');
+  // document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
+
+  $(selectedObj).trigger('click');
+
+  $('#menu-trend').removeClass('hidden');
+  $('#menu-main').addClass('hidden');
+
+
+  var device_list = _.get(data, 'searchOption.device_list');
+
+  let listDom = document.getElementById('device_list_sel');
+  listDom.innerHTML = '';
+  _.forEach(device_list, deviceInfo => {
+    var option = document.createElement('option');
+    option.text = _.get(deviceInfo, 'target_name');
+    // option.attributes = ('data-type', _.get(deviceInfo, 'type'));
+    option.value = _.get(deviceInfo, 'seq');
+    if(_.get(deviceInfo, 'seq') === _.get(data, 'searchOption.device_seq')){
+      option.selected = true;
+    } else {
+      option.selected = false;
+    }
+
+    listDom.add(option);
+  });
+
+  setterSelectType(_.get(data, 'searchOption.search_type'), _.get(data, 'searchOption.search_range'));
+
+
+  mainChart.makeTrendChart(_.get(data, 'powerChartData'), _.get(data, 'chartDecorator'));
+  // excelFile = _.get(data, 'workBook');
+});

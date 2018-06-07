@@ -131,63 +131,34 @@ class PowerModel extends BiModule {
 
   /**
    * @param {searchRange} searchRange 
-   * @param {number} searchInterval 
+   * @param {string} inverter_seq 
    */
-  async makeExcelSheet(searchRange, searchInterval){
-    let startDate = new Date(searchRange.strBetweenStart);
-    let endDate = new Date(searchRange.strBetweenEnd);
-    let searchRangeList = [searchRange];
-
-
-
-
-
-    if(_.includes(['min', 'min10', 'hour'], searchRange.searchType) === false){
-      while (startDate < endDate) {
-        let newSearchRange = this.getSearchRange(searchInterval, startDate, endDate);
-        searchRangeList.push(newSearchRange);
-        startDate.setDate(startDate.getDate() + 1);
-      }
-    }
-
-    // BU.CLI(searchRangeList);
-    let workSheetInfoList = await Promise.all(searchRangeList.map(sr => {
-      return this.getExcelWorkSheet(sr);
-    }));
-
-    let fileName = _.head(workSheetInfoList).sheetName;
-    // BU.CLIN(workSheetInfoList);
-    let excelContents = excelUtil.makeExcelWorkBook(fileName, workSheetInfoList);
-
-    // return false;
-    return {workBook:excelContents, fileName};
+  async makeExcelSheet(searchRange, inverter_seq){
+    let workSheetInfo = await this.getExcelWorkSheet(searchRange, inverter_seq);
+    let excelContents = excelUtil.makeExcelWorkBook(workSheetInfo);
+    return excelContents;
   }
 
 
   /**
    * 
    * @param {searchRange} searchRange 
+   * @param {string} inverter_seq
    */
-  async getExcelWorkSheet(searchRange){
-    let searchOption = {
-      device_list_type: 'inverter',
-      device_seq: 'all',
-    };
-    let betweenDatePoint = BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchInterval);
+  async getExcelWorkSheet(searchRange, inverter_seq){
     let chartDecoration = webUtil.makeChartDecoration(searchRange);
 
     const inverterList = await this.getTable('inverter');
 
-    let allDataList = await this.getAllOriginalData(searchOption, searchRange, betweenDatePoint);
+    let allDataList = await this.getAllOriginalData(searchRange, inverter_seq);
 
-    BU.CLI(allDataList);
-    // let createExcelOption = {
-    //   inverterList,
-    //   allDataList,
-    //   searchRange,
-    //   chartDecoration
-    // };
-    // return excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
+    let createExcelOption = {
+      inverterList,
+      allDataList,
+      searchRange,
+      chartDecoration
+    };
+    return excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
   }
 
 

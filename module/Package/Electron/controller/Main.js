@@ -26,17 +26,16 @@ class Main {
    * @param {{device_seq: string, search_type: string, start_date: string, end_date: string}} trendOption 
    */
   async getMain(ipcRender, trendOption){
-    BU.CLI('getMain', trendOption);
+    // BU.CLI('getMain', trendOption);
     if(_.isString(trendOption)){
       trendOption = JSON.parse(trendOption);
     }
-    
     let searchType = _.get(trendOption, 'search_type') ? _.get(trendOption, 'search_type') : defaultRangeFormat;
     // 지정된 SearchType으로 설정 구간 정의
     let searchRange = this.powerModel.getSearchRange(searchType, _.get(trendOption, 'start_date'), _.get(trendOption, 'end_date'));
-
+    
     const {chartData, chartDecoration} = await this.getPowerChart(trendOption);
-
+    
     // 금일 발전 현황
     // 인버터 현재 발전 현황
     let inverterDataList = await this.powerModel.getTable('v_inverter_status');
@@ -87,6 +86,7 @@ class Main {
     if(_.isString(trendOption)){
       trendOption = JSON.parse(trendOption);
     }
+
     let deviceSeq = _.get(trendOption, 'device_seq') ? _.get(trendOption, 'device_seq') : 'all';
     let searchType = _.get(trendOption, 'search_type') ? _.get(trendOption, 'search_type') : defaultRangeFormat;
     // 지정된 SearchType으로 설정 구간 정의
@@ -258,22 +258,21 @@ class Main {
   /**
    * 
    * @param {*} ipcRender 
-   * @param {{search_type: string, start_date: string}} excelOption 
+   * @param {{search_type: string, start_date: string, device_seq: string}} excelOption 
    */
   async makeExcel(ipcRender, excelOption){
-    BU.CLI('getMain');
+    // BU.CLI('makeExcel', excelOption);
     if(_.isString(excelOption)){
       excelOption = JSON.parse(excelOption);
     }
 
-    let searchRange = this.powerModel.getSearchRange(excelOption.searchType, excelOption.startDate);
+    let searchRange = this.powerModel.getSearchRange(excelOption.search_type, excelOption.start_date);
     // 1분단위로 출력
     searchRange.searchInterval = 'min';
 
-    let excelWorkBook = await this.powerModel.makeExcelSheet(searchRange, searchRange.searchInterval);
+    let excelWorkBook = await this.powerModel.makeExcelSheet(searchRange, _.get(excelOption, 'device_seq'));
 
-
-    ipcRender.sender.send('excel-reply', excelWorkBook);
+    ipcRender.sender.send('download-excel', excelWorkBook);
   }
 
 }

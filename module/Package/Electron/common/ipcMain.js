@@ -9,6 +9,7 @@ ipcMain.on('navigationMenu', (event, menu, msg) => {
   switch (menu) {
   case 'navi-main':
     BU.CLI('navi-main');
+    // main.makeExcel(event, msg);
     main.getMain(event, msg);
     break;
   case 'navi-trend':

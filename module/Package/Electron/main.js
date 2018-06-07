@@ -23,7 +23,7 @@ function createWindow() {
     width: 1770, height: 1000, 
     // alwaysOnTop: true,
     // fullscreen: true,
-    x: 2120,
+    x: 2420,
     y: 0,
     // webPreferences: {
     //   nodeIntegration: false,

@@ -8,9 +8,10 @@ const DasEssMonitoring = require('das-ess-monitoring');
 module.exports = {
   runOperation: () => {
     // 인버터 계측 프로그램 구동
-    let inverterMonitoring =  new DasEssMonitoring();    
+    let inverterMonitoring = new DasEssMonitoring();    
     inverterMonitoring.init(config.dbInfo)
       .then(() => {
+        // inverterMonitoring.setDbConnectPort('COM15');
         inverterMonitoring.createDeviceController();
       })
       .catch(err => {

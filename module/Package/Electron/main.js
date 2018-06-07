@@ -4,13 +4,15 @@ const app = electron.app;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
 
+const BU = require('base-util-jh').baseUtil;
+
 const path = require('path');
 const url = require('url');
 
 require('./common/ipcMain');
 
 const measureProgram = require('./src');
-// measureProgram.runOperation();
+measureProgram.runOperation();
 // console.log('@@@@@@@@@@@@@@@');
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -23,8 +25,8 @@ function createWindow() {
     width: 1770, height: 1000, 
     // alwaysOnTop: true,
     // fullscreen: true,
-    x: 2420,
-    y: 0,
+    // x: 2420,
+    // y: 0,
     // webPreferences: {
     //   nodeIntegration: false,
     //   // preload: './preload.js'
@@ -74,10 +76,10 @@ app.on('activate', function () {
 // code. You can also put them in separate files and require them here.
 
 // ESLint는 어느 eval() 사용에 경고문을 띄웁니다. 심지어 이것도요.
-// eslint-disable-next-line
-global.eval = function () {
-  throw new Error('이 앱은 window.eval()을 지원하지 않습니다.');
-};
+// // eslint-disable-next-line
+// global.eval = function () {
+//   throw new Error('이 앱은 window.eval()을 지원하지 않습니다.');
+// };
 
 
 
@@ -109,6 +111,9 @@ global.eval = function () {
 
 process.on('uncaughtException', function (err) {
   // BU.debugConsole();
+  
+  BU.logFile(err.stack);
+
   console.error(err.stack);
   console.log(err.message);
   console.log('Node NOT Exiting...');
@@ -116,6 +121,7 @@ process.on('uncaughtException', function (err) {
 
 
 process.on('unhandledRejection', function (err) {
+  BU.logFile(err.stack);
   // BU.debugConsole();
   console.error(err.stack);
   console.log(err.message);

@@ -58,12 +58,13 @@
 
       </div>
     </nav>
-    <div>
-      <input type="button" id="reload" value="새로 고침">
-      자동 새로 고침까지 남은시간: <span id="reload-sec">60</span>
-    </div>
-    <div id="menu-main" class="jumbotron text-center jumbotron_st">
+    <div id="menu-main" class="jumbotron text-center jumbotron_st" style="padding-top: 40px">
       <div class="row row_st">
+        <div style="text-align: left; position: absolute; top:2px">
+          <button type="button" class="btn btn-success" id="reload">새로 고침</button>
+          자동 새로 고침까지 남은시간:
+          <span id="reload-sec">60</span>
+        </div>
 
         <!--콘텐츠왼쪽-->
         <div class="col-xs-3 power" style="height: 620px;">
@@ -223,13 +224,13 @@
                 <button type="button" class="btn btn-warning" id="download_excel">Download Excel</button>
               </span>
             </div>
-            <div class="row con_2_1" style="height:347px; background: #fff; " >
+            <div class="row con_2_1" style="height:347px; background: #fff; ">
               <div class="row row_width  top_box" style="margin: 0px; padding: 0px; width: auto">
                 <div class="col-xs-8 " style="padding: 5px">
-                    <!-- <div class="col-xs-2 sel_box"> -->
-                        <select class="form-control form-control_st" id="device_list_sel" name="device_seq" style="height: 30px; padding: 0 10px">
-                        </select>
-                      <!-- </div> -->
+                  <!-- <div class="col-xs-2 sel_box"> -->
+                  <select class="form-control form-control_st" id="device_list_sel" name="device_seq" style="height: 30px; padding: 0 10px">
+                  </select>
+                  <!-- </div> -->
                   <div id="sel_type_div_area" class="input_st" style="margin:3px; width: 380px; padding: 3px; height: auto;">
                     <label class="radio-inline">
                       <input type="radio" class="" name="searchType" value="min">일일(1분)</label>
@@ -255,7 +256,7 @@
 
                 </div>
               </div>
-              <div  id="dailyPowerChart" class="title_box2" style="height: 300px;">
+              <div id="dailyPowerChart" class="title_box2" style="height: 300px;">
 
               </div>
 

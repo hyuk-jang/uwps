@@ -36,13 +36,14 @@ class BiModule extends bmjh.BM {
     SELECT 
           DATE_FORMAT(writedate,"%Y-%m-%d %H:%i") AS 측정날짜,
           main.target_name AS PCS_Name,
-          main.in_a AS PV_V,
-          main.in_v AS PV_A,
+          main.in_a AS PV_A,
+          main.in_v AS PV_V,
           main.in_kw AS 'PV_P(kW)',
+          main.in_total_kwh AS 'PV_Total_Power(kWh)',
           main.out_a AS Grid_A,
           main.out_v AS Grid_V,
           main.out_kw AS 'Grid_P(kW)',
-          main.c_kwh AS 'Power_Total_Power(kWh)',
+          main.out_total_kwh AS 'Grid_Total_Power(kWh)',
           main.operation_has_v AS Mode_PowerLoss,
           main.operation_mode AS Mode_State,
           main.operation_status AS Mode_Fault,
@@ -272,9 +273,8 @@ class BiModule extends bmjh.BM {
         inverter_seq,
         writedate, 
         ${dateFormat.selectViewDate},
-        ROUND(AVG(out_kw), 3)  AS out_kw,
-        MAX(c_kwh) AS max_c_kwh,
-        (MAX(c_kwh) - MIN(c_kwh)) AS interval_power
+        ROUND(AVG(in_kw), 3) AS in_kw,
+        ROUND(AVG(out_kw), 3) AS out_kw
         FROM inverter_data
         WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
         `;

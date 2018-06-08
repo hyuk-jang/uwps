@@ -395,7 +395,7 @@ function refineSelectedInverterStatus(viewInverterStatus) {
       addObj.hasOperation = true;
     }
     // addObj.d_kwh = _.isNumber(data.daily_power_wh) ? calcValue(data.daily_power_wh, 0.001, 3) : '';
-    // addObj.c_kwh = _.isNumber(data.c_wh) ? calcValue(data.c_wh, 0.001, 2) : '';
+    // addObj.out_total_kwh = _.isNumber(data.c_wh) ? calcValue(data.c_wh, 0.001, 2) : '';
     currInverterDataList.push(addObj);
   });
   // currInverterDataList = _.sortBy(currInverterDataList, 'target_name');
@@ -404,7 +404,7 @@ function refineSelectedInverterStatus(viewInverterStatus) {
   returnValue.totalInfo.in_kw = calcValue(reduceDataList(currInverterDataList, 'in_kw'), 1, 3);
   returnValue.totalInfo.out_kw = calcValue(reduceDataList(currInverterDataList, 'out_kw'), 1, 3);
   returnValue.totalInfo.d_kwh = calcValue(reduceDataList(currInverterDataList, 'd_kwh'), 1, 3);
-  returnValue.totalInfo.c_kwh = calcValue(reduceDataList(currInverterDataList, 'c_kwh'), 1, 3);
+  returnValue.totalInfo.out_total_kwh = calcValue(reduceDataList(currInverterDataList, 'out_total_kwh'), 1, 3);
 
   return returnValue;
 }
@@ -827,91 +827,58 @@ function convertOperationStatus(inverterStatusList) {
       data = 'Ready';
       break;
     case '1':
-      data = 'PV over current';
+      data = 'Earth fault';
       break;
     case '2':
-      data = 'PV over voltage';
+      data = 'Over Heat (over 95°C)';
       break;
     case '3':
-      data = 'PV Under voltage';
-      break;
-    case '4':
-      data = 'DC Link over voltage';
+      data = 'PV over voltage';
       break;
     case '5':
-      data = 'DC Link under voltage';
+      data = 'DC Link over voltage';
       break;
     case '6':
       data = 'Inverter over current';
       break;
     case '7':
-      data = 'Line over voltage';
+      data = 'PV over current';
       break;
     case '8':
-      data = 'Line under voltage';
+      data = 'Stand Alone시 계통연계';
       break;
     case '9':
-      data = 'Inverter OverHeat1';
-      break;
-    case 'A':
-      data = 'Line over frequency';
-      break;
-    case 'B':
-      data = 'Line under frequency';
-      break;
-    case 'C':
-      data = 'PV Waiting';
-      break;
-    case 'D':
-      data = 'BAT OV( Over Voltage)';
-      break;
-    case 'E':
-      data = 'BAT UV(Under Voltage)';
+      data = 'IGBT Fault';
       break;
     case 'F':
-      data = 'BAT OC(Over Current)';
+      data = 'BAT OV( Over Voltage)';
+      break;
+    case 'G':
+      data = 'BAT UV(Under Voltage)';
       break;
     case 'H':
-      data = 'DC48V IGBT Fault';
+      data = 'BAT OC(Over Current)';
       break;
     case 'I':
       data = 'DC48V OC(Over Current)';
       break;
     case 'J':
-      data = 'IGBT Boost fault';
-      break;
-    case 'K':
-      data = 'IGBT inverter fault';
-      break;
-    case 'L':
-      data = 'Inverter Leakage Current fault';
-      break;
-    case 'M':
-      data = 'Over Heat ( over 95°C)';
-      break;
-    case 'N':
-      data = 'Earth fault';
-      break;
-    case 'O':
-      data = 'Anti islanding Passive';
-      break;
-    case 'P':
-      data = 'Anti islanding Active';
-      break;
-    case 'S':
       data = 'DC48V OV(Over Voltage)';
       break;
-    case 'U':
-      data = 'Stand Alone시 계통연계';
+    case 'K':
+      data = 'Line over frequency';
       break;
-    case 'V':
-      data = 'Continuous fault';
+    case 'L':
+      data = 'Line under frequency';
       break;
-    case 'X':
-      data = 'Power Down (95%)';
+    case 'M':
+      data = 'Line over voltage';
       break;
-    case 'Y':
-      data = 'Power Down (90%)';
+    case 'N':
+      data = 'Line under voltage';
+      break;
+    case 'P':
+      data = 'DC Link under voltage';
       break;
     default:
       break;

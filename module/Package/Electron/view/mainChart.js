@@ -125,7 +125,7 @@ function makeGaugeChart(powerGenerationInfo, domId) {
       spacingRight: 10,
     },
     title: {
-      text: `출력<br/>${currKw} kW`,
+      text: `발전<br/>${currKw} kW`,
       align: 'center',
       verticalAlign: 'middle',
       y: -20

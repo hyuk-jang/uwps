@@ -120,6 +120,7 @@ ipcRenderer.on('main-chart', (event, data) => {
  * @param {{chartData: chartData, chartDecoration: chartDecoration}} data 
  */
 function makeMainPowerChart(data) {
+  console.log(data);
   const chartData = _.get(data, 'chartData');
   mainChart.makeMainChart(chartData, _.get(data, 'chartDecoration', {}));
 }
@@ -171,7 +172,9 @@ ipcRenderer.on('main-reply', (event, data) => {
     if(ele.dataset.type){
       comment = ` ${ele.dataset.type}`;
     }
-    ele.value = _.get(largeInverter, ele.dataset.id, '') + comment;
+    let value = _.get(largeInverter, ele.dataset.id, '');
+    console.log(value);
+    ele.value = value === null ? comment : value + comment;
   });
   const smallInputDomList = document.querySelectorAll('input[name=small]');
   smallInputDomList.forEach(ele => {
@@ -179,16 +182,41 @@ ipcRenderer.on('main-reply', (event, data) => {
     if(ele.dataset.type){
       comment = ` ${ele.dataset.type}`;
     }
-    ele.value = _.get(smallInverter, ele.dataset.id, '') + comment;
+    let value = _.get(smallInverter, ele.dataset.id, '');
+    ele.value = value === null ? comment : value + comment;
+  });
+
+  const largePDomList = document.querySelectorAll('p[name=large]');
+  largePDomList.forEach(ele => {
+    let header = '누적 발전량: ';
+    let comment = '';
+    if(ele.dataset.type){
+      comment = ` ${ele.dataset.type}`;
+    }
+    let value = _.get(largeInverter, ele.dataset.id, '');
+    console.log(value);
+    ele.innerHTML = value === null ? header + comment : header + value + comment;
+  });
+  const smallPDomList = document.querySelectorAll('p[name=small]');
+  smallPDomList.forEach(ele => {
+    let header = '누적 발전량: ';
+    let comment = '';
+    if(ele.dataset.type){
+      comment = ` ${ele.dataset.type}`;
+    }
+    let value = _.get(smallInverter, ele.dataset.id, '');
+    ele.innerHTML = value === null ? header + comment : header + value + comment;
   });
 
   const largeTdDomList = document.querySelectorAll('td[name=large]');
   largeTdDomList.forEach(ele => {
-    ele.innerHTML = _.get(largeInverter, ele.dataset.id, '');
+    let value = _.get(largeInverter, ele.dataset.id, '');
+    ele.innerHTML = value === null ? '' : value;
   });
   const smallTdDomList = document.querySelectorAll('td[name=small]');
   smallTdDomList.forEach(ele => {
-    ele.innerHTML = _.get(smallInverter, ele.dataset.id, '');
+    let value = _.get(smallInverter, ele.dataset.id, '');
+    ele.innerHTML = value === null ? '' : value;
   });
 
   makeMainPowerChart(data);
@@ -215,7 +243,7 @@ function setterSelectType(selectType) {
   var startDateDom = document.querySelector('#start_date_input');
   // var endDateDom = document.querySelector('#end_date_input');
 
-  console.log(startDateDom.value);
+  // console.log(startDateDom.value);
   var startDate = startDateDom.value ? moment(startDateDom.value) : moment();
   
   var viewMode = 0;

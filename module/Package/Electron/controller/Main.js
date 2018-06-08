@@ -95,15 +95,15 @@ class Main {
     let inverterPowerList = await this.powerModel.getInverterPower(searchRange, deviceSeq);
     
     // BU.CLI(inverterPowerList);
-    let chartOption = {selectKey: 'out_kw', dateKey: 'view_date', groupKey: 'ivt_target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
+    let chartOption = {selectKey: 'in_kw', dateKey: 'view_date', groupKey: 'ivt_target_id', colorKey: 'chart_color', sortKey: 'chart_sort_rank' };
 
     let chartData = webUtil.makeDynamicChartData(inverterPowerList, chartOption);
 
     chartData.series.forEach((info) => {
       if(info.name === 'PCS_001'){
-        info.yAxis = 1;
-      } else {
         info.yAxis = 0;
+      } else {
+        info.yAxis = 1;
       }
     });
     let inverterDataList = await this.powerModel.getTable('v_inverter_status');

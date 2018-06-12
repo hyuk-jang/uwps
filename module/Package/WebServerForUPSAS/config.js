@@ -31,13 +31,13 @@
       alicePub: null
     },
     dbInfo: {
-      // host: process.env.SALTERN_HOST ? process.env.SALTERN_HOST : 'localhost',
-      host: 'smtb.iptime.org',
-      port: '7498',
+      // host: 'smtb.iptime.org',
+      // password: 'upsas1111',
+      // port: '7498',
+      host: process.env.SALTERN_HOST ? process.env.SALTERN_HOST : 'localhost',
       user: process.env.SALTERN_USER ? process.env.SALTERN_USER : 'root',
-      // password: process.env.SALTERN_PW ? process.env.SALTERN_PW : 'root',
-      password: 'upsas1111',
-      database: process.env.SALTERN_DB ? process.env.SALTERN_DB : 'saltpond_controller'
+      password: process.env.SALTERN_PW ? process.env.SALTERN_PW : 'root',
+      database: process.env.SALTERN_DB ? process.env.SALTERN_DB : 'test'
     },
     salternInfo: {
       hasTryConnect: true,  // 염전과의 연결을 할지 여부

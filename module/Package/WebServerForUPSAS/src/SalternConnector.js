@@ -70,7 +70,7 @@ class SalternConnector {
       // let salternData = _.isBuffer(bufferData) ? JSON.parse(bufferData.toString()) : bufferData;
       let stringfySalternData = '';
       try {
-        BU.CLI(bufferData);
+        // BU.CLI(bufferData);
         stringfySalternData = this.baseConverter.decodingDefaultRequestMsgForTransfer(bufferData).toString();
       } catch (error) {
         BU.CLI(error);

@@ -72,7 +72,7 @@ class Control extends AbstDeviceClient {
    * @param {dcData} dcData 현재 장비에서 실행되고 있는 명령 객체
    */
   onDcData(dcData) {
-    // BU.CLI(data.toString());
+    BU.CLI(dcData.data.toString());
     const resultData = this.model.onData(dcData.data);
 
     // BU.CLI(this.getDeviceOperationInfo().data); 

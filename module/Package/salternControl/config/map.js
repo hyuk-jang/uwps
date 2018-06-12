@@ -60,7 +60,7 @@ const map = {
       subType: 'xbee',
       baudRate: 9600,
       // port: 9000,
-      port: 'COM42',
+      port: 'COM2',
       deviceRouterList: [{
         targetId: 'R_V_101',
         deviceId: '0013A20040F7B4AD',

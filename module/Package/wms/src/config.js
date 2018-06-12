@@ -101,7 +101,7 @@ module.exports = {
           connect_info: {
             type: 'serial',
             baudRate: 19200,
-            port: 'COM8'
+            port: 'COM3'
           },
           // connect_info: {
           //   type: 'socket',

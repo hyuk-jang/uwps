@@ -41,7 +41,7 @@ module.exports = {
           type: 'serial',
           subType: 'parser',
           baudRate: 9600,
-          port: 'COM15',
+          port: 'COM3',
           addConfigInfo: {
             parser: 'byteLengthParser',
             option: 55
@@ -52,7 +52,7 @@ module.exports = {
   },
   vantagepro2: {
     current: {
-      hasDev: true, // 장치 연결을 실제로 하는지 여부
+      hasDev: false, // 장치 연결을 실제로 하는지 여부
       deviceInfo: {
         target_id: 'VantagePro_1',
         target_name: 'Davis Vantage Pro2',
@@ -77,7 +77,7 @@ module.exports = {
         connect_info: {
           type: 'serial',
           baudRate: 19200,
-          port: 'COM8'
+          port: 'COM3'
         },
         // connect_info: {
         //   type: 'socket',

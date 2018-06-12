@@ -24,12 +24,12 @@ module.exports = {
         subCategory: 'xbee',
       },
       connect_info: {
-        // type: 'zigbee',
-        type: 'socket',
+        type: 'zigbee',
+        // type: 'socket',
         subType: 'xbee',
         baudRate: 9600,
-        // port: 'COM5',
-        port: 9000,
+        port: 'COM16',
+        // port: 9000,
         
       },
     },

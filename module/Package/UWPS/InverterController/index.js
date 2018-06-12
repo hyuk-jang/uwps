@@ -21,9 +21,9 @@ if (require !== undefined && require.main === module) {
   config.current.hasDev = false;
   config.current.deviceSavedInfo.target_category = 's_hex';
   config.current.deviceSavedInfo.connect_type = 'serial';
-  config.current.deviceSavedInfo.port = 'COM26';
+  config.current.deviceSavedInfo.port = 'COM19';
   config.current.deviceSavedInfo.baud_rate = 9600;
-  config.current.deviceSavedInfo.dialing.data = [0x30, 0x36];
+  config.current.deviceSavedInfo.dialing.data = [0x30, 0x35];
 
 
   let control = new Control(config);

@@ -20,7 +20,7 @@ const config = {
         mainCategory: 'weathercast',
         subCategory: 'vantagepro2',
         protocolOptionInfo: {
-          hasTrackingData: true
+          hasTrackingData: false
         }
       },
       controlInfo: {

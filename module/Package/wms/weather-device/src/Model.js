@@ -48,7 +48,7 @@ class Model extends AbstDeviceClientModel {
     let vantagepro2Data = this.controller.vantagepro2.getDeviceOperationInfo();
 
     // 데이터를 추출한 후 평균 값 리스트 초기화
-    this.controller.vantagepro2.model.averageStorage.init();
+    this.controller.vantagepro2.model.init();
 
     this.systemErrorList = _.unionBy(smInfraredData.systemErrorList, vantagepro2Data.systemErrorList, 'code');
     this.troubleList = _.unionBy(smInfraredData.troubleList, vantagepro2Data.troubleList, 'code');

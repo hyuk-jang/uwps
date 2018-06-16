@@ -28,6 +28,14 @@ class Model {
     this.averageStorage = new CU.AverageStorage(averConfig);
   }
 
+  /**
+   * 저장소를 깨끗이 비우고 현재 값을 초기화 시킴
+   */
+  init() {
+    this.averageStorage.init();
+    this.deviceData = BASE_MODEL;
+  }
+
 
   /**
    * @param {BASE_MODEL} weathercastData 

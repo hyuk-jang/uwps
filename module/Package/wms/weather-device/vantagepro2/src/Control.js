@@ -60,7 +60,7 @@ class Control extends AbstDeviceClient {
         // BU.CLI('Stop')
         this.cronScheduler.stop();
       }
-      // 3초마다 데이터 수신 확인
+      // 3초마다 데이터 수신 확인 (LOOP 명령은 2초 마다 전송하기 때문에 충분)
       this.cronScheduler = new cron.CronJob({
         cronTime: '*/3 * * * * *',
         onTick: () => {
@@ -93,17 +93,18 @@ class Control extends AbstDeviceClient {
     } else {
       this.errorCount++;
 
-      // 데이터가 3번 이상 들어오지 않는다면 문제가 있다고 판단
-      if (this.errorCount === 3) {
+      // 데이터가 2번 이상 들어오지 않는다면 문제가 있다고 판단
+      if (this.errorCount === 2) {
         var commandSet = this.generationAutoCommand(this.baseModel.DEFAULT.COMMAND.LOOP)
         this.executeCommand(commandSet);
         this.requestTakeAction(this.definedCommanderResponse.NEXT);
-      } else if (this.errorCount === 5) { // 그래도 정상적인 데이터가 들어오지 않는다면
+      } else if (this.errorCount === 4) { // 그래도 정상적인 데이터가 들어오지 않는다면
         var commandSet = this.generationAutoCommand(this.baseModel.DEFAULT.COMMAND.LOOP_INDEX)
         this.executeCommand(commandSet);
         this.requestTakeAction(this.definedCommanderResponse.NEXT);
-      } else if (this.errorCount === 10){ // 통제할 수 없는 에러라면
+      } else if (this.errorCount === 6){ // 통제할 수 없는 에러라면
         this.requestTakeAction(this.definedCommanderResponse.NEXT);
+        this.errorCount = 0;  // 새롭게 시작
         this.manager.disconnect();  // 장치 재접속 요청
       }
     }

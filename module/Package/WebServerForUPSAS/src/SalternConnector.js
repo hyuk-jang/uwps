@@ -22,6 +22,8 @@ class SalternConnector {
     this.host = connectInfo.host || 'localhost';
     this.hasTryConnect = connectInfo.hasTryConnect;
     
+    this.trackingBufferData = Buffer.from('');
+    this.trackingErrorCount = 0;
     let foundInstance = _.find(instanceList, instanceInfo => {
       return _.isEqual(instanceInfo.id, this.configInfo);
     });
@@ -71,8 +73,14 @@ class SalternConnector {
       let stringfySalternData = '';
       try {
         // BU.CLI(bufferData);
-        stringfySalternData = this.baseConverter.decodingDefaultRequestMsgForTransfer(bufferData).toString();
+        this.trackingBufferData = Buffer.concat([this.trackingBufferData, bufferData])
+        stringfySalternData = this.baseConverter.decodingDefaultRequestMsgForTransfer(this.trackingBufferData).toString();
+        this.trackingBufferData = Buffer.from('');
+        this.trackingErrorCount = 0;
       } catch (error) {
+        if(this.trackingErrorCount++ > 10) {
+          this.trackingErrorCount = 0;
+        }
         BU.CLI(error);
         // BU.logFile(error);
         return false;

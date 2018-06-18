@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link href='../../public/css/fullcalendar/fullcalendar.min.css' rel='stylesheet' />
+  <link href='../../public/css/fullcalendar/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+  <script src='../../public/js/moment.min.js'></script>
+  <script src='../../public/js/jquery-3.1.1.min.js'></script>
+  <script src='../../public/js/fullcalendar/fullcalendar.min.js'></script>
+  <script src='../../public/js/fullcalendar/locale-all.js'></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <style>
+    body {
+      margin: 40px 10px;
+      padding: 0;
+      font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
+      font-size: 14px;
+    }
+
+    #calendar {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .fc-content>span {
+      color: aliceblue
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id='calendar'></div>
+
+  <script>
+    $(document).ready(function () {
+      $('#calendar').fullCalendar({
+          header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay,listMonth',
+          },
+          height: 800,
+          selectable: true,
+          locale: 'ko',
+          color: 'white',
+          defaultDate: '2018-04-12',
+          navLinks: true, // can click day/week names to navigate views
+          businessHours: true, // display business hours
+          // eventLimit: true, // allow "more" link when too many events
+          // editable: true,
+          events: [{
+              title: '수심:1.5\n운량(날씨): 7.6\n일사량: 1042\n온도:\t 25\n특이사항:\t ㅎㅅㅎ',
+              description: 'description for All Day Event',
+              start: '2018-04-01'
+            },{
+              title: '수심:\t 1.5',
+              description: '단위: cm',
+              start: '2018-04-02'
+            }, {
+              title: '운량(날씨):\t 7.6',
+              description: 'description for All Day Event',
+              start: '2018-04-02'
+            }, {
+              title: '일사량: 1042',
+              description: 'description for All Day Event',
+              start: '2018-04-02'
+            }, {
+              title: '온도: 25',
+              description: 'description for All Day Event',
+              start: '2018-04-02'
+            }, {
+              title: '특이사항: ㅎㅅㅎ',
+              description: '특별한 에러가 발생',
+              start: '2018-04-02',
+            },
+            {
+              title: 'Long Event',
+              description: 'description for Long Event',
+              start: '2018-04-07',
+              end: '2018-04-10'
+            },
+            {
+              id: 999,
+              title: 'Repeating Event',
+              description: 'description for Repeating Event',
+              start: '2018-04-09T16:00:00'
+            },
+            {
+              id: 999,
+              title: 'Repeating Event',
+              description: 'description for Repeating Event',
+              start: '2018-04-16T16:00:00'
+            },
+            {
+              title: 'Conference',
+              description: 'description for Conference',
+              start: '2018-04-11',
+              end: '2018-04-13',
+              color: 'red'
+            },
+            {
+              title: 'Meeting',
+              description: 'description for Meeting',
+              start: '2018-04-12T10:30:00',
+              end: '2018-04-12T12:30:00'
+            },
+            {
+              title: 'Lunch',
+              description: 'description for Lunch',
+              start: '2018-04-12',
+              overlap: false,
+              rendering: 'background',
+              color: 'blue'
+            },
+            {
+              title: 'Meeting',
+              description: 'description for Meeting',
+              start: '2018-04-12T14:30:00'
+            }, {
+              title: '특이사항',
+              description: 'Birthday Party',
+              start: '2018-04-13',
+            }, {
+              title: '특이사항',
+              description: 'Birthday Party',
+              start: '2018-04-13',
+            }, {
+              title: '특이사항',
+              description: 'Birthday Party',
+              start: '2018-04-13',
+            }, {
+              title: '특이사항',
+              description: 'Birthday Party',
+              start: '2018-04-13',
+            }, {
+              title: '특이사항',
+              description: 'Birthday Party',
+              start: '2018-04-13',
+            }, {
+              title: '특이사항',
+              description: 'Birthday Party',
+              start: '2018-04-13',
+            }, {
+              title: '특이사항 가즈아~~~~~~~~~~~~~~~~~~~',
+              description: 'Birthday Party',
+              start: '2018-04-13',
+            },
+            {
+              start: '2018-04-13',
+              // overlap: false,
+              rendering: 'background',
+              color: 'purple',
+            },
+            {
+              title: 'Click for Google',
+              url: 'http://google.com/',
+              start: '2018-04-28'
+            }
+          ],
+          eventRender: function (eventObj, $el) {
+            eventObj.description &&
+              $el.popover({
+                title: eventObj.title,
+                content: eventObj.description,
+                trigger: 'hover',
+                placement: 'top',
+                container: 'body'
+              });
+          },
+
+
+        },
+
+      );
+
+    });
+  </script>
+</body>
+
+</html>

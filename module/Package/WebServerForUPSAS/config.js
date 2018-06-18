@@ -33,7 +33,7 @@
     dbInfo: {
       // host: 'smtb.iptime.org',
       // password: 'upsas1111',
-      // port: '7498',
+      port: process.env.SALTERN_PORT ? process.env.SALTERN_PORT : '7498',
       host: process.env.SALTERN_HOST ? process.env.SALTERN_HOST : 'localhost',
       user: process.env.SALTERN_USER ? process.env.SALTERN_USER : 'root',
       password: process.env.SALTERN_PW ? process.env.SALTERN_PW : 'root',

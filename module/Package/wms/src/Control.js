@@ -8,8 +8,8 @@ const config = require('./config');
 class Control {
   /** @param {config} config */
   constructor(config) {
-    this.config = config.current;
-
+    // this.config = config.current;
+    // this.config = _.get(config, 'current', {})
 
     this.weatherCast = new WeatherCast(config.weatherCast);
     this.weatherDevice = new WeatherDevice(config.weatherDevice);

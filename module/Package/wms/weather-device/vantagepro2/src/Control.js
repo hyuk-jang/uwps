@@ -1,4 +1,5 @@
 'use strict';
+const _ = require('lodash')
 const {
   BU
 } = require('base-util-jh');
@@ -21,8 +22,7 @@ class Control extends AbstDeviceClient {
   /** @param {config} config */
   constructor(config) {
     super();
-
-    this.config = config.current;
+    this.config = _.get(config, 'current', {})
 
     this.converter = new AbstConverter(this.config.deviceInfo.protocol_info);
     this.baseModel = new BaseModel.Weathercast(this.config.deviceInfo.protocol_info);
@@ -106,7 +106,10 @@ class Control extends AbstDeviceClient {
         this.requestTakeAction(this.definedCommanderResponse.NEXT);
         this.errorCount = 0;  // 새롭게 시작
         this.manager.disconnect();  // 장치 재접속 요청
+      } else {
+        return false;
       }
+      this.converter.resetTrackingDataBuffer();
     }
   }
 

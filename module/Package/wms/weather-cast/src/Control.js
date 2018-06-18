@@ -1,3 +1,6 @@
+'use strict';
+const _ = require('lodash')
+
 const EventEmitter = require('events');
 const BU = require('base-util-jh').baseUtil;
 
@@ -13,7 +16,6 @@ class Control extends EventEmitter {
     super();
     // 개발자모드(File load or 기상청 Rss) 좌표 정보, dao 정보, gcm 설정 정보
     this.config = config.current;
-    // BU.CLI(this.config);
     
     // Procss
     this.p_WeatherCast = new P_WeatherCast(this);

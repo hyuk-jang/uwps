@@ -1,4 +1,5 @@
 const _ = require('underscore');
+// const mome = require('mometo');
 const bmjh = require('base-model-jh');
 const BU = require('base-util-jh').baseUtil;
 
@@ -21,6 +22,30 @@ class BiModule extends bmjh.BM {
   constructor(dbInfo) {
     super(dbInfo);
 
+  }
+
+  /**
+   * 에러 내역
+   * @param {searchRange} searchRange  검색 옵션
+   * @param {number[]=} inverter_seq_list 
+   * @return {{comment: string, is_error: number}[]} SQL 실행 결과
+   */
+  getCalendarComment(searchRange){
+    searchRange = searchRange ? searchRange : this.getSearchRange();
+    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
+
+    // BU.CLI(dateFormat);
+    let sql = `
+      SELECT
+        cal.comment,
+        cal.is_error,
+        ${dateFormat.selectViewDate},
+        ${dateFormat.selectGroupDate}
+        FROM calendar cal
+        WHERE writedate>= "${searchRange.strBetweenStart}" and writedate<"${searchRange.strBetweenEnd}"
+        ORDER BY writedate
+    `;
+    return this.db.single(sql, '', false);
   }
 
   /**
@@ -234,7 +259,7 @@ class BiModule extends bmjh.BM {
    * @return {searchRange} 검색 범위
    */
   getSearchRange(searchType, start_date, end_date) {
-    // BU.CLIS(searchType, start_date, end_date);
+    BU.CLIS(searchType, start_date, end_date);
     let startDate = start_date instanceof Date ? start_date : _.isString(start_date) ? BU.convertTextToDate(start_date) : new Date();
     let endDate = end_date instanceof Date ? end_date : searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : startDate;
     // let endDate = searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : new Date(startDate);
@@ -298,6 +323,7 @@ class BiModule extends bmjh.BM {
     returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', spliceIndex, 0);
     returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', spliceIndex, 0);
     returnValue.strStartDate = BU.convertDateToText(startDate);
+    BU.CLI(convertEndDate);
     returnValue.strEndDate = BU.convertDateToText(convertEndDate);
 
     returnValue.strBetweenStart = returnValue.strStartDate;

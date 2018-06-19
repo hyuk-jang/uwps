@@ -1,5 +1,5 @@
 ﻿
-  @import url(http://api.mobilis.co.kr/webfonts/css/?fontface=NanumGothicWeb); 
+  /* @import url(http://api.mobilis.co.kr/webfonts/css/?fontface=NanumGothicWeb);  */
 
 * {
   -webkit-box-sizing: border-box;
@@ -45,7 +45,7 @@ ul li{list-style:none;}
 .navbar-nav_st{float:right;}
 
 .navbar-nav_st>li>a{ border-right:1px solid #ddd; position: relative;
-  display: block; color: #333; padding: 15px;}
+  display: block; color: #333; padding: 15px 10px;}
 
 
 

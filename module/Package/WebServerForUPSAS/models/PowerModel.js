@@ -18,6 +18,94 @@ class PowerModel extends BiModule {
 
   }
 
+
+  /**
+   * 테스트 수행 여부, 수위, 일사량, 온도, 운량 등을 달력을 생성하기 위한 데이터로 반환
+   * @return {{title: string, color: string, start: string}[]} title: 내용, color: 배경 색상, start: 시작 날짜
+   */
+  async getCalendarEventList() {
+    const moment = require('moment');
+    let startDate = moment().subtract(1, 'years').format();
+    let endDate = new Date(moment().format());
+    let searchRange = this.getSearchRange('fixRange', startDate, endDate);
+    searchRange.searchInterval = 'min10';
+    searchRange.resultGroupType = 'day';
+
+    const weatherTrendList = await this.getWeatherTrend(searchRange); 
+    // BU.CLI(weatherTrendList);
+    // 수위는 수중 일반(단) 기준으로 가져옴
+    const waterLevelList = await this.getWaterLevel(searchRange, 4); 
+    // BU.CLI(waterLevelList);
+
+    const weatherCastList = await this.getWeatherCastAverage(searchRange); 
+    // BU.CLI(weatherCastList);
+    const calendarCommentList = await this.getCalendarComment(searchRange); 
+    // BU.CLI(calendarCommentList);
+
+    /** @type {{title: string, start: string, color: string=}[]} */
+    let calendarEventList = [];
+
+    calendarCommentList.forEach(currentItem => {
+      let event = {
+        title: '',
+        start: currentItem.group_date
+      };
+
+      if(currentItem.is_error){
+        event.title = '▶ 테스트 X';
+        event.color = 'red';
+        // let addEvent = {
+        //   start: currentItem.group_date,
+        //   rendering: 'background',
+        //   color: 'red'
+        // };
+        // calendarEventList.push(addEvent);
+        
+      } else {
+        event.title = '▶ 테스트 O';
+        event.color = 'blue';
+      }
+
+      const comment = _.get(currentItem, 'comment');
+      if(comment !== null && comment !== ''){
+        event.title += `\n  ${comment}`;
+      }
+      
+      calendarEventList.push(event);
+    });
+
+    waterLevelList.forEach(currentItem => {
+      let event = {
+        title: `수위: ${currentItem.water_level}`,
+        start: currentItem.group_date,
+      };
+      calendarEventList.push(event);
+    });
+
+    weatherCastList.forEach(currentItem => {
+      let event = {
+        title: `운량: ${currentItem.avg_sky}`,
+        start: currentItem.group_date,
+      };
+      calendarEventList.push(event);
+    });
+    
+    weatherTrendList.forEach(currentItem => {
+      let event = {
+        title: `일사량: ${currentItem.total_interval_solar}`,
+        start: currentItem.group_date
+      };
+      calendarEventList.push(event);
+      
+      event = {
+        title: `온도: ${currentItem.avg_temp}`,
+        start: currentItem.group_date
+      };
+      calendarEventList.push(event);
+    });
+    return calendarEventList;
+  }
+
   /**
    * 인버터 차트 반환
    * @param {{device_type: string, device_list_type: string, device_type_list: [], device_seq: string, search_type: string}} searchOption
@@ -89,14 +177,17 @@ class PowerModel extends BiModule {
       };
       webUtil.calcRangePower(inverterTrend, calcOption);
     }
-    // BU.CLI(inverterTrend);
     webUtil.addKeyToReport(inverterTrend, viewInverterPacketList, 'target_id', 'inverter_seq');
     webUtil.addKeyToReport(inverterTrend, viewInverterPacketList, 'target_name', 'inverter_seq');
     // 기간 발전량을 기준으로 실제 계통 출력량을 계산하여 추가함(grid_out_w)
     webUtil.calcRangeGridOutW(inverterTrend, searchRange, 'interval_power');
     // 검색 기간을 기준으로 data 비율을 조정함
+    // BU.CLI(inverterTrend);
     webUtil.calcScaleRowDataPacket(inverterTrend, searchRange, ['interval_power', 'max_c_wh', 'min_c_wh']);
     // BU.CLI(inverterTrend);
+
+    
+    
 
     let chartOption = {
       selectKey: 'interval_power',
@@ -109,6 +200,8 @@ class PowerModel extends BiModule {
     };
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
     inverterPowerChartData = webUtil.makeStaticChartData(inverterTrend, betweenDatePoint, chartOption);
+    // BU.CLI(inverterTrend);
+    // return;
     this.tempApplyScaleInverter(inverterPowerChartData);
     chartOption = {
       selectKey: 'avg_out_w',
@@ -253,14 +346,15 @@ class PowerModel extends BiModule {
     let betweenDatePoint = BU.getBetweenDatePoint(searchRange.strBetweenEnd, searchRange.strBetweenStart, searchRange.searchInterval);
     let {inverterPowerChartData, inverterTrend, viewInverterPacketList} = await this.getInverterChart(searchOption, searchRange, betweenDatePoint);
 
+    // BU.CLI(searchRange);
     // BU.CLI(inverterPowerChartData);
     let {weatherTrend, weatherChartOptionList} = await this.getWeatherChart(searchRange, betweenDatePoint);
-    // BU.CLI(weatherTrend);
     let weatherCastRowDataPacketList =  await this.getWeatherCastAverage(searchRange);
     let chartDecoration = webUtil.makeChartDecoration(searchRange);
     let powerChartData = inverterPowerChartData;
 
     let waterLevelDataPacketList = await this.getWaterLevel(searchRange);
+    let calendarCommentList = await this.getCalendarComment(searchRange);
     
     let createExcelOption = {
       viewInverterPacketList,
@@ -271,6 +365,7 @@ class PowerModel extends BiModule {
       weatherCastRowDataPacketList,
       weatherTrend, 
       weatherChartOptionList,
+      calendarCommentList,
       searchRange
     };
     return excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);

@@ -34,7 +34,6 @@ class BiModule extends bmjh.BM {
     searchRange = searchRange ? searchRange : this.getSearchRange();
     let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
 
-    // BU.CLI(dateFormat);
     let sql = `
       SELECT
         cal.comment,
@@ -259,15 +258,17 @@ class BiModule extends bmjh.BM {
    * @return {searchRange} 검색 범위
    */
   getSearchRange(searchType, start_date, end_date) {
-    BU.CLIS(searchType, start_date, end_date);
+    // BU.CLIS(searchType, start_date, end_date);
     let startDate = start_date instanceof Date ? start_date : _.isString(start_date) ? BU.convertTextToDate(start_date) : new Date();
     let endDate = end_date instanceof Date ? end_date : searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : startDate;
     // let endDate = searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : new Date(startDate);
     let convertEndDate = null;
-    // BU.CLI(BU.convertDateToText(startDate), endDate);
+    // BU.CLI(BU.convertDateToText(startDate), BU.convertDateToText(endDate));
+    /** @type {searchRange} */
     let returnValue = {
       searchType,
       searchInterval: searchType,
+      resultGroupType: null,
       strStartDate: null, // sql writedate range 사용
       strEndDate: null, // sql writedate range 사용
       rangeStart: '', // Chart 위에 표시될 시작 날짜
@@ -317,13 +318,21 @@ class BiModule extends bmjh.BM {
       returnValue.strEndDateInputValue = BU.convertDateToText(endDate, '', spliceIndex, 0);
       // SQL 날짜 검색에 사용할 범위를 위하여 하루 증가
       convertEndDate = endDate = (new Date(endDate)).addDays(1);
+    } else if (searchType === 'fixRange') {
+      returnValue.searchType = 'range';
+      spliceIndex = 2;
+      // chart title에 사용될 기간을 설정
+      returnValue.rangeEnd = BU.convertDateToText(endDate, 'kor', spliceIndex, 0);
+      // 검색 조건 input value txt 설정
+      returnValue.strEndDateInputValue = BU.convertDateToText(endDate, '', spliceIndex, 0);
+      // SQL 날짜 검색에 사용할 범위를 위하여 하루 증가
+      convertEndDate = endDate;
     } 
 
     
     returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', spliceIndex, 0);
     returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', spliceIndex, 0);
     returnValue.strStartDate = BU.convertDateToText(startDate);
-    BU.CLI(convertEndDate);
     returnValue.strEndDate = BU.convertDateToText(convertEndDate);
 
     returnValue.strBetweenStart = returnValue.strStartDate;
@@ -429,6 +438,7 @@ class BiModule extends bmjh.BM {
    * @typedef {Object} searchRange
    * @property {string} searchType day, month, year, range
    * @property {string} searchInterval min, min10, hour, day, month, year, range
+   * @property {string=} resultGroupType 최종적으로 데이터를 묶을 데이터 형태 min, min10, hour, day, month, year, range
    * @property {string} strStartDate sql writedate range 사용
    * @property {string} strEndDate sql writedate range 사용
    * @property {string} rangeStart Chart 위에 표시될 시작 날짜
@@ -506,8 +516,6 @@ class BiModule extends bmjh.BM {
    */
   getWeatherTrend(searchRange) {
     let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
-    // BU.CLI(dateFormat);
-    // BU.CLI(searchRange);
     let sql = `
       SELECT
         ${dateFormat.selectViewDate},
@@ -662,6 +670,7 @@ class BiModule extends bmjh.BM {
    * @return {{groupByFormat: string, firstGroupByFormat: string, selectGroupDate: string, selectViewDate: string, devideTimeNumber: number}} 
    */
   makeDateFormatForReport(searchRange, dateName) {
+    // BU.CLI(searchRange);
     const returnValue = {
       groupByFormat: '',
       firstGroupByFormat: '',
@@ -673,25 +682,49 @@ class BiModule extends bmjh.BM {
 
     dateName = dateName == null ? 'writedate' : dateName;
     // BU.CLI(searchRange);
-    let dateFormat = this.convertSearchType2DateFormat(searchRange.searchInterval);
+
     // BU.CLI(dateFormat);
-    if(searchRange.searchInterval === 'min10'){
+
+    // 검색 간격에 따라서 첫번째 Group Format을 정함
+    if(searchRange.searchInterval === 'min'){
+      returnValue.devideTimeNumber = 60;
+      returnValue.firstGroupByFormat = `DATE_FORMAT(${dateName},"%Y-%m-%d %H:%i")`;
+    } else {
+      returnValue.devideTimeNumber = 6;
+      returnValue.firstGroupByFormat = `LEFT(DATE_FORMAT(${dateName},"%Y-%m-%d %H:%i"), 15)`;
+    }
+
+    // 최종 묶는 타입을 지정 안했다면
+    let dateFormat = '';
+    let finalGroupingType = '';
+    if(searchRange.resultGroupType == null){
+      finalGroupingType = searchRange.searchInterval;
+      dateFormat = this.convertSearchType2DateFormat(searchRange.searchInterval);
+    } else {
+      finalGroupingType = searchRange.resultGroupType;
+      dateFormat = this.convertSearchType2DateFormat(searchRange.resultGroupType);
+    }
+
+    // 최종적으로 묶을 데이터 형태를 정의하였다면 정의한 형태로 따라가고 아니라면 검색 간격에 따라감
+
+
+    if(finalGroupingType === 'min10'){
       returnValue.devideTimeNumber = 6;
       returnValue.selectGroupDate = `CONCAT(LEFT(DATE_FORMAT(${dateName},"%Y-%m-%d %H:%i"), 15), "0")  AS group_date`;
       returnValue.selectViewDate = `CONCAT(LEFT(DATE_FORMAT(${dateName},"%H:%i"), 4), "0")  AS view_date`;
       // returnValue.firstGroupByFormat = dateFormat;
-      returnValue.firstGroupByFormat = `LEFT(DATE_FORMAT(${dateName},"%Y-%m-%d %H:%i"), 15)`;
+      // returnValue.firstGroupByFormat = `LEFT(DATE_FORMAT(${dateName},"%Y-%m-%d %H:%i"), 15)`;
       returnValue.groupByFormat = `LEFT(DATE_FORMAT(${dateName},"%Y-%m-%d %H:%i"), 15)`;
     } else {
       returnValue.selectGroupDate = `DATE_FORMAT(${dateName},"${dateFormat}") AS group_date`;
       
 
       let viewFormat = dateFormat;
-      let firstGroupFormat = '%Y-%m-%d %H';
+      // let firstGroupFormat = '%Y-%m-%d %H';
       switch (searchRange.searchType) {
       case 'min':
         viewFormat = viewFormat.slice(9, 14);
-        firstGroupFormat = '%Y-%m-%d %H:%i';
+        // firstGroupFormat = '%Y-%m-%d %H:%i';
         returnValue.devideTimeNumber = 60;
         break;
       case 'hour':
@@ -707,7 +740,7 @@ class BiModule extends bmjh.BM {
         break;
       }
       returnValue.selectViewDate = `DATE_FORMAT(${dateName},"${viewFormat}") AS view_date`;
-      returnValue.firstGroupByFormat = `DATE_FORMAT(${dateName},"${firstGroupFormat}")`;
+      // returnValue.firstGroupByFormat = `DATE_FORMAT(${dateName},"${firstGroupFormat}")`;
       returnValue.groupByFormat = `DATE_FORMAT(${dateName},"${dateFormat}")`;
     }
     return returnValue;

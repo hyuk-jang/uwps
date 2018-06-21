@@ -7,16 +7,16 @@ const BU = require('base-util-jh').baseUtil;
 
 /**
  * @typedef {Object} createExcelOption
- * @property {Array.<viewInverterDataPacket>} viewInverterPacketList
- * @property {Object[]} inverterTrend
- * @property {chartData} powerChartData
- * @property {chartDecoration} powerChartDecoration
- * @property {Array.<waterLevelDataPacket>} waterLevelDataPacketList
- * 
- * @property {Array.<weatherTrend>} weatherTrend
- * @property {Array.<weatherChartOption>} weatherChartOptionList
- * @property {Array.<weatherCastRowDataPacket>} weatherCastRowDataPacketList
- * @property {searchRange} searchRange
+ * @prop {weatherTrend[]} weatherTrend
+ * @prop {Array.<calendarComment>} calendarCommentList
+ * @prop {searchRange} searchRange
+ * @prop {chartData} powerChartData
+ * @prop {Array.<weatherCastRowDataPacket>} weatherCastRowDataPacketList
+ * @prop {Array.<viewInverterDataPacket>} viewInverterPacketList
+ * @prop {chartDecoration} powerChartDecoration
+ * @prop {Array.<waterLevelDataPacket>} waterLevelDataPacketList
+ * @prop {Object[]} inverterTrend
+ * @prop {Array.<weatherChartOption>} weatherChartOptionList
  */
 
 /**
@@ -109,6 +109,13 @@ const BU = require('base-util-jh').baseUtil;
 
 
 /**
+ * @typedef {Object} calendarComment
+ * @property {string} comment 테스트 내용에 부연 설명을 필요로 할때
+ * @property {number} is_error 테스트 에러 여부
+ */ 
+
+
+/**
  * @typedef {Object} weatherTrend
  * @property {string} view_date 차트에 표현할 Date Format
  * @property {string} group_date 그룹 처리한 Date Format
@@ -147,11 +154,10 @@ function getNextAlphabet(char, nextIndex) {
 
 /**
  * 차트 데이터
- * @param {createExcelOption} resource 
+ * @param {createExcelOption} resource
  */
 function makeChartDataToExcelWorkSheet(resource) {
   let ws = XLSX.utils.aoa_to_sheet([]);
-
   let powerChartData = resource.powerChartData;
 
   let viewInverterPacketList = _.sortBy(resource.viewInverterPacketList, 'chart_sort_rank');
@@ -164,6 +170,9 @@ function makeChartDataToExcelWorkSheet(resource) {
   let weatherChartOptionList = resource.weatherChartOptionList;
   let waterLevelDataPacketList = resource.waterLevelDataPacketList;
   let weatherCastRowDataPacketList = resource.weatherCastRowDataPacketList;
+  let calendarCommentList = resource.calendarCommentList;
+  // BU.CLI(calendarCommentList);
+  
   let searchRange = resource.searchRange;
 
   let searchList = [];
@@ -180,6 +189,9 @@ function makeChartDataToExcelWorkSheet(resource) {
 
   /** 개요 구성 시작 */
   searchList = ['검색 기간', powerChartDecoration.mainTitle];
+
+  const comment = _.get(_.head(calendarCommentList), 'comment', '') || '';
+  const commentInfo = ['특이사항', comment];
 
   let powerName = '';
   // 기간 발전량 
@@ -394,6 +406,7 @@ function makeChartDataToExcelWorkSheet(resource) {
 
   ws['!merges'] = [
     XLSX.utils.decode_range('C2:H2'), 
+    XLSX.utils.decode_range('J2:N2'), 
 
     XLSX.utils.decode_range('C3:D3'),
     XLSX.utils.decode_range('C4:D4'),
@@ -486,6 +499,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   ws['!rows'] = rowsInfoList;
 
   XLSX.utils.sheet_add_aoa(ws, powerHeader, { origin: 'B2' });
+  XLSX.utils.sheet_add_aoa(ws, [commentInfo], { origin: 'I2' });
   // XLSX.utils.sheet_add_aoa(ws, [reportTitleList], { origin: 'C11' });
   // XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
   // BU.CLI(ws);

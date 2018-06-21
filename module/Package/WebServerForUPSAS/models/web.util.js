@@ -184,6 +184,7 @@ exports.calcValue = calcValue;
 
 
 /**
+ * 계산할려는 packetList를 순회하면서 이전 값과 현재 값의 차를 구하고 그 값의 유효성을 검증한 후 반환
  * @param {Object[]} rowDataPacketList 
  * @param {calcRowPacketIntervalOption} calcOption 
  */
@@ -195,8 +196,9 @@ function calcRangePower(rowDataPacketList, calcOption){
     // BU.CLI(groupKey);
     let groupRowDataPacketList = _.groupBy(rowDataPacketList, calcOption.groupKey);
 
-
+    // 설정한 유효 기간을 체크하여 검증할 건지 여부
     const hasCalcRange = _.isEmpty(calcOption.rangeOption) ? false : true;
+    // 이전 값과 현재 값의 날짜 차가 유효할 경우만 검증할 것인지 여부
     const hasCalcDate = hasCalcRange && calcOption.rangeOption.dateKey.length ? true : false;
     // 데이터 분포군 개수로는 계산하지 않음.
     // const hasCalcCount = hasCalcRange && calcOption.rangeOption.minRequiredCountKey.length ? true : false;
@@ -206,12 +208,13 @@ function calcRangePower(rowDataPacketList, calcOption){
       let prevDate;
       rowList.forEach((rowData, index) => {
         let hasError = false;
+        // 첫 데이터는 비교 대상이 없으므로 자체적으로 가지고 있는 최소 값을 기입
         if(index === 0){
           prevValue = _.isEmpty(calcOption.calcMinKey) ? rowData[calcOption.calcMaxKey] : rowData[calcOption.calcMinKey];
         } 
+
         // BU.CLI(prevDate);
         // 날짜 계산 옵션이 있다면 날짜 임계치를 벗어났는지 체크
-
         if(hasCalcDate && prevDate instanceof Date){
           /** @type {Date} */
           let currDate = rowData[calcOption.rangeOption.dateKey];
@@ -653,20 +656,24 @@ function calcStatisticsReport(rowDataPacketList, chartOption){
 function convertValueBySearchType(number, searchType) {
   // BU.CLI('convertValueBySearchType', searchType, number)
   let returnValue = 0;
-  switch (searchType) {
-  case 'year':
-    returnValue = _.round(number / 1000 / 1000, 4);
-    break;
-  case 'month':
-  case 'day':
-    returnValue = _.round(number / 1000, 3);
-    break;
-  case 'hour':
-  default:
-    returnValue = number;
-    break;
+  if(_.isNumber(number)){
+    switch (searchType) {
+    case 'year':
+      returnValue = _.round(number / 1000 / 1000, 4);
+      break;
+    case 'month':
+    case 'day':
+      returnValue = _.round(number / 1000, 3);
+      break;
+    case 'hour':
+    default:
+      returnValue = number;
+      break;
+    }
+    return Number(returnValue);
+  } else {
+    return '';
   }
-  return Number(returnValue);
 }
 exports.convertValueBySearchType = convertValueBySearchType;
 

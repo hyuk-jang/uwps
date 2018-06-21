@@ -1,9 +1,11 @@
+const _ = require('lodash');
 const wrap = require('express-async-wrap');
 const router = require('express').Router();
 const BU = require('base-util-jh').baseUtil;
 const DU = require('base-util-jh').domUtil;
 
 let webUtil = require('../models/web.util');
+
 
 const PowerModel = require('../models/PowerModel');
 
@@ -34,6 +36,7 @@ module.exports = function (app) {
     let searchType = req.query.search_type ? req.query.search_type : 'hour';
     // 조회 객체 정의
     // BU.CLIS(searchType, searchInterval, req.query.start_date, req.query.end_date);
+    const selectedReportMode = _.get(req.query, 'start_date', '').length ? 'reportMode' : 'calendarMode';
     let searchRange = powerModel.getSearchRange(searchType, req.query.start_date, req.query.end_date);
     searchRange.searchInterval = searchInterval;
     // searchRange.searchType = searchType;
@@ -42,6 +45,7 @@ module.exports = function (app) {
 
     let inverterList = await powerModel.getTable('inverter');
     let reportList = await powerModel.getInverterReport(searchRange, param_inverter_seq);
+    let calendarEventList = await powerModel.getCalendarEventList();
     // BU.CLI(reportList);
 
     let queryString = {
@@ -71,10 +75,14 @@ module.exports = function (app) {
     req.locals.searchRange = searchRange;
     req.locals.reportList = reportList.report;
     req.locals.paginationInfo = paginationInfo;
+    req.locals.calendarEventList = calendarEventList;
+    req.locals.selectedReportMode = selectedReportMode;
 
 
     return res.render('./report/report.html', req.locals);
   }));
+
+  
 
   router.get('/excel', wrap(async (req, res) => {
     const searchInterval = req.query.search_interval ? req.query.search_interval : 'min10';
@@ -82,9 +90,8 @@ module.exports = function (app) {
     let searchType = req.query.search_type ? req.query.search_type : defaultRangeFormat;
     let startDate = req.query.start_date;
     let endDate = req.query.end_date;
-    // 지정된 SearchType으로 설정 구간 정의
 
-    
+    // 지정된 SearchType으로 설정 구간 정의
     let searchRange = powerModel.getSearchRange(searchType, startDate, endDate);
     
     if (searchType === 'range') {
@@ -103,6 +110,8 @@ module.exports = function (app) {
       }
       searchRange.searchInterval = searchInterval;
     }
+    // BU.CLI(searchRange);
+    // return;
 
     if(['min', 'min10', 'hour'].includes(searchInterval)){
       let excelWorkBook = await powerModel.makeExcelSheet(searchRange, searchInterval);

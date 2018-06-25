@@ -1,6 +1,7 @@
 
 const _ = require('lodash');
 const net = require('net');
+const split = require('split')
 const eventToPromise = require('event-to-promise');
 
 const SocketIO = require('socket.io')();
@@ -22,8 +23,6 @@ class SalternConnector {
     this.host = connectInfo.host || 'localhost';
     this.hasTryConnect = connectInfo.hasTryConnect;
     
-    this.trackingBufferData = Buffer.from('');
-    this.trackingErrorCount = 0;
     let foundInstance = _.find(instanceList, instanceInfo => {
       return _.isEqual(instanceInfo.id, this.configInfo);
     });
@@ -68,23 +67,19 @@ class SalternConnector {
     }
 
     const client = net.createConnection(this.port, this.host);
-    let chunk = '';
-    client.on('data', bufferData => {
+    // client.setEncoding('utf8')
+    const delimiter = Buffer.from([0x04]);
+    const stream = client.pipe(split(delimiter))
+    stream.on('data', data => {
+      data = data + delimiter;
+      // BU.CLI('@@')
       // let salternData = _.isBuffer(bufferData) ? JSON.parse(bufferData.toString()) : bufferData;
       let stringfySalternData = '';
       try {
-        // BU.CLI(bufferData);
-        chunk += bufferData.toString();
-        this.trackingBufferData = Buffer.concat([this.trackingBufferData, bufferData]);
-        stringfySalternData = this.baseConverter.decodingDefaultRequestMsgForTransfer(this.trackingBufferData).toString();
-        this.trackingBufferData = Buffer.from('');
-        this.trackingErrorCount = 0;
+        stringfySalternData = this.baseConverter.decodingDefaultRequestMsgForTransfer(data).toString();
       } catch (error) {
-        if(this.trackingErrorCount++ > 10) {
-          this.trackingErrorCount = 0;
-        }
         BU.CLI(error);
-        // BU.logFile(error);
+        BU.logFile(error);
         return false;
       }
 
@@ -110,11 +105,7 @@ class SalternConnector {
     });
 
     client.on('end', () => {
-      BU.CLI(chunk);
-      // stringfySalternData = this.baseConverter.decodingDefaultRequestMsgForTransfer(Buffer.from(chunk)).toString();
-      // BU.CLI()
-      chunk = '';
-      // console.log('Client disconnected');
+      console.log('Client disconnected');
     });
 
     client.on('error', error => {

@@ -37,10 +37,20 @@ module.exports = function(app) {
     req.locals.excuteControlList = map.controlList;
     // req.locals.cancelControlList = map.controlList;
 
-    BU.CLI(map.setInfo.modelInfo);
+    const compiled = _.template(`<option value="<%= controlName %>">
+        <%= controlName %>
+      </option>`);
+    
+    let excuteControlList = [];
+    map.controlList.forEach(currentItem => {
+      excuteControlList.push(compiled({controlName: currentItem.cmdName})); 
+    });
+
+    BU.CLI(excuteControlList);
     let singleControlList = _.pick(map.setInfo.modelInfo, ['waterDoor', 'valve', 'pump']);
 
     req.locals.singleControlList = singleControlList;
+    req.locals.automaticControlList = excuteControlList;
 
     // BU.CLI(req.locals);
     // return res.status(200).send(DU.locationJustGoBlank('http://115.23.49.28:7999'));

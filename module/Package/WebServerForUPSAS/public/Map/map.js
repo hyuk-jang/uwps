@@ -1,8 +1,8 @@
 require('./map.jsdoc');
 
-/**
- * @type {deviceMap}
- */
+// /**
+//  * @type {deviceMap}
+//  */
 const map = {
   drawInfo: {
     frame: {

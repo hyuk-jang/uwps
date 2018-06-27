@@ -34,7 +34,7 @@ class Control extends AbstDeviceClient {
 
     this.converter = new AbstConverter(this.config.deviceInfo.protocol_info);
     this.baseModel = new BaseModel.Saltern(this.config.deviceInfo.protocol_info);
-
+    this.deviceModel = this.baseModel.device;
     this.model = new Model(this);
 
     this.observerList = [];
@@ -74,39 +74,39 @@ class Control extends AbstDeviceClient {
 
     if (orderInfo.hasTrue === true) {
       if (_.includes(modelId, 'WD_')) {
-        oper = this.baseModel.WATER_DOOR.COMMAND.OPEN;
-        cmdName = `${this.baseModel.WATER_DOOR.NAME} ${modelId} ${this.baseModel.WATER_DOOR.STATUS.OPEN}`;
+        oper = this.deviceModel.WATER_DOOR.COMMAND.OPEN;
+        cmdName = `${this.deviceModel.WATER_DOOR.NAME} ${modelId} ${this.deviceModel.WATER_DOOR.STATUS.OPEN}`;
       } else if (_.includes(modelId, 'P_')) {
-        oper = this.baseModel.PUMP.COMMAND.ON;
-        cmdName = `${this.baseModel.PUMP.NAME} ${modelId} ${this.baseModel.PUMP.STATUS.ON}`;
+        oper = this.deviceModel.PUMP.COMMAND.ON;
+        cmdName = `${this.deviceModel.PUMP.NAME} ${modelId} ${this.deviceModel.PUMP.STATUS.ON}`;
       } else if (_.includes(modelId, 'V_')) {
-        oper = this.baseModel.VALVE.COMMAND.OPEN;
-        cmdName = `${this.baseModel.VALVE.NAME} ${modelId} ${this.baseModel.VALVE.STATUS.OPEN}`;
+        oper = this.deviceModel.VALVE.COMMAND.OPEN;
+        cmdName = `${this.deviceModel.VALVE.NAME} ${modelId} ${this.deviceModel.VALVE.STATUS.OPEN}`;
       }
     } else if (orderInfo.hasTrue === false) {
       if (_.includes(modelId, 'WD_')) {
-        oper = this.baseModel.WATER_DOOR.COMMAND.CLOSE;
-        cmdName = `${this.baseModel.WATER_DOOR.NAME} ${modelId} ${this.baseModel.WATER_DOOR.STATUS.CLOSE}`;
+        oper = this.deviceModel.WATER_DOOR.COMMAND.CLOSE;
+        cmdName = `${this.deviceModel.WATER_DOOR.NAME} ${modelId} ${this.deviceModel.WATER_DOOR.STATUS.CLOSE}`;
       } else if (_.includes(modelId, 'P_')) {
-        oper = this.baseModel.PUMP.COMMAND.OFF;
-        cmdName = `${this.baseModel.PUMP.NAME} ${modelId} ${this.baseModel.PUMP.STATUS.OFF}`;
+        oper = this.deviceModel.PUMP.COMMAND.OFF;
+        cmdName = `${this.deviceModel.PUMP.NAME} ${modelId} ${this.deviceModel.PUMP.STATUS.OFF}`;
       } else if (_.includes(modelId, 'V_')) {
-        oper = this.baseModel.VALVE.COMMAND.CLOSE;
-        cmdName = `${this.baseModel.VALVE.NAME} ${modelId} ${this.baseModel.VALVE.STATUS.CLOSE}`;
+        oper = this.deviceModel.VALVE.COMMAND.CLOSE;
+        cmdName = `${this.deviceModel.VALVE.NAME} ${modelId} ${this.deviceModel.VALVE.STATUS.CLOSE}`;
       }
     } else {
       rank = this.definedCommandSetRank.THIRD;
       if (_.includes(modelId, 'WD_')) {
-        oper = this.baseModel.WATER_DOOR.COMMAND.STATUS;
-        cmdName = `${this.baseModel.WATER_DOOR.NAME} ${modelId} STATUS`;
+        oper = this.deviceModel.WATER_DOOR.COMMAND.STATUS;
+        cmdName = `${this.deviceModel.WATER_DOOR.NAME} ${modelId} STATUS`;
       } else if (_.includes(modelId, 'P_')) {
-        oper = this.baseModel.PUMP.COMMAND.STATUS;
-        cmdName = `${this.baseModel.PUMP.NAME} ${modelId} STATUS`;
+        oper = this.deviceModel.PUMP.COMMAND.STATUS;
+        cmdName = `${this.deviceModel.PUMP.NAME} ${modelId} STATUS`;
       } else if (_.includes(modelId, 'V_')) {
-        oper = this.baseModel.VALVE.COMMAND.STATUS;
-        cmdName = `${this.baseModel.VALVE.NAME} ${modelId} STATUS`;
+        oper = this.deviceModel.VALVE.COMMAND.STATUS;
+        cmdName = `${this.deviceModel.VALVE.NAME} ${modelId} STATUS`;
       } else {
-        oper = this.baseModel.VALVE.COMMAND.STATUS;
+        oper = this.deviceModel.VALVE.COMMAND.STATUS;
         cmdName = `순회 탐색 ${this.id} STATUS`;
       }
     }

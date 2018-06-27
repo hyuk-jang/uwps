@@ -6,7 +6,8 @@ const {BU} = require('base-util-jh');
 const {BaseModel} = require('../../../../module/device-protocol-converter-jh');
 require('./define');
 
-const baseModel = new BaseModel.Saltern('xbee');
+const baseModel = new BaseModel.Saltern({mainCategory: 'Saltern', subCategory: 'xbee'});
+const deviceModel = baseModel.device;
 
 
 const map = require('../../config/map');
@@ -23,10 +24,10 @@ class Model {
         this.routerList.push({
           deviceId: routerInfo.deviceId,
           targetId: routerInfo.targetId,
-          waterDoor: baseModel.WATER_DOOR.STATUS.STOP,
-          waterLevel: baseModel.WATER_LEVEL.STATUS.ZERO,
-          valve: baseModel.VALVE.STATUS.UNDEF,
-          pump: baseModel.PUMP.STATUS.OFF,
+          waterDoor: deviceModel.WATER_DOOR.STATUS.STOP,
+          waterLevel: deviceModel.WATER_LEVEL.STATUS.ZERO,
+          valve: deviceModel.VALVE.STATUS.UNDEF,
+          pump: deviceModel.PUMP.STATUS.OFF,
         });
       });
     });
@@ -74,19 +75,19 @@ class Model {
     let router = this.findRouter(xbeeApi_0x10);
     let bufferHex = [0x23, 0x30, 0x30, 0x30, 0x31, 0x30, 0x30, 0x30, 0x31];
     switch (router.waterDoor) {
-    case baseModel.WATER_DOOR.STATUS.STOP:
+    case deviceModel.WATER_DOOR.STATUS.STOP:
       bufferHex = bufferHex.concat([0x30, 0x30]);
       break;
-    case baseModel.WATER_DOOR.STATUS.OPEN:
+    case deviceModel.WATER_DOOR.STATUS.OPEN:
       bufferHex = bufferHex.concat([0x30, 0x32]);
       break;
-    case baseModel.WATER_DOOR.STATUS.CLOSING:
+    case deviceModel.WATER_DOOR.STATUS.CLOSING:
       bufferHex = bufferHex.concat([0x30, 0x33]);
       break;
-    case baseModel.WATER_DOOR.STATUS.CLOSE:
+    case deviceModel.WATER_DOOR.STATUS.CLOSE:
       bufferHex = bufferHex.concat([0x30, 0x34]);
       break;
-    case baseModel.WATER_DOOR.STATUS.OPENING:
+    case deviceModel.WATER_DOOR.STATUS.OPENING:
       bufferHex = bufferHex.concat([0x30, 0x35]);
       break;
     }
@@ -108,19 +109,19 @@ class Model {
     let router = this.findRouter(xbeeApi_0x10);
     let bufferHex = [0x23, 0x30, 0x30, 0x30, 0x31, 0x30, 0x30, 0x30, 0x32];
     switch (router.valve) {
-    case baseModel.VALVE.STATUS.UNDEF:
+    case deviceModel.VALVE.STATUS.UNDEF:
       bufferHex = bufferHex.concat([0x30, 0x30]);
       break;
-    case baseModel.VALVE.STATUS.CLOSE:
+    case deviceModel.VALVE.STATUS.CLOSE:
       bufferHex = bufferHex.concat([0x30, 0x31]);
       break;
-    case baseModel.VALVE.STATUS.OPEN:
+    case deviceModel.VALVE.STATUS.OPEN:
       bufferHex = bufferHex.concat([0x30, 0x32]);
       break;
-    case baseModel.VALVE.STATUS.OPENING:
+    case deviceModel.VALVE.STATUS.OPENING:
       bufferHex = bufferHex.concat([0x30, 0x34]);
       break;
-    case baseModel.VALVE.STATUS.CLOSING:
+    case deviceModel.VALVE.STATUS.CLOSING:
       bufferHex = bufferHex.concat([0x30, 0x35]);
       break;
     }
@@ -148,10 +149,10 @@ class Model {
     let router = this.findRouter(xbeeApi_0x10);
     let bufferHex = [0x23, 0x30, 0x30, 0x30, 0x31, 0x30, 0x30, 0x30, 0x33];
     switch (router.pump) {
-    case baseModel.PUMP.STATUS.OFF:
+    case deviceModel.PUMP.STATUS.OFF:
       bufferHex = bufferHex.concat([0x30, 0x30]);
       break;
-    case baseModel.PUMP.STATUS.ON:
+    case deviceModel.PUMP.STATUS.ON:
       bufferHex = bufferHex.concat([0x30, 0x31]);
       break;
     }
@@ -172,22 +173,22 @@ class Model {
   controlWaterdoor(xbeeApi_0x10) {
     let router = this.findRouter(xbeeApi_0x10);
     const cmd = xbeeApi_0x10.data;
-    if (cmd === baseModel.WATER_DOOR.COMMAND.OPEN.cmd) {
-      if (router.waterDoor !== baseModel.WATER_DOOR.STATUS.OPEN) {
+    if (cmd === deviceModel.WATER_DOOR.COMMAND.OPEN.cmd) {
+      if (router.waterDoor !== deviceModel.WATER_DOOR.STATUS.OPEN) {
         // setTimeout(() => {
-        router.waterDoor = baseModel.WATER_DOOR.STATUS.OPENING;
+        router.waterDoor = deviceModel.WATER_DOOR.STATUS.OPENING;
         // }, 30);
         setTimeout(() => {
-          router.waterDoor = baseModel.WATER_DOOR.STATUS.OPEN;
+          router.waterDoor = deviceModel.WATER_DOOR.STATUS.OPEN;
         }, _.random(3000, 5000));
       }
-    } else if (cmd === baseModel.WATER_DOOR.COMMAND.CLOSE.cmd) {
-      if (router.waterDoor !== baseModel.WATER_DOOR.STATUS.CLOSE) {
+    } else if (cmd === deviceModel.WATER_DOOR.COMMAND.CLOSE.cmd) {
+      if (router.waterDoor !== deviceModel.WATER_DOOR.STATUS.CLOSE) {
         // setTimeout(() => {
-        router.waterDoor = baseModel.WATER_DOOR.STATUS.CLOSING;
+        router.waterDoor = deviceModel.WATER_DOOR.STATUS.CLOSING;
         // }, 30);
         setTimeout(() => {
-          router.waterDoor = baseModel.WATER_DOOR.STATUS.CLOSE;
+          router.waterDoor = deviceModel.WATER_DOOR.STATUS.CLOSE;
         }, _.random(3000, 5000));
       }
     }
@@ -199,22 +200,22 @@ class Model {
   controlValve(xbeeApi_0x10) {
     let router = this.findRouter(xbeeApi_0x10);
     const cmd = xbeeApi_0x10.data;
-    if (cmd === baseModel.VALVE.COMMAND.OPEN.cmd) {
-      if (router.valve !== baseModel.VALVE.STATUS.OPEN) {
+    if (cmd === deviceModel.VALVE.COMMAND.OPEN.cmd) {
+      if (router.valve !== deviceModel.VALVE.STATUS.OPEN) {
         // setTimeout(() => {
-        router.valve = baseModel.VALVE.STATUS.OPENING;
+        router.valve = deviceModel.VALVE.STATUS.OPENING;
         // }, 30);
         setTimeout(() => {
-          router.valve = baseModel.VALVE.STATUS.OPEN;
+          router.valve = deviceModel.VALVE.STATUS.OPEN;
         }, _.random(3000, 5000));
       }
-    } else if (cmd === baseModel.VALVE.COMMAND.CLOSE.cmd) {
-      if (router.valve !== baseModel.VALVE.STATUS.CLOSE) {
+    } else if (cmd === deviceModel.VALVE.COMMAND.CLOSE.cmd) {
+      if (router.valve !== deviceModel.VALVE.STATUS.CLOSE) {
         // setTimeout(() => {
-        router.valve = baseModel.VALVE.STATUS.CLOSING;
+        router.valve = deviceModel.VALVE.STATUS.CLOSING;
         // }, 30);
         setTimeout(() => {
-          router.valve = baseModel.VALVE.STATUS.CLOSE;
+          router.valve = deviceModel.VALVE.STATUS.CLOSE;
         }, _.random(3000, 5000));
       }
     }
@@ -227,22 +228,22 @@ class Model {
   controlPump(xbeeApi_0x10) {
     let router = this.findRouter(xbeeApi_0x10);
     const cmd = xbeeApi_0x10.data;
-    if (cmd === baseModel.PUMP.COMMAND.ON.cmd) {
-      if (router.pump !== baseModel.PUMP.STATUS.ON) {
+    if (cmd === deviceModel.PUMP.COMMAND.ON.cmd) {
+      if (router.pump !== deviceModel.PUMP.STATUS.ON) {
         // setTimeout(() => {
-        router.pump = baseModel.PUMP.STATUS.OFF;
+        router.pump = deviceModel.PUMP.STATUS.OFF;
         // }, 30);
         setTimeout(() => {
-          router.pump = baseModel.PUMP.STATUS.ON;
+          router.pump = deviceModel.PUMP.STATUS.ON;
         }, _.random(3000, 5000));
       }
-    } else if (cmd === baseModel.PUMP.COMMAND.OFF.cmd) {
-      if (router.pump !== baseModel.PUMP.STATUS.OFF) {
+    } else if (cmd === deviceModel.PUMP.COMMAND.OFF.cmd) {
+      if (router.pump !== deviceModel.PUMP.STATUS.OFF) {
         // setTimeout(() => {
-        router.pump = baseModel.PUMP.STATUS.ON;
+        router.pump = deviceModel.PUMP.STATUS.ON;
         // }, 30);
         setTimeout(() => {
-          router.pump = baseModel.PUMP.STATUS.OFF;
+          router.pump = deviceModel.PUMP.STATUS.OFF;
         }, _.random(3000, 5000));
       }
     }

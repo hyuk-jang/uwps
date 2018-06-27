@@ -1,5 +1,5 @@
 'use strict';
-const _ = require('lodash')
+const _ = require('lodash');
 const {
   BU
 } = require('base-util-jh');
@@ -22,7 +22,7 @@ class Control extends AbstDeviceClient {
   /** @param {config} config */
   constructor(config) {
     super();
-    this.config = _.get(config, 'current', {})
+    this.config = _.get(config, 'current', {});
 
     this.converter = new AbstConverter(this.config.deviceInfo.protocol_info);
     this.baseModel = new BaseModel.Weathercast(this.config.deviceInfo.protocol_info);
@@ -95,11 +95,11 @@ class Control extends AbstDeviceClient {
 
       // 데이터가 2번 이상 들어오지 않는다면 문제가 있다고 판단
       if (this.errorCount === 2) {
-        var commandSet = this.generationAutoCommand(this.baseModel.DEFAULT.COMMAND.LOOP)
+        let commandSet = this.generationAutoCommand(this.baseModel.device.DEFAULT.COMMAND.LOOP);
         this.executeCommand(commandSet);
         this.requestTakeAction(this.definedCommanderResponse.NEXT);
       } else if (this.errorCount === 4) { // 그래도 정상적인 데이터가 들어오지 않는다면
-        var commandSet = this.generationAutoCommand(this.baseModel.DEFAULT.COMMAND.LOOP_INDEX)
+        let commandSet = this.generationAutoCommand(this.baseModel.device.DEFAULT.COMMAND.LOOP_INDEX);
         this.executeCommand(commandSet);
         this.requestTakeAction(this.definedCommanderResponse.NEXT);
       } else if (this.errorCount === 6){ // 통제할 수 없는 에러라면
@@ -138,13 +138,13 @@ class Control extends AbstDeviceClient {
     try {
       /** @type {Array.<commandInfo>} */
       switch (dcEvent.eventName) {
-        case this.definedControlEvent.CONNECT:
-          var cmdWakeUp = this.generationAutoCommand(this.baseModel.DEFAULT.COMMAND.WAKEUP)
-          this.executeCommand(cmdWakeUp)
-          this.runCronDiscoveryRegularDevice();
-          break;
-        default:
-          break;
+      case this.definedControlEvent.CONNECT:
+        var cmdWakeUp = this.generationAutoCommand(this.baseModel.device.DEFAULT.COMMAND.WAKEUP);
+        this.executeCommand(cmdWakeUp);
+        this.runCronDiscoveryRegularDevice();
+        break;
+      default:
+        break;
       }
 
     } catch (error) {

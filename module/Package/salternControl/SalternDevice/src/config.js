@@ -20,7 +20,7 @@ module.exports = {
         hasReconnect: true
       },
       protocol_info: {
-        mainCategory: 'saltern',
+        mainCategory: 'Saltern',
         subCategory: 'xbee',
       },
       connect_info: {
@@ -28,7 +28,7 @@ module.exports = {
         // type: 'socket',
         subType: 'xbee',
         baudRate: 9600,
-        port: 'COM16',
+        port: 'COM2',
         // port: 9000,
         
       },

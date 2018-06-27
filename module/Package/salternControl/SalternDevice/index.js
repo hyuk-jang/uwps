@@ -33,7 +33,7 @@ if (require !== undefined && require.main === module) {
 
   // Direct Test
   const cloneConfig = _.cloneDeep(config);
-  cloneConfig.current.deviceInfo.protocol_info.deviceId = '0013A20040F7B4A4';
+  cloneConfig.current.deviceInfo.protocol_info.deviceId = '0013A20040F7B4AD';
   cloneConfig.current.deviceInfo.target_id = 'Direct';
   const control_2 = new Control(cloneConfig);
   control_2.init();
@@ -41,8 +41,8 @@ if (require !== undefined && require.main === module) {
 
   const baseModel = new BaseModel.Saltern(config.current.deviceInfo.protocol_info);
 
-  BU.CLI(baseModel.VALVE.COMMAND.CLOSE);
-  let cmdList = control_2.converter.generationCommand(baseModel.VALVE.COMMAND.STATUS);
+  BU.CLI(baseModel.device.VALVE.COMMAND.CLOSE);
+  let cmdList = control_2.converter.generationCommand(baseModel.device.VALVE.COMMAND.STATUS);
   BU.CLI(cmdList);
   if(cloneConfig.current.deviceInfo.connect_info.type === 'socket'){
     cmdList.forEach(currentItem => {

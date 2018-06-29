@@ -355,6 +355,7 @@ class PowerModel extends BiModule {
 
     let waterLevelDataPacketList = await this.getWaterLevel(searchRange);
     let calendarCommentList = await this.getCalendarComment(searchRange);
+    BU.CLI(calendarCommentList);
     
     let createExcelOption = {
       viewInverterPacketList,

@@ -406,7 +406,7 @@ function makeChartDataToExcelWorkSheet(resource) {
 
   ws['!merges'] = [
     XLSX.utils.decode_range('C2:H2'), 
-    XLSX.utils.decode_range('J2:N2'), 
+    XLSX.utils.decode_range('Q8:T8'), 
 
     XLSX.utils.decode_range('C3:D3'),
     XLSX.utils.decode_range('C4:D4'),
@@ -499,7 +499,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   ws['!rows'] = rowsInfoList;
 
   XLSX.utils.sheet_add_aoa(ws, powerHeader, { origin: 'B2' });
-  XLSX.utils.sheet_add_aoa(ws, [commentInfo], { origin: 'I2' });
+  XLSX.utils.sheet_add_aoa(ws, [commentInfo], { origin: 'P8' });
   // XLSX.utils.sheet_add_aoa(ws, [reportTitleList], { origin: 'C11' });
   // XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
   // BU.CLI(ws);

@@ -113,7 +113,10 @@ module.exports = function (app) {
     // BU.CLI(searchRange);
     // return;
 
-    if(['min', 'min10', 'hour'].includes(searchInterval)){
+    
+    BU.CLI(_.includes(['min', 'min10', 'hour'], searchInterval));
+
+    if(_.includes(['min', 'min10', 'hour'], searchInterval)){
       let excelWorkBook = await powerModel.makeExcelSheet(searchRange, searchInterval);
       // BU.CLI(excelWorkBook);
   

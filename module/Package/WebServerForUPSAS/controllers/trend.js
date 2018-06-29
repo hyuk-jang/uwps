@@ -118,7 +118,7 @@ module.exports = function (app) {
     let weatherCastRowDataPacketList =  await powerModel.getWeatherCastAverage(searchRange);
     let waterLevelDataPacketList = await powerModel.getWaterLevel(searchRange);
     let calendarCommentList = await powerModel.getCalendarComment(searchRange);
-    BU.CLI(calendarCommentList);
+    // BU.CLI(calendarCommentList);
     // BU.CLI(viewInverterPacketList);
     let createExcelOption = {
       calendarCommentList,

@@ -197,13 +197,13 @@ function makeChartDataToExcelWorkSheet(resource) {
 
   switch (calendarErrorNum) {
   case 0:
-    comment += '(테스트 0)';
+    comment += '테스트 O';
     break;
   case 1:
-    comment += '(테스트 X: 기타)';
+    comment += '테스트 X:';
     break;
   case 2:
-    comment += '(테스트 X: 비)';
+    comment += '테스트 X: 비';
     break;
   default:
     break;

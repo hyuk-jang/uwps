@@ -53,7 +53,7 @@ class PowerModel extends BiModule {
 
       if(currentItem.is_error){
         if(currentItem.is_error === 1){
-          event.title = '▶ 테스트 X: 기타';
+          event.title = '▶ 테스트 X:';
           event.color = '#fd4b0b';
         } else if(currentItem.is_error === 2){
           event.title = '▶ 테스트 X: 비';

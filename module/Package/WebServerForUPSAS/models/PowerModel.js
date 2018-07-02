@@ -52,18 +52,24 @@ class PowerModel extends BiModule {
       };
 
       if(currentItem.is_error){
-        event.title = '▶ 테스트 X';
-        event.color = 'red';
-        // let addEvent = {
-        //   start: currentItem.group_date,
-        //   rendering: 'background',
-        //   color: 'red'
-        // };
-        // calendarEventList.push(addEvent);
-        
+        if(currentItem.is_error === 1){
+          event.title = '▶ 테스트 X: 기타';
+          event.color = '#fd4b0bc9';
+        } else if(currentItem.is_error === 2){
+          event.title = '▶ 테스트 X: 비';
+          event.color = '#347ab7';
+          // let addEvent = {
+          //   start: currentItem.group_date,
+          //   rendering: 'background',
+          //   color: 'red'
+          // };
+          // calendarEventList.push(addEvent);
+            
+        }
+
       } else {
         event.title = '▶ 테스트 O';
-        event.color = 'blue';
+        event.color = '#2196f3';
       }
 
       const comment = _.get(currentItem, 'comment');
@@ -78,6 +84,7 @@ class PowerModel extends BiModule {
       let event = {
         title: `수위: ${currentItem.water_level}`,
         start: currentItem.group_date,
+        color: '#9e9e9e',
       };
       calendarEventList.push(event);
     });
@@ -86,6 +93,7 @@ class PowerModel extends BiModule {
       let event = {
         title: `운량: ${currentItem.avg_sky}`,
         start: currentItem.group_date,
+        color: '#9e9e9e',
       };
       calendarEventList.push(event);
     });
@@ -93,13 +101,15 @@ class PowerModel extends BiModule {
     weatherTrendList.forEach(currentItem => {
       let event = {
         title: `일사량: ${currentItem.total_interval_solar}`,
-        start: currentItem.group_date
+        start: currentItem.group_date,
+        color: '#9e9e9e',
       };
       calendarEventList.push(event);
       
       event = {
         title: `온도: ${currentItem.avg_temp}`,
-        start: currentItem.group_date
+        start: currentItem.group_date,
+        color: '#9e9e9e',
       };
       calendarEventList.push(event);
     });

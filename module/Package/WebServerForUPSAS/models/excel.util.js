@@ -208,8 +208,8 @@ function makeChartDataToExcelWorkSheet(resource) {
   default:
     break;
   }
-
-  comment += ' ' + _.get(calendarComment, 'comment', '') || '';
+  let commentData = _.get(calendarComment, 'comment', '');
+  comment += commentData === null ? '' : ' ' + commentData;
   commentInfo.push(comment);
 
   let powerName = '';

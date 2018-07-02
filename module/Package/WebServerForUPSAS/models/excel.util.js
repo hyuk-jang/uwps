@@ -190,8 +190,27 @@ function makeChartDataToExcelWorkSheet(resource) {
   /** 개요 구성 시작 */
   searchList = ['검색 기간', powerChartDecoration.mainTitle];
 
-  const comment = _.get(_.head(calendarCommentList), 'comment', '') || '';
-  const commentInfo = ['특이사항', comment];
+  const commentInfo = ['특이사항'];
+  let comment = '';
+  const calendarComment = _.head(calendarCommentList);
+  const calendarErrorNum = _.get(calendarComment, 'is_error');
+
+  switch (calendarErrorNum) {
+  case 0:
+    comment += '(테스트 0)';
+    break;
+  case 1:
+    comment += '(테스트 X: 기타)';
+    break;
+  case 2:
+    comment += '(테스트 X: 비)';
+    break;
+  default:
+    break;
+  }
+
+  comment += ' ' + _.get(calendarComment, 'comment', '') || '';
+  commentInfo.push(comment);
 
   let powerName = '';
   // 기간 발전량 

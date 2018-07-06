@@ -1,5 +1,11 @@
 'use strict';
 
+process.env.NODE_ENV = 'production';
+process.env.NODE_ENV = 'development';
+
+require('dotenv').config();
+
+
 const Control = require('./src/Control.js');
 
 module.exports = Control;
@@ -12,7 +18,8 @@ if (require !== undefined && require.main === module) {
   const config = require('./src/config');
 
   const control = new Control(config);
-  control.init();
+  control.runCronWeatherCast();
+  // control.init();
 
  
   

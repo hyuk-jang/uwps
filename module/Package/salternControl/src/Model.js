@@ -29,7 +29,7 @@ class Model {
     // Device Model Storage 초기화
     this.init();
 
-    this.commandStorage = {};
+    // this.commandStorage = {};
   }
 
   init(){
@@ -148,7 +148,7 @@ class Model {
 
   
   /**
-   * @return {Array.<{category: string, targetId: string, targetName: string, targetData: *}>}
+   * @return {Array.<{targetCategory: string, targetId: string, targetName: string, targetData: *}>}
    */
   getAllDeviceModelStatus(){
     let returnValue = [];

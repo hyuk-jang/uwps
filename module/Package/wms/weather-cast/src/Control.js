@@ -1,5 +1,5 @@
 'use strict';
-const _ = require('lodash')
+const _ = require('lodash');
 
 const EventEmitter = require('events');
 const BU = require('base-util-jh').baseUtil;
@@ -64,6 +64,7 @@ class Control extends EventEmitter {
     } else {
       // 모델에 토스
       try {
+        
         const resultOnData = await this.model.onData(weatherCastData);
         BU.CLI('DONE updateWeatherCast');
         this.emit('updateWeatherCast', null, resultOnData);

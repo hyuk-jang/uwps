@@ -12,7 +12,7 @@ require('./format');
 class Model {
   /** @param {Control} controller */
   constructor(controller) {
-    
+    this.weatherLocationSeq = controller.config.location_seq;
     this.locationInfo = controller.config.locationInfo;
 
 
@@ -28,7 +28,7 @@ class Model {
   async onData(weatherCastData){
     // BU.CLI('onData');
     let tempStorage = new this.biModule.TempStorage();
-    let prevForecastList = await this.biModule.getPrevWeatherCast(this.locationInfo.x, this.locationInfo.y);
+    let prevForecastList = await this.biModule.getPrevWeatherCast(this.weatherLocationSeq);
     // BU.CLI(prevForecastList);
     prevForecastList.forEach(currentItem => {
       currentItem.applydate = BU.convertDateToText(currentItem.applydate);
@@ -38,7 +38,7 @@ class Model {
 
     
     weatherCastData.weatherCast.forEach(currentItem => {
-      _.extend(currentItem, {x: weatherCastData.x, y: weatherCastData.y});
+      _.extend(currentItem, {weather_location_seq: this.weatherLocationSeq});
       tempStorage.addStorage(currentItem, 'applydate', 'kma_data_seq');
     });
     this.weatherCastData = weatherCastData;

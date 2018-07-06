@@ -2,6 +2,7 @@ module.exports = {
   current: {
     hasDev: false, 
     /** @property {{x: number, y: number}} locationInfo 위도, 경도 */
+    location_seq: 2659,
     locationInfo: {
       x: 50, 
       y: 71, 

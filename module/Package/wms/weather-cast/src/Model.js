@@ -1,8 +1,8 @@
 'use strict';
 
-const _ = require('underscore');
-const BU = require('base-util-jh').baseUtil;
+const _ = require('lodash');
 
+const BU = require('base-util-jh').baseUtil;
 const BiModule = require('./BiModule');
 
 const Control = require('./Control');
@@ -12,7 +12,7 @@ require('./format');
 class Model {
   /** @param {Control} controller */
   constructor(controller) {
-    this.weatherLocationSeq = controller.config.location_seq;
+    this.weatherLocationSeq = controller.config.locationSeq;
     this.locationInfo = controller.config.locationInfo;
 
 
@@ -38,6 +38,7 @@ class Model {
 
     
     weatherCastData.weatherCast.forEach(currentItem => {
+      // FK 확장
       _.extend(currentItem, {weather_location_seq: this.weatherLocationSeq});
       tempStorage.addStorage(currentItem, 'applydate', 'kma_data_seq');
     });
@@ -52,7 +53,7 @@ class Model {
     // BU.CLI(finalStorage);
 
     const resultDoQuery = await this.biModule.doQuery(tempStorage, 'kma_data', 'kma_data_seq', false);
-    BU.CLI(resultDoQuery);
+    // BU.CLI(resultDoQuery);
     return resultDoQuery;
   }
 

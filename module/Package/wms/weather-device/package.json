@@ -22,8 +22,8 @@
     "mocha": "^4.1.0"
   },
   "dependencies": {
-    "base-model-jh": "^1.0.10",
-    "base-util-jh": "^1.1.6",
+    "base-model-jh": "^1.0.11",
+    "base-util-jh": "^1.1.7",
     "cron": "^1.3.0",
     "device-client-controller-jh": "^0.1.22",
     "device-client-model-jh": "^0.1.2",

@@ -35,11 +35,14 @@
     "socket.io": "^2.1.1",
     "split": "^1.0.1",
     "underscore": "^1.9.1",
+    "weather-cast": "^0.1.0",
     "xlsx": "^0.13.0"
   },
   "description": "염전 제어서버",
   "main": "index.js",
-  "devDependencies": {},
+  "devDependencies": {
+    "dotenv": "^6.0.0"
+  },
   "author": "smsoft",
   "license": "ISC",
   "pkg": {

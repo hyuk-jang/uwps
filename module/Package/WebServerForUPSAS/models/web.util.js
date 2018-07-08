@@ -118,6 +118,13 @@ function checkDataValidation(targetData, baseDate, dateKey) {
       data: {}
     };
 
+    // 날짜가 없을 경우(null, undefined) 유효데이터 처리 X
+    if(baseDate == null || targetData[dateKey] == null){
+      validData.hasValidData = false;
+      validData.data = targetData;
+      return [validData];
+    }
+
     const gapDate = BU.calcDateInterval(baseDate, targetData[dateKey]);
     // BU.CLIS(gapDate, BU.convertDateToText(baseDate), BU.convertDateToText(targetData[dateKey]));
     validData.hasValidData = gapDate.remainDay === 0 && gapDate.remainHour === 0 && gapDate.remainMin <= 10 ? true : false;

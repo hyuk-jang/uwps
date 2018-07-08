@@ -103,14 +103,17 @@ module.exports = function (app) {
     // TEST
     const tempSacle = require('../temp/tempSacle');   
     // TEST 구간
+    // BU.CLI(moduleStatus);
+    // BU.CLI(tempSacle);
     moduleStatus.forEach(currentItem => {
       let foundIt = _.find(tempSacle.moduleScale, {photovoltaic_seq: currentItem.photovoltaic_seq}); 
-      currentItem.vol = _.round(currentItem.vol * foundIt.scale, 1);
+      currentItem.vol = _.round(currentItem.vol * _.get(foundIt, 'scale'), 1);
     });
 
 
 
     // 접속반 발전 현황 데이터 검증
+    // BU.CLI(moduleStatus);
     let validModuleStatusList = webUtil.checkDataValidation(moduleStatus, new Date(), 'writedate');
     validModuleStatusList.forEach(moduleInfo => {
       let moduleData = moduleInfo.data;
@@ -137,7 +140,7 @@ module.exports = function (app) {
       monthPower,
       cumulativePower,
       co2: _.round(cumulativePower * 0.424, 3),
-      solarRadiation : validWeatherDevice.hasValidData ? validWeatherDevice.data.solar : '-',
+      solarRadiation : _.get(validWeatherDevice, 'hasValidData') ? validWeatherDevice.data.solar : '',
       hasOperationInverter: _.every(_.values(_.map(validInverterDataList, data => data.hasValidData))),
       hasAlarm: false // TODO 알람 정보 작업 필요
     };

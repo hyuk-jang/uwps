@@ -1,6 +1,8 @@
 process.env.NODE_ENV = 'production';
 process.env.NODE_ENV = 'development';
 
+process.env.NODE_ENV === 'development' && require('dotenv').config();
+
 const Promise = require('bluebird');
 
 const InitSetter = require('./config/InitSetter.js');
@@ -15,6 +17,7 @@ global.SU = SU;
 global._ = _;
 
 const SalternConnector = require('./src/SalternConnector');
+const GetterWeathercast = require('./src/GetterWeathercast');
 
 const CONTROLLERS_PATH = process.cwd() + '\\controllers';
 global.CONTROLLERS_PATH = CONTROLLERS_PATH;
@@ -79,6 +82,13 @@ global.minyung = {
 function operationController() {
   // BU.CLI(mainConfig.workers.SocketServer.PushServer.current.port)
   const salternConnector = new SalternConnector(config.init.salternInfo);
+  
+  
+  // 기상청 날씨 자동으로 가져오는 모듈
+  const getterWeathercast = new GetterWeathercast();
+  // getterWeathercast.getLocationList();
+
+
   let app = require('./config/app.js')(initSetter.dbInfo);
   let passport = require('./config/passport.js')(app, initSetter.aliceBobSecret);
   app.set('passport', passport);

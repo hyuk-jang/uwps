@@ -33,11 +33,11 @@
     dbInfo: {
       // host: 'smtb.iptime.org',
       // password: 'upsas1111',
-      port: process.env.SALTERN_PORT ? process.env.SALTERN_PORT : '3306',
-      host: process.env.SALTERN_HOST ? process.env.SALTERN_HOST : 'localhost',
-      user: process.env.SALTERN_USER ? process.env.SALTERN_USER : 'root',
-      password: process.env.SALTERN_PW ? process.env.SALTERN_PW : 'test',
-      database: process.env.SALTERN_DB ? process.env.SALTERN_DB : 'test'
+      port: process.env.DB_UPSAS_PORT ? process.env.DB_UPSAS_PORT : '3306',
+      host: process.env.DB_UPSAS_HOST ? process.env.DB_UPSAS_HOST : 'localhost',
+      user: process.env.DB_UPSAS_USER ? process.env.DB_UPSAS_USER : 'root',
+      password: process.env.DB_UPSAS_PW ? process.env.DB_UPSAS_PW : 'test',
+      database: process.env.DB_UPSAS_DB ? process.env.DB_UPSAS_DB : 'test'
     },
     salternInfo: {
       hasTryConnect: true,  // 염전과의 연결을 할지 여부

@@ -15,11 +15,13 @@ if (require !== undefined && require.main === module) {
   console.log('__main__');
 
   const BU = require('base-util-jh').baseUtil;
+
   const config = require('./src/config');
 
-  const control = new Control(config);
-  control.runCronWeatherCast();
+  const control = new Control();
+
   // control.init();
+  control.p_WeatherCast.requestWeatherCast();
 
  
   

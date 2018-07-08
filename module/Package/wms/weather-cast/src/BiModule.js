@@ -31,7 +31,7 @@ class BiModule extends bmjh.BM {
    * @param {number} seq
    */
   getPrevWeatherCast(seq) {
-    let sql = `SELECT * FROM kma_data WHERE applydate > CURDATE() AND weather_location_seq(PK)(FK)	기상청 정보 위치 시퀀스(PK)(FK)	시퀀스	MEDIUMINT	NOT NULL
+    let sql = `SELECT * FROM kma_data WHERE applydate > CURDATE() AND weather_location_seq = ${seq}
     = ${seq} ORDER BY kma_data_seq DESC  LIMIT 24`;
 
     return this.db.single(sql, '', false);

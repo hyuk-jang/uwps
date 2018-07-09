@@ -51,7 +51,6 @@ class Model {
   getDeviceCategory(category) {
     switch (category) {
     case [this.deviceModel.WATER_DOOR.KEY]:
-        
       break;
     
     default:

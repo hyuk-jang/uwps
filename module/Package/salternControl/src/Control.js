@@ -1,16 +1,7 @@
 'use strict';
 const _ = require('lodash');
 
-
-console.log(
-  _.findIndex(['V_003', 'MRT_003'], ele => ele.includes('V_'))
-);
-
-
-
-
 const cron = require('cron');
-
 
 const Promise = require('bluebird');
 
@@ -27,11 +18,14 @@ let config = require('./config');
 
 const map = require('../config/map');
 
-class Control {
-  /** @param {config} config */
-  constructor(config) {
-    this.config = config.current;
+const {defaultSensorConfig} =  require('default-intelligence').dcmConfigModel;
 
+
+class Control {
+  /** @param {defaultSensorConfig} config */
+  constructor(config) {
+    this.config = config;
+    
     // BU.CLI(this.config);
     
     this.map = map;
@@ -44,6 +38,10 @@ class Control {
 
     this.hasOperationScenario_1 = false;
     this.cronScheduler = null;
+  }
+
+  test() {
+    
   }
 
   init(){

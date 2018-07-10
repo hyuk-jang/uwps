@@ -63,11 +63,11 @@ const map = {
       port: 'COM2',
       deviceRouterList: [{
         targetId: 'R_V_101',
-        deviceId: '0013A20040F7B4AD',
+        deviceId: '0013a20040f7ab81',
         nodeModelList: ['V_101', 'WL_001']
       }, {
         targetId: 'R_V_102',
-        deviceId: '0013A20040F7B454',
+        deviceId: '0013a20040f7ab76',
         nodeModelList: ['V_102', 'WL_002']
       }, {
         targetId: 'R_V_103',

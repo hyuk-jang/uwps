@@ -62,21 +62,21 @@ const map = {
       // port: 9000,
       port: 'COM2',
       deviceRouterList: [{
-        targetId: 'R_V_101',
-        deviceId: '0013a20040f7ab81',
-        nodeModelList: ['V_101', 'WL_001']
+        targetId: 'R_GV_001',
+        deviceId: '0013A20040F7AB81',
+        nodeModelList: ['SV_001', 'WL_001']
       }, {
-        targetId: 'R_V_102',
-        deviceId: '0013a20040f7ab76',
-        nodeModelList: ['V_102', 'WL_002']
+        targetId: 'R_GV_002',
+        deviceId: '0013A20040F7AB76',
+        nodeModelList: ['SV_002', 'WL_002']
       }, {
-        targetId: 'R_V_103',
-        deviceId: '0013A20040F7B42D',
-        nodeModelList: ['V_103', 'WL_003']
+        targetId: 'R_GV_003',
+        deviceId: '0013A20040F7AB69',
+        nodeModelList: ['SV_003', 'WL_003']
       }, {
-        targetId: 'R_V_104',
-        deviceId: '0013A20040F7B433',
-        nodeModelList: ['V_104', 'WL_004']
+        targetId: 'R_GV_004',
+        deviceId: '0013A20040F7AB96',
+        nodeModelList: ['SV_004', 'WL_004']
       }, {
         targetId: 'R_GLS_005',
         deviceId: '0013A20040F7ACC8',
@@ -234,16 +234,16 @@ const map = {
         targetId: 'V_007',
         targetName: '밸브7'
       }, {
-        targetId: 'V_101',
+        targetId: 'SV_001',
         targetName: '수문1'
       }, {
-        targetId: 'V_102',
+        targetId: 'SV_002',
         targetName: '수문2'
       }, {
-        targetId: 'V_103',
+        targetId: 'SV_003',
         targetName: '수문3'
       }, {
-        targetId: 'V_104',
+        targetId: 'SV_004',
         targetName: '수문4'
       }],
       pump: [{

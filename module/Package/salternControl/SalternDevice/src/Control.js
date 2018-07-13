@@ -227,7 +227,7 @@ class Control extends AbstDeviceClient {
         this.model.onData(parsedData.data);
       }
 
-      // BU.CLI(this.getDeviceOperationInfo().id, this.getDeviceOperationInfo().data);
+      BU.CLI(this.getDeviceOperationInfo().id, this.getDeviceOperationInfo().data);
 
       // 옵저버에게 데이터 전달
       _.forEach(this.observerList, observer => {

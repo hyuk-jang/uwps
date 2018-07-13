@@ -56,12 +56,15 @@ class Model {
     let router = this.findRouter(xbeeApi_0x10);
     BU.CLI(router);
 
-    if (_.includes(router.targetId, 'R_GLS')) {
+    if (_.includes(router.targetId, 'R_G')) {
       this.controlWaterdoor(xbeeApi_0x10);
       return this.getWaterdoor(xbeeApi_0x10);
     } else if (_.includes(router.targetId, 'R_V')) {
       this.controlValve(xbeeApi_0x10);
       return this.getValve(xbeeApi_0x10);
+    } else if(_.includes(router.targetId, 'R_GV')){
+      this.controlValve(xbeeApi_0x10);
+      return this.getGateValve(xbeeApi_0x10);
     } else if (_.includes(router.targetId, 'R_P')) {
       this.controlPump(xbeeApi_0x10);
       return this.getPump(xbeeApi_0x10);
@@ -106,6 +109,7 @@ class Model {
    * @param {xbeeApi_0x10} xbeeApi_0x10 
    */
   getValve(xbeeApi_0x10) {
+    BU.CLI(xbeeApi_0x10);
     let router = this.findRouter(xbeeApi_0x10);
     let bufferHex = [0x23, 0x30, 0x30, 0x30, 0x31, 0x30, 0x30, 0x30, 0x32];
     switch (router.valve) {
@@ -127,6 +131,47 @@ class Model {
     }
     // Level: 2
     bufferHex = bufferHex.concat([0x30, 0x30]);
+    // Water Temperature: 6
+    bufferHex = bufferHex.concat([0x30, 0x30, 0x31, 0x36, 0x2e, 0x32]);
+    // Module Temperature: 6
+    bufferHex = bufferHex.concat([0x30, 0x30, 0x32, 0x31, 0x2e, 0x32]);
+    // Batter: 4
+    bufferHex = bufferHex.concat([0x31, 0x30, 0x2e, 0x32]);
+    return {
+      'type': 144,
+      'remote64': xbeeApi_0x10.destination64,
+      'remote16': xbeeApi_0x10.destination16,
+      'receiveOptions': 1,
+      data: Buffer.from(bufferHex)
+    };
+  }
+
+  /**
+   * @param {xbeeApi_0x10} xbeeApi_0x10 
+   */
+  getGateValve(xbeeApi_0x10) {
+    BU.CLI(xbeeApi_0x10);
+    let router = this.findRouter(xbeeApi_0x10);
+    let bufferHex = [0x23, 0x30, 0x30, 0x30, 0x31, 0x30, 0x30, 0x30, 0x32];
+    switch (router.valve) {
+    case deviceModel.VALVE.STATUS.UNDEF:
+      bufferHex = bufferHex.concat([0x30, 0x30]);
+      break;
+    case deviceModel.VALVE.STATUS.CLOSE:
+      bufferHex = bufferHex.concat([0x30, 0x31]);
+      break;
+    case deviceModel.VALVE.STATUS.OPEN:
+      bufferHex = bufferHex.concat([0x30, 0x32]);
+      break;
+    case deviceModel.VALVE.STATUS.OPENING:
+      bufferHex = bufferHex.concat([0x30, 0x34]);
+      break;
+    case deviceModel.VALVE.STATUS.CLOSING:
+      bufferHex = bufferHex.concat([0x30, 0x35]);
+      break;
+    }
+    // Level: 3 (138 데이터])
+    bufferHex = bufferHex.concat([0x31, 0x33, 0x38]);
     // Water Temperature: 6
     bufferHex = bufferHex.concat([0x30, 0x30, 0x31, 0x36, 0x2e, 0x32]);
     // Module Temperature: 6

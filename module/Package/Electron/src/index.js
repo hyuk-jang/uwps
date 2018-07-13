@@ -10,12 +10,13 @@ module.exports = {
     // 인버터 계측 프로그램 구동
     let inverterMonitoring = new DasEssMonitoring();    
     inverterMonitoring.init(config.dbInfo)
+    // inverterMonitoring.init()
       .then(() => {
         // inverterMonitoring.setDbConnectPort('COM15');
         inverterMonitoring.createDeviceController();
       })
       .catch(err => {
-        BU.logFile(err);
+        BU.errorLog('run', err);
       });
   }
 };

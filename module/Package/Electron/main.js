@@ -112,8 +112,8 @@ app.on('activate', function () {
 process.on('uncaughtException', function (err) {
   // BU.debugConsole();
   
-  BU.logFile(err.stack);
-
+  BU.errorLog('uncaughtException', err.stack);
+  
   console.error(err.stack);
   console.log(err.message);
   console.log('Node NOT Exiting...');
@@ -121,7 +121,7 @@ process.on('uncaughtException', function (err) {
 
 
 process.on('unhandledRejection', function (err) {
-  BU.logFile(err.stack);
+  BU.errorLog('unhandledRejection', err.stack);
   // BU.debugConsole();
   console.error(err.stack);
   console.log(err.message);

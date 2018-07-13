@@ -3,7 +3,7 @@
 select 
 		sen.sensor_seq, CONCAT(sd.target_prefix, "_", vdl.main_seq, "_", sen.target_code) AS sensor_real_id, CONCAT(sd.target_prefix, "_", sen.target_code) AS sensor_id, sen.target_code, sen.data_logger_index, sen.serial_number,
 		vdl.sdl_real_id, vdl.sdl_id,
-		sd.target_prefix AS sd_target_prefix, sd.target_alias AS sd_target_alias, sd.purpose_use AS sd_purpose_use,
+		sd.target_prefix AS sd_target_prefix, sd.target_id AS sd_target_id, sd.target_name AS sd_target_name,
 		sc.target_id AS sc_target_id, sc.target_name AS sc_target_name, sc.data_unit AS sc_data_unit, sc.description AS sc_description,
  		vdl.m_name,
 		sd.sensor_def_seq, sd.sensor_class_seq, vdl.main_seq, vdl.sensor_data_logger_seq, vdl.sensor_data_logger_def_seq

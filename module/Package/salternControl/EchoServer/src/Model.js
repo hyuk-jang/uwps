@@ -56,16 +56,16 @@ class Model {
     let router = this.findRouter(xbeeApi_0x10);
     BU.CLI(router);
 
-    if (_.includes(router.targetId, 'R_G')) {
+    if (_.includes(router.targetId, 'R_G_')) {
       this.controlWaterdoor(xbeeApi_0x10);
       return this.getWaterdoor(xbeeApi_0x10);
-    } else if (_.includes(router.targetId, 'R_V')) {
+    } else if (_.includes(router.targetId, 'R_V_')) {
       this.controlValve(xbeeApi_0x10);
       return this.getValve(xbeeApi_0x10);
-    } else if(_.includes(router.targetId, 'R_GV')){
+    } else if(_.includes(router.targetId, 'R_GV_')){
       this.controlValve(xbeeApi_0x10);
       return this.getGateValve(xbeeApi_0x10);
-    } else if (_.includes(router.targetId, 'R_P')) {
+    } else if (_.includes(router.targetId, 'R_P_')) {
       this.controlPump(xbeeApi_0x10);
       return this.getPump(xbeeApi_0x10);
     }

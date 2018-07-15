@@ -1,0 +1,1 @@
+update user set password=password('smsoftware') where user='root';a

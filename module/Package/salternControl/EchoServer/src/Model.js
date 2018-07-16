@@ -170,8 +170,23 @@ class Model {
       bufferHex = bufferHex.concat([0x30, 0x35]);
       break;
     }
+
+    let a = 137;
+    let strA = a.toString();
+    for (let index = 0; index < strA.length; index++) {
+      const element = strA.charCodeAt(index);
+      console.log(element);
+    }
+
     // Level: 3 (138 데이터])
-    bufferHex = bufferHex.concat([0x31, 0x33, 0x38]);
+    let wl = _.random(80, 190);
+    BU.CLI(_.subtract(200, wl));
+    _.forEach(wl.toString(), (char, index) => {
+      BU.CLI(char, index);
+      bufferHex.push(char.charCodeAt(index));
+    });
+    BU.CLI(bufferHex);
+    // bufferHex = bufferHex.concat([0x31, 0x33, 0x38]);
     // Water Temperature: 6
     bufferHex = bufferHex.concat([0x30, 0x30, 0x31, 0x36, 0x2e, 0x32]);
     // Module Temperature: 6

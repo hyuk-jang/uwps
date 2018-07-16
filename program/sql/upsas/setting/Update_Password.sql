@@ -1,1 +1,1 @@
-update user set password=password('smsoftware') where user='root';a
+update user set password=password('upsas1111') where user='upsas';

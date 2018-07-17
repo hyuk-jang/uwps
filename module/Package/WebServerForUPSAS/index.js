@@ -16,7 +16,10 @@ global.DU = DU;
 global.SU = SU;
 global._ = _;
 
+// SSCS와 연결을 수립하고 데이터 통신을 제어하는 모듈
 const SalternConnector = require('./src/SalternConnector');
+// 현황판으로 데이터를 보내는 모듈
+const StatusBoard = require('./src/StatusBoard');
 const GetterWeathercast = require('./src/GetterWeathercast');
 
 const CONTROLLERS_PATH = process.cwd() + '\\controllers';
@@ -83,7 +86,10 @@ function operationController() {
   // BU.CLI(mainConfig.workers.SocketServer.PushServer.current.port)
   const salternConnector = new SalternConnector(config.init.salternInfo);
   
-  
+  // 현황판 객체 생성 및 초기화 진행 후 구동 요청. 
+  const stautsBoard = new StatusBoard(config.statusBoard);
+  stautsBoard.init();
+  // stautsBoard.submitStatusPowerData();
   // 기상청 날씨 자동으로 가져오는 모듈
   const getterWeathercast = new GetterWeathercast();
   // getterWeathercast.getLocationList();

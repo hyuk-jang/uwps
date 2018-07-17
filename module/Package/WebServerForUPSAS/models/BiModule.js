@@ -840,7 +840,7 @@ class BiModule extends bmjh.BM {
           FROM
             (SELECT 
                 itd.inverter_seq AS device_seq,
-                itd.is_system_error AS is_system_error,
+                itd.is_error AS is_error,
                 itd.code AS code,
                 itd.msg AS msg,
                 itd.occur_date AS occur_date,
@@ -853,9 +853,9 @@ class BiModule extends bmjh.BM {
                 WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
                 `;
     if(errorStatus === 'deviceError'){
-      sql += 'AND is_system_error = "0"';
+      sql += 'AND is_error = "0"';
     } else if(errorStatus === 'systemError'){
-      sql += 'AND is_system_error = "1"';
+      sql += 'AND is_error = "1"';
     }
     sql += `
               ) AS itd
@@ -866,7 +866,7 @@ class BiModule extends bmjh.BM {
           FROM
             (SELECT 
                 ctd.connector_seq AS device_seq,
-                ctd.is_system_error AS is_system_error,
+                ctd.is_error AS is_error,
                 ctd.code AS code,
                 ctd.msg AS msg,
                 ctd.occur_date AS occur_date,
@@ -879,9 +879,9 @@ class BiModule extends bmjh.BM {
                 WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
                 `;
     if(errorStatus === 'deviceError'){
-      sql += 'AND is_system_error = "0"';
+      sql += 'AND is_error = "0"';
     } else if(errorStatus === 'systemError'){
-      sql += 'AND is_system_error = "1"';
+      sql += 'AND is_error = "1"';
     }
     sql += `
               ) AS ctd
@@ -920,7 +920,7 @@ class BiModule extends bmjh.BM {
     let sql = `
         SELECT 
             itd.inverter_seq AS device_seq,
-            itd.is_system_error AS is_system_error,
+            itd.is_error AS is_error,
             itd.code AS code,
             itd.msg AS msg,
             itd.occur_date AS occur_date,
@@ -933,9 +933,9 @@ class BiModule extends bmjh.BM {
             WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
             `;
     if(errorStatus === 'deviceError'){
-      sql += 'AND is_system_error = "0"';
+      sql += 'AND is_error = "0"';
     } else if(errorStatus === 'systemError'){
-      sql += 'AND is_system_error = "1"';
+      sql += 'AND is_error = "1"';
     }
     sql += `
             ) AS itd
@@ -971,7 +971,7 @@ class BiModule extends bmjh.BM {
     let sql = `
         SELECT 
             ctd.connector_seq AS device_seq,
-            ctd.is_system_error AS is_system_error,
+            ctd.is_error AS is_error,
             ctd.code AS code,
             ctd.msg AS msg,
             ctd.occur_date AS occur_date,
@@ -984,9 +984,9 @@ class BiModule extends bmjh.BM {
               WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
               `;
     if(errorStatus === 'deviceError'){
-      sql += 'AND is_system_error = "0"';
+      sql += 'AND is_error = "0"';
     } else if(errorStatus === 'systemError'){
-      sql += 'AND is_system_error = "1"';
+      sql += 'AND is_error = "1"';
     }
     sql += `
             ) AS ctd

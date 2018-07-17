@@ -41,7 +41,7 @@ module.exports = function (app) {
     // 접속반에 물려있는 모듈 seq 정의
     let moduleSeqList = _.map(refinedConnectorList, 'photovoltaic_seq');
     // 모듈 현황
-    let moduleStatusList = await biModule.getTable('v_module_status', 'photovoltaic_seq', moduleSeqList);
+    let moduleStatusList = await biModule.getTable('v_module_status', {photovoltaic_seq: moduleSeqList});
     // BU.CLI(moduleStatusList);
 
 

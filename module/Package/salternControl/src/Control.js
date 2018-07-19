@@ -1,7 +1,7 @@
 'use strict';
 const _ = require('lodash');
-
 const cron = require('cron');
+
 
 const Promise = require('bluebird');
 
@@ -18,14 +18,11 @@ let config = require('./config');
 
 const map = require('../config/map');
 
-const {defaultSensorConfig} =  require('default-intelligence').dcmConfigModel;
-
-
 class Control {
-  /** @param {defaultSensorConfig} config */
+  /** @param {config} config */
   constructor(config) {
-    this.config = config;
-    
+    this.config = config.current;
+
     // BU.CLI(this.config);
     
     this.map = map;
@@ -38,10 +35,6 @@ class Control {
 
     this.hasOperationScenario_1 = false;
     this.cronScheduler = null;
-  }
-
-  test() {
-    
   }
 
   init(){
@@ -271,27 +264,6 @@ class Control {
 
     // this.socketServer.
     let commandStorage = this.model.commandStorage;
-
-    const currentCommandSet = this.model.commandStorage.currentCommandSet;
-
-    const nodeModelName = _.find(salternDevice.nodeModelList, ele => ele.includes('MRT'));
-
-    // if(nodeModelName.length){
-    //   let res = _.find(deviceStorage, {targetId: nodeModelName}).
-    // }
-
-    // TEMP DB에 데이터를 저장하기 위하여 임시로 때려 박음
-    // 정기 데이터 수집일 경우
-    
-    // if(currentCommandSet.commandId === 'regularDiscovery'){
-    //   if(_.includes(currentCommandSet.commandName.includes('R_') ) )
-
-    // }
-    
-
-
-
-    
     let deviceStorage = this.model.getAllDeviceModelStatus();
     BU.CLI(commandStorage);
     BU.CLI(deviceStorage);

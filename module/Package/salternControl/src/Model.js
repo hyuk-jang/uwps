@@ -29,7 +29,7 @@ class Model {
     // Device Model Storage 초기화
     this.init();
 
-    // this.commandStorage = {};
+    this.commandStorage = {};
   }
 
   init(){
@@ -51,6 +51,7 @@ class Model {
   getDeviceCategory(category) {
     switch (category) {
     case [this.deviceModel.WATER_DOOR.KEY]:
+        
       break;
     
     default:
@@ -147,7 +148,7 @@ class Model {
 
   
   /**
-   * @return {Array.<{targetCategory: string, targetId: string, targetName: string, targetData: *}>}
+   * @return {Array.<{category: string, targetId: string, targetName: string, targetData: *}>}
    */
   getAllDeviceModelStatus(){
     let returnValue = [];

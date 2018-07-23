@@ -67,6 +67,8 @@ class Model {
     } else if (_.includes(router.targetId, "R_GV_")) {
       this.controlValve(xbeeApi_0x10);
       return this.getGateValve(xbeeApi_0x10);
+    }  else if (_.includes(router.targetId, "R_EP_")) {
+      return this.getEarhPV(xbeeApi_0x10);
     } else if (_.includes(router.targetId, "R_P_")) {
       this.controlPump(xbeeApi_0x10);
       return this.getPump(xbeeApi_0x10);
@@ -186,9 +188,9 @@ class Model {
 
     // Level: 3 (138 데이터])
     let wl = _.random(80, 190);
-    BU.CLI(_.subtract(200, wl));
+    // BU.CLI(_.subtract(200, wl));
     let strWl = _.padStart(wl.toString(), 3, "0");
-    BU.CLI(strWl);
+    // BU.CLI(strWl);
     let buf = Buffer.from(strWl);
     buf.forEach(currentItem => {
       bufferHex.push(currentItem);
@@ -196,6 +198,55 @@ class Model {
     // bufferHex = bufferHex.concat([0x31, 0x33, 0x38]);
     // Water Temperature: 6
     bufferHex = bufferHex.concat([0x30, 0x30, 0x31, 0x36, 0x2e, 0x32]);
+    // Module Temperature: 6
+    bufferHex = bufferHex.concat([0x30, 0x30, 0x32, 0x31, 0x2e, 0x32]);
+    // Batter: 4
+    bufferHex = bufferHex.concat([0x31, 0x30, 0x2e, 0x32]);
+    return {
+      type: 144,
+      remote64: xbeeApi_0x10.destination64,
+      remote16: xbeeApi_0x10.destination16,
+      receiveOptions: 1,
+      data: Buffer.from(bufferHex)
+    };
+  }
+
+  /**
+   * @param {xbeeApi_0x10} xbeeApi_0x10
+   */
+  getEarhPV(xbeeApi_0x10) {
+    BU.CLI(xbeeApi_0x10);
+    let router = this.findRouter(xbeeApi_0x10);
+    let bufferHex = [0x23, 0x30, 0x30, 0x30, 0x31, 0x30, 0x30, 0x30, 0x34];
+    switch (router.valve) {
+      case deviceModel.VALVE.STATUS.UNDEF:
+        bufferHex = bufferHex.concat([0x30, 0x30]);
+        break;
+      case deviceModel.VALVE.STATUS.CLOSE:
+        bufferHex = bufferHex.concat([0x30, 0x31]);
+        break;
+      case deviceModel.VALVE.STATUS.OPEN:
+        bufferHex = bufferHex.concat([0x30, 0x32]);
+        break;
+      case deviceModel.VALVE.STATUS.OPENING:
+        bufferHex = bufferHex.concat([0x30, 0x34]);
+        break;
+      case deviceModel.VALVE.STATUS.CLOSING:
+        bufferHex = bufferHex.concat([0x30, 0x35]);
+        break;
+    }
+
+      // Level: 3 (138 데이터])
+      let wl = _.random(80, 190);
+      // BU.CLI(_.subtract(200, wl));
+      let strWl = _.padStart(wl.toString(), 3, "0");
+      // BU.CLI(strWl);
+      let buf = Buffer.from(strWl);
+      buf.forEach(currentItem => {
+        bufferHex.push(currentItem);
+      });
+    // Module Temperature: 6
+    bufferHex = bufferHex.concat([0x30, 0x30, 0x33, 0x39, 0x2e, 0x36]);
     // Module Temperature: 6
     bufferHex = bufferHex.concat([0x30, 0x30, 0x32, 0x31, 0x2e, 0x32]);
     // Batter: 4

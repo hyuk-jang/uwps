@@ -32,13 +32,13 @@ class Control {
           BU.CLI(`P: ${this.port}Received Data: `, parseData);
           // return socket.write('this.is.my.socket\r\ngogogogo' + this.port);
           let returnData = this.model.onData(parseData);
-          BU.CLI(returnData);
+          BU.CLI(returnData.type, returnData.data.toString());
 
           // 약간의 지연 시간을 둠 (30ms)
           setTimeout(() => {
             // socket.write('hi');
             socket.write(JSON.stringify(returnData));
-          }, 500);
+          }, 5);
         });
       })
       .on("error", err => {

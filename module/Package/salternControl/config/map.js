@@ -88,9 +88,9 @@ const map = {
             nodeModelList: ['GV_004', 'WL_004']
           },
           {
-            targetId: 'R_GV_005',
+            targetId: 'R_EP_001',
             deviceId: '0013A20040F7AB86',
-            nodeModelList: ['MRT_005']
+            nodeModelList: ['MRT_005', 'MRT_005']
           },
           {
             targetId: 'R_G_005',
@@ -363,6 +363,10 @@ const map = {
         {
           targetId: 'MRT_005',
           targetName: '모듈온도 5'
+        },
+        {
+          targetId: 'MRT_006',
+          targetName: '모듈온도 6'
         }
       ]
     }

@@ -38,7 +38,7 @@ class Control {
           setTimeout(() => {
             // socket.write('hi');
             socket.write(JSON.stringify(returnData));
-          }, 5);
+          }, 50);
         });
       })
       .on("error", err => {

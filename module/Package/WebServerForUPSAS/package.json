@@ -10,7 +10,7 @@
   "dependencies": {
     "base-class-jh": "^1.0.17",
     "base-model-jh": "^1.1.0",
-    "base-util-jh": "^1.1.6",
+    "base-util-jh": "^1.1.8",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
     "connect-flash": "^0.1.1",
@@ -41,7 +41,19 @@
   "description": "염전 제어서버",
   "main": "index.js",
   "devDependencies": {
-    "dotenv": "^6.0.0"
+    "chai": "^4.1.2",
+    "docdash": "^0.4.0",
+    "dotenv": "^6.0.0",
+    "eslint": "^5.2.0",
+    "eslint-config-airbnb": "^17.0.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-prettier": "^2.6.2",
+    "eslint-plugin-react": "^7.10.0",
+    "jsdoc": "^3.5.5",
+    "mocha": "^5.2.0",
+    "prettier": "^1.13.7"
   },
   "author": "smsoft",
   "license": "ISC",

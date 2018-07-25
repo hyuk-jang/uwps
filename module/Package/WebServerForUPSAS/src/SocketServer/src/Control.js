@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const split = require('split');
-const cron = require('cron');
+// const cron = require('cron');
 const {BU} = require('base-util-jh');
 
 const net = require('net');
@@ -13,8 +13,8 @@ require('../../../../../module/default-intelligence');
 
 // const { AbstConverter, BaseModel } = require('device-protocol-converter-jh');
 
-const BiModule = require('../../../models/BiModule');
-const webUtil = require('../../../models/web.util.js');
+// const BiModule = require('../../../models/BiModule');
+// const webUtil = require('../../../models/web.util.js');
 
 class SocketServer {
   /**
@@ -53,6 +53,16 @@ class SocketServer {
         // socket.end('goodbye\n');
         console.log(`client is Connected ${this.port}`);
 
+        // TODO: client 식별을 위하여 접속 시 인증과정을 거쳐야함.(uuid 인증을 계획.) 일단 인증 없이 진행 함. - 2018-07-25
+
+        // FIXME: 임시로 main_seq 1번에 집어 넣음
+        _.forEach(this.mainStorageList, msInfo => {
+          if (msInfo.msFieldInfo.main_seq === 1) {
+            msInfo.msClient = socket;
+          }
+        });
+
+        // socket Client에 Stream 연결 및 Parser 바인딩
         const stream = socket.pipe(
           split(this.defaultConverter.protocolConverter.EOT),
         );
@@ -61,7 +71,7 @@ class SocketServer {
         stream.on('data', data => {
           try {
             data += this.defaultConverter.protocolConverter.EOT;
-            this.notifyData(data);
+            // this.notifyData(data);
             const strData = this.defaultConverter.decodingMsg(data).toString();
 
             // 만약 json 형태라면
@@ -70,26 +80,18 @@ class SocketServer {
             }
           } catch (error) {
             BU.logFile(error);
+            throw error;
           }
         });
 
-        this.clientList.push(socket);
-
-        socket.on('data', data => {
-          try {
-            const bufferData = this.defaultConverter.decodingMsg(data);
-
-            /** @type {{cmdType: string, hasTrue: boolean, cmdId: string, cmdRank: number=}} */
-            const jsonData = JSON.parse(bufferData.toString());
-
-            this.processingCommand(jsonData);
-          } catch (error) {
-            BU.logFile(error);
-          }
-        });
-
+        // client가 접속 해제 될 경우에는 clientList에서 제거
         socket.on('close', () => {
-          _.remove(this.clientList, client => _.isEqual(client, socket));
+          // 저장소 목록을 돌면서 해당 client를 초기화
+          this.mainStorageList.forEach(msInfo => {
+            if (_.isEqual(msInfo.msClient, socket)) {
+              msInfo.msClient = null;
+            }
+          });
         });
       })
       .on('error', err => {
@@ -104,7 +106,7 @@ class SocketServer {
     });
 
     server.on('close', () => {
-      console.log('clonse');
+      console.log('close');
     });
 
     server.on('error', err => {

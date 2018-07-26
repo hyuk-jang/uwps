@@ -8,10 +8,10 @@ select
  		vdl.m_name,
 		nd.node_def_seq, nd.node_class_seq, vdl.main_seq, vdl.data_logger_seq, vdl.data_logger_def_seq
 		
-from node
-left outer join node_def nd
+from dv_node node
+left outer join dv_node_def nd
 on nd.node_def_seq = node.node_def_seq
-left outer join node_class nc
+left outer join dv_node_class nc
 on nc.node_class_seq = nd.node_class_seq
 left outer join v_data_logger vdl
 on vdl.data_logger_seq = node.data_logger_seq

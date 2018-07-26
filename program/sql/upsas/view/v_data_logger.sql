@@ -6,8 +6,8 @@ select
 		dld.target_alias,
 		m.name AS m_name,
 		dl.*
- from data_logger dl
-join data_logger_def dld
+ from dv_data_logger dl
+join dv_data_logger_def dld
 on dld.data_logger_def_seq = dl.data_logger_def_seq
 JOIN main m
 on m.main_seq = dl.main_seq

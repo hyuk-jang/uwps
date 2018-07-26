@@ -1,5 +1,3 @@
-
-
 const Control = require('./src/Control');
 
 module.exports = Control;
@@ -13,22 +11,27 @@ if (require !== undefined && require.main === module) {
   console.dir(config);
   const control = new Control(config);
 
+  control
+    .setMainStorageByDB(config.dbInfo)
+    .then(() => {
+      control.init();
+    })
+    .catch(err => {
+      console.trace(err);
+    });
+
   // control.init();
 
   // control.makeStatusPowerData();
 
-
-
-
-  process.on('uncaughtException', function (err) {
+  process.on('uncaughtException', err => {
     // BU.debugConsole();
     console.error(err.stack);
     console.log(err.message);
     console.log('Node NOT Exiting...');
   });
-  
-  
-  process.on('unhandledRejection', function (err) {
+
+  process.on('unhandledRejection', err => {
     // BU.debugConsole();
     console.error(err.stack);
     console.log(err.message);

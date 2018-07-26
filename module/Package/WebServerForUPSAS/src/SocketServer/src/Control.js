@@ -67,7 +67,9 @@ class SocketServer {
       const filterDataLoggerList = _.filter(dataLoggerList, {
         main_seq: mainInfo.main_seq,
       });
-      const filterNodeList = _.filter(nodeList, {main_seq: mainInfo.main_seq});
+      const filterNodeList = _.filter(nodeList, {
+        main_seq: mainInfo.main_seq,
+      });
       /** @type {msInfo} */
       const mainStorageInfo = {
         msFieldInfo: mainInfo,
@@ -109,19 +111,13 @@ class SocketServer {
           }
         });
 
-        // socket Client에 Stream 연결 및 Parser 바인딩
-        const stream = socket.pipe(
-          split(this.defaultConverter.protocolConverter.EOT),
-        );
+        socket.pipe(socket);
 
         // 데이터를 stream 형태로 받아옴.
-        stream.on('data', data => {
+        socket.on('data', data => {
           try {
-            data += this.defaultConverter.protocolConverter.EOT;
-            // this.notifyData(data);
             const strData = this.defaultConverter.decodingMsg(data).toString();
-
-            BU.CLI(strData);
+            // BU.CLI(strData);
             // JSON 형태로만 데이터를 받아 들임.
             if (!BU.IsJsonString(strData)) {
               BU.errorLog('socketServer', '데이터가 JSON 형식이 아닙니다.');
@@ -130,9 +126,11 @@ class SocketServer {
 
             /** @type {transDataToServerInfo} */
             const parseData = JSON.parse(strData);
-            BU.CLI(parseData);
+            // BU.CLI(parseData);
+            // 응답 받은 데이터 인정 전송
+            socket.write(this.defaultConverter.protocolConverter.ACK);
 
-            this.interpretCommand(parseData);
+            this.interpretCommand(socket, parseData);
           } catch (error) {
             BU.logFile(error);
             throw error;
@@ -233,6 +231,7 @@ class SocketServer {
           renewalList.push(msNodeInfo);
         }
       });
+      BU.CLI(renewalList);
       return renewalList;
     } catch (error) {
       throw error;

@@ -11,13 +11,14 @@ if (require !== undefined && require.main === module) {
   console.dir(config);
   const control = new Control(config);
 
+  console.dir(config.dbInfo);
   control
     .setMainStorageByDB(config.dbInfo)
     .then(() => {
       control.init();
     })
     .catch(err => {
-      console.trace(err);
+      console.error(err);
     });
 
   // control.init();

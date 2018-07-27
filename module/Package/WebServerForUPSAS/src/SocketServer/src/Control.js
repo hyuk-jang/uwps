@@ -111,25 +111,38 @@ class SocketServer {
           }
         });
 
-        socket.pipe(socket);
-
-        // 데이터를 stream 형태로 받아옴.
-        socket.on('data', data => {
+        // steram 연결 및 파서 등록
+        const stream = socket.pipe(
+          split(this.defaultConverter.protocolConverter.EOT),
+        );
+        // 데이터 수신
+        stream.on('data', data => {
           try {
+            // Parser 가 EOT 까지 삭제하므로 끝에 붙임
+            data += this.defaultConverter.protocolConverter.EOT;
+            // BU.CLI(data);
+            // 수신받은 데이터의 CRC 계산 및 본 데이터 추출
             const strData = this.defaultConverter.decodingMsg(data).toString();
             // BU.CLI(strData);
+
             // JSON 형태로만 데이터를 받아 들임.
             if (!BU.IsJsonString(strData)) {
               BU.errorLog('socketServer', '데이터가 JSON 형식이 아닙니다.');
               throw new Error('데이터가 JSON 형식이 아닙니다.');
             }
 
+            // JSON 객체로 변환
             /** @type {transDataToServerInfo} */
             const parseData = JSON.parse(strData);
             // BU.CLI(parseData);
-            // 응답 받은 데이터 인정 전송
-            socket.write(this.defaultConverter.protocolConverter.ACK);
+            // 여기까지 오면 유효한 데이터로 생각하고 완료 처리 (ACK) 메시지 응답
+            socket.write(
+              this.defaultConverter.encodingMsg(
+                this.defaultConverter.protocolConverter.ACK,
+              ),
+            );
 
+            // JSON 객체 분석 메소드 호출
             this.interpretCommand(socket, parseData);
           } catch (error) {
             BU.logFile(error);
@@ -259,6 +272,7 @@ class SocketServer {
         // 신규 데이터는 삽입
         msInfo.msDataInfo.simpleOrderList.push(simpleOrderInfo);
       });
+      BU.CLI(msInfo.msDataInfo.simpleOrderList);
       return msInfo.msDataInfo.simpleOrderList;
     } catch (error) {
       throw error;

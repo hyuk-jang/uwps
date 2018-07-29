@@ -1,3 +1,4 @@
+const EventEmitter = require('events');
 const _ = require('lodash');
 const split = require('split');
 // const cron = require('cron');
@@ -7,26 +8,24 @@ const net = require('net');
 // const AbstDeviceClient = require('device-client-controller-jh');
 const {
   BaseModel,
-} = require('../../../../../module/device-protocol-converter-jh');
+} = require('../../../../../../module/device-protocol-converter-jh');
 
-require('../../../../../module/default-intelligence');
+const {dcmWsModel} = require('../../../../../../module/default-intelligence');
 
-const {BM} = require('../../../../../module/base-model-jh');
+const {BM} = require('../../../../../../module/base-model-jh');
+const socketServerConfig = require('./config');
 
-// const { AbstConverter, BaseModel } = require('device-protocol-converter-jh');
-
-// const BiModule = require('../../../models/BiModule');
-// const webUtil = require('../../../models/web.util.js');
-
-class SocketServer {
+class SocketServer extends EventEmitter {
   /**
    *
-   * @param {http} httpObj
+   * @param {socketServerConfig} config
    */
-  constructor(httpObj) {
-    this.http = httpObj;
+  constructor(config) {
+    super();
+    this.config = config || socketServerConfig;
 
-    // this.map = this.controller.map;
+    /** 해당 Socket Serve를 감시하고 있는 객체 */
+    this.observerList = [];
 
     this.defaultConverter = BaseModel.defaultModule;
     /**
@@ -40,6 +39,14 @@ class SocketServer {
      * @type {Array.<net.Socket>}
      */
     this.clientList = [];
+  }
+
+  /**
+   * Observer 추가
+   * @param {Object} parent
+   */
+  attach(parent) {
+    this.observerList.push(parent);
   }
 
   /**
@@ -181,21 +188,68 @@ class SocketServer {
   }
 
   /**
+   * Client에서 인증을 하고자 할 경우
+   * FIXME: uuid를 통한 인증을 함. Diffle Hellman 으로 추후 변경해야 할 듯
+   * @param {net.Socket} client
+   * @param {transDataToServerInfo} transDataToServerInfo
+   * @return {boolean} 성공 or 실패
+   */
+  certificationClient(client, transDataToServerInfo) {
+    const uuid = transDataToServerInfo.data;
+    const foundIt = _.find(this.mainStorageList, msInfo =>
+      _.isEqual(msInfo.msFieldInfo.uuid, uuid),
+    );
+    // 인증이 성공했다면 Socket Client를 적용.
+    if (foundIt) {
+      foundIt.msClient = client;
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Client에서 보내온 데이터를 해석
    * @param {net.Socket} client
    * @param {transDataToServerInfo} transDataToServerInfo
    */
   interpretCommand(client, transDataToServerInfo) {
-    // FIXME: 명령 해석 결과의 처리를 해당 메소드에서 할 것인지, 이 곳에서 할 것인지 ?
-    switch (transDataToServerInfo.commandType) {
-      case 'node':
-        this.compareNodeList(client, transDataToServerInfo.data);
-        break;
-      case 'command':
-        this.compareSimpleOrderList(client, transDataToServerInfo.data);
-        break;
-      default:
-        break;
+    const {
+      CERTIFICATION,
+      COMMAND,
+      NODE,
+      STAUTS,
+    } = dcmWsModel.transmitCommandType;
+    // client를 인증하고자 하는 경우
+    if (transDataToServerInfo.commandType === CERTIFICATION) {
+      const hasCertification = this.certificationClient(
+        client,
+        transDataToServerInfo,
+      );
+      // 인증이 실패했다면
+      if (!hasCertification) {
+        return false;
+      }
+    }
+    const msInfo = this.findMsInfoByClient(client);
+    if (msInfo) {
+      switch (transDataToServerInfo.commandType) {
+        case NODE: // 노드 정보가 업데이트 되었을 경우
+          this.compareNodeList(msInfo, transDataToServerInfo.data);
+          break;
+        case COMMAND: // 명령 정보가 업데이트 되었을 경우
+          this.compareSimpleOrderList(msInfo, transDataToServerInfo.data);
+          break;
+        case STAUTS: // 현황판 데이터를 요청할 경우
+          this.transmitDataToClient(
+            msInfo.msClient,
+            msInfo.msDataInfo.statusBoard,
+          );
+          break;
+        default:
+          throw new Error('등록되지 않은 명령입니다.');
+      }
+    } else {
+      throw new Error('사용자 인증이 필요합니다..');
     }
   }
 
@@ -222,16 +276,29 @@ class SocketServer {
   }
 
   /**
-   * TODO: client가 같은 녀석을 찾고 해당 nodeList와의 데이터를 비교하여 갱신된 데이터가 있을 경우 Socket.io로 전송
+   * Client로 데이터를 보내는 메소드. data가 null이라면 데이터 전송하지 않음.
    * @param {net.Socket} client
+   * @param {Buffer} data
+   */
+  transmitDataToClient(client, data) {
+    try {
+      if (!_.isNull(data)) {
+        client.write(data);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * @desc dcmWsModel.transmitCommandType.NODE 명렁 처리 메소드
+   * @param {msInfo} msInfo
    * @param {nodeInfo[]} nodeList
    */
-  compareNodeList(client, nodeList) {
+  compareNodeList(msInfo, nodeList) {
     try {
       /** @type {nodeInfo[]} */
       const renewalList = [];
-
-      const msInfo = this.findMsInfoByClient(client);
       // 수신 받은 노드 리스트를 순회
       _.forEach(nodeList, nodeInfo => {
         const msNodeInfo = _.find(msInfo.msDataInfo.nodeList, {
@@ -244,6 +311,16 @@ class SocketServer {
           renewalList.push(msNodeInfo);
         }
       });
+
+      // 업데이트 내역이 있다면 전송
+      if (renewalList.length) {
+        // Observer가 해당 메소드를 가지고 있다면 전송
+        this.observerList.forEach(observer => {
+          if (_.get(observer, 'updateNodeList')) {
+            observer.updateNodeList(msInfo, renewalList);
+          }
+        });
+      }
       BU.CLI(renewalList);
       return renewalList;
     } catch (error) {
@@ -252,13 +329,12 @@ class SocketServer {
   }
 
   /**
-   * TODO: client가 같은 녀석을 찾고 해당 simpleOrderList와의 데이터를 비교하여 갱신된 데이터가 있을 경우 Socket.io로 전송
-   * @param {net.Socket} client
+   * @desc dcmWsModel.transmitCommandType.COMMAND 명렁 처리 메소드
+   * @param {msInfo} msInfo
    * @param {simpleOrderInfo[]} simpleOrderList
    */
-  compareSimpleOrderList(client, simpleOrderList) {
+  compareSimpleOrderList(msInfo, simpleOrderList) {
     try {
-      const msInfo = this.findMsInfoByClient(client);
       // 수신 받은 노드 리스트를 순회
       _.forEach(simpleOrderList, simpleOrderInfo => {
         const foundIndex = _.findIndex(msInfo.msDataInfo.simpleOrderList, {
@@ -273,94 +349,17 @@ class SocketServer {
         msInfo.msDataInfo.simpleOrderList.push(simpleOrderInfo);
       });
       BU.CLI(msInfo.msDataInfo.simpleOrderList);
+
+      // Observer가 해당 메소드를 가지고 있다면 전송
+      this.observerList.forEach(observer => {
+        if (_.get(observer, 'updateSimpleOrderList')) {
+          observer.updateSimpleOrderList(msInfo);
+        }
+      });
+
       return msInfo.msDataInfo.simpleOrderList;
     } catch (error) {
       throw error;
-    }
-  }
-
-  /**
-   * TODO: 웹에서 사용자의 명령을 장치로 전송하는 메소드
-   * 1. 단일 명령 requestSingleOrderInfo
-   * 2. 복합 명령 요청 및 취소 executeOrderInfo
-   * 장치로 명령 요청
-   */
-  requestCommandFromDevice(clientId, requestCommand) {}
-
-  /**
-   * Web Socket 설정
-   * @param {Object} httpObj
-   */
-  setSocketIO(httpObj) {
-    this.io = require('socket.io')(httpObj);
-    this.io.on('connection', socket => {
-      socket.on('excuteSalternControl', msg => {
-        const encodingMsg = this.defaultConverter.encodingMsg(msg);
-
-        !_.isEmpty(this.client) &&
-          this.write(encodingMsg).catch(err => {
-            BU.logFile(err);
-          });
-      });
-
-      if (this.stringfySalternDevice.length) {
-        socket.emit('initSalternDevice', this.stringfySalternDevice);
-        // socket.emit('initSalternCommand', this.stringfyStandbyCommandSetList);
-        socket.emit(
-          'initSalternCommand',
-          this.stringfyCurrentCommandSet,
-          this.stringfyStandbyCommandSetList,
-          this.stringfyDelayCommandSetList,
-        );
-      }
-
-      socket.on('disconnect', () => {});
-    });
-  }
-
-  /**
-   * @param {{commandStorage: Object, deviceStorage: Array.<{category: string, targetId: string, targetName: string, targetData: *}>}} salternDeviceDataStorage
-   */
-  emitToClientList(salternDeviceDataStorage) {
-    try {
-      const encodingData = this.defaultConverter.encodingMsg(
-        JSON.stringify(salternDeviceDataStorage),
-      );
-
-      // BU.CLI(encodingData.slice(encodingData.length - 5));
-
-      this.clientList.forEach(client => {
-        client.write(encodingData);
-      });
-    } catch (error) {
-      BU.errorLog('salternDevice', 'emitToClientList', error);
-    }
-  }
-
-  /**
-   *
-   * @param {{cmdType: string, hasTrue: boolean, cmdId: string, cmdRank: number=}} jsonData
-   */
-  processingCommand(jsonData) {
-    BU.CLI(jsonData);
-    if (jsonData.cmdType === 'AUTOMATIC') {
-      const fountIt = _.find(this.map.controlList, {cmdName: jsonData.cmdId});
-      if (jsonData.hasTrue) {
-        this.controller.excuteAutomaticControl(fountIt);
-      } else {
-        this.controller.cancelAutomaticControl(fountIt);
-      }
-    } else if (jsonData.cmdType === 'SINGLE') {
-      const orderInfo = {
-        modelId: jsonData.cmdId,
-        hasTrue: jsonData.hasTrue,
-        rank: jsonData.cmdRank,
-      };
-      this.controller.excuteSingleControl(orderInfo);
-    } else if (jsonData.cmdType === 'SCENARIO') {
-      if (jsonData.cmdId === 'SCENARIO_1') {
-        this.controller.scenarioMode_1(jsonData.hasTrue);
-      }
     }
   }
 }

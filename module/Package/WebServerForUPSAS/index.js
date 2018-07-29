@@ -22,23 +22,20 @@ const SalternConnector = require('./src/SalternConnector');
 const StatusBoard = require('./src/StatusBoard');
 const GetterWeathercast = require('./src/GetterWeathercast');
 
-const CONTROLLERS_PATH = process.cwd() + '\\controllers';
+const CONTROLLERS_PATH = `${process.cwd()}\\controllers`;
 global.CONTROLLERS_PATH = CONTROLLERS_PATH;
 
-
 // TODO: 개선 필요
-let initSetter = new InitSetter(config.init);
+const initSetter = new InitSetter(config.init);
 global.initSetter = initSetter;
 
 // 통합 서버와 통신 (초기화)
 exchangeInfo()
-  .then(res => {
-    return downloadMap();
-  })
-  .then(res => {
+  .then(res => downloadMap())
+  .then(res =>
     // BU.CLI(res);
-    return operationController();
-  })
+    operationController(),
+  )
   .catch(error => {
     BU.CLI('????', error);
     setTimeout(() => {
@@ -74,19 +71,12 @@ function downloadMap() {
   });
 }
 
-global.minyung = {
-  has: false,
-  webPort: 7400,
-  pushPort: 7401,
-  cmdPort: 7402
-};
-
 // 컨트롤러 구동 시작
 function operationController() {
   // BU.CLI(mainConfig.workers.SocketServer.PushServer.current.port)
   const salternConnector = new SalternConnector(config.init.salternInfo);
-  
-  // 현황판 객체 생성 및 초기화 진행 후 구동 요청. 
+
+  // 현황판 객체 생성 및 초기화 진행 후 구동 요청.
   const stautsBoard = new StatusBoard(config.statusBoard);
   stautsBoard.init();
   // stautsBoard.submitStatusPowerData();
@@ -94,22 +84,23 @@ function operationController() {
   const getterWeathercast = new GetterWeathercast();
   // getterWeathercast.getLocationList();
 
-
-  let app = require('./config/app.js')(initSetter.dbInfo);
-  let passport = require('./config/passport.js')(app, initSetter.aliceBobSecret);
+  const app = require('./config/app.js')(initSetter.dbInfo);
+  const passport = require('./config/passport.js')(
+    app,
+    initSetter.aliceBobSecret,
+  );
   app.set('passport', passport);
   app.set('initSetter', initSetter);
 
   require('./controllers')(app);
 
   /** Web Socket Binding */
-  var http = require('http').Server(app);
-  
-  
+  const http = require('http').Server(app);
+
   salternConnector.setSocketIO(http);
 
   // TEST
-  http.listen(global.minyung.has ? global.minyung.webPort : initSetter.webPort, (req, res) => {
+  http.listen(initSetter.webPort, (req, res) => {
     console.log('Controller Server is Running', initSetter.webPort);
   });
 }

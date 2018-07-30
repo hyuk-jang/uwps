@@ -1,4 +1,4 @@
-const wrap = require('express-async-wrap');
+const asyncHandler = require('express-async-handler');
 const router = require('express').Router();
 const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
@@ -16,7 +16,7 @@ module.exports = app => {
 
   // server middleware
   router.use(
-    wrap(async (req, res, next) => {
+    asyncHandler(async (req, res, next) => {
       req.locals = DU.makeBaseHtml(req, 0);
       const currWeatherCastList = await biModule.getCurrWeatherCast();
       const currWeatherCastInfo = currWeatherCastList.length
@@ -31,8 +31,48 @@ module.exports = app => {
   // Get
   router.get(
     '/',
-    wrap(async (req, res) => {
+    asyncHandler(async (req, res) => {
       BU.CLI('control', req.locals);
+
+      const deviceInfoList = [];
+      /** @type {nodeInfo[]} */
+      const nodeList = await biModule.getTable('v_node_profile', {main_seq: 1});
+
+      const compiledDeviceType = _.template(
+        '<option value="<%= nd_target_id %>"> <%= nd_target_name %></option>',
+      );
+
+      nodeList.forEach(nodeInfo => {
+        const {
+          nd_target_id,
+          nd_target_name,
+          nc_is_sensor,
+          node_id,
+          node_name,
+        } = nodeInfo;
+        // 센서가 아닌 장비만 등록
+        if (nc_is_sensor === 0) {
+          let foundIt = _.find(deviceInfoList, {type: nd_target_id});
+
+          if (_.isEmpty(foundIt)) {
+            // const onOffList = ['pump'];
+            foundIt = {
+              type: nd_target_id,
+              list: [],
+              template: compiledDeviceType({nd_target_id, nd_target_name}),
+              controlType: [],
+            };
+            deviceInfoList.push(foundIt);
+          }
+          const compiledDeviceList = _.template(
+            '<option value="<%= node_id %>"><%= node_name %></option>',
+          );
+
+          foundIt.list.push(compiledDeviceList({node_id, node_name}));
+        }
+      });
+
+      BU.CLI(deviceInfoList);
 
       req.locals.hi = 'jhi';
       req.locals.excuteControlList = map.controlList;
@@ -47,13 +87,14 @@ module.exports = app => {
         excuteControlList.push(compiled({controlName: currentItem.cmdName}));
       });
 
-      BU.CLI(excuteControlList);
+      // BU.CLI(excuteControlList);
       const singleControlList = _.pick(map.setInfo.modelInfo, [
         'waterDoor',
         'valve',
         'pump',
       ]);
 
+      req.locals.deviceInfoList = deviceInfoList;
       req.locals.singleControlList = singleControlList;
       req.locals.automaticControlList = excuteControlList;
 

@@ -5,6 +5,7 @@
   <%- include("../master/head.html") %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+    <script src="js/lodash-4.17.10.min.js"></script>
 </head>
 
 <body>
@@ -155,6 +156,30 @@
         return setDeviceList();
       })
 
+      // 장치 카테고리 설정
+      function setDomDeviceType() {
+        var deviceTypeList = _.map(deviceInfoList, "template")
+        var single_control_device_list = document.getElementById("single_control_cate_list");
+        single_control_device_list.innerHTML = deviceTypeList;
+      }
+
+      function setDeviceInfoList() {
+        var deviceGroup;
+        var category = $("#single_control_cate_list").val();
+
+        console.log(category)
+        var domInfo = _.find(deviceInfoList, {
+          type: category
+        })
+
+        console.log(domInfo)
+
+
+        var single_control_device_list = document.getElementById("single_control_device_list");
+
+        single_control_device_list.innerHTML = domInfo.list;
+      }
+
       function setDeviceList() {
         var deviceGroup;
         var category = $("#single_control_cate_list").val();
@@ -185,13 +210,18 @@
       }
 
       var singleControlList;
+      var deviceInfoList;
       $(document).ready(function () {
         var automaticDom = <%- JSON.stringify(automaticControlList) %>;
         $("#automatic_control_list").html(automaticDom);
 
         singleControlList = <%- JSON.stringify(singleControlList) %>;
 
-        setDeviceList();
+        deviceInfoList = <%- JSON.stringify(deviceInfoList) %>;
+
+        // setDeviceList();
+        setDomDeviceType();
+        setDeviceInfoList()
       })
 
       // $("#single_control_device_list").trigger('click');

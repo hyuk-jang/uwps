@@ -32,6 +32,7 @@ module.exports = class {
      on m.weather_location_seq = weather_location.weather_location_seq
   `;
     const deviceList = await bi.db.single(sql);
+    BU.CLI(deviceList);
 
     deviceList.forEach(currentItem => {
       const axis = _.pick(currentItem, ['x', 'y']);
@@ -42,7 +43,7 @@ module.exports = class {
         locationSeq: _.get(currentItem, 'weather_location_seq'),
       };
 
-      BU.CLI(config);/
+      BU.CLI(config);
       const weathercast = new Weathercast(config);
       weathercast.init();
     });

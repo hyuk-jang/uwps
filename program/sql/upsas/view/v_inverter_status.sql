@@ -15,7 +15,7 @@ SELECT inverter.*,
 	FROM inverter_data id
 	LEFT JOIN inverter
 		ON inverter.inverter_seq = id.inverter_seq
-	LEFT JOIN relation_upms rp
+	LEFT JOIN relation_power rp
 		ON rp.inverter_seq = id.inverter_seq
 	LEFT JOIN photovoltaic pv
 		ON pv.photovoltaic_seq = rp.photovoltaic_seq

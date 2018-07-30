@@ -126,16 +126,16 @@ class Control {
           });
       });
 
-      if (this.stringfySalternDevice.length) {
-        socket.emit('initSalternDevice', this.stringfySalternDevice);
-        // socket.emit('initSalternCommand', this.stringfyStandbyCommandSetList);
-        socket.emit(
-          'initSalternCommand',
-          this.stringfyCurrentCommandSet,
-          this.stringfyStandbyCommandSetList,
-          this.stringfyDelayCommandSetList,
-        );
-      }
+      // if (this.stringfySalternDevice.length) {
+      //   socket.emit('initSalternDevice', this.stringfySalternDevice);
+      //   // socket.emit('initSalternCommand', this.stringfyStandbyCommandSetList);
+      //   socket.emit(
+      //     'initSalternCommand',
+      //     this.stringfyCurrentCommandSet,
+      //     this.stringfyStandbyCommandSetList,
+      //     this.stringfyDelayCommandSetList,
+      //   );
+      // }
 
       socket.on('disconnect', () => {});
     });

@@ -4,59 +4,64 @@ const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
 const DU = require('base-util-jh').domUtil;
 
+const net = require('net');
 const BiModule = require('../models/BiModule.js');
-let webUtil = require('../models/web.util');
-
+const webUtil = require('../models/web.util');
 
 const map = require('../public/Map/map');
 
-
-const net = require('net');
-
-module.exports = function(app) {
-  
-
+module.exports = app => {
   const initSetter = app.get('initSetter');
   const biModule = new BiModule(initSetter.dbInfo);
-    
+
   // server middleware
-  router.use(wrap(async (req, res, next) => {
-    req.locals = DU.makeBaseHtml(req, 0);
-    let currWeatherCastList = await biModule.getCurrWeatherCast();
-    let currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
-    let weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
-    req.locals.weatherCastInfo = weatherCastInfo;
-    next();
-  }));
+  router.use(
+    wrap(async (req, res, next) => {
+      req.locals = DU.makeBaseHtml(req, 0);
+      const currWeatherCastList = await biModule.getCurrWeatherCast();
+      const currWeatherCastInfo = currWeatherCastList.length
+        ? currWeatherCastList[0]
+        : null;
+      const weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
+      req.locals.weatherCastInfo = weatherCastInfo;
+      next();
+    }),
+  );
 
   // Get
-  router.get('/', wrap(async (req, res) => {
-    BU.CLI('control', req.locals);
+  router.get(
+    '/',
+    wrap(async (req, res) => {
+      BU.CLI('control', req.locals);
 
-    req.locals.hi = 'jhi';
-    req.locals.excuteControlList = map.controlList;
-    // req.locals.cancelControlList = map.controlList;
+      req.locals.hi = 'jhi';
+      req.locals.excuteControlList = map.controlList;
+      // req.locals.cancelControlList = map.controlList;
 
-    const compiled = _.template(`<option value="<%= controlName %>">
+      const compiled = _.template(`<option value="<%= controlName %>">
         <%= controlName %>
       </option>`);
-    
-    let excuteControlList = [];
-    map.controlList.forEach(currentItem => {
-      excuteControlList.push(compiled({controlName: currentItem.cmdName})); 
-    });
 
-    BU.CLI(excuteControlList);
-    let singleControlList = _.pick(map.setInfo.modelInfo, ['waterDoor', 'valve', 'pump']);
+      const excuteControlList = [];
+      map.controlList.forEach(currentItem => {
+        excuteControlList.push(compiled({controlName: currentItem.cmdName}));
+      });
 
-    req.locals.singleControlList = singleControlList;
-    req.locals.automaticControlList = excuteControlList;
+      BU.CLI(excuteControlList);
+      const singleControlList = _.pick(map.setInfo.modelInfo, [
+        'waterDoor',
+        'valve',
+        'pump',
+      ]);
 
-    // BU.CLI(req.locals);
-    // return res.status(200).send(DU.locationJustGoBlank('http://115.23.49.28:7999'));
-    return res.render('./controller/index.html', req.locals);
-  }));
+      req.locals.singleControlList = singleControlList;
+      req.locals.automaticControlList = excuteControlList;
 
+      // BU.CLI(req.locals);
+      // return res.status(200).send(DU.locationJustGoBlank('http://115.23.49.28:7999'));
+      return res.render('./controller/index.html', req.locals);
+    }),
+  );
 
   return router;
 };

@@ -109,14 +109,14 @@ class SocketServer extends EventEmitter {
           }\n addressInfo: ${socket.remoteAddress}`,
         );
 
-        // TODO: client 식별을 위하여 접속 시 인증과정을 거쳐야함.(uuid 인증을 계획.) 일단 인증 없이 진행 함. - 2018-07-25
+        // // TODO: client 식별을 위하여 접속 시 인증과정을 거쳐야함.(uuid 인증을 계획.) 일단 인증 없이 진행 함. - 2018-07-25
 
-        // FIXME: 임시로 main_seq 1번에 집어 넣음
-        _.forEach(this.mainStorageList, msInfo => {
-          if (msInfo.msFieldInfo.main_seq === 1) {
-            msInfo.msClient = socket;
-          }
-        });
+        // // FIXME: 임시로 main_seq 1번에 집어 넣음
+        // _.forEach(this.mainStorageList, msInfo => {
+        //   if (msInfo.msFieldInfo.main_seq === 1) {
+        //     msInfo.msClient = socket;
+        //   }
+        // });
 
         // steram 연결 및 파서 등록
         const stream = socket.pipe(
@@ -142,17 +142,24 @@ class SocketServer extends EventEmitter {
             /** @type {transDataToServerInfo} */
             const parseData = JSON.parse(strData);
             // BU.CLI(parseData);
-            // 여기까지 오면 유효한 데이터로 생각하고 완료 처리 (ACK) 메시지 응답
-            socket.write(
-              this.defaultConverter.encodingMsg(
-                this.defaultConverter.protocolConverter.ACK,
-              ),
-            );
 
             // JSON 객체 분석 메소드 호출
-            this.interpretCommand(socket, parseData);
+            const hasComplete = this.interpretCommand(socket, parseData);
+            // 여기까지 오면 유효한 데이터로 생각하고 완료 처리 (ACK) 메시지 응답
+            if (hasComplete) {
+              socket.write(
+                this.defaultConverter.encodingMsg(
+                  this.defaultConverter.protocolConverter.ACK,
+                ),
+              );
+            }
           } catch (error) {
             BU.logFile(error);
+            socket.write(
+              this.defaultConverter.encodingMsg(
+                this.defaultConverter.protocolConverter.CAN,
+              ),
+            );
             throw error;
           }
         });
@@ -194,7 +201,7 @@ class SocketServer extends EventEmitter {
    * @param {transDataToServerInfo} transDataToServerInfo
    * @return {boolean} 성공 or 실패
    */
-  certificationClient(client, transDataToServerInfo) {
+  certifyClient(client, transDataToServerInfo) {
     const uuid = transDataToServerInfo.data;
     const foundIt = _.find(this.mainStorageList, msInfo =>
       _.isEqual(msInfo.msFieldInfo.uuid, uuid),
@@ -211,45 +218,53 @@ class SocketServer extends EventEmitter {
    * Client에서 보내온 데이터를 해석
    * @param {net.Socket} client
    * @param {transDataToServerInfo} transDataToServerInfo
+   * @return {boolean} 정상적인 명령 해석이라면 true, 아니라면 throw
    */
   interpretCommand(client, transDataToServerInfo) {
-    const {
-      CERTIFICATION,
-      COMMAND,
-      NODE,
-      STAUTS,
-    } = dcmWsModel.transmitCommandType;
-    // client를 인증하고자 하는 경우
-    if (transDataToServerInfo.commandType === CERTIFICATION) {
-      const hasCertification = this.certificationClient(
-        client,
-        transDataToServerInfo,
-      );
-      // 인증이 실패했다면
-      if (!hasCertification) {
-        return false;
+    try {
+      const {
+        CERTIFICATION,
+        COMMAND,
+        NODE,
+        STAUTS,
+      } = dcmWsModel.transmitCommandType;
+      // client를 인증하고자 하는 경우
+      if (transDataToServerInfo.commandType === CERTIFICATION) {
+        const hasCertification = this.certifyClient(
+          client,
+          transDataToServerInfo,
+        );
+        // 인증이 실패했다면
+        if (!hasCertification) {
+          throw new Error('인증에 실패하였습니다.');
+        }
+        // 인증에 성공하면 true 반환
+        return true;
       }
-    }
-    const msInfo = this.findMsInfoByClient(client);
-    if (msInfo) {
-      switch (transDataToServerInfo.commandType) {
-        case NODE: // 노드 정보가 업데이트 되었을 경우
-          this.compareNodeList(msInfo, transDataToServerInfo.data);
-          break;
-        case COMMAND: // 명령 정보가 업데이트 되었을 경우
-          this.compareSimpleOrderList(msInfo, transDataToServerInfo.data);
-          break;
-        case STAUTS: // 현황판 데이터를 요청할 경우
-          this.transmitDataToClient(
-            msInfo.msClient,
-            msInfo.msDataInfo.statusBoard,
-          );
-          break;
-        default:
-          throw new Error('등록되지 않은 명령입니다.');
+      const msInfo = this.findMsInfoByClient(client);
+      if (msInfo) {
+        switch (transDataToServerInfo.commandType) {
+          case NODE: // 노드 정보가 업데이트 되었을 경우
+            this.compareNodeList(msInfo, transDataToServerInfo.data);
+            break;
+          case COMMAND: // 명령 정보가 업데이트 되었을 경우
+            this.compareSimpleOrderList(msInfo, transDataToServerInfo.data);
+            break;
+          case STAUTS: // 현황판 데이터를 요청할 경우
+            this.transmitDataToClient(
+              msInfo.msClient,
+              msInfo.msDataInfo.statusBoard,
+            );
+            break;
+          default:
+            throw new Error('등록되지 않은 명령입니다.');
+        }
+        // 명령 처리가 잘 되었다면 true 반환
+        return true;
       }
-    } else {
       throw new Error('사용자 인증이 필요합니다..');
+    } catch (error) {
+      throw error;
     }
   }
 

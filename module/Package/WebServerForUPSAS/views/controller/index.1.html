@@ -186,10 +186,10 @@
 
       var singleControlList;
       $(document).ready(function () {
-        var automaticDom = <%- JSON.stringify(automaticControlList) %>;
+        var automaticDom = <% - JSON.stringify(automaticControlList) %>;
         $("#automatic_control_list").html(automaticDom);
 
-        singleControlList = <%- JSON.stringify(singleControlList) %>;
+        singleControlList = <% - JSON.stringify(singleControlList) %>;
 
         setDeviceList();
       })

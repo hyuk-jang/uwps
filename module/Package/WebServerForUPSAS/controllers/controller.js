@@ -4,7 +4,6 @@ const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
 const DU = require('base-util-jh').domUtil;
 
-const net = require('net');
 const BiModule = require('../models/BiModule.js');
 const webUtil = require('../models/web.util');
 
@@ -32,11 +31,13 @@ module.exports = app => {
   router.get(
     '/',
     asyncHandler(async (req, res) => {
-      BU.CLI('control', req.locals);
-
+      // BU.CLI('control', req.locals);
       const deviceInfoList = [];
+      // FIXME: 로그인 한 사용자에 따라서 nodeList가 달라져야함.
       /** @type {nodeInfo[]} */
-      const nodeList = await biModule.getTable('v_node_profile', {main_seq: 1});
+      const nodeList = await biModule.getTable('v_node_profile', {
+        main_seq: 1,
+      });
 
       const compiledDeviceType = _.template(
         '<option value="<%= nd_target_id %>"> <%= nd_target_name %></option>',
@@ -52,14 +53,19 @@ module.exports = app => {
         } = nodeInfo;
         // 센서가 아닌 장비만 등록
         if (nc_is_sensor === 0) {
-          let foundIt = _.find(deviceInfoList, {type: nd_target_id});
+          let foundIt = _.find(deviceInfoList, {
+            type: nd_target_id,
+          });
 
           if (_.isEmpty(foundIt)) {
             // const onOffList = ['pump'];
             foundIt = {
               type: nd_target_id,
               list: [],
-              template: compiledDeviceType({nd_target_id, nd_target_name}),
+              template: compiledDeviceType({
+                nd_target_id,
+                nd_target_name,
+              }),
               controlType: [],
             };
             deviceInfoList.push(foundIt);
@@ -68,12 +74,16 @@ module.exports = app => {
             '<option value="<%= node_id %>"><%= node_name %></option>',
           );
 
-          foundIt.list.push(compiledDeviceList({node_id, node_name}));
+          foundIt.list.push(
+            compiledDeviceList({
+              node_id,
+              node_name,
+            }),
+          );
         }
       });
 
-      BU.CLI(deviceInfoList);
-
+      // BU.CLI(deviceInfoList);
       req.locals.hi = 'jhi';
       req.locals.excuteControlList = map.controlList;
       // req.locals.cancelControlList = map.controlList;
@@ -84,18 +94,16 @@ module.exports = app => {
 
       const excuteControlList = [];
       map.controlList.forEach(currentItem => {
-        excuteControlList.push(compiled({controlName: currentItem.cmdName}));
+        excuteControlList.push(
+          compiled({
+            controlName: currentItem.cmdName,
+          }),
+        );
       });
 
       // BU.CLI(excuteControlList);
-      const singleControlList = _.pick(map.setInfo.modelInfo, [
-        'waterDoor',
-        'valve',
-        'pump',
-      ]);
 
       req.locals.deviceInfoList = deviceInfoList;
-      req.locals.singleControlList = singleControlList;
       req.locals.automaticControlList = excuteControlList;
 
       // BU.CLI(req.locals);

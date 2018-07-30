@@ -1,0 +1,33 @@
+<script>
+
+
+
+    function setDeviceList() {
+        var deviceGroup;
+        var category = $("#single_control_cate_list").val();
+        switch (category) {
+            case "수문":
+                deviceGroup = singleControlList.waterDoor;
+                break;
+            case "밸브":
+                deviceGroup = singleControlList.valve;
+                break;
+            case "펌프":
+                deviceGroup = singleControlList.pump;
+                break;
+            default:
+                break;
+        }
+
+        var single_control_device_list = document.getElementById("single_control_device_list");
+        single_control_device_list.innerHTML = '';
+        //Add the Options to the DropDownList.
+        for (var i = 0; i < deviceGroup.length; i++) {
+            var option = document.createElement("OPTION");
+            option.innerHTML = deviceGroup[i].targetName;
+            option.value = deviceGroup[i].targetId;
+            //Add the Option element to DropDownList.
+            single_control_device_list.options.add(option);
+        }
+    }
+</script>

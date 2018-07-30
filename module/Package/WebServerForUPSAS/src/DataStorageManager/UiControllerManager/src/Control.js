@@ -4,12 +4,18 @@ const {BU} = require('base-util-jh');
 
 const config = require('./config');
 
+const map = require('../../../../public/Map/map');
+
 const BiModule = require('../../../../models/BiModule');
 const webUtil = require('../../../../models/web.util.js');
 
 const {
   BaseModel,
 } = require('../../../../../../module/device-protocol-converter-jh');
+
+const {
+  executeCommandType,
+} = require('../../../../../../module/default-intelligence').dcmWsModel;
 
 /** 무안 6kW TB */
 
@@ -28,6 +34,9 @@ class Control {
     this.mainStorageList = [];
 
     this.webUtil = webUtil;
+
+    // FIXME: 임시로 자동 명령 리스트 넣어둠. DB에서 가져오는 걸로 수정해야함(2018-07-30)
+    this.excuteControlList = map.controlList;
   }
 
   /**
@@ -46,9 +55,25 @@ class Control {
   setSocketIO(pramHttp) {
     this.io = require('socket.io')(pramHttp);
     this.io.on('connection', socket => {
-      socket.on('excuteSalternControl', msg => {
+      socket.on('executeCommand', msg => {
+        /** @type {executeCommandFormat} */
+        const originalMsg = msg;
         const encodingMsg = this.defaultConverter.encodingMsg(msg);
 
+        // switch (originalMsg.cmdType) {
+        //   case executeCommandType.SINGLE:
+        //     this.executeSingleControl()
+        //     break;
+        //   case executeCommandType.AUTOMATIC:
+        //     break;
+        //   case executeCommandType.SCENARIO:
+        //     break;
+
+        //   default:
+        //     break;
+        // }
+
+        // FIXME: @@@@@@@@@@@@@@@@@ 내일 작업
         !_.isEmpty(this.client) &&
           this.write(encodingMsg).catch(err => {
             BU.logFile(err);
@@ -172,31 +197,21 @@ class Control {
    * 외부에서 단일 명령을 내릴경우
    * @param {requestSingleOrderInfo} requestSingleOrderInfo
    */
-  executeSingleControl(requestSingleOrderInfo) {
-    try {
-      /** @type {requestCombinedOrderInfo} */
-      const requestCombinedOrder = {
-        requestCommandId: '',
-        requestCommandName: '',
-        requestCommandType: requestSingleOrderInfo.requestCommandType,
-        requestElementList: [],
-      };
+  executeSingleControl(requestSingleOrderInfo) {}
 
-      /** @type {requestOrderElementInfo} */
-      const requestOrderElement = {
-        controlValue: requestSingleOrderInfo.controlValue,
-        controlSetValue: requestSingleOrderInfo.controlSetValue,
-        nodeId: requestSingleOrderInfo.nodeId,
-        rank: _.get(requestSingleOrderInfo, 'rank'),
-      };
+  /**
+   * 저장된 명령 요청 수행
+   * @param {string} savedCommandId 저장된 명령 ID
+   * @param {string} requestCommandType  'CONTROL', 'CANCEL' --> 명령 추가, 명령 삭제
+   */
+  executeSavedCommand(savedCommandId, requestCommandType) {}
 
-      requestCombinedOrder.requestElementList.push(requestOrderElement);
-
-      return this.executeCombineOrder(requestCombinedOrder);
-    } catch (error) {
-      BU.errorLog('excuteControl', 'Error', error);
-    }
-  }
+  /**
+   * 시나리오를 수행하고자 할 경우
+   * @param {string} scenarioId 시나리오 ID
+   * @param {string} requestCommandType  'CONTROL', 'CANCEL' --> 명령 추가, 명령 삭제
+   */
+  executeScenario(scenarioId, requestCommandType) {}
 
   /**
    * 자동 명령 요청

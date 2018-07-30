@@ -37,9 +37,6 @@
           <div class="col-xs-3 sel_box" style="width: 200px">
             장치 카테고리
             <select class="form-control form-control_st" id="single_control_cate_list" name="" style="width: 180px">
-              <option value="수문">수문</option>
-              <option value="펌프">펌프</option>
-              <option value="밸브">밸브</option>
             </select>
           </div>
           <div class="col-xs-3 sel_box" style="width: 200px">
@@ -153,7 +150,7 @@
 
     <script>
       $("#single_control_cate_list").on("change", function (event) {
-        return setDeviceList();
+        return setDeviceInfoList();
       })
 
       // 장치 카테고리 설정
@@ -167,55 +164,17 @@
         var deviceGroup;
         var category = $("#single_control_cate_list").val();
 
-        console.log(category)
         var domInfo = _.find(deviceInfoList, {
           type: category
         })
-
-        console.log(domInfo)
-
-
         var single_control_device_list = document.getElementById("single_control_device_list");
-
         single_control_device_list.innerHTML = domInfo.list;
       }
 
-      function setDeviceList() {
-        var deviceGroup;
-        var category = $("#single_control_cate_list").val();
-        switch (category) {
-          case "수문":
-            deviceGroup = singleControlList.waterDoor;
-            break;
-          case "밸브":
-            deviceGroup = singleControlList.valve;
-            break;
-          case "펌프":
-            deviceGroup = singleControlList.pump;
-            break;
-          default:
-            break;
-        }
-
-        var single_control_device_list = document.getElementById("single_control_device_list");
-        single_control_device_list.innerHTML = '';
-        //Add the Options to the DropDownList.
-        for (var i = 0; i < deviceGroup.length; i++) {
-          var option = document.createElement("OPTION");
-          option.innerHTML = deviceGroup[i].targetName;
-          option.value = deviceGroup[i].targetId;
-          //Add the Option element to DropDownList.
-          single_control_device_list.options.add(option);
-        }
-      }
-
-      var singleControlList;
       var deviceInfoList;
       $(document).ready(function () {
-        var automaticDom = <%- JSON.stringify(automaticControlList) %>;
-        $("#automatic_control_list").html(automaticDom);
-
-        singleControlList = <%- JSON.stringify(singleControlList) %>;
+        var automaticDom = <%- JSON.stringify(automaticControlList) %>
+        $('#automatic_control_list').html(automaticDom);
 
         deviceInfoList = <%- JSON.stringify(deviceInfoList) %>;
 
@@ -233,6 +192,7 @@
       $(function () {
         var socket = io();
 
+        // 저장된 명령을 실행하고자 할 경우
         $("#automatic_control_btn > button").on("click", function () {
           var automaticId = $("#automatic_control_list option:selected").val();
           // var controlType = $("#automatic_control_type option:selected").val();
@@ -241,41 +201,52 @@
 
           var requestMsg = {
             cmdType: "AUTOMATIC",
-            cmdId: automaticId,
-            hasTrue: controlType
+            data: {
+              cmdName: automaticId,
+              requestCommandType: controlType
+            }
           }
-          socket.emit("excuteSalternControl", requestMsg);
+          socket.emit("executeCommand", requestMsg);
         })
 
+        // 장치 단일 제어
         $("#single_control_btn").on("click", function () {
           var deviceId = $("#single_control_device_list option:selected").val();
           var controlType = $("#single_control_type option:selected").val();
           var controlRank = $("#single_control_rank option:selected").val();
           var requestMsg = {
             cmdType: "SINGLE",
-            cmdId: deviceId,
-            cmdRank: Number(controlRank),
-            hasTrue: controlType === "true" ? true : false
+            data: {
+              requestCommandType: "CONTROL",
+              controlValue: controlValue === 1 ? 1 : 0,
+              nodeId: deviceId,
+              rank: Number(controlRank),
+            }
           }
-          socket.emit("excuteSalternControl", requestMsg);
+          socket.emit("executeCommand", requestMsg);
         })
 
+        // 시나리오 요청
         $("#scenario_control_run_btn").on("click", function () {
           var requestMsg = {
             cmdType: "SCENARIO",
-            cmdId: "SCENARIO_1",
-            hasTrue: true
+            data: {
+              scenarioId: "scenario1",
+              requestCommandType: "CONTROL"
+            }
           }
-          socket.emit("excuteSalternControl", requestMsg);
+          socket.emit("executeCommand", requestMsg);
         })
-
+        // 시나리오 취소
         $("#scenario_control_cancel_btn").on("click", function () {
           var requestMsg = {
             cmdType: "SCENARIO",
-            cmdId: "SCENARIO_1",
-            hasTrue: false
+            data: {
+              scenarioId: "scenario1",
+              requestCommandType: "CANCEL"
+            }
           }
-          socket.emit("excuteSalternControl", requestMsg);
+          socket.emit("executeCommand", requestMsg);
         })
 
         // 초기 페이지에 접속하면 자동으로 데이터를 갱신하기 위함

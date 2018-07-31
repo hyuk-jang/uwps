@@ -215,8 +215,8 @@
           var controlType = $("#single_control_type option:selected").val();
           var controlRank = $("#single_control_rank option:selected").val();
           var requestMsg = {
-            commandType: "SINGLE",
-            data: {
+            commandId: "SINGLE",
+            contents: {
               requestCommandType: "CONTROL",
               controlValue: controlValue === 1 ? 1 : 0,
               nodeId: deviceId,
@@ -229,8 +229,8 @@
         // 시나리오 요청
         $("#scenario_control_run_btn").on("click", function () {
           var requestMsg = {
-            commandType: "SCENARIO",
-            data: {
+            commandId: "SCENARIO",
+            contents: {
               scenarioId: "scenario1",
               requestCommandType: "CONTROL"
             }
@@ -240,8 +240,8 @@
         // 시나리오 취소
         $("#scenario_control_cancel_btn").on("click", function () {
           var requestMsg = {
-            commandType: "SCENARIO",
-            data: {
+            commandId: "SCENARIO",
+            contents: {
               scenarioId: "scenario1",
               requestCommandType: "CANCEL"
             }

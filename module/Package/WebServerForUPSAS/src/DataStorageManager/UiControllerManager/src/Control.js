@@ -2,6 +2,8 @@ const _ = require('lodash');
 const cron = require('cron');
 const {BU} = require('base-util-jh');
 
+const uuidv4 = require('uuid/v4');
+
 const config = require('./config');
 
 const map = require('../../../../public/Map/map');
@@ -64,8 +66,11 @@ class Control {
     this.io = require('socket.io')(pramHttp);
     this.io.on('connection', socket => {
       socket.on('executeCommand', msg => {
-        /** @type {transCommandToClient} */
-        const executeCommandMsg = msg;
+        /** @type {defaultFormatToRequest} */
+        const defaultFormatToRequestInfo = msg;
+
+        // uuid 추가
+        defaultFormatToRequestInfo.uuid = uuidv4();
 
         // switch (executeCommandMsg.cmdType) {
         //   case executeCommandType.SINGLE:
@@ -75,9 +80,13 @@ class Control {
         //     break;
         // }
 
+        // Main Storage 찾음.
         const msInfo = this.findMainStorageBySession();
 
-        msInfo.msClient.write(this.defaultConverter.encodingMsg(msg));
+        // Socket Client로 명령 전송
+        msInfo.msClient.write(
+          this.defaultConverter.encodingMsg(defaultFormatToRequestInfo),
+        );
 
         // // Observer에게 명령 요청이 발생했음을 알림
         // this.observerList.forEach(observer => {
@@ -175,7 +184,7 @@ class Control {
       }
     });
 
-    BU.CLI(deviceInfoList);
+    // BU.CLI(deviceInfoList);
     return deviceInfoList;
   }
 

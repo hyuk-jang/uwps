@@ -39,7 +39,7 @@ class Control {
   async init() {
     await this.setMainStorageByDB();
 
-    BU.CLIN(this.mainStorageList);
+    // BU.CLIN(this.mainStorageList);
     this.setChildren();
   }
 

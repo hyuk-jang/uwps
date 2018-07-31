@@ -115,4 +115,16 @@ exchangeInfo()
     BU.errorLog('init', 'init() 실패', error);
   });
 
-process.on('unhandledRejection', r => console.log(BU.CLI(r)));
+process.on('uncaughtException', err => {
+  BU.debugConsole();
+  console.error(err.stack);
+  console.log(err.message);
+  console.log('uncaughtException. Node NOT Exiting...');
+});
+
+process.on('unhandledRejection', err => {
+  BU.debugConsole();
+  console.error(err.stack);
+  console.log(err.message);
+  console.log('unhandledRejection. Node NOT Exiting...');
+});

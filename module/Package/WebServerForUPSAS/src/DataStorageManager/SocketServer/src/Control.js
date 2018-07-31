@@ -221,13 +221,14 @@ class SocketServer extends EventEmitter {
    * @return {boolean} 정상적인 명령 해석이라면 true, 아니라면 throw
    */
   interpretCommand(client, transDataToServerInfo) {
+    // BU.CLI(dcmWsModel)
     try {
       const {
         CERTIFICATION,
         COMMAND,
         NODE,
         STAUTS,
-      } = dcmWsModel.transmitCommandType;
+      } = dcmWsModel.transmitToServerCommandType;
       // client를 인증하고자 하는 경우
       if (transDataToServerInfo.commandType === CERTIFICATION) {
         const hasCertification = this.certifyClient(
@@ -306,7 +307,7 @@ class SocketServer extends EventEmitter {
   }
 
   /**
-   * @desc dcmWsModel.transmitCommandType.NODE 명렁 처리 메소드
+   * @desc dcmWsModel.transmitToServerCommandType.NODE 명렁 처리 메소드
    * @param {msInfo} msInfo
    * @param {nodeInfo[]} nodeList
    */
@@ -344,7 +345,7 @@ class SocketServer extends EventEmitter {
   }
 
   /**
-   * @desc dcmWsModel.transmitCommandType.COMMAND 명렁 처리 메소드
+   * @desc dcmWsModel.transmitToServerCommandType.COMMAND 명렁 처리 메소드
    * @param {msInfo} msInfo
    * @param {simpleOrderInfo[]} simpleOrderList
    */

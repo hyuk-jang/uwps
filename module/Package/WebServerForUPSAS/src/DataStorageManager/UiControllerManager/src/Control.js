@@ -71,15 +71,6 @@ class Control {
 
         // uuid 추가
         defaultFormatToRequestInfo.uuid = uuidv4();
-
-        // switch (executeCommandMsg.cmdType) {
-        //   case executeCommandType.SINGLE:
-        //     break;
-
-        //   default:
-        //     break;
-        // }
-
         // Main Storage 찾음.
         const msInfo = this.findMainStorageBySession();
 
@@ -87,13 +78,6 @@ class Control {
         msInfo.msClient.write(
           this.defaultConverter.encodingMsg(defaultFormatToRequestInfo),
         );
-
-        // // Observer에게 명령 요청이 발생했음을 알림
-        // this.observerList.forEach(observer => {
-        //   if (_.get(observer, 'executeCommand')) {
-        //     observer.executeCommand(msInfo, encodingMsg);
-        //   }
-        // });
       });
 
       // socket.on('')

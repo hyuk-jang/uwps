@@ -40,6 +40,14 @@ class Control {
   }
 
   /**
+   * Observer 추가
+   * @param {Object} parent
+   */
+  attach(parent) {
+    this.observerList.push(parent);
+  }
+
+  /**
    * @desc Step: 1
    * Set Main Storage List
    * @param {msInfo[]} mainStorageList
@@ -56,28 +64,27 @@ class Control {
     this.io = require('socket.io')(pramHttp);
     this.io.on('connection', socket => {
       socket.on('executeCommand', msg => {
-        /** @type {executeCommandFormat} */
-        const originalMsg = msg;
-        const encodingMsg = this.defaultConverter.encodingMsg(msg);
+        /** @type {transCommandToClient} */
+        const executeCommandMsg = msg;
 
-        // switch (originalMsg.cmdType) {
+        // switch (executeCommandMsg.cmdType) {
         //   case executeCommandType.SINGLE:
-        //     this.executeSingleControl()
-        //     break;
-        //   case executeCommandType.AUTOMATIC:
-        //     break;
-        //   case executeCommandType.SCENARIO:
         //     break;
 
         //   default:
         //     break;
         // }
 
-        // FIXME: @@@@@@@@@@@@@@@@@ 내일 작업
-        !_.isEmpty(this.client) &&
-          this.write(encodingMsg).catch(err => {
-            BU.logFile(err);
-          });
+        const msInfo = this.findMainStorageBySession();
+
+        msInfo.msClient.write(this.defaultConverter.encodingMsg(msg));
+
+        // // Observer에게 명령 요청이 발생했음을 알림
+        // this.observerList.forEach(observer => {
+        //   if (_.get(observer, 'executeCommand')) {
+        //     observer.executeCommand(msInfo, encodingMsg);
+        //   }
+        // });
       });
 
       // socket.on('')
@@ -95,27 +102,6 @@ class Control {
 
       socket.on('disconnect', () => {});
     });
-  }
-
-  // Cron 구동시킬 시간
-  runCronCalcPowerStatus() {
-    try {
-      if (this.cronScheduler !== null) {
-        // BU.CLI('Stop')
-        this.cronScheduler.stop();
-      }
-      // 1분마다 현황판 데이터 갱신
-      this.cronScheduler = new cron.CronJob({
-        cronTime: '* */1 * * * *',
-        onTick: () => {
-          this.requestCalcPowerStatus();
-        },
-        start: true,
-      });
-      return true;
-    } catch (error) {
-      throw error;
-    }
   }
 
   /**

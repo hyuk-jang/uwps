@@ -5,6 +5,11 @@ const {BU, DU} = require('base-util-jh');
 module.exports = app => {
   // server middleware
   router.use((req, res, next) => {
+    if (app.get('auth')) {
+      if (!req.user) {
+        return res.redirect('/auth/login');
+      }
+    }
     req.locals = DU.makeBaseHtml(req, 8);
     next();
   });

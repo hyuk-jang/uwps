@@ -15,6 +15,11 @@ module.exports = app => {
   // server middleware
   router.use(
     asyncHandler(async (req, res, next) => {
+      if (app.get('auth')) {
+        if (!req.user) {
+          return res.redirect('/auth/login');
+        }
+      }
       req.locals = DU.makeBaseHtml(req, 0);
       const currWeatherCastList = await biModule.getCurrWeatherCast();
       const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;

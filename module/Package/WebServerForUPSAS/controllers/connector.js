@@ -19,6 +19,11 @@ module.exports = app => {
   // server middleware
   router.use(
     asyncHandler(async (req, res, next) => {
+      if (app.get('auth')) {
+        if (!req.user) {
+          return res.redirect('/auth/login');
+        }
+      }
       req.locals = DU.makeBaseHtml(req, 3);
       const currWeatherCastList = await biModule.getCurrWeatherCast();
       const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
@@ -127,7 +132,9 @@ module.exports = app => {
 
       /* Scale 적용 */
       chartData.series.forEach(currentItem => {
-        const foundIt = _.find(tempSacle.moduleScale, {photovoltaic_seq: Number(currentItem.name)});
+        const foundIt = _.find(tempSacle.moduleScale, {
+          photovoltaic_seq: Number(currentItem.name),
+        });
         currentItem.data.forEach((data, index) => {
           currentItem.data[index] = Number((data * foundIt.scale).scale(1, 1));
         });

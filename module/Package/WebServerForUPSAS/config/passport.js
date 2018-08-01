@@ -4,7 +4,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const {BU} = require('base-util-jh');
 
-const AuthModel = require('../models/auth/AuthModel');
+const BiAuth = require('../models/auth/BiAuth');
 
 /**
  *
@@ -12,8 +12,9 @@ const AuthModel = require('../models/auth/AuthModel');
  * @param {dbInfo} dbInfo
  */
 module.exports = (app, dbInfo) => {
+  BU.CLI(dbInfo);
   // var FacebookStrategy = require("passport-facebook").Strategy;
-  const authModel = new AuthModel(dbInfo);
+  const biAuth = new BiAuth(dbInfo);
   // passport 설정
   app.use(passport.initialize());
   app.use(passport.session());
@@ -23,32 +24,43 @@ module.exports = (app, dbInfo) => {
       {
         usernameField: 'userid',
         passwordField: 'password',
+        session: true,
+        passReqToCallback: false,
       },
-      (username, password, done) => {
-        BU.CLIS(username, password);
+      (userId, password, done) => {
+        BU.CLIS(userId, password);
 
-        authModel
-          .getAuthMember()
-          .then(result => done(null, result))
+        biAuth
+          .getAuthMember({
+            userId,
+            password,
+          })
+          .then(memberInfo => done(null, memberInfo))
           .catch(err => done(err, false, {message: '아이디와 비밀번호를 확인해주세요.'}));
       },
     ),
   );
 
-  passport.serializeUser((user, done) => {
-    // BU.CLI("serializeUser", user)
-    done(null, user.userid);
+  // Strategy 성공 시 호출됨
+  passport.serializeUser((memberInfo, done) => {
+    BU.CLI('serializeUser', memberInfo);
+    done(null, memberInfo.user_id); // 여기의 user가 deserializeUser의 첫 번째 매개변수로 이동
   });
 
-  passport.deserializeUser((id, done) => {
-    // BU.CLI("deserializeUser", id)
-    authModel
-      .getTable('MEMBER', {id})
+  // 매개변수 user는 serializeUser의 done의 인자 user를 받은 것
+
+  /**
+   * 실제 서버로 들어오는 요청마다 세션 정보(serializeUser에서 저장됨)를 실제 DB의 데이터와 비교.
+   * 해당하는 유저 정보가 있으면 done의 두 번째 인자를 req.user에 저장하고, 요청을 처리할 때 유저의 정보를 req.user를 통해서 넘겨줍니다
+   */
+  passport.deserializeUser((user_id, done) => {
+    biAuth
+      .getTable('MEMBER', {user_id})
       .then(result => {
         if (_.isEmpty(result)) {
           return done(null, false, {message: '아이디와 비밀번호를 확인해주세요.'});
         }
-        return done(null, _.head(result));
+        return done(null, _.head(result)); // 여기의 user가 req.user가 됨
       })
       .catch(err => done(err, false, {message: '아이디와 비밀번호를 확인해주세요.'}));
   });

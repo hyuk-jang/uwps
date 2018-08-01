@@ -1,8 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const router = require('express').Router();
 const _ = require('lodash');
-const BU = require('base-util-jh').baseUtil;
-const DU = require('base-util-jh').domUtil;
+const {BU, DU} = require('base-util-jh');
 
 // const BiModule = require('../models/BiModule.js');
 const webUtil = require('../models/web.util');
@@ -17,6 +16,11 @@ module.exports = app => {
   // server middleware
   router.use(
     asyncHandler(async (req, res, next) => {
+      if (app.get('auth')) {
+        if (!req.user) {
+          return res.redirect('/auth/login');
+        }
+      }
       req.locals = DU.makeBaseHtml(req, 5);
       const currWeatherCastList = await powerModel.getCurrWeatherCast();
       const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;

@@ -16,6 +16,11 @@ module.exports = app => {
   // server middleware
   router.use(
     asyncHandler(async (req, res, next) => {
+      if (app.get('auth')) {
+        if (!req.user) {
+          return res.redirect('/auth/login');
+        }
+      }
       req.locals = DU.makeBaseHtml(req, 6);
       const currWeatherCastList = await powerModel.getCurrWeatherCast();
       const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;

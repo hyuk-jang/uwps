@@ -1,13 +1,9 @@
 const _ = require('lodash');
 // const mome = require('mometo');
 const {BM} = require('base-model-jh');
-const {BU} = require('base-util-jh');
+const {BU, EU} = require('../../../../module/base-util-jh');
 
-const Promise = require('bluebird');
-
-const encryptPbkdf2 = Promise.promisify(BU.encryptPbkdf2);
-
-class AuthModel extends BM {
+class BiAuth extends BM {
   /** @param {dbInfo} dbInfo */
   constructor(dbInfo) {
     super(dbInfo);
@@ -23,7 +19,7 @@ class AuthModel extends BM {
   async setMember(password, memberInfo) {
     const salt = BU.genCryptoRandomByte(16);
 
-    const hashPw = await encryptPbkdf2(password, salt);
+    const hashPw = await EU.encryptPbkdf2(password, salt);
 
     if (hashPw instanceof Error) {
       throw new Error('Password hash failed.');
@@ -32,7 +28,7 @@ class AuthModel extends BM {
     memberInfo.pw_salt = salt;
     memberInfo.pw_hash = hashPw;
 
-    const resultQuery = await this.setTable('MEMBER', memberInfo, true);
+    const resultQuery = await this.setTable('MEMBER', memberInfo);
     return resultQuery;
   }
 
@@ -44,25 +40,35 @@ class AuthModel extends BM {
   async getAuthMember(loginInfo) {
     /** @type {MEMBER} */
     const whereInfo = {
-      id: loginInfo.userId,
+      user_id: loginInfo.userId,
       is_deleted: 0,
     };
     // ID와 삭제가 되지 않은 해당 ID를 찾음.
-    const memberList = await this.getTable('MEMBER', whereInfo);
+    const memberList = await this.getTable('MEMBER', whereInfo, true);
     // 매칭되는 회원이 없다면
     if (memberList.length === 0) {
-      throw new Error(`We could not find a member that matches ${whereInfo}.`);
+      // return {};
+      throw new Error(`We could not find a member that matches id: ${whereInfo.user_id}.`);
     }
     /** @type {MEMBER} */
     const memberInfo = _.head(memberList);
 
+    BU.CLI(memberInfo);
+
     // Hash 비밀번호의 동일함을 체크
-    const hashPw = await encryptPbkdf2(loginInfo.userId, memberInfo.pw_salt);
+    // const hashPw = await encryptPbkdf2(loginInfo.userId, memberInfo.pw_salt);
+    const hashPw = await EU.encryptPbkdf2(loginInfo.password, memberInfo.pw_salt);
+    BU.CLI(hashPw);
     if (_.isEqual(hashPw, memberInfo.pw_hash)) {
       return memberInfo;
     }
+    // return {};
     throw new Error('Please confirm your membership information..');
   }
 }
 
-module.exports = AuthModel;
+module.exports = BiAuth;
+
+if (require !== undefined && require.main === module) {
+  console.log('main');
+}

@@ -2,39 +2,17 @@ const request = require('request');
 const path = require('path');
 const {BU, DU, SU} = require('base-util-jh');
 
-// function ChainingControllers(dirName, app) {
-//   BU.searchDirectory(dirName, (err, resSearchDirectory) => {
-//     try {
-//       let directoryList = BU.getDirectories(dirName);
-//       resSearchDirectory.forEach((element) => {
-//         if (directoryList.includes(element)) {
-//           // BU.CLI('성공', `${dirName}\\${element}`)
-//           require(`${dirName}\\${element}`)(app);
-//         } else {
-//           // BU.CLI('실패', element)
-//           if (element === 'index.js') {
-//             return false;
-//           } else {
-//             // BU.CLI(`${dirName}\\${element}`)
-//             let eleObj = require(`${dirName}\\${element}`)(app);
+const expressApp = require('express')();
 
-//             let routerHeaderUrl = getControllerPath(`${dirName}\\${element}`);
-//             //  BU.CLI(routerHeaderUrl)
-//             app.use(routerHeaderUrl, eleObj);
-//           }
-
-//         }
-//       });
-//     } catch (error) {
-//       BU.CLI(error);
-//     }
-
-//   });
-
+/** @param {expressApp} app */
 module.exports = app => {
   BU.CLI(__dirname);
   // SU.ChainingControllers(path.join(process.cwd(), '/controllers'), app);
   SU.ChainingControllers(__dirname, app);
+
+  app.get('/', (req, res, next) => {
+    res.redirect('/main');
+  });
 
   app.post('/reggcm', (req, res, next) => {
     // BU.CLI('@@reggcm@@');

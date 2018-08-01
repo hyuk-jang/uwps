@@ -4,7 +4,8 @@ process.env.NODE_ENV = 'development';
 process.env.NODE_ENV === 'development' && require('dotenv').config();
 
 const {BU, DU, SU} = require('base-util-jh');
-const _ = require('underscore');
+const _ = require('lodash');
+// const _ = require('underscore');
 
 const InitSetter = require('./config/InitSetter.js');
 
@@ -14,6 +15,9 @@ global.BU = BU;
 global.DU = DU;
 global.SU = SU;
 global._ = _;
+
+// FIXME: domUtil을 사용하기 위함. 수정 필요
+_.set(global, 'fixmeConfig.isTest', true);
 
 const MainControl = require('./src/MainControl');
 
@@ -27,8 +31,9 @@ global.initSetter = initSetter;
 // 컨트롤러 구동 시작
 async function operationController() {
   try {
-    BU.CLI(initSetter);
+    BU.CLIF(initSetter);
     const app = require('./config/app.js')(initSetter.dbInfo);
+    BU.CLIF(initSetter);
     const passport = require('./config/passport.js')(app, initSetter.dbInfo);
     app.set('passport', passport);
     app.set('initSetter', initSetter);

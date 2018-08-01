@@ -14,6 +14,6 @@ SELECT
       	ON ivt.inverter_seq = rp.inverter_seq      	
 	LEFT JOIN connector cnt
 		ON cnt.connector_seq = rp.connector_seq      	
-	LEFT JOIN saltern_block sb
+	LEFT JOIN pl_saltern_block sb
 		ON sb.saltern_block_seq = rp.saltern_block_seq
 ORDER BY pv.chart_sort_rank		

@@ -1,39 +1,29 @@
 const _ = require('lodash');
-const cron = require('cron');
 const {BU} = require('base-util-jh');
 
 const uuidv4 = require('uuid/v4');
-const socketIO = require('socket.io');
-const config = require('./config');
+const Server = require('socket.io');
 
-const map = require('../../../../public/Map/map');
+const map = require('../../../public/Map/map');
 
-const BiModule = require('../../../../models/BiModule');
-const webUtil = require('../../../../models/web.util.js');
-
-const {
-  BaseModel,
-} = require('../../../../../../module/device-protocol-converter-jh');
+// const BiModule = require('../../../models/BiModule');
+const webUtil = require('../../../models/web.util.js');
 
 const {
   executeCommandType,
-} = require('../../../../../../module/default-intelligence').dcmWsModel;
+} = require('../../../../../module/default-intelligence').dcmWsModel;
+
+const Control = require('./Control');
 
 /** 무안 6kW TB */
 
-class Control {
-  /** @param {config} mainConfig */
-  constructor(mainConfig) {
-    this.config = mainConfig || config;
-    this.biModule = new BiModule(this.config.dbInfo);
-
-    this.defaultConverter = BaseModel.defaultModule;
-
-    /**
-     * Main Storage List에서 각각의 거점 별 모든 정보를 가지고 있을 객체 정보 목록
-     * @type {Array.<msInfo>}
-     */
-    this.mainStorageList = [];
+class SocketIoManager {
+  /** @param {Control} controller */
+  constructor(controller) {
+    // controller에서 받아옴
+    this.controller = controller;
+    this.defaultConverter = controller.defaultConverter;
+    this.mainStorageList = controller.mainStorageList;
 
     this.webUtil = webUtil;
 
@@ -42,28 +32,11 @@ class Control {
   }
 
   /**
-   * Observer 추가
-   * @param {Object} parent
-   */
-  attach(parent) {
-    this.observerList.push(parent);
-  }
-
-  /**
-   * @desc Step: 1
-   * Set Main Storage List
-   * @param {msInfo[]} mainStorageList
-   */
-  setMainStorageList(mainStorageList) {
-    this.mainStorageList = mainStorageList;
-  }
-
-  /**
    * Web Socket 설정
-   * @param {socketIO.Server} io
+   * @param {Object} httpObj
    */
-  setSocketIO(io) {
-    this.io = io;
+  setSocketIO(httpObj) {
+    this.io = new Server(httpObj);
 
     this.io.on('connection', socket => {
       socket.on('executeCommand', msg => {
@@ -83,16 +56,16 @@ class Control {
 
       // socket.on('')
 
-      if (this.stringfySalternDevice.length) {
-        socket.emit('initSalternDevice', this.stringfySalternDevice);
-        // socket.emit('initSalternCommand', this.stringfyStandbyCommandSetList);
-        socket.emit(
-          'initSalternCommand',
-          this.stringfyCurrentCommandSet,
-          this.stringfyStandbyCommandSetList,
-          this.stringfyDelayCommandSetList,
-        );
-      }
+      // if (this.stringfySalternDevice.length) {
+      //   socket.emit('initSalternDevice', this.stringfySalternDevice);
+      //   // socket.emit('initSalternCommand', this.stringfyStandbyCommandSetList);
+      //   socket.emit(
+      //     'initSalternCommand',
+      //     this.stringfyCurrentCommandSet,
+      //     this.stringfyStandbyCommandSetList,
+      //     this.stringfyDelayCommandSetList,
+      //   );
+      // }
 
       socket.on('disconnect', () => {});
     });
@@ -268,4 +241,4 @@ class Control {
     return this.executeCombineOrder(requestCombinedOrder);
   }
 }
-module.exports = Control;
+module.exports = SocketIoManager;

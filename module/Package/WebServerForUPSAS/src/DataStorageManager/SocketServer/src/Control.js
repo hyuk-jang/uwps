@@ -6,9 +6,7 @@ const {BU} = require('base-util-jh');
 
 const net = require('net');
 // const AbstDeviceClient = require('device-client-controller-jh');
-const {
-  BaseModel,
-} = require('../../../../../../module/device-protocol-converter-jh');
+const {BaseModel} = require('../../../../../../module/device-protocol-converter-jh');
 
 const {dcmWsModel} = require('../../../../../../module/default-intelligence');
 
@@ -104,9 +102,9 @@ class SocketServer extends EventEmitter {
       .createServer(socket => {
         // socket.end('goodbye\n');
         console.log(
-          `client is Connected ${
-            process.env.SOCKET_UPSAS_PORT
-          }\n addressInfo: ${socket.remoteAddress}`,
+          `client is Connected ${process.env.SOCKET_UPSAS_PORT}\n addressInfo: ${
+            socket.remoteAddress
+          }`,
         );
 
         // // TODO: client 식별을 위하여 접속 시 인증과정을 거쳐야함.(uuid 인증을 계획.) 일단 인증 없이 진행 함. - 2018-07-25
@@ -119,9 +117,7 @@ class SocketServer extends EventEmitter {
         // });
 
         // steram 연결 및 파서 등록
-        const stream = socket.pipe(
-          split(this.defaultConverter.protocolConverter.EOT),
-        );
+        const stream = socket.pipe(split(this.defaultConverter.protocolConverter.EOT));
         // 데이터 수신
         stream.on('data', data => {
           try {
@@ -148,17 +144,13 @@ class SocketServer extends EventEmitter {
             // 여기까지 오면 유효한 데이터로 생각하고 완료 처리 (ACK) 메시지 응답
             if (hasComplete) {
               socket.write(
-                this.defaultConverter.encodingMsg(
-                  this.defaultConverter.protocolConverter.ACK,
-                ),
+                this.defaultConverter.encodingMsg(this.defaultConverter.protocolConverter.ACK),
               );
             }
           } catch (error) {
             BU.logFile(error);
             socket.write(
-              this.defaultConverter.encodingMsg(
-                this.defaultConverter.protocolConverter.CAN,
-              ),
+              this.defaultConverter.encodingMsg(this.defaultConverter.protocolConverter.CAN),
             );
             throw error;
           }
@@ -202,6 +194,7 @@ class SocketServer extends EventEmitter {
    * @return {boolean} 성공 or 실패
    */
   certifyClient(client, transDataToServerInfo) {
+    
     const uuid = transDataToServerInfo.data;
     const foundIt = _.find(this.mainStorageList, msInfo =>
       _.isEqual(msInfo.msFieldInfo.uuid, uuid),
@@ -223,18 +216,10 @@ class SocketServer extends EventEmitter {
   interpretCommand(client, transDataToServerInfo) {
     // BU.CLI(dcmWsModel)
     try {
-      const {
-        CERTIFICATION,
-        COMMAND,
-        NODE,
-        STAUTS,
-      } = dcmWsModel.transmitToServerCommandType;
+      const {CERTIFICATION, COMMAND, NODE, STAUTS} = dcmWsModel.transmitToServerCommandType;
       // client를 인증하고자 하는 경우
-      if (transDataToServerInfo.commandType === CERTIFICATION) {
-        const hasCertification = this.certifyClient(
-          client,
-          transDataToServerInfo,
-        );
+      if (transDataToServerInfo. commandType === CERTIFICATION) {
+        const hasCertification = this.certifyClient(client, transDataToServerInfo);
         // 인증이 실패했다면
         if (!hasCertification) {
           throw new Error('인증에 실패하였습니다.');
@@ -252,10 +237,7 @@ class SocketServer extends EventEmitter {
             this.compareSimpleOrderList(msInfo, transDataToServerInfo.data);
             break;
           case STAUTS: // 현황판 데이터를 요청할 경우
-            this.transmitDataToClient(
-              msInfo.msClient,
-              msInfo.msDataInfo.statusBoard,
-            );
+            this.transmitDataToClient(msInfo.msClient, msInfo.msDataInfo.statusBoard);
             break;
           default:
             throw new Error('등록되지 않은 명령입니다.');
@@ -276,14 +258,10 @@ class SocketServer extends EventEmitter {
    */
   findMsInfoByClient(client) {
     try {
-      const foundIt = _.find(this.mainStorageList, msInfo =>
-        _.isEqual(msInfo.msClient, client),
-      );
+      const foundIt = _.find(this.mainStorageList, msInfo => _.isEqual(msInfo.msClient, client));
       // 해당 객체가 있을 경우만 처리
       if (!foundIt) {
-        throw new Error(
-          `${client.remoteAddress}는 등록되지 않은 Client 입니다.`,
-        );
+        throw new Error(`${client.remoteAddress}는 등록되지 않은 Client 입니다.`);
       }
       return foundIt;
     } catch (error) {

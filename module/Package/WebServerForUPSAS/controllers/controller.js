@@ -1,8 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const router = require('express').Router();
 const _ = require('lodash');
-const BU = require('base-util-jh').baseUtil;
-const DU = require('base-util-jh').domUtil;
+const {BU, DU} = require('base-util-jh');
 
 const BiModule = require('../models/BiModule.js');
 const webUtil = require('../models/web.util');
@@ -18,9 +17,7 @@ module.exports = app => {
     asyncHandler(async (req, res, next) => {
       req.locals = DU.makeBaseHtml(req, 0);
       const currWeatherCastList = await biModule.getCurrWeatherCast();
-      const currWeatherCastInfo = currWeatherCastList.length
-        ? currWeatherCastList[0]
-        : null;
+      const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
       const weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
       req.locals.weatherCastInfo = weatherCastInfo;
       next();
@@ -44,13 +41,7 @@ module.exports = app => {
       );
 
       nodeList.forEach(nodeInfo => {
-        const {
-          nd_target_id,
-          nd_target_name,
-          nc_is_sensor,
-          node_id,
-          node_name,
-        } = nodeInfo;
+        const {nd_target_id, nd_target_name, nc_is_sensor, node_id, node_name} = nodeInfo;
         // 센서가 아닌 장비만 등록
         if (nc_is_sensor === 0) {
           let foundIt = _.find(deviceInfoList, {

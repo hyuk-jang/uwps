@@ -192,7 +192,7 @@
       $(function () {
         var socket = io();
 
-        // 저장된 명령을 실행하고자 할 경우
+        // 저장된 명령을 실행하고자 할 경우 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
         $("#automatic_control_btn > button").on("click", function () {
           var automaticId = $("#automatic_control_list option:selected").val();
           // var controlType = $("#automatic_control_type option:selected").val();
@@ -209,7 +209,7 @@
           socket.emit("executeCommand", requestMsg);
         })
 
-        // 장치 단일 제어
+        // 장치 단일 제어 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
         $("#single_control_btn").on("click", function () {
           var deviceId = $("#single_control_device_list option:selected").val();
           var controlType = $("#single_control_type option:selected").val();
@@ -226,7 +226,7 @@
           socket.emit("executeCommand", requestMsg);
         })
 
-        // 시나리오 요청
+        // 시나리오 요청 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
         $("#scenario_control_run_btn").on("click", function () {
           var requestMsg = {
             commandId: "SCENARIO",
@@ -237,7 +237,7 @@
           }
           socket.emit("executeCommand", requestMsg);
         })
-        // 시나리오 취소
+        // 시나리오 취소 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
         $("#scenario_control_cancel_btn").on("click", function () {
           var requestMsg = {
             commandId: "SCENARIO",

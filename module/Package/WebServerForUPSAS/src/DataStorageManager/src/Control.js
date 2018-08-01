@@ -13,6 +13,8 @@ const UiControllerManager = require('../UiControllerManager');
 
 const dsmConfig = require('./config');
 
+const SocketIoManager = require('./SocketIoManager');
+
 class Control {
   /**
    *
@@ -31,6 +33,9 @@ class Control {
      * @type {Array.<msInfo>}
      */
     this.mainStorageList = [];
+
+    // SocketIO를 관리하는 객체 생성
+    this.socketIoManager = new SocketIoManager(this);
   }
 
   /**
@@ -116,34 +121,13 @@ class Control {
   }
 
   /**
-   * Web Socket 설정
+   * SocketIO 설정
    * @param {Object} httpObj
    */
   setSocketIO(httpObj) {
-    this.io = require('socket.io')(httpObj);
-    this.io.on('connection', socket => {
-      socket.on('excuteSalternControl', msg => {
-        const encodingMsg = this.defaultConverter.encodingMsg(msg);
-
-        !_.isEmpty(this.client) &&
-          this.write(encodingMsg).catch(err => {
-            BU.logFile(err);
-          });
-      });
-
-      // if (this.stringfySalternDevice.length) {
-      //   socket.emit('initSalternDevice', this.stringfySalternDevice);
-      //   // socket.emit('initSalternCommand', this.stringfyStandbyCommandSetList);
-      //   socket.emit(
-      //     'initSalternCommand',
-      //     this.stringfyCurrentCommandSet,
-      //     this.stringfyStandbyCommandSetList,
-      //     this.stringfyDelayCommandSetList,
-      //   );
-      // }
-
-      socket.on('disconnect', () => {});
-    });
+    BU.CLI('???');
+    // SocketIO Manager에게 객체 생성 요청
+    this.socketIoManager.setSocketIO(httpObj);
   }
 
   /**

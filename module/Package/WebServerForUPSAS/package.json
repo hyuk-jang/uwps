@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "nodemon --trace-warnings index",
     "build-dev": "pkg -t latest-win-x64 -o . ./index.js",
     "build-prod": "pkg -t latest-win-x64 -o . ./.prod/app.js"
   },
@@ -35,6 +35,7 @@
     "socket.io": "^2.1.1",
     "split": "^1.0.1",
     "underscore": "^1.9.1",
+    "uuid": "^3.3.2",
     "weather-cast": "^0.1.0",
     "xlsx": "^0.13.3"
   },

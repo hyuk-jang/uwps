@@ -7,7 +7,7 @@
         photovoltaic pv
         JOIN relation_power rp
           ON rp.photovoltaic_seq = pv.photovoltaic_seq
-        LEFT JOIN saltern_block sb
+        LEFT JOIN pl_saltern_block sb
           ON sb.saltern_block_seq = rp.saltern_block_seq
         LEFT OUTER JOIN
         (

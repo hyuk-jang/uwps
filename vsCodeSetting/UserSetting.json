@@ -12,6 +12,19 @@
   "editor.formatOnSave": true,
   "javascript.format.enable": false,
   "prettier.eslintIntegration": true,
-  "prettier.printWidth": 100,
-  "html.format.enable": false
+  "html.format.enable": false,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/node_modules": true,
+    "**/.DS_Store": true
+  },
+  "beautify.language": {
+    "html": [
+      "htm",
+      "html"
+    ]
+  }
 }

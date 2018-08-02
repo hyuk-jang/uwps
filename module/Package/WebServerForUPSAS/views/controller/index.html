@@ -192,6 +192,14 @@
       $(function () {
         var socket = io();
 
+
+        // init
+        socket.emit("certifySocket", {
+          sessionID: "<%- sessionID %>",
+          sessionUserInfo: <%- JSON.stringify(user) %>
+        });
+
+
         // 저장된 명령을 실행하고자 할 경우 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
         $("#automatic_control_btn > button").on("click", function () {
           var automaticId = $("#automatic_control_list option:selected").val();

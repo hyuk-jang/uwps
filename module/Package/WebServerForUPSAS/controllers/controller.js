@@ -33,6 +33,7 @@ module.exports = app => {
   router.get(
     '/',
     asyncHandler(async (req, res) => {
+      BU.CLI(req.user);
       // BU.CLI('control', req.locals);
       const deviceInfoList = [];
       // FIXME: 로그인 한 사용자에 따라서 nodeList가 달라져야함.
@@ -80,7 +81,7 @@ module.exports = app => {
       });
 
       // BU.CLI(deviceInfoList);
-      req.locals.hi = 'jhi';
+
       req.locals.excuteControlList = map.controlList;
       // req.locals.cancelControlList = map.controlList;
 
@@ -98,6 +99,9 @@ module.exports = app => {
       });
 
       // BU.CLI(excuteControlList);
+      // 세션 정보를 넘김
+      req.locals.sessionID = req.sessionID;
+      req.locals.user = req.user;
 
       req.locals.deviceInfoList = deviceInfoList;
       req.locals.automaticControlList = excuteControlList;

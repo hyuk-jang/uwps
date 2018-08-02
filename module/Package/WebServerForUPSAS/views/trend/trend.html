@@ -3,8 +3,8 @@
 
 <head>
   <%- include("../master/head.html") %>
-  <%- include("../master/excel.html") %>
-  <script src="js/hichart/highcharts.src.js"></script>
+    <%- include("../master/excel.html") %>
+      <script src="js/hichart/highcharts.src.js"></script>
 </head>
 
 <body>
@@ -16,9 +16,9 @@
 
 
         <div class="row row_width  top_box">
-            
+
           <div class="col-xs-2 sel_box">
-              인버터
+            인버터
             <select class="form-control form-control_st" id="device_list_sel" name="device_seq">
               <%
                 for(var i = 0 ; i < searchOption.device_list.length ; i++){
@@ -31,16 +31,16 @@
                     selected = 'selected';
                   }
                 %>
-                <option data-type="<%= device_type %>"  value="<%= device_seq %>" <%=selected %> >
-                    <%= device_name %>
+                <option data-type="<%= device_type %>" value="<%= device_seq %>" <%=selected %> >
+                  <%= device_name %>
                 </option>
                 <%
                   }
                 %>
             </select>
           </div>
-          
-          
+
+
           <div class="col-xs-4 ">
             <div id="sel_type_div_area" class="input_st" style="height:58px; margin:10px">
               <label class="radio-inline">
@@ -61,28 +61,33 @@
           <div class="serch_st sel_box_data">
             날짜 &nbsp;
             <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
-  
-            <input class="input_tre" name="end" id="end_date_input" type="text" readonly hidden="hidden"> 
+
+            <input class="input_tre" name="end" id="end_date_input" type="text" readonly hidden="hidden">
             <button type="button" class="btn btn-primary" onclick="searchTrend()" style="margin-bottom:3px; height:28px;" id="search">검색</button>
 
           </div>
         </div>
 
-       
+
 
         <div class="row_width">
 
           <div class="row row_title">
             <div class="title title_trend">발전량</div>
-            <div class="title_trend_exc"><input class="title_trend_exc_in" type="submit" value="Download Excel" onclick="doit('xlsx');"></div>
-            
+            <div class="title_trend_exc">
+              <input class="title_trend_exc_in" type="submit" value="Download Excel" onclick="doit('xlsx');">
+            </div>
+
             <p class="title_p" id="during">
             </p>
           </div>
 
           <div class="title_box2" id="moduleChart_1" style="height: 500px;">
           </div>
-          <p class="re_p" style="margin-top: 10px">※ 인버터 발전량 차트의 각 데이터 포인트는 <span> <%- chartDecorator.inverterComment %></span> 입니다. </p>
+          <p class="re_p" style="margin-top: 10px">※ 인버터 발전량 차트의 각 데이터 포인트는
+            <span>
+              <%- chartDecorator.inverterComment %>
+            </span> 입니다. </p>
           <p class="re_p" style="margin: 5px 0px 0px">※ 단: 단결정, 다: 다결정</p>
 
           <div class="row row_title">
@@ -96,23 +101,23 @@
     </div>
     <%- include("../master/footer.html") %>
 
-    <script>
-      var workBook = <%- JSON.stringify(workBook)  %>;
-      function doit(type, fn, dl) {
-        var fileName = "";
-        if(searchRange.rangeEnd){
-          fileName = searchRange.rangeStart + "~" + searchRange.rangeEnd;
-        } else {
-          fileName = searchRange.rangeStart
-        }
-          XLSX.writeFile(workBook, fileName + ".xlsx");
-      }
+      <script>
+        var workBook = <%- JSON.stringify(workBook)  %>;
 
-    </script>
+        function doit(type, fn, dl) {
+          var fileName = "";
+          if (searchRange.rangeEnd) {
+            fileName = searchRange.rangeStart + "~" + searchRange.rangeEnd;
+          } else {
+            fileName = searchRange.rangeStart
+          }
+          XLSX.writeFile(workBook, fileName + ".xlsx");
+        }
+      </script>
 
       <!-- 기본 데이터 세팅 -->
       <script>
-        $("#device_type_sel").on('change', function(event){
+        $("#device_type_sel").on('change', function (event) {
           console.log(event.target.value)
           changeDeviceType(event.target.value)
         })
@@ -122,8 +127,8 @@
         var searchRange = <%- JSON.stringify(searchOption.search_range)  %>;
         var searchType = "<%- searchOption.search_type %>";
 
-        $(document).ready(function() {
-          var selectedObj = $("#sel_type_div_area").find("input[value=" + searchType + "]") ;
+        $(document).ready(function () {
+          var selectedObj = $("#sel_type_div_area").find("input[value=" + searchType + "]");
           // document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
 
           $(selectedObj).trigger('click');
@@ -182,7 +187,9 @@
           var device_list_type = $deviceListDom.data('type');
           var device_seq = $deviceListDom.val();
 
-          var locationHref = "trend?device_list_type=" + encodeURIComponent(device_list_type) + "&device_seq=" + encodeURIComponent(device_seq) + "&start_date=" + encodeURIComponent(startDate) + "&end_date=" + encodeURIComponent(endDate) + "&search_type=" + encodeURIComponent(searchType);
+          var locationHref = "trend?device_list_type=" + encodeURIComponent(device_list_type) + "&device_seq=" +
+            encodeURIComponent(device_seq) + "&start_date=" + encodeURIComponent(startDate) + "&end_date=" +
+            encodeURIComponent(endDate) + "&search_type=" + encodeURIComponent(searchType);
           // alert(locationHref)
           return location.href = locationHref;
         }
@@ -199,7 +206,7 @@
             // console.log('dataList', dataList)
             var resultData = dataList;
             var html = '';
-            resultData.forEach(function(data){
+            resultData.forEach(function (data) {
               var seq = data.seq;
               var target_name = data.target_name;
               html += '<option value="' + seq + '">' + target_name + '</option>';
@@ -215,143 +222,149 @@
 
       <!-- 모듈 차트 -->
       <script type="text/javascript">
-      var powerChartData = <%- JSON.stringify(powerChartData) %>;
-      var chartDecorator = <%- JSON.stringify(chartDecorator) %>;
-      if(powerChartData.series.length){
-        $('#moduleChart_1').highcharts({
-              chart: {
-                  type: "spline",
-                  zoomType: 'xy',
-                },
+        var powerChartData = <%- JSON.stringify(powerChartData) %>;
+        var chartDecorator = <%- JSON.stringify(chartDecorator) %>;
+        if (powerChartData.series.length) {
+          $('#moduleChart_1').highcharts({
+            chart: {
+              type: "spline",
+              zoomType: 'xy',
+            },
+            title: {
+              text: chartDecorator.mainTitle
+            },
+            xAxis: {
               title: {
-                text: chartDecorator.mainTitle
+                text: chartDecorator.xAxisTitle
               },
-              xAxis: {
-                title: {
-                  text: chartDecorator.xAxisTitle
-                },
-                tickInterval: 1,
-                categories: powerChartData.range
+              tickInterval: 1,
+              categories: powerChartData.range
+            },
+            yAxis: [{
+              title: {
+                text: chartDecorator.yAxisTitle
+              }
+            }, {
+              min: 0,
+              max: 1500,
+              title: {
+                text: '일사량'
               },
-              yAxis: [{
-                title: {
-                  text: chartDecorator.yAxisTitle
-                }
-                  },{
-                min: 0,
-                max: 1500,
-                title: {
-                  text: '일사량'
-                },
-                opposite: true
-              }],
-              legend: { //범례
-                align: 'center',
-                verticalAlign: 'bottom',
+              opposite: true
+            }],
+            legend: { //범례
+              align: 'center',
+              verticalAlign: 'bottom',
+              borderWidth: 0
+            },
+            plotOptions: {
+              column: {
+                pointPadding: 0.2,
                 borderWidth: 0
-              },
-              plotOptions: {
-                column: {
-                  pointPadding: 0.2,
-                  borderWidth: 0
-                }
-              },
-              series: powerChartData.series,
-              credits: {
-                enabled: false
-              },
-            });
-      } else {
-        $("#moduleChart_1").html("발전 내역이 존재하지 않습니다.").css({"line-height": "240px", "font-size": "25px"});
-      }
+              }
+            },
+            series: powerChartData.series,
+            credits: {
+              enabled: false
+            },
+          });
+        } else {
+          $("#moduleChart_1").html("발전 내역이 존재하지 않습니다.").css({
+            "line-height": "240px",
+            "font-size": "25px"
+          });
+        }
       </script>
 
       <!-- 날씨 차트 -->
       <script>
         var weatherChartData = <%- JSON.stringify(weatherChartData) %>;
-      console.log('weatherChartData.series', weatherChartData.series)
+        console.log('weatherChartData.series', weatherChartData.series)
 
-      if(weatherChartData.series.length){
-        Highcharts.chart('weatherChart', {
-          chart: {
-            type: 'spline',
-            zoomType: 'xy',
-          },
-          title: {
-            text: ''
-          },
-          xAxis: {
-            title: {
-              text: chartDecorator.xAxisTitle
+        if (weatherChartData.series.length) {
+          Highcharts.chart('weatherChart', {
+            chart: {
+              type: 'spline',
+              zoomType: 'xy',
             },
-            tickInterval: 1,
-            categories: weatherChartData.range
-          },
-          yAxis: [{
-            min: 0,
-            max: 10,
             title: {
-              text: '수위 (cm)'
-            }
-          },{
-            // min: -10,
-            // max: 40,
-            title: {
-              text: '기온 (℃)'
+              text: ''
             },
-            opposite: true
-          }],
-          plotOptions: {
-            column: {
-              pointPadding: 0.2,
-              borderWidth: 0
-            }
-          },
-          series: weatherChartData.series,
-          credits: {
-            enabled: false
-          },
-          // series: [{
-          //   name: '습도(%)',
-          //   data: [],
-          //   // data: moduleChart[0],
-          //   tooltip: {
-          //     headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
-          //     pointFormat: '<tr><td style="color:{series.color};padding:0">습도: </td>' +
-          //       '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
-          //     footerFormat: '</table>',
-          //     shared: true,
-          //     useHTML: true
-          //   }
-          // }, {
-          //   name: '기온(℃)',
-          //   data: [],
-          //   tooltip: {
-          //     headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
-          //     pointFormat: '<tr><td style="color:{series.color};padding:0">기온: </td>' +
-          //       '<td style="padding:0"><b>{point.y:.1f} ℃</b></td></tr>',
-          //     footerFormat: '</table>',
-          //     shared: true,
-          //     useHTML: true
-          //   }
-          // }, {
-          //   name: '일사량',
-          //   data: [],
-          //   tooltip: {
-          //     headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
-          //     pointFormat: '<tr><td style="color:{series.color};padding:0">일사량: </td>' +
-          //       '<td style="padding:0"><b>{point.y:.1f} W/m2</b></td></tr>',
-          //     footerFormat: '</table>',
-          //     shared: true,
-          //     useHTML: true
-          //   },
-          //   yAxis: 1
-          // }]
-        });
-      } else {
-        $("#weatherChart").html("기상 관측 내역이 존재하지 않습니다.").css({"line-height": "240px", "font-size": "25px"});
-      }
-    </script>
+            xAxis: {
+              title: {
+                text: chartDecorator.xAxisTitle
+              },
+              tickInterval: 1,
+              categories: weatherChartData.range
+            },
+            yAxis: [{
+              min: 0,
+              max: 10,
+              title: {
+                text: '수위 (cm)'
+              }
+            }, {
+              // min: -10,
+              // max: 40,
+              title: {
+                text: '기온 (℃)'
+              },
+              opposite: true
+            }],
+            plotOptions: {
+              column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+              }
+            },
+            series: weatherChartData.series,
+            credits: {
+              enabled: false
+            },
+            // series: [{
+            //   name: '습도(%)',
+            //   data: [],
+            //   // data: moduleChart[0],
+            //   tooltip: {
+            //     headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
+            //     pointFormat: '<tr><td style="color:{series.color};padding:0">습도: </td>' +
+            //       '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+            //     footerFormat: '</table>',
+            //     shared: true,
+            //     useHTML: true
+            //   }
+            // }, {
+            //   name: '기온(℃)',
+            //   data: [],
+            //   tooltip: {
+            //     headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
+            //     pointFormat: '<tr><td style="color:{series.color};padding:0">기온: </td>' +
+            //       '<td style="padding:0"><b>{point.y:.1f} ℃</b></td></tr>',
+            //     footerFormat: '</table>',
+            //     shared: true,
+            //     useHTML: true
+            //   }
+            // }, {
+            //   name: '일사량',
+            //   data: [],
+            //   tooltip: {
+            //     headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
+            //     pointFormat: '<tr><td style="color:{series.color};padding:0">일사량: </td>' +
+            //       '<td style="padding:0"><b>{point.y:.1f} W/m2</b></td></tr>',
+            //     footerFormat: '</table>',
+            //     shared: true,
+            //     useHTML: true
+            //   },
+            //   yAxis: 1
+            // }]
+          });
+        } else {
+          $("#weatherChart").html("기상 관측 내역이 존재하지 않습니다.").css({
+            "line-height": "240px",
+            "font-size": "25px"
+          });
+        }
+      </script>
 
 
 </body>

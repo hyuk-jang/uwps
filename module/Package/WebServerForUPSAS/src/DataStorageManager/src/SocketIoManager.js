@@ -9,10 +9,6 @@ const map = require('../../../public/Map/map');
 // const BiModule = require('../../../models/BiModule');
 const webUtil = require('../../../models/web.util.js');
 
-const {
-  executeCommandType,
-} = require('../../../../../module/default-intelligence').dcmWsModel;
-
 const Control = require('./Control');
 
 /** 무안 6kW TB */
@@ -39,6 +35,24 @@ class SocketIoManager {
     this.io = new Server(httpObj);
 
     this.io.on('connection', socket => {
+      // 접속한 Socket 등록
+      socket.on('certifySocket', target => {
+        /** @type {msUserInfo} */
+        const msUser = target;
+        // 접속한 Socket 정보 정의
+        msUser.socketClient = socket;
+
+        // Main 정보(거점)의 ID가 동일한 객체 탐색
+        const foundIt = _.find(this.mainStorageList, msInfo =>
+          _.isEqual(msInfo.msFieldInfo.main_seq, msUser.sessionUserInfo.main_seq),
+        );
+
+        // 거점을 찾을 경우
+        if (foundIt) {
+          foundIt.msUserList.push(msUser);
+        }
+      });
+
       socket.on('executeCommand', msg => {
         /** @type {defaultFormatToRequest} */
         const defaultFormatToRequestInfo = msg;
@@ -49,9 +63,7 @@ class SocketIoManager {
         const msInfo = this.findMainStorageBySession();
 
         // Socket Client로 명령 전송
-        msInfo.msClient.write(
-          this.defaultConverter.encodingMsg(defaultFormatToRequestInfo),
-        );
+        msInfo.msClient.write(this.defaultConverter.encodingMsg(defaultFormatToRequestInfo));
       });
 
       // socket.on('')
@@ -67,7 +79,12 @@ class SocketIoManager {
       //   );
       // }
 
-      socket.on('disconnect', () => {});
+      // 연결 해제한 Socket 제거
+      socket.on('disconnect', () => {
+        _.forEach(this.mainStorageList, msInfo =>
+          _.remove(msInfo.msUserList, msUserInfo => _.isEqual(msUserInfo.socketClient, socket)),
+        );
+      });
     });
   }
 
@@ -113,13 +130,7 @@ class SocketIoManager {
     );
 
     msInfo.msDataInfo.nodeList.forEach(nodeInfo => {
-      const {
-        nd_target_id,
-        nd_target_name,
-        nc_is_sensor,
-        node_id,
-        node_name,
-      } = nodeInfo;
+      const {nd_target_id, nd_target_name, nc_is_sensor, node_id, node_name} = nodeInfo;
       // 센서가 아닌 장비만 등록
       if (nc_is_sensor === 0) {
         let foundIt = _.find(deviceInfoList, {type: nd_target_id});
@@ -144,101 +155,6 @@ class SocketIoManager {
 
     // BU.CLI(deviceInfoList);
     return deviceInfoList;
-  }
-
-  /**
-   * 외부에서 단일 명령을 내릴경우
-   * @param {requestSingleOrderInfo} requestSingleOrderInfo
-   */
-  executeSingleControl(requestSingleOrderInfo) {}
-
-  /**
-   * 저장된 명령 요청 수행
-   * @param {string} savedCommandId 저장된 명령 ID
-   * @param {string} requestCommandType  'CONTROL', 'CANCEL' --> 명령 추가, 명령 삭제
-   */
-  executeSavedCommand(savedCommandId, requestCommandType) {}
-
-  /**
-   * 시나리오를 수행하고자 할 경우
-   * @param {string} scenarioId 시나리오 ID
-   * @param {string} requestCommandType  'CONTROL', 'CANCEL' --> 명령 추가, 명령 삭제
-   */
-  executeScenario(scenarioId, requestCommandType) {}
-
-  /**
-   * 자동 명령 요청
-   * @param {{cmdName: string, trueList: string[], falseList: string[]}} controlInfo
-   */
-  executeAutomaticControl(controlInfo) {
-    BU.CLI(controlInfo);
-
-    /** @type {requestCombinedOrderInfo} */
-    const requestCombinedOrder = {
-      requestCommandId: controlInfo.cmdName,
-      requestCommandName: controlInfo.cmdName,
-      requestCommandType: requestOrderCommandType.CONTROL,
-      requestElementList: [],
-    };
-
-    // 장치 True 요청
-    const trueList = _.get(controlInfo, 'trueList', []);
-    if (trueList.length) {
-      requestCombinedOrder.requestElementList.push({
-        controlValue: requestDeviceControlType.TRUE,
-        nodeId: controlInfo.trueList,
-        rank: 2,
-      });
-    }
-
-    // 장치 False 요청
-    const falseList = _.get(controlInfo, 'falseList', []);
-    if (falseList.length) {
-      requestCombinedOrder.requestElementList.push({
-        controlValue: requestDeviceControlType.FALSE,
-        nodeId: controlInfo.falseList,
-        rank: 2,
-      });
-    }
-
-    return this.executeCombineOrder(requestCombinedOrder);
-  }
-
-  /**
-   * 명령 취소 요청
-   * @param {{cmdName: string, trueList: string[], falseList: string[]}} controlInfo
-   */
-  cancelAutomaticControl(controlInfo) {
-    /** @type {requestCombinedOrderInfo} */
-    const requestCombinedOrder = {
-      requestCommandId: controlInfo.cmdName,
-      requestCommandName: controlInfo.cmdName,
-      requestCommandType: requestOrderCommandType.CANCEL,
-      requestElementList: [],
-    };
-
-    // 장치 False 요청 (켜져 있는 장치만 끔)
-    const trueList = _.get(controlInfo, 'trueList', []);
-    if (trueList.length) {
-      requestCombinedOrder.requestElementList.push({
-        controlValue: requestDeviceControlType.FALSE,
-        nodeId: _.reverse(trueList),
-        rank: 2,
-      });
-    }
-
-    // FIXME: 명령 취소에 대한 논리 정립이 안되어 있어 다시 동작 시키는 명령은 비활성
-    // 장치 True 요청
-    // const falseList = _.get(controlInfo, 'falseList', []);
-    // if (falseList.length) {
-    //   requestCombinedOrder.requestElementList.push({
-    //     controlValue: requestDeviceControlType.TRUE,
-    //     nodeId: _.reverse(falseList),
-    //     rank: 2,
-    //   });
-    // }
-
-    return this.executeCombineOrder(requestCombinedOrder);
   }
 }
 module.exports = SocketIoManager;

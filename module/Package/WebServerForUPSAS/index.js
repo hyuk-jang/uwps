@@ -47,6 +47,8 @@ async function operationController() {
     const mainControl = new MainControl();
     await mainControl.init();
     mainControl.dataStorageManager.setSocketIO(http);
+    // 전역 변수로 설정
+    global.mainStorageList = mainControl.dataStorageManager.mainStorageList;
 
     // TEST
     http.listen(initSetter.webPort, (req, res) => {

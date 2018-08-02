@@ -83,6 +83,7 @@ class Control {
           nodeList: filterNodeList,
           simpleOrderList: [],
         },
+        msUserList: [],
       };
 
       this.mainStorageList.push(mainStorageInfo);

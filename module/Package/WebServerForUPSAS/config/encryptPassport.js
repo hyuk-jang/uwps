@@ -19,6 +19,7 @@ module.exports = (app, aliceBobSecret) => {
         passwordField: 'password',
       },
       (username, password, done) => {
+        BU.CLI(username, password);
         // sharing secret key on a pair
         const enUsername = BU.encryptAes(username, aliceBobSecret);
         const enPassword = BU.encryptAes(password, aliceBobSecret);

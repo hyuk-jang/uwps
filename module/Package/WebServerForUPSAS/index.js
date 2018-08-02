@@ -31,26 +31,22 @@ global.initSetter = initSetter;
 // 컨트롤러 구동 시작
 async function operationController() {
   try {
-    BU.CLIF(initSetter);
     const app = require('./config/app.js')(initSetter.dbInfo);
-    BU.CLIF(initSetter);
     const passport = require('./config/passport.js')(app, initSetter.dbInfo);
     app.set('passport', passport);
     app.set('initSetter', initSetter);
 
     // 인증 시행 여부
-    app.set('auth', true);
+    app.set('auth', 'dev');
 
     require('./controllers')(app);
 
     /** Web Socket Binding */
     const http = require('http').Server(app);
 
-    // salternConnector.setSocketIO(http);
-
-    // const mainControl = new MainControl();
-    // await mainControl.init();
-    // mainControl.dataStorageManager.setSocketIO(http);
+    const mainControl = new MainControl();
+    await mainControl.init();
+    mainControl.dataStorageManager.setSocketIO(http);
 
     // TEST
     http.listen(initSetter.webPort, (req, res) => {

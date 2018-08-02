@@ -1,8 +1,7 @@
-const _ = require('lodash');
 const asyncHandler = require('express-async-handler');
 const router = require('express').Router();
-const BU = require('base-util-jh').baseUtil;
-const DU = require('base-util-jh').domUtil;
+const _ = require('lodash');
+const {BU, DU} = require('base-util-jh');
 
 const webUtil = require('../models/web.util');
 

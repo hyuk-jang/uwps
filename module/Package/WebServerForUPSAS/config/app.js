@@ -36,6 +36,9 @@ module.exports = dbInfo => {
       store: new MySQLStore(dbInfo),
       resave: false,
       saveUninitialized: true,
+      cookie: {
+        maxAge: 1000 * 60 * 60 * 24, // 1일
+      },
     }),
   );
 
@@ -45,29 +48,11 @@ module.exports = dbInfo => {
   app.set('view engine', 'html');
   app.set('views', path.join(process.cwd(), '/', 'views'));
 
-  // 배포 Ver 일 경우 사용자 권한 체크
-  if (app.get('env') === 'production') {
-    process.on('uncaughtException', err => {
-      // 예상치 못한 예외 처리
-      BU.debugConsole();
-      console.log(`uncaughtException 발생 : ${err}`);
-      BU.errorLog('uncaughtException', err);
-    });
-    // app.use('/admin', function (req, res, next) {
-    //     console.log('all admin hello')
-    //     if (!req.user) {
-    //         return res.redirect('/auth/login');
-    //     }
-    //     next();
-    // })
-  }
-
-  // Pkg 를 위한 path 추가
+  // FIXME: Pkg 를 위한 path 추가 (pkg 모듈 테스트 필요)
   path.join(process.cwd(), '/controllers/**/*');
   path.join(process.cwd(), '/models/**/*');
 
   // Error-handling middleware
-  console.log(app.get('env'));
   // development error handler
   // will print stacktrace
   if (app.get('env') === 'development') {
@@ -89,7 +74,7 @@ module.exports = dbInfo => {
     });
   }
 
-  // FIXME: use 이벤트가 router 앞에 위치함.
+  // FIXME: use 이벤트가 router 앞에 위치함. 예외 공통 화면 작성 필요.
   // catch 404 and forward to error handler
   setTimeout(() => {
     app.use((req, res, next) => {

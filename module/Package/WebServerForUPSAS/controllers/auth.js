@@ -2,7 +2,8 @@ const asyncHandler = require('express-async-handler');
 const router = require('express').Router();
 const _ = require('lodash');
 const passport = require('passport');
-const {BU, DU, EU} = require('../../../module/base-util-jh');
+const request = require('request');
+const {BU, DU, EU} = require('base-util-jh');
 
 const BiAuth = require('../models/auth/BiAuth');
 
@@ -10,8 +11,40 @@ module.exports = app => {
   const initSetter = app.get('initSetter');
   const biAuth = new BiAuth(initSetter.dbInfo);
 
+  // server middleware
+  router.use(
+    asyncHandler(async (req, res, next) => {
+      if (app.get('auth')) {
+        if (req.user) {
+          return res.redirect('/main');
+        }
+      }
+
+      next();
+    }),
+  );
+
   router.get('/login', (req, res) => {
-    res.render('./auth/login.html', {err: req.flash('error')});
+    if (app.get('auth') === 'dev') {
+      // app.set('auth', true);
+      if (!req.user) {
+        request.post(
+          {
+            url: 'http://localhost:7500/auth/login',
+            headers: req.headers,
+            form: {
+              userid: 'tester',
+              password: 'smsoft',
+            },
+          },
+          (err, httpResponse, msg) =>
+            // BU.CLIS(err, req.user, msg);
+            res.redirect('/main'),
+        );
+      }
+    } else {
+      return res.render('./auth/login.html', {message: req.flash('error')});
+    }
   });
 
   router.post(
@@ -83,8 +116,10 @@ module.exports = app => {
 
   router.use(
     asyncHandler(async (err, req, res) => {
-      console.trace(err);
-      res.status(500).send(err);
+      if (err instanceof Error) {
+        console.trace(err);
+        res.status(501).send(err);
+      }
     }),
   );
 

@@ -67,7 +67,7 @@
                 <span>아이디</span>
               </td>
               <td class="inputLabel" width="75%">
-                <input type="text" maxlength="15" name="userid" id="userid" />
+                <input type="text" maxlength="15" name="userid" id="userid" placeholder="아이디를 입력해주세요" />
               </td>
             </tr>
             <tr>
@@ -75,12 +75,12 @@
                 <span>비밀번호</span>
               </td>
               <td class="inputLabel">
-                <input type="password" name="password" maxlength="15" onkeypress="loginPress(event)" id="password" />
+                <input type="password" name="password" maxlength="15" onkeypress="loginPress(event)" id="password" placeholder="비밀번호를 입력해주세요"
+                />
               </td>
             </tr>
           </table>
         </div>
-
         <div id="login_bot" class="login_bot">
           <div class="inputMessage">
             <div id="textErrorMessage"></div>
@@ -99,9 +99,15 @@
 
 
   <script>
+    var message = "<%- message %>";
+    console.log(message)
+    if (message.length) {
+      $("#textErrorMessage").html(message);
+    }
+
     function loginPress(event) {
       if (event.keyCode == 13) {
-        login();
+        login()
       }
     }
 

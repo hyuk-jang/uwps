@@ -71,7 +71,6 @@
                 var hasOperationInverter = powerGenerationInfo.hasOperationInverter;
                 var hasOperationInverterCss = "";
                 var operationTxt = "";
-                console.log('hasOperationInverter', hasOperationInverter)
                 if(hasOperationInverter){
                   hasOperationInverterCss = "btn-primary";
                   operationTxt = "RUN";
@@ -174,7 +173,7 @@
 
           <img src="image/sol.jpg" style="position:absolute; left:0; top:83px" />
         </div>
-        
+
 
 
 
@@ -435,8 +434,8 @@
         if (chartDataObj.series.length) {
           $('#dailyPowerChart').highcharts({
             chart: {
-            type: "spline",
-            zoomType: 'x',
+              type: "spline",
+              zoomType: 'x',
             },
             title: {
               text: ''

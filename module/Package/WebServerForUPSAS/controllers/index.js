@@ -6,7 +6,6 @@ const expressApp = require('express')();
 
 /** @param {expressApp} app */
 module.exports = app => {
-  BU.CLI(__dirname);
   // SU.ChainingControllers(path.join(process.cwd(), '/controllers'), app);
   SU.ChainingControllers(__dirname, app);
 

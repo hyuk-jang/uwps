@@ -10,7 +10,7 @@ const {BaseModel} = require('../../../../../../module/device-protocol-converter-
 
 const {dcmWsModel} = require('../../../../../../module/default-intelligence');
 
-const {BM} = require('../../../../../../module/base-model-jh');
+const {BM} = require('base-model-jh');
 const socketServerConfig = require('./config');
 
 class SocketServer extends EventEmitter {
@@ -194,7 +194,6 @@ class SocketServer extends EventEmitter {
    * @return {boolean} 성공 or 실패
    */
   certifyClient(client, transDataToServerInfo) {
-    
     const uuid = transDataToServerInfo.data;
     const foundIt = _.find(this.mainStorageList, msInfo =>
       _.isEqual(msInfo.msFieldInfo.uuid, uuid),
@@ -218,7 +217,7 @@ class SocketServer extends EventEmitter {
     try {
       const {CERTIFICATION, COMMAND, NODE, STAUTS} = dcmWsModel.transmitToServerCommandType;
       // client를 인증하고자 하는 경우
-      if (transDataToServerInfo. commandType === CERTIFICATION) {
+      if (transDataToServerInfo.commandType === CERTIFICATION) {
         const hasCertification = this.certifyClient(client, transDataToServerInfo);
         // 인증이 실패했다면
         if (!hasCertification) {

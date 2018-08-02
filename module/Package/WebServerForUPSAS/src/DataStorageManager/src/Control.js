@@ -1,12 +1,10 @@
 const _ = require('lodash');
 // const cron = require('cron');
 const {BU} = require('base-util-jh');
+const {BM} = require('base-model-jh');
 
-const {
-  BaseModel,
-} = require('../../../../../module/device-protocol-converter-jh');
+const {BaseModel} = require('../../../../../module/device-protocol-converter-jh');
 
-const {BM} = require('../../../../../module/base-model-jh');
 const SocketServer = require('../SocketServer');
 const PowerStatusMaker = require('../PowerStatusMaker');
 const UiControllerManager = require('../UiControllerManager');
@@ -125,7 +123,6 @@ class Control {
    * @param {Object} httpObj
    */
   setSocketIO(httpObj) {
-    BU.CLI('???');
     // SocketIO Manager에게 객체 생성 요청
     this.socketIoManager.setSocketIO(httpObj);
   }

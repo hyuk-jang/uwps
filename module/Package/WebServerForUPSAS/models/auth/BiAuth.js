@@ -1,7 +1,7 @@
 const _ = require('lodash');
 // const mome = require('mometo');
 const {BM} = require('base-model-jh');
-const {BU, EU} = require('../../../../module/base-util-jh');
+const {BU, EU} = require('base-util-jh');
 
 class BiAuth extends BM {
   /** @param {dbInfo} dbInfo */
@@ -44,7 +44,7 @@ class BiAuth extends BM {
       is_deleted: 0,
     };
     // ID와 삭제가 되지 않은 해당 ID를 찾음.
-    const memberList = await this.getTable('MEMBER', whereInfo, true);
+    const memberList = await this.getTable('MEMBER', whereInfo);
     // 매칭되는 회원이 없다면
     if (memberList.length === 0) {
       // return {};
@@ -53,12 +53,9 @@ class BiAuth extends BM {
     /** @type {MEMBER} */
     const memberInfo = _.head(memberList);
 
-    BU.CLI(memberInfo);
-
     // Hash 비밀번호의 동일함을 체크
     // const hashPw = await encryptPbkdf2(loginInfo.userId, memberInfo.pw_salt);
     const hashPw = await EU.encryptPbkdf2(loginInfo.password, memberInfo.pw_salt);
-    BU.CLI(hashPw);
     if (_.isEqual(hashPw, memberInfo.pw_hash)) {
       return memberInfo;
     }

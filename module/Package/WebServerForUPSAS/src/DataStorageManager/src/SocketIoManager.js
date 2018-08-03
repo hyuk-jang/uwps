@@ -47,10 +47,19 @@ class SocketIoManager {
           _.isEqual(msInfo.msFieldInfo.main_seq, msUser.sessionUserInfo.main_seq),
         );
 
-        // 거점을 찾을 경우
+        // 거점을 찾을 경우 초기 값을 보내줌.
         if (foundIt) {
           foundIt.msUserList.push(msUser);
+
+          // const {nodeList, simpleOrderList} = foundIt.msDataInfo
         }
+      });
+
+      // 연결 해제한 Socket 제거
+      socket.on('disconnect', () => {
+        _.forEach(this.mainStorageList, msInfo =>
+          _.remove(msInfo.msUserList, msUserInfo => _.isEqual(msUserInfo.socketClient, socket)),
+        );
       });
 
       socket.on('executeCommand', msg => {
@@ -78,14 +87,16 @@ class SocketIoManager {
       //     this.stringfyDelayCommandSetList,
       //   );
       // }
-
-      // 연결 해제한 Socket 제거
-      socket.on('disconnect', () => {
-        _.forEach(this.mainStorageList, msInfo =>
-          _.remove(msInfo.msUserList, msUserInfo => _.isEqual(msUserInfo.socketClient, socket)),
-        );
-      });
     });
+  }
+
+  /**
+   * 노드 정보에서 UI에 보여줄 내용만을 반환
+   * @param {nodeInfo[]} nodeList
+   */
+  convertSimpleNode(nodeList) {
+    const pickList = ['node_id', 'nd_target_name', 'data'];
+    return _.map(nodeList, _.pick(pickList));
   }
 
   /**

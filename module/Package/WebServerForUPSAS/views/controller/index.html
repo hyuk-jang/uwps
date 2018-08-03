@@ -178,7 +178,6 @@
 
         deviceInfoList = <%- JSON.stringify(deviceInfoList) %>;
 
-        // setDeviceList();
         setDomDeviceType();
         setDeviceInfoList()
       })
@@ -193,11 +192,13 @@
         var socket = io();
 
 
-        // init
+        // 접속한 사용자의 정보를 보내줌.
         socket.emit("certifySocket", {
           sessionID: "<%- sessionID %>",
           sessionUserInfo: <%- JSON.stringify(user) %>
         });
+
+
 
 
         // 저장된 명령을 실행하고자 할 경우 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)

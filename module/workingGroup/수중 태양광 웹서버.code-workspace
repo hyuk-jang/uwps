@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "D:\\Project\\year_2018\\upsas\\module\\Package\\WebServerForUPSAS"
+		},
+		{
+			"path": "D:\\Project\\year_2018\\upsas\\module\\module\\default-intelligence"
+		},
+		{
+			"path": "D:\\Project\\year_2018\\upsas\\module\\module\\device-boilerplate-sensor"
+		},
+		{
+			"path": "D:\\Project\\year_2018\\upsas\\module\\module\\device-protocol-converter-jh"
+		},
+		{
+			"path": "D:\\Project\\year_2018\\upsas\\module\\module\\device-client-controller-jh"
+		}
+	],
+	"settings": {}
+}

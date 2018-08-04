@@ -14,11 +14,15 @@
     <!--메인-->
     <div class="jumbotron text-center jumbotron_line">
       <div class="row row_st_line min_h_780">
-
+        <div>
+          <p>장치 연결 상태:
+            <span id="device_connected_stauts"></span>
+          </p>
+        </div>
         <div class="row row_width  top_box">
-          <div class="col-xs-3 sel_box" style="width: 200px">
-            <a class="btn btn-success btn-lg" id="scenario_control_run_btn" role="button">시연모드 1 실행</a>
-            <a class="btn btn-danger btn-lg" id="scenario_control_cancel_btn" role="button">시연모드 1 정지</a>
+          <div class="col-xs-3 sel_box" id="scenario_control_div" style="width: 200px">
+            <a class="btn btn-success btn-lg" id="scenario_control_run_btn" data-value="1" role="button">시연모드 1 실행</a>
+            <a class="btn btn-danger btn-lg" id="scenario_control_cancel_btn" data-value="0" role="button">시연모드 1 정지</a>
           </div>
 
           <div class="col-xs-3 sel_box" style="width: 250px">
@@ -27,9 +31,9 @@
             </select>
           </div>
 
-          <div class="sel_box_data" id="automatic_control_btn">
-            <button type="button" class="btn btn-primary" data-value="true" style="margin-bottom:3px; height:40px;" id="search">제어 요청</button>
-            <button type="button" class="btn btn-danger" data-value="false" style="margin-left: 10px; margin-bottom:3px; height:40px;"
+          <div class="sel_box_data" id="automatic_control_div">
+            <button type="button" class="btn btn-primary" data-value="CONTROL" style="margin-bottom:3px; height:40px;" id="search">제어 요청</button>
+            <button type="button" class="btn btn-danger" data-value="CANCEL" style="margin-left: 10px; margin-bottom:3px; height:40px;"
               id="search">취소 요청</button>
           </div>
         </div>
@@ -48,10 +52,10 @@
           <div class="col-xs-3 sel_box" style="width: 150px">
             제어 형식
             <select class="form-control form-control_st" id="single_control_type" name="" style="width: 130px">
-              <option value="true">
+              <option value="1">
                 Open
               </option>
-              <option value="false">
+              <option value="0">
                 Close
               </option>
             </select>
@@ -73,66 +77,38 @@
           <div style="float: left; width: 55%">
             <div class="panel panel-default">
               <!-- Default panel contents -->
-              <div class="panel-heading"> 현재 수행 명령 목록</div>
+              <div class="panel-heading"> 명령 목록 </div>
+              <div class="panel-body"> 갱신 시간:
+                <span id="CMD_order_date"></span>
+              </div>
               <!-- Table -->
-              <table id="saltern_current_command" class="table">
+              <table id="CMD_order_list" class="table">
                 <thead>
                   <tr>
-                    <th data-field="commandType">명령 타입</th>
-                    <th data-field="commandId">명령 ID</th>
-                    <th data-field="commandName">요청 명령</th>
+                    <th data-field="orderCommandType">명령 종류</th>
+                    <th data-field="orderStatus">명령 상태</th>
+                    <th data-field="commandId">요청 ID</th>
+                    <th data-field="commandName">명령 이름</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
               </table>
             </div>
-            <div class="panel panel-default">
-              <!-- Default panel contents -->
-              <div class="panel-heading"> 대기 명령 목록</div>
-              <!-- Table -->
-              <table id="saltern_standby_command" class="table">
-                <thead>
-                  <tr>
-                    <th data-field="commandType">명령 타입</th>
-                    <th data-field="commandId">명령 ID</th>
-                    <th data-field="commandName">요청 명령</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-            <div class="panel panel-default">
-              <!-- Default panel contents -->
-              <div class="panel-heading"> 지연 대기 명령</div>
-              <!-- Table -->
-              <table id="saltern_delay_command" class="table">
-                <thead>
-                  <tr>
-                    <th data-field="commandType">명령 타입</th>
-                    <th data-field="commandId">명령 ID</th>
-                    <th data-field="commandName">요청 명령</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-
           </div>
           <div style="float: right; width:40%">
             <div class="panel panel-default">
               <!-- Default panel contents -->
               <div class="panel-heading"> 장치 상태 정보 목록</div>
-              <div class="panel-body">
+              <div class="panel-body"> 갱신 시간:
+                <span id="CMD_node_date"></span>
               </div>
-
               <!-- Table -->
-              <table id="saltern_device_data_list" class="table">
+              <table id="MS_node_list" class="table">
                 <thead>
                   <tr>
-                    <th data-field="targetCategory">장치 종류</th>
-                    <th data-field="targetName">장치 명</th>
-                    <th data-field="targetId">장치 ID</th>
-                    <th data-field="targetData">장치 상태</th>
+                    <th data-field="nd_target_name">장치 명</th>
+                    <th data-field="node_id">장치 ID</th>
+                    <th data-field="data">데이터</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -188,6 +164,10 @@
 
     <script src="/socket.io/socket.io.js" defer></script>
     <script defer>
+      // 초기 페이지에 접속하면 자동으로 데이터를 갱신하기 위함
+      var $CMD_order_table = $('#CMD_order_list');
+      var $MS_node_table = $('#MS_node_list');
+
       $(function () {
         var socket = io();
 
@@ -198,21 +178,50 @@
           sessionUserInfo: <%- JSON.stringify(user) %>
         });
 
+        // 장치 연결 상태 반영
+        var dataLoggerConnectedStatus = document.getElementById("device_connected_stauts");
+        socket.on("updateMsClientStatus", function (string) {
+          dataLoggerConnectedStatus.innerText = string;
+        });
+
+        // 노드 관련 갱신 반영
+        socket.on("updateNodeInfo", function (nodeList) {
+          $MS_node_table.bootstrapTable('destroy').bootstrapTable({
+            data: nodeList
+          });
+          document.getElementById("CMD_node_date").innerText = new Date().toLocaleString();
+        });
+
+        // 명령 관련 갱신 반영
+        socket.on("updateOrderInfo", function (orderList) {
+          $CMD_order_table.bootstrapTable('destroy').bootstrapTable({
+            data: orderList
+          });
+          document.getElementById("CMD_order_date").innerText = new Date().toLocaleString();
+        });
+
 
 
 
         // 저장된 명령을 실행하고자 할 경우 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
-        $("#automatic_control_btn > button").on("click", function () {
+        $("#automatic_control_div > button").on("click", function () {
           var automaticId = $("#automatic_control_list option:selected").val();
           // var controlType = $("#automatic_control_type option:selected").val();
           var controlType = $(this).data("value");
-          console.log(controlType);
+          // console.log(controlType);
 
           var requestMsg = {
             commandId: "AUTOMATIC",
             contents: {
-              cmdName: automaticId,
-              requestCommandType: controlType
+              /**
+               * 명령 제어 타입 (requestOrderCommandType) 
+               * @example
+               * CONTROL: 장치 제어 요청
+               * CANCEL: 명령 제어 취소 요청
+               * MEASURE: 명령 계측 요청
+               */
+              requestCommandType: controlType,
+              savedCommandId: automaticId,
             }
           }
           socket.emit("executeCommand", requestMsg);
@@ -226,9 +235,24 @@
           var requestMsg = {
             commandId: "SINGLE",
             contents: {
-              requestCommandType: "CONTROL",
-              controlValue: controlValue === 1 ? 1 : 0,
+              /**
+               * 명령 제어 타입 (requestOrderCommandType) 
+               * @example
+               * CONTROL: 장치 제어 요청
+               * CANCEL: 명령 제어 취소 요청
+               * MEASURE: 명령 계측 요청
+               */
+              requestCommandType: "CONTROL", // 단일 동작 제어는 모두 명령 요청으로 처리
               nodeId: deviceId,
+              /**
+               * 장치 제어 타입 (requestDeviceControlType)
+               * @example
+               * 0: 장치 Close, Off
+               * 1: 장치 Open, On
+               * 2: 장치 Measure
+               * 3: 장치 값 설정
+               */
+              controlValue: controlType,
               rank: Number(controlRank),
             }
           }
@@ -236,85 +260,25 @@
         })
 
         // 시나리오 요청 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
-        $("#scenario_control_run_btn").on("click", function () {
+        $("#scenario_control_div > a").on("click", function () {
+          var controlType = $(this).data("value");
           var requestMsg = {
             commandId: "SCENARIO",
             contents: {
+              /**
+               * 명령 제어 타입 (requestOrderCommandType) 
+               * @example
+               * CONTROL: 장치 제어 요청
+               * CANCEL: 명령 제어 취소 요청
+               * MEASURE: 명령 계측 요청
+               */
+              requestCommandType: controlType,
               scenarioId: "scenario1",
-              requestCommandType: "CONTROL"
+              rank: 1,
             }
           }
           socket.emit("executeCommand", requestMsg);
         })
-        // 시나리오 취소 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
-        $("#scenario_control_cancel_btn").on("click", function () {
-          var requestMsg = {
-            commandId: "SCENARIO",
-            contents: {
-              scenarioId: "scenario1",
-              requestCommandType: "CANCEL"
-            }
-          }
-          socket.emit("executeCommand", requestMsg);
-        })
-
-        // 초기 페이지에 접속하면 자동으로 데이터를 갱신하기 위함
-        var $saltern_current_command = $('#saltern_current_command');
-        var $saltern_standby_command = $('#saltern_standby_command');
-        var $saltern_delay_command = $('#saltern_delay_command');
-        var $saltern_device_table = $('#saltern_device_data_list');
-
-        socket.on("initSalternDevice", function (salternData) {
-
-          var salternDeviceDataStorage = JSON.parse(salternData);
-          $saltern_device_table.bootstrapTable({
-            data: salternDeviceDataStorage
-          });
-        });
-
-        socket.on("initSalternCommand", function (currentCommandSet, standbyCommandSetList, delayCommandSetList) {
-          // socket.on("initSalternCommand", function (standbyCommandSetList) {
-          // console.log(standbyCommandSetList);
-          var parseCurrentCommandSet = JSON.parse(currentCommandSet);
-          var parseDtandbyCommandSetList = JSON.parse(standbyCommandSetList);
-          var parseDelayCommandSetList = JSON.parse(delayCommandSetList);
-          $saltern_current_command.bootstrapTable({
-            data: [parseCurrentCommandSet]
-          });
-          $saltern_standby_command.bootstrapTable({
-            data: parseDtandbyCommandSetList
-          });
-          $saltern_delay_command.bootstrapTable({
-            data: parseDelayCommandSetList
-          });
-        });
-
-
-
-        // 명령 요청을 하고 데이터를 받을 경우
-        socket.on("onSalternDevice", function (salternData) {
-          var salternDeviceDataStorage = JSON.parse(salternData);
-          $saltern_device_table.bootstrapTable('destroy').bootstrapTable({
-            data: salternDeviceDataStorage
-          });
-        });
-
-        socket.on("onSalternCommand", function (currentCommandSet, standbyCommandSetList, delayCommandSetList) {
-          // socket.on("onSalternCommand", function (standbyCommandSetList) {
-          // console.log(standbyCommandSetList);
-          var parseCurrentCommandSet = JSON.parse(currentCommandSet);
-          var parseDtandbyCommandSetList = JSON.parse(standbyCommandSetList);
-          var parseDelayCommandSetList = JSON.parse(delayCommandSetList);
-          $saltern_current_command.bootstrapTable('destroy').bootstrapTable({
-            data: [parseCurrentCommandSet]
-          });
-          $saltern_standby_command.bootstrapTable('destroy').bootstrapTable({
-            data: parseDtandbyCommandSetList
-          });
-          $saltern_delay_command.bootstrapTable('destroy').bootstrapTable({
-            data: parseDelayCommandSetList
-          });
-        });
       });
     </script>
 

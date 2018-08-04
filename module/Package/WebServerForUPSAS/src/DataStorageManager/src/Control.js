@@ -129,18 +129,38 @@ class Control {
   }
 
   /**
-   * TODO: Node 정보가 변경된 사항을 Socket.io를 통한 알림
-   * @desc SocketServer Observer Method Implement
+   * Data Logger와의 접속에 변화가 생겼을 경우 이벤트 발생 핸들러
    * @param {msInfo} msInfo
-   * @param {nodeInfo[]} renewalList
    */
-  updateNodeList(msInfo, renewalList) {}
+  updateMsClient(msInfo) {
+    this.socketIoManager.submitMsClientStatus(msInfo);
+  }
 
   /**
-   * TODO: 명령 정보가 변경된 사항을 Socket.io를 통한 알림
+   * SocketServer로 수신받은 DataLogger Node 정보
+   * @param {msInfo} msInfo
+   * @param {nodeInfo[]} renewalList 갱신된 노드. 차후에 속도에 문제가 된다면 갱신된 노드만 적용토록 해야함.
+   */
+  updateNodeList(msInfo, renewalList) {
+    this.socketIoManager.submitNodeListToIoClient(msInfo);
+  }
+
+  /**
    * @desc SocketServer Observer Method Implement
+   * SocketServer로 수신받은 DataLogger Order 정보
    * @param {msInfo} msInfo
    */
-  updateSimpleOrderList(msInfo) {}
+  updateSimpleOrderList(msInfo) {
+    this.socketIoManager.submitOrderListToIoClient(msInfo);
+  }
+
+  /**
+   * FIXME: 브라우저를 통해 DataLogger로 명령을 요청한 결과를 추적하고 싶다면 해당 브라우저 명령 리스트를 관리하고 이 메소드에서 처리해야함.
+   * 현재는 명령 추적 하지 않음.
+   * @desc SocketServer Observer Method Implement
+   * @param {msInfo} msInfo
+   * @param {defaultFormatToResponse} requestedDataByDataLogger
+   */
+  responsedDataFromDataLogger(msInfo, requestedDataByDataLogger) {}
 }
 module.exports = Control;

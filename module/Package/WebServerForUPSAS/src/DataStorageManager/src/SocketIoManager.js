@@ -4,12 +4,18 @@ const {BU} = require('base-util-jh');
 const uuidv4 = require('uuid/v4');
 const Server = require('socket.io');
 
+const net = require('net');
 const map = require('../../../public/Map/map');
 
 // const BiModule = require('../../../models/BiModule');
 const webUtil = require('../../../models/web.util.js');
 
 const Control = require('./Control');
+
+const {
+  requestOrderCommandType,
+  combinedOrderType,
+} = require('../../../../../module/default-intelligence').dcmConfigModel;
 
 /** 무안 6kW TB */
 
@@ -51,7 +57,17 @@ class SocketIoManager {
         if (foundIt) {
           foundIt.msUserList.push(msUser);
 
-          // const {nodeList, simpleOrderList} = foundIt.msDataInfo
+          const {nodeList, simpleOrderList} = foundIt.msDataInfo;
+
+          let connectedStatus = 'Disconnected';
+          if (foundIt.msClient instanceof net.Socket) {
+            connectedStatus = 'Connected';
+          }
+
+          const pickedNodeList = this.pickNodeList(nodeList);
+          socket.emit('updateMsClientStatus', connectedStatus);
+          socket.emit('updateNodeInfo', pickedNodeList);
+          socket.emit('updateOrderInfo', this.pickSimpleOrderList(simpleOrderList));
         }
       });
 
@@ -69,24 +85,14 @@ class SocketIoManager {
         // uuid 추가
         defaultFormatToRequestInfo.uuid = uuidv4();
         // Main Storage 찾음.
-        const msInfo = this.findMainStorageBySession();
+        const msInfo = this.findMainStorageBySocketClient(socket);
 
-        // Socket Client로 명령 전송
-        msInfo.msClient.write(this.defaultConverter.encodingMsg(defaultFormatToRequestInfo));
+        // Data Logger와 연결이 되어야만 명령 요청 가능
+        if (msInfo && msInfo.msClient instanceof net.Socket) {
+          // Socket Client로 명령 전송
+          msInfo.msClient.write(this.defaultConverter.encodingMsg(defaultFormatToRequestInfo));
+        }
       });
-
-      // socket.on('')
-
-      // if (this.stringfySalternDevice.length) {
-      //   socket.emit('initSalternDevice', this.stringfySalternDevice);
-      //   // socket.emit('initSalternCommand', this.stringfyStandbyCommandSetList);
-      //   socket.emit(
-      //     'initSalternCommand',
-      //     this.stringfyCurrentCommandSet,
-      //     this.stringfyStandbyCommandSetList,
-      //     this.stringfyDelayCommandSetList,
-      //   );
-      // }
     });
   }
 
@@ -94,31 +100,108 @@ class SocketIoManager {
    * 노드 정보에서 UI에 보여줄 내용만을 반환
    * @param {nodeInfo[]} nodeList
    */
-  convertSimpleNode(nodeList) {
+  pickNodeList(nodeList) {
     const pickList = ['node_id', 'nd_target_name', 'data'];
-    return _.map(nodeList, _.pick(pickList));
+    return _.map(nodeList, nodeInfo => _.pick(nodeInfo, pickList));
   }
 
   /**
-   * FIXME: 요청한 Session 정보에 따라 추출하는 것 필요
-   *
-   * @param {Session} session
+   * 노드 정보에서 UI에 보여줄 내용만을 반환
+   * @param {simpleOrderInfo[]} simpleOrderList
    */
-  findMainStorageBySession(session) {
-    try {
-      const foundIt = _.find(this.mainStorageList, msInfo =>
-        _.includes(msInfo.msFieldInfo.uuid, 'aaaaa'),
-      );
-      // const foundIt = _.find(this.mainStorageList, msInfo =>
-      //   _.includes(msInfo.msSessionList, session),
-      // );
-      if (foundIt) {
-        return foundIt;
+  pickSimpleOrderList(simpleOrderList) {
+    const pickList = ['orderCommandType', 'orderStatus', 'commandId', 'commandName'];
+    const returnValue = _.map(simpleOrderList, simpleOrderInfo => {
+      const pickInfo = _.pick(simpleOrderInfo, pickList);
+
+      // 명령 타입 한글로 변경
+      switch (simpleOrderInfo.orderCommandType) {
+        case requestOrderCommandType.CONTROL:
+          pickInfo.orderCommandType = '명령 제어';
+          break;
+        case requestOrderCommandType.CANCEL:
+          pickInfo.orderCommandType = '명령 취소';
+          break;
+        case requestOrderCommandType.MEASURE:
+          pickInfo.orderCommandType = '계측';
+          break;
+        default:
+          pickInfo.orderCommandType = '알수없음';
+          break;
       }
-      throw new Error(`해당 session은 등록되지 않았습니다.${session}`);
-    } catch (error) {
-      throw error;
+
+      // 명령 상태 한글로 변경
+      switch (simpleOrderInfo.orderStatus) {
+        case combinedOrderType.WAIT:
+          pickInfo.orderStatus = '대기 중';
+          pickInfo.index = 0;
+          break;
+        case combinedOrderType.PROCEED:
+          pickInfo.orderStatus = '진행 중';
+          pickInfo.index = 1;
+          break;
+        case combinedOrderType.RUNNING:
+          pickInfo.orderStatus = '실행 중';
+          pickInfo.index = 2;
+          break;
+        default:
+          pickInfo.orderStatus = '알수없음';
+          pickInfo.index = 3;
+          break;
+      }
+      return pickInfo;
+    });
+
+    return _.sortBy(returnValue, 'index');
+  }
+
+  /**
+   * 접속한 SocketIO 객체 정보가 등록된 Main Storage를 반환
+   * @param {net.Socket} socket
+   */
+  findMainStorageBySocketClient(socket) {
+    return _.find(this.mainStorageList, msInfo =>
+      _.find(msInfo.msUserList, {socketClient: socket}),
+    );
+  }
+
+  /**
+   * Data Logger 상태를 io Client로 보냄
+   * @param {msInfo} msInfo
+   */
+  submitMsClientStatus(msInfo) {
+    let connectedStatus = 'Disconnected';
+    if (msInfo.msClient instanceof net.Socket) {
+      connectedStatus = 'Connected';
     }
+    // 해당 Socket Client에게로 데이터 전송
+    msInfo.msUserList.forEach(clientInfo => {
+      clientInfo.socketClient.emit('updateMsClientStatus', connectedStatus);
+    });
+  }
+
+  /**
+   * 등록되어져 있는 노드 리스트를 io Client로 보냄.
+   * @param {msInfo} msInfo
+   */
+  submitNodeListToIoClient(msInfo) {
+    const simpleNodeList = this.pickNodeList(msInfo.msDataInfo.nodeList);
+    // 해당 Socket Client에게로 데이터 전송
+    msInfo.msUserList.forEach(clientInfo => {
+      clientInfo.socketClient.emit('updateNodeInfo', simpleNodeList);
+    });
+  }
+
+  /**
+   * 현재 수행중인 명령 리스트를 io Client로 보냄
+   * @param {msInfo} msInfo
+   */
+  submitOrderListToIoClient(msInfo) {
+    const pickedOrderList = this.pickSimpleOrderList(msInfo.msDataInfo.simpleOrderList);
+    // 해당 Socket Client에게로 데이터 전송
+    msInfo.msUserList.forEach(clientInfo => {
+      clientInfo.socketClient.emit('updateOrderInfo', pickedOrderList);
+    });
   }
 
   /**
@@ -126,7 +209,7 @@ class SocketIoManager {
    * @param {Session} session
    */
   getDeviceList(session) {
-    const msInfo = this.findMainStorageBySession(session);
+    const msInfo = this.findMainStorageBySocketClient(session);
 
     const deviceInfoList = [
       // {

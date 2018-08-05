@@ -114,10 +114,10 @@ class SocketServer extends EventEmitter {
           try {
             // Parser 가 EOT 까지 삭제하므로 끝에 붙임
             data += this.defaultConverter.protocolConverter.EOT;
-            // BU.CLI(data);
+            BU.CLI(data);
             // 수신받은 데이터의 CRC 계산 및 본 데이터 추출
             const strData = this.defaultConverter.decodingMsg(data).toString();
-            // BU.CLI(strData);
+            BU.CLI(strData);
 
             // JSON 형태로만 데이터를 받아 들임.
             if (!BU.IsJsonString(strData)) {
@@ -128,7 +128,7 @@ class SocketServer extends EventEmitter {
             // JSON 객체로 변환
             /** @type {defaultFormatToRequest|defaultFormatToResponse} */
             const requestedDataByDataLogger = JSON.parse(strData);
-            // BU.CLI(parseData);
+            BU.CLI(requestedDataByDataLogger);
 
             // isError Key가 존재하고 Number 형태라면 요청에 대한 응답이라고 판단하고 이벤트 발생
             if (_.isNumber(_.get(requestedDataByDataLogger, 'isError'))) {
@@ -143,6 +143,7 @@ class SocketServer extends EventEmitter {
             // JSON 객체 분석 메소드 호출
             const responseDataByServer = this.interpretCommand(socket, requestedDataByDataLogger);
             // 여기까지 오면 유효한 데이터로 생각하고 완료 처리
+            BU.CLI(responseDataByServer);
             socket.write(this.defaultConverter.encodingMsg(responseDataByServer));
           } catch (error) {
             BU.logFile(error);
@@ -160,6 +161,7 @@ class SocketServer extends EventEmitter {
         });
 
         // client가 접속 해제 될 경우에는 clientList에서 제거
+        // TODO: Socket 접속이 해제 되었을 경우 Node, Order 정보를 초기화 시키고 SocketIO로 전송 로직 필요
         socket.on('close', () => {
           // 저장소 목록을 돌면서 해당 client를 초기화
           this.mainStorageList.forEach(msInfo => {
@@ -218,7 +220,8 @@ class SocketServer extends EventEmitter {
       foundIt.msClient = client;
       responseDataByServer.isError = 0;
 
-      // Data Logger와의 접속이 끊어졌다고 알림
+      // Data Logger와의 접속이 연결되었다고 알림
+      // TODO: Socket 접속이 연결 되었을 경우 Socket에게 Node, Order 정보를 요청하고 반영하는 로직 필요
       this.observerList.forEach(observer => {
         if (_.get(observer, 'updateMsClient')) {
           observer.updateMsClient(foundIt);
@@ -237,7 +240,7 @@ class SocketServer extends EventEmitter {
    * @return {defaultFormatToResponse} 정상적인 명령 해석이라면 true, 아니라면 throw
    */
   interpretCommand(client, requestedDataByDataLogger) {
-    // BU.CLI(dcmWsModel)
+    BU.CLI(requestedDataByDataLogger);
 
     try {
       const {CERTIFICATION, COMMAND, NODE, STAUTS} = dcmWsModel.transmitToServerCommandType;
@@ -355,24 +358,29 @@ class SocketServer extends EventEmitter {
   /**
    * @desc dcmWsModel.transmitToServerCommandType.COMMAND 명렁 처리 메소드
    * @param {msInfo} msInfo
-   * @param {simpleOrderInfo[]} simpleOrderList
+   * @param {simpleOrderInfo[]} receiveSimpleOrderList
    */
-  compareSimpleOrderList(msInfo, simpleOrderList) {
+  compareSimpleOrderList(msInfo, receiveSimpleOrderList) {
+    BU.CLI(receiveSimpleOrderList);
     try {
-      // 수신 받은 노드 리스트를 순회
-      _.forEach(simpleOrderList, simpleOrderInfo => {
-        const foundIndex = _.findIndex(msInfo.msDataInfo.simpleOrderList, {
-          uuid: simpleOrderInfo.uuid,
-        });
+      // Data Logger에서 보내온 List를 전부 적용해버림
+      msInfo.msDataInfo.simpleOrderList = receiveSimpleOrderList;
 
-        // 데이터가 존재한다면 해당 명령의 변화가 생긴 것
-        if (foundIndex !== -1) {
-          _.pullAt(msInfo.msDataInfo.simpleOrderList, foundIndex);
-        }
-        // 신규 데이터는 삽입
-        msInfo.msDataInfo.simpleOrderList.push(simpleOrderInfo);
-      });
-      BU.CLI(msInfo.msDataInfo.simpleOrderList);
+      // // 수신 받은 노드 리스트를 순회
+      // _.forEach(receiveSimpleOrderList, simpleOrderInfo => {
+      //   const foundIndex = _.findIndex(msInfo.msDataInfo.simpleOrderList, {
+      //     uuid: simpleOrderInfo.uuid,
+      //   });
+
+      //   // 데이터가 존재한다면 해당 명령의 변화가 생긴 것
+      //   if (foundIndex !== -1) {
+      //     // BU.CLI('변화가 생겼네요')
+      //     _.pullAt(msInfo.msDataInfo.simpleOrderList, foundIndex);
+      //   }
+      //   // 신규 데이터는 삽입
+      //   msInfo.msDataInfo.simpleOrderList.push(simpleOrderInfo);
+      // });
+      // BU.CLI(msInfo.msDataInfo.simpleOrderList);
 
       // Observer가 해당 메소드를 가지고 있다면 전송
       this.observerList.forEach(observer => {

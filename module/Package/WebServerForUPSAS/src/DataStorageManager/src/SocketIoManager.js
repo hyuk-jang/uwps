@@ -15,6 +15,7 @@ const Control = require('./Control');
 const {
   requestOrderCommandType,
   combinedOrderType,
+  simpleOrderStatus,
 } = require('../../../../../module/default-intelligence').dcmConfigModel;
 
 /** 무안 6kW TB */
@@ -132,16 +133,16 @@ class SocketIoManager {
 
       // 명령 상태 한글로 변경
       switch (simpleOrderInfo.orderStatus) {
-        case combinedOrderType.WAIT:
+        case simpleOrderStatus.NEW:
           pickInfo.orderStatus = '대기 중';
           pickInfo.index = 0;
           break;
-        case combinedOrderType.PROCEED:
+        case simpleOrderStatus.PROCEED:
           pickInfo.orderStatus = '진행 중';
           pickInfo.index = 1;
           break;
-        case combinedOrderType.RUNNING:
-          pickInfo.orderStatus = '실행 중';
+        case simpleOrderStatus.COMPLETE:
+          pickInfo.orderStatus = '완료';
           pickInfo.index = 2;
           break;
         default:

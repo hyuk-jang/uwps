@@ -21,8 +21,8 @@
         </div>
         <div class="row row_width  top_box">
           <div class="col-xs-3 sel_box" id="scenario_control_div" style="width: 200px">
-            <a class="btn btn-success btn-lg" id="scenario_control_run_btn" data-value="1" role="button">시연모드 1 실행</a>
-            <a class="btn btn-danger btn-lg" id="scenario_control_cancel_btn" data-value="0" role="button">시연모드 1 정지</a>
+            <a class="btn btn-success btn-lg" id="scenario_control_run_btn" data-value="CONTROL" role="button">시연모드 1 실행</a>
+            <a class="btn btn-danger btn-lg" id="scenario_control_cancel_btn" data-value="CANCEL" role="button">시연모드 1 정지</a>
           </div>
 
           <div class="col-xs-3 sel_box" style="width: 250px">
@@ -201,6 +201,7 @@
         });
 
 
+        // TODO: socket.emit 함수 생성 및 장치 연결 중일 때만 emit하도록 해주는 함수 구현
 
 
         // 저장된 명령을 실행하고자 할 경우 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)

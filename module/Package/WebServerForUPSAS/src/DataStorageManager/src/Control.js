@@ -7,7 +7,6 @@ const {BaseModel} = require('../../../../../module/device-protocol-converter-jh'
 
 const SocketServer = require('../SocketServer');
 const PowerStatusMaker = require('../PowerStatusMaker');
-const UiControllerManager = require('../UiControllerManager');
 
 const dsmConfig = require('./config');
 
@@ -113,10 +112,6 @@ class Control {
     });
     this.powerStatusMaker.mainStorageList = this.mainStorageList;
     this.powerStatusMaker.requestCalcPowerStatus();
-
-    this.uiControllerManager = new UiControllerManager();
-    this.uiControllerManager.mainStorageList = this.mainStorageList;
-    this.uiControllerManager.getDeviceList();
   }
 
   /**

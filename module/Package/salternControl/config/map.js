@@ -120,17 +120,17 @@ const map = {
           {
             targetId: 'R_G_010',
             deviceId: '0013A20040F7AB7D',
-            nodeModelList: ['WD_010']
+            nodeModelList: ['WD_010', 'S_001']
           },
           {
             targetId: 'R_G_011',
             deviceId: '0013A20040F7B4A9',
-            nodeModelList: ['WD_011']
+            nodeModelList: ['WD_011', 'S_002']
           },
           {
             targetId: 'R_G_012',
             deviceId: '0013A20040F7B460',
-            nodeModelList: ['WD_012']
+            nodeModelList: ['WD_012', 'S_003']
           },
           {
             targetId: 'R_G_013',
@@ -328,19 +328,33 @@ const map = {
       waterLevel: [
         {
           targetId: 'WL_001',
-          targetName: '수위1'
+          targetName: '수위 1'
         },
         {
           targetId: 'WL_002',
-          targetName: '수위2'
+          targetName: '수위 2'
         },
         {
           targetId: 'WL_003',
-          targetName: '수위3'
+          targetName: '수위 3'
         },
         {
           targetId: 'WL_004',
-          targetName: '수위4'
+          targetName: '수위 4'
+        }
+      ],
+      salinity: [
+        {
+          targetId: 'S_001',
+          targetName: '염도 1'
+        },
+        {
+          targetId: 'S_002',
+          targetName: '염도 2'
+        },
+        {
+          targetId: 'S_003',
+          targetName: '염도 3'
         }
       ],
       moduleRearTemperature: [

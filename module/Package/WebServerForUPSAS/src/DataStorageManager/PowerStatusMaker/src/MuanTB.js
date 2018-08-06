@@ -44,14 +44,9 @@ class MuanTB {
 
       const EARTH = '육상';
 
-      const vInverterDataList = await this.biModule.getTable(
-        'v_inverter_status',
-      );
+      const vInverterDataList = await this.biModule.getTable('v_inverter_status');
 
-      const groupingInverterDataList = _.groupBy(
-        vInverterDataList,
-        'install_place',
-      );
+      const groupingInverterDataList = _.groupBy(vInverterDataList, 'install_place');
       // BU.CLI(groupingInverterDataList);
 
       // 육상, 수중, 총합 누적 발전량 산출
@@ -95,10 +90,9 @@ class MuanTB {
       });
 
       invertersTotal.cumulativePower = _.round(
-        _.sum([invertersEarth.cumulativePower, invertersWater.cumulativePower]),
-        1,
+        _.sum([invertersEarth.cumulativePower, invertersWater.cumulativePower]) * 10,
       );
-      invertersTotal.co2 = _.round(invertersTotal.cumulativePower * 0.424, 1);
+      invertersTotal.co2 = _.round(invertersTotal.cumulativePower * 0.424 * 10);
 
       const weatherDeviceStatus = await this.biModule.getWeather();
       // 인버터 발전 현황 데이터 검증
@@ -112,21 +106,13 @@ class MuanTB {
         ? validWeatherDevice.data.solar
         : 0;
       invertersTotal.temp = _.get(validWeatherDevice, 'hasValidData')
-        ? validWeatherDevice.data.temp
+        ? _.round(validWeatherDevice.data.temp * 10)
         : 0;
-
       // 소수점 처리
-      _.forEach(invertersEarth, (data, key) =>
-        _.set(invertersEarth, key, _.round(data, 1)),
-      );
-      _.forEach(invertersWater, (data, key) =>
-        _.set(invertersWater, key, _.round(data, 1)),
-      );
+      _.forEach(invertersEarth, (data, key) => _.set(invertersEarth, key, _.round(data * 10)));
+      _.forEach(invertersWater, (data, key) => _.set(invertersWater, key, _.round(data * 10)));
 
       // BU.CLIS(invertersWater, invertersEarth, invertersTotal);
-      const STX = Buffer.from([0x02]);
-      const ETX = Buffer.from([0x03]);
-
       const dataBodyList = [
         invertersWater.currKw,
         invertersWater.dailyPower,
@@ -141,9 +127,7 @@ class MuanTB {
       ];
 
       const strDataBodyList = [];
-      dataBodyList.forEach(ele =>
-        strDataBodyList.push(_.padStart(ele.toString(), 4, '0')),
-      );
+      dataBodyList.forEach(ele => strDataBodyList.push(_.padStart(ele.toString(), 4, '0')));
 
       // BU.CLI(strDataBodyList);
 
@@ -152,13 +136,35 @@ class MuanTB {
         bufDataBody = Buffer.concat([bufDataBody, Buffer.from(currentItem)]);
       });
 
-      bufDataBody = Buffer.concat([STX, bufDataBody, ETX]);
+      // TEST
+      // bufDataBody = Buffer.from([
+      //   0x30,0x38,0x38,0x38,
+      //   0x30,0x38,0x38,0x38,
+      //   0x30,0x38,0x38,0x38,
+      //   0x30,0x38,0x38,0x38,
+      //   0x32,0x38,0x38,0x38,
+      //   0x38,0x38,0x38,0x38,
+      //   0x38,0x38,0x38,0x38,
+      //   0x38,0x38,0x38,0x38,
+      //   0x38,0x38,0x38,0x38,
+      //   0x38,0x38,0x38,0x38,
+      // ])
+      // for (let index = 0; index < 10; index++) {
 
+      //   // bufDataBody = Buffer.concat([bufDataBody, Buffer.from([0x38,0x38,0x38,0x38])]);
+      //   if(index === 7){
+      //     bufDataBody = Buffer.concat([bufDataBody, Buffer.from([0x30,0x38,0x38,0x38])]);
+      //   } else {
+      //     bufDataBody = Buffer.concat([bufDataBody, Buffer.from([0x38,0x38,0x38,0x38])]);
+      //   }
+      // }
+
+      // BU.CLI(bufDataBody);
       // msInfo에 직접적으로 데이터를 넣음
       _.set(msInfo, 'msDataInfo.statusBoard', bufDataBody);
       return bufDataBody;
     } catch (error) {
-      msInfo.msDataInfo.statusBoard = null;
+      _.set(msInfo, 'msDataInfo.statusBoard', null);
       throw error;
     }
   }

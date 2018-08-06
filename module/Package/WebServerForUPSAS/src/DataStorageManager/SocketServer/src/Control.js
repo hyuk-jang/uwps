@@ -65,7 +65,6 @@ class SocketServer extends EventEmitter {
     /** @type {nodeInfo[]} */
     const nodeList = await this.BM.getTable('v_node_profile');
 
-    // TEST: main Seq 1번에 강제로 데이터를 넣으므로 정렬 시킴
     mainList = _.sortBy(mainList, 'main_seq');
     // Main 정보 만큼 List 생성
     mainList.forEach(mainInfo => {
@@ -243,7 +242,7 @@ class SocketServer extends EventEmitter {
     BU.CLI(requestedDataByDataLogger);
 
     try {
-      const {CERTIFICATION, COMMAND, NODE, STAUTS} = dcmWsModel.transmitToServerCommandType;
+      const {CERTIFICATION, COMMAND, NODE, STAUTS, POWER_BOARD} = dcmWsModel.transmitToServerCommandType;
       // client를 인증하고자 하는 경우
       if (requestedDataByDataLogger.commandId === CERTIFICATION) {
         return this.certifyClient(client, requestedDataByDataLogger);
@@ -267,6 +266,9 @@ class SocketServer extends EventEmitter {
             break;
           case STAUTS: // 현황판 데이터를 요청할 경우
             this.transmitDataToClient(msInfo.msClient, msInfo.msDataInfo.statusBoard);
+            break;
+          case POWER_BOARD: // 현황판 데이터를 요청할 경우
+            responseDataByServer.contents = msInfo.msDataInfo.statusBoard;
             break;
           default:
             responseDataByServer.isError = 1;

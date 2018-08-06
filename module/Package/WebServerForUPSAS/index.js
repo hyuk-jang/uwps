@@ -37,6 +37,7 @@ async function operationController() {
     app.set('initSetter', initSetter);
 
     // 인증 시행 여부
+    // app.set('auth', true);
     app.set('auth', 'dev');
 
     require('./controllers')(app);

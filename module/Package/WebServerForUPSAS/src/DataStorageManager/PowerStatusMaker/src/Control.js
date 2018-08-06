@@ -63,7 +63,7 @@ class Control {
   requestCalcPowerStatus() {
     this.mainStorageList.forEach(msInfo => {
       /** 6kW TB */
-      if (msInfo.msFieldInfo.main_seq === 1) {
+      if (msInfo.msFieldInfo.uuid === 'aaaaa') {
         this.muanTB.calcPowerStatus(msInfo);
       }
     });

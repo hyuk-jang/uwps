@@ -61,6 +61,10 @@ const map = {
     positionList: [{}]
   },
   setInfo: {
+    mainInfo: {
+      main_seq: 1,
+      uuid: 'aaaaa'
+    },
     dccConstructorList: [
       {
         dccId: 'DCC_001',
@@ -787,11 +791,248 @@ const map = {
                   minBrineLevel: 30,
                   setBrineLevel: 70
                 },
-                nodeList: ['']
+                nodeList: ['WD_010', 'S_001', 'P_003']
+              },
+              {
+                target_code: '2',
+                depth: -1,
+                place_info: {
+                  maxBrineLevel: 100,
+                  minBrineLevel: 30,
+                  setBrineLevel: 70
+                },
+                nodeList: ['WD_011', 'S_002', 'P_004']
+              },
+              {
+                target_code: '3',
+                depth: -1,
+                place_info: {
+                  maxBrineLevel: 100,
+                  minBrineLevel: 30,
+                  setBrineLevel: 70
+                },
+                nodeList: ['WD_012', 'S_003', 'P_005']
               }
             ]
           }
         ]
+      },
+      {
+        target_id: 'reservoir',
+        target_name: '저수조',
+        description: null,
+        defList: [
+          {
+            target_id: 'reservoir',
+            target_prefix: 'RV',
+            target_name: '저수조',
+            placeList: [
+              {
+                target_code: '',
+                depth: -1,
+                nodeList: ['P_002']
+              }
+            ]
+          }
+        ]
+      },
+      {
+        target_id: 'sea',
+        target_name: '바다',
+        description: null,
+        defList: [
+          {
+            target_id: 'sea',
+            target_prefix: 'SEA',
+            target_name: '바다',
+            placeList: [
+              {
+                target_code: '',
+                depth: -1,
+                nodeList: ['P_001']
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    brineFlowRelationList: [
+      {
+        currNodeId: 'P_001',
+        placeIdList: ['RV'],
+        parentNodeIdList: [],
+        childrenNodeIdList: []
+      },
+      {
+        currNodeId: 'P_002',
+        placeIdList: [],
+        parentNodeIdList: [],
+        childrenNodeIdList: ['V_006']
+      },
+      {
+        currNodeId: 'P_003',
+        placeIdList: [],
+        parentNodeIdList: [],
+        childrenNodeIdList: ['V_007']
+      },
+      {
+        currNodeId: 'P_004',
+        placeIdList: ['SEB_2'],
+        parentNodeIdList: [],
+        childrenNodeIdList: []
+      },
+      {
+        currNodeId: 'P_005',
+        placeIdList: ['SCB'],
+        parentNodeIdList: [],
+        childrenNodeIdList: []
+      }
+    ],
+    brineFeedRankRelationList: []
+  },
+  controlInfo: {
+    tempControlList: [
+      {
+        cmdName: '바다 → 저수지',
+        trueList: ['P_001'],
+        falseList: []
+      },
+      {
+        cmdName: '저수조 → 증발지 1',
+        trueList: ['V_006', 'V_001', 'V_002', 'V_003', 'V_004', 'P_002'],
+        falseList: ['GV_001', 'GV_002', 'GV_003', 'GV_004', 'WD_005']
+      },
+      {
+        cmdName: '해주 1 → 증발지 1',
+        trueList: ['V_007', 'V_001', 'V_002', 'V_003', 'V_004', 'P_003'],
+        falseList: ['GV_001', 'GV_002', 'GV_003', 'GV_004', 'WD_005']
+      },
+      {
+        cmdName: '해주 2 → 증발지 2',
+        trueList: ['P_004'],
+        falseList: ['WD_006']
+      },
+      {
+        cmdName: '해주 2 → 증발지 2, 3, 4',
+        trueList: ['P_004', 'WD_006', 'WD_007'],
+        falseList: ['WD_008']
+      },
+      {
+        cmdName: '해주 3 → 결정지',
+        trueList: ['P_005'],
+        falseList: ['WD_009']
+      },
+      {
+        cmdName: '증발지 1 → 해주 1',
+        trueList: [
+          'GV_001',
+          'GV_002',
+          'GV_003',
+          'GV_004',
+          'WD_005',
+          'WD_013',
+          'WD_010'
+        ],
+        falseList: ['WD_016']
+      },
+      {
+        cmdName: '증발지 1 → 해주 2',
+        trueList: [
+          'GV_001',
+          'GV_002',
+          'GV_003',
+          'GV_004',
+          'WD_005',
+          'WD_013',
+          'WD_016',
+          'WD_011'
+        ],
+        falseList: ['WD_010', 'WD_012', 'WD_014', 'WD_015']
+      },
+      {
+        cmdName: '증발지 2 → 증발지 3',
+        trueList: ['WD_006'],
+        falseList: ['WD_007']
+      },
+      {
+        cmdName: '증발지 3 → 증발지 4',
+        trueList: ['WD_007'],
+        falseList: ['WD_008']
+      },
+      {
+        cmdName: '증발지 4 → 해주2',
+        trueList: ['WD_008', 'WD_014', 'WD_011'],
+        falseList: ['WD_012', 'WD_015']
+      },
+      {
+        cmdName: '증발지 4 → 해주3',
+        trueList: ['WD_008', 'WD_014', 'WD_012'],
+        falseList: ['WD_011', 'WD_015']
+      },
+      {
+        cmdName: '결정지 → 해주 3',
+        trueList: ['WD_009', 'WD_014', 'WD_012'],
+        falseList: ['WD_011']
+      },
+      {
+        cmdName: '저수조 → 증발지 1A',
+        trueList: ['V_006', 'V_001', 'P_002'],
+        falseList: ['GV_001']
+      },
+      {
+        cmdName: '저수조 → 증발지 1B',
+        trueList: ['V_006', 'V_002', 'P_002'],
+        falseList: ['GV_002']
+      },
+      {
+        cmdName: '저수조 → 증발지 1C',
+        trueList: ['V_006', 'V_003', 'P_002'],
+        falseList: ['GV_003']
+      },
+      {
+        cmdName: '저수조 → 증발지 1D',
+        trueList: ['V_006', 'V_004', 'P_002'],
+        falseList: ['GV_004']
+      },
+      {
+        cmdName: '해주 1 → 증발지 1A',
+        trueList: ['V_007', 'V_001', 'P_003'],
+        falseList: ['GV_001']
+      },
+      {
+        cmdName: '해주 1 → 증발지 1B',
+        trueList: ['V_007', 'V_002', 'P_003'],
+        falseList: ['GV_002']
+      },
+      {
+        cmdName: '해주 1 → 증발지 1C',
+        trueList: ['V_007', 'V_003', 'P_003'],
+        falseList: ['GV_003']
+      },
+      {
+        cmdName: '해주 1 → 증발지 1D',
+        trueList: ['V_007', 'V_004', 'P_003'],
+        falseList: ['GV_004']
+      },
+      {
+        cmdName: '증발지 1A → 해주 1',
+        trueList: ['GV_001', 'WD_013', 'WD_010'],
+        falseList: []
+      },
+      {
+        cmdName: '증발지 1B → 해주 1',
+        trueList: ['GV_002', 'WD_013', 'WD_010'],
+        falseList: []
+      },
+      {
+        cmdName: '증발지 1C → 해주 1',
+        trueList: ['GV_003', 'WD_013', 'WD_010'],
+        falseList: []
+      },
+      {
+        cmdName: '증발지 1D → 해주 1',
+        trueList: ['GV_004', 'WD_013', 'WD_010'],
+        falseList: []
       }
     ]
   }

@@ -1,56 +1,77 @@
 /**
  * @typedef {Object} deviceMap
- * @prop {drawInfo} drawInfo
- * @prop {setInfo} setInfo
- * @prop {Object} realtionInfo
- * @prop {Array.<control>} controlList   // TEST
- * @prop {Array.<control>} simpleList   // TEST
+ * @property {drawInfo} drawInfo
+ * @property {setInfo} setInfo
+ * @property {Object} realtionInfo
+ * @property {Array.<control>} controlList   // TEST
+ * @property {Array.<control>} simpleList   // TEST
  */
 
 /**
  * @typedef {Object} drawInfo
- * @prop {frame} frame
- * @prop {position} positionList
+ * @property {frame} frame
+ * @property {position} positionList
  */
 
 /**
  * @typedef {Object} frame
- * @prop {{width: number, height: number}} mapSize
- * @prop {Array.<svgModelResource>} svgModelResourceList
+ * @property {{width: number, height: number}} mapSize
+ * @property {Array.<svgModelResource>} svgModelResourceList
  */
 
 /**
  * @typedef {Object} svgModelResource
- * @prop {string} id
- * @prop {string} type 'rect', 'line', 'circle', 'squares'
- * @prop {Object} elementDrawInfo
+ * @property {string} id
+ * @property {string} type 'rect', 'line', 'circle', 'rhombus'
+ * @property {elementDrawInfo} elementDrawInfo
+ * @example
+ * type: rect --> width, height, radius, color
+ * type: circle --> radius, color
+ * type: ellipse --> width, height, color
+ * type: rhombus --> width, height, radius, rotate:45, color
  */
 
 /**
  * @typedef {Object} elementDrawInfo
- * @prop {number=} width
- * @prop {number=} height
- * @prop {number=} radius
- * @prop {number=} strokeWidth
- * @prop {string} color
+ * @property {number=} width
+ * @property {number=} height
+ * @property {number=} radius
+ * @property {number=} rotate
+ * @property {number=} strokeWidth
+ * @property {string} color
  */
 
 /**
  * @typedef {Object} setInfo
- * @prop {modelInfo} modelInfo
- * @prop {Array.<connectInfo>} connectInfoList
+ * @property {dataLoggerStructureInfo[]} dataLoggerStructureList
+ * @property {nodeStructureInfo[]} nodeStructureList
+ */
+
+/**
+ * @typedef {Object} dataLoggerStructureInfo
+ * @property {string} target_prefix 접두어
+ * @property {string} target_alias 데이터 로거 별칭
+ * @property {dataLoggerDeviceInfo[]} dataLoggerDeviceList
+ */
+
+/**
+ * @typedef {Object} dataLoggerDeviceInfo
+ * @property {string} target_id 장치 SN (고유 식별 번호)
+ * @property {string} target_code 장치 번호(001, 002, 003, ...)
+ * @property {connect_info} connect_info 장치 연결 정보
+ * @property {protocol_info} protocol_info 명령
  */
 
 /**
  * @typedef {Object} modelInfo
- * @prop {Array.<deviceModel>} waterDoor
- * @prop {Array.<deviceModel>} valve
- * @prop {Array.<deviceModel>} pump
- * @prop {Array.<deviceModel>} salinity
- * @prop {Array.<deviceModel>} waterLevel
- * @prop {Array.<deviceModel>} waterTemperature
- * @prop {Array.<deviceModel>} moduleFrontTemperature
- * @prop {Array.<deviceModel>} moduleRearTemperature
+ * @property {Array.<deviceModel>} waterDoor
+ * @property {Array.<deviceModel>} valve
+ * @property {Array.<deviceModel>} pump
+ * @property {Array.<deviceModel>} salinity
+ * @property {Array.<deviceModel>} waterLevel
+ * @property {Array.<deviceModel>} waterTemperature
+ * @property {Array.<deviceModel>} moduleFrontTemperature
+ * @property {Array.<deviceModel>} moduleRearTemperature
  */
 
 /**
@@ -67,19 +88,19 @@
 
 /**
  * @typedef {Object} deviceModel
- * @prop {string} targetId
- * @prop {string} targetName
- * @prop {number|string} targetData
+ * @property {string} targetId
+ * @property {string} targetName
+ * @property {number|string} targetData
  */
-//  * @prop {SalternDevice} salternRouter
+//  * @property {SalternDevice} salternRouter
 
 /**
  * @typedef {Object} deviceRouter
- * @prop {string} targetId
- * @prop {string} targetCategory
- * @prop {string} targetProtocol
- * @prop {string} deviceId
- * @prop {string[]} nodeModelList
+ * @property {string} targetId
+ * @property {string} targetCategory
+ * @property {string} targetProtocol
+ * @property {string} deviceId
+ * @property {string[]} nodeModelList
  */
 
 /**
@@ -95,7 +116,7 @@
 
 /**
  * @typedef {Object} control
- * @prop {string} cmdName 명령 이름
- * @prop {string[]} trueList
- * @prop {string[]} falseList
+ * @property {string} cmdName 명령 이름
+ * @property {string[]} trueList
+ * @property {string[]} falseList
  */

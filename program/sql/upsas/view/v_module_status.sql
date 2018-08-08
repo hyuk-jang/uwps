@@ -2,13 +2,13 @@
       SELECT
         pv.*,
         rp.connector_ch,
-      curr_data.amp, curr_data.vol, curr_data.writedate
+        curr_data.amp, curr_data.vol, curr_data.writedate
         FROM
         photovoltaic pv
         JOIN relation_power rp
           ON rp.photovoltaic_seq = pv.photovoltaic_seq
-        LEFT JOIN pl_saltern_block sb
-          ON sb.saltern_block_seq = rp.saltern_block_seq
+        LEFT JOIN dv_place dp
+          ON dp.place_seq = rp.place_seq
         LEFT OUTER JOIN
         (
         SELECT

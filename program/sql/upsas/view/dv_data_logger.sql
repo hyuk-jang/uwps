@@ -1,6 +1,6 @@
 
 
-select 
+SELECT 
 			dl.data_logger_seq, dld.data_logger_def_seq, dl.main_seq,
 			CASE
 			 WHEN LENGTH(dl.target_code) > 0
@@ -25,8 +25,8 @@ select
 		dl.target_code AS dl_target_code,
 		dld.target_name AS dld_target_name, dld.target_prefix AS dld_target_prefix,		
 		dl.serial_number, dl.connect_info, dl.protocol_info
- from dv_data_logger dl
-join dv_data_logger_def dld
-on dld.data_logger_def_seq = dl.data_logger_def_seq
+ FROM dv_data_logger dl
+JOIN dv_data_logger_def dld
+ON dld.data_logger_def_seq = dl.data_logger_def_seq
 JOIN main m
-on m.main_seq = dl.main_seq
+ON m.main_seq = dl.main_seq

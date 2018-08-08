@@ -3,9 +3,7 @@ const _ = require("lodash");
 
 const { BU } = require("base-util-jh");
 
-const {
-  BaseModel
-} = require("../../../../module/device-protocol-converter-jh");
+const { BaseModel } = require("../../../../module/device-protocol-converter-jh");
 require("./define");
 
 const baseModel = new BaseModel.Saltern({
@@ -58,18 +56,18 @@ class Model {
     let router = this.findRouter(xbeeApi_0x10);
     BU.CLI(router);
 
-    if (_.includes(router.targetId, "R_G_")) {
+    if (_.includes(router.targetId, "D_G_")) {
       this.controlWaterdoor(xbeeApi_0x10);
       return this.getWaterdoor(xbeeApi_0x10);
-    } else if (_.includes(router.targetId, "R_V_")) {
+    } else if (_.includes(router.targetId, "D_V_")) {
       this.controlValve(xbeeApi_0x10);
       return this.getValve(xbeeApi_0x10);
-    } else if (_.includes(router.targetId, "R_GV_")) {
+    } else if (_.includes(router.targetId, "D_GV_")) {
       this.controlValve(xbeeApi_0x10);
       return this.getGateValve(xbeeApi_0x10);
-    }  else if (_.includes(router.targetId, "R_EP_")) {
+    } else if (_.includes(router.targetId, "D_EP_")) {
       return this.getEarhPV(xbeeApi_0x10);
-    } else if (_.includes(router.targetId, "R_P_")) {
+    } else if (_.includes(router.targetId, "D_P_")) {
       this.controlPump(xbeeApi_0x10);
       return this.getPump(xbeeApi_0x10);
     }
@@ -99,18 +97,7 @@ class Model {
         break;
     }
     // Level: 2, Salinity: 4, Batter: 4
-    bufferHex = bufferHex.concat([
-      0x30,
-      0x30,
-      0x30,
-      0x30,
-      0x30,
-      0x30,
-      0x31,
-      0x30,
-      0x2e,
-      0x32
-    ]);
+    bufferHex = bufferHex.concat([0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x31, 0x30, 0x2e, 0x32]);
     return {
       type: 144,
       remote64: xbeeApi_0x10.destination64,
@@ -236,15 +223,15 @@ class Model {
         break;
     }
 
-      // Level: 3 (138 데이터])
-      let wl = _.random(80, 190);
-      // BU.CLI(_.subtract(200, wl));
-      let strWl = _.padStart(wl.toString(), 3, "0");
-      // BU.CLI(strWl);
-      let buf = Buffer.from(strWl);
-      buf.forEach(currentItem => {
-        bufferHex.push(currentItem);
-      });
+    // Level: 3 (138 데이터])
+    let wl = _.random(80, 190);
+    // BU.CLI(_.subtract(200, wl));
+    let strWl = _.padStart(wl.toString(), 3, "0");
+    // BU.CLI(strWl);
+    let buf = Buffer.from(strWl);
+    buf.forEach(currentItem => {
+      bufferHex.push(currentItem);
+    });
     // Module Temperature: 6
     bufferHex = bufferHex.concat([0x30, 0x30, 0x33, 0x39, 0x2e, 0x36]);
     // Module Temperature: 6

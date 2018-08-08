@@ -1,33 +1,62 @@
 
 
 SELECT
-			dn.node_seq, 
-			dnd.node_def_seq,
-			dnc.node_class_seq,
-			dn.data_logger_seq,
+			n.node_seq, 
+			nd.node_def_seq,
+			nc.node_class_seq,
+			n.data_logger_seq,
+      dl.main_seq,
 			CASE
-          WHEN LENGTH(dn.target_code) > 0
-            THEN CONCAT(dnd.target_prefix, "_", dn.target_code)
+          WHEN LENGTH(n.target_code) > 0
+            THEN CONCAT(nd.target_prefix, "_", n.target_code)
           ELSE 
-            CONCAT(dnd.target_prefix)
+            CONCAT(nd.target_prefix)
           END AS node_id,
 			CASE
-          WHEN LENGTH(dn.target_code) > 0
-            THEN CONCAT(dnd.target_name, " ", dn.target_code)
+          WHEN LENGTH(n.target_code) > 0
+            THEN CONCAT(nd.target_prefix, "_", dl.main_seq, "_", n.target_code)
           ELSE 
-            CONCAT(dnd.target_name)
+            CONCAT(nd.target_prefix, "_", dl.main_seq)
+          END AS node_real_id,
+			CASE
+          WHEN LENGTH(n.target_code) > 0
+            THEN CONCAT(nd.target_name, " ", n.target_code)
+          ELSE 
+            CONCAT(nd.target_name)
           END AS node_name,
-         dnc.data_unit, dnc.is_sensor, dn.data_logger_index,
-  			dn.target_code AS dn_target_code,
-			dnc.target_id AS dnc_target_id, 
-			dnc.target_name AS dnc_target_name,
-			dnc.description AS dnc_description,
-			dnd.target_id AS dnd_target_id,
-			dnd.target_name AS dnd_target_name,
-			dnd.target_prefix AS dnd_target_prefix,
-			dnd.description AS dnd_description
-  FROM dv_node dn
- JOIN dv_node_def dnd
-  ON dnd.node_def_seq = dn.node_def_seq
- JOIN dv_node_class dnc
-  ON dnc.node_class_seq = dnd.node_class_seq
+      CASE
+			 WHEN LENGTH(dl.target_code) > 0
+			  THEN CONCAT(dld.target_prefix, "_", dl.main_seq, "_", dl.target_code)
+			 ELSE 
+			  CONCAT(dld.target_prefix, "_", dl.main_seq)
+			END AS dl_real_id,
+			CASE
+			 WHEN LENGTH(dl.target_code) > 0
+			  THEN CONCAT(dld.target_prefix, "_", dl.target_code)
+			 ELSE 
+			  CONCAT(dld.target_prefix)
+			END AS dl_id,          
+			CASE
+			 WHEN LENGTH(dl.target_code) > 0
+			  THEN CONCAT(dld.target_name, " ", dl.target_code)
+			 ELSE 
+			  CONCAT(dld.target_prefix)
+			END AS dl_name,			
+      nc.data_unit, nc.is_sensor, n.data_logger_index,
+  		n.target_code AS n_target_code,
+			nd.target_id AS nd_target_id,
+			nd.target_name AS nd_target_name,
+			nd.target_prefix AS nd_target_prefix,
+			nd.description AS nd_description,
+			nc.target_id AS nc_target_id, 
+			nc.target_name AS nc_target_name,
+			nc.description AS nc_description
+  FROM dv_node n
+ JOIN dv_node_def nd
+  ON nd.node_def_seq = n.node_def_seq
+ JOIN dv_node_class nc
+  ON nc.node_class_seq = nd.node_class_seq
+ JOIN dv_data_logger dl
+  ON dl.data_logger_seq = n.data_logger_seq
+ JOIN dv_data_logger_def dld
+  ON dld.data_logger_def_seq = dl.data_logger_def_seq  

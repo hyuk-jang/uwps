@@ -1,4 +1,3 @@
-"use strict";
 const _ = require("lodash");
 const { BU } = require("base-util-jh");
 const net = require("net");

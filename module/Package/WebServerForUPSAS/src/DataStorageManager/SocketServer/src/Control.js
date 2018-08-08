@@ -61,9 +61,9 @@ class SocketServer extends EventEmitter {
     let mainList = await this.BM.getTable('main', {is_deleted: 0});
 
     /** @type {dataLoggerInfo[]} */
-    const dataLoggerList = await this.BM.getTable('v_data_logger');
+    const dataLoggerList = await this.BM.getTable('v_dv_data_logger');
     /** @type {nodeInfo[]} */
-    const nodeList = await this.BM.getTable('v_node_profile');
+    const nodeList = await this.BM.getTable('v_dv_node');
 
     mainList = _.sortBy(mainList, 'main_seq');
     // Main 정보 만큼 List 생성

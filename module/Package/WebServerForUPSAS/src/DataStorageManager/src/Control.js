@@ -59,9 +59,9 @@ class Control {
     let mainList = await this.BM.getTable('main', {is_deleted: 0});
 
     /** @type {dataLoggerInfo[]} */
-    const dataLoggerList = await this.BM.getTable('v_data_logger');
+    const dataLoggerList = await this.BM.getTable('v_dv_data_logger');
     /** @type {nodeInfo[]} */
-    const nodeList = await this.BM.getTable('v_node_profile');
+    const nodeList = await this.BM.getTable('v_dv_node');
 
     // TEST: main Seq 1번에 강제로 데이터를 넣으므로 정렬 시킴
     mainList = _.sortBy(mainList, 'main_seq');

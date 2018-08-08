@@ -33,23 +33,25 @@ module.exports = app => {
   router.get(
     '/',
     asyncHandler(async (req, res) => {
-      BU.CLI(req.user);
+      // BU.CLI(req.user);
       // BU.CLI('control', req.locals);
       const deviceInfoList = [];
       // FIXME: 로그인 한 사용자에 따라서 nodeList가 달라져야함.
       /** @type {nodeInfo[]} */
-      const nodeList = await biModule.getTable('v_node_profile', {
-        main_seq: 1,
+      const nodeList = await biModule.getTable('v_dv_node', {
+        main_seq: _.get(req.user, 'main_seq', null),
       });
+
+      // BU.CLI(nodeList);
 
       const compiledDeviceType = _.template(
         '<option value="<%= nd_target_id %>"> <%= nd_target_name %></option>',
       );
 
       nodeList.forEach(nodeInfo => {
-        const {nd_target_id, nd_target_name, nc_is_sensor, node_id, node_name} = nodeInfo;
+        const {nd_target_id, nd_target_name, is_sensor, node_id, node_name} = nodeInfo;
         // 센서가 아닌 장비만 등록
-        if (nc_is_sensor === 0) {
+        if (is_sensor === 0) {
           let foundIt = _.find(deviceInfoList, {
             type: nd_target_id,
           });

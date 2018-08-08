@@ -1,48 +1,56 @@
 
 
 SELECT
-			dn.node_seq, 
-			dnd.node_def_seq,
-			dnc.node_class_seq,
-			dn.data_logger_seq,
+			n.node_seq, 
+			nd.node_def_seq,
+			nc.node_class_seq,
+			n.data_logger_seq,
 			CASE
-          WHEN LENGTH(dn.target_code) > 0
-            THEN CONCAT(dnd.target_prefix, "_", dn.target_code)
+          WHEN LENGTH(n.target_code) > 0
+            THEN CONCAT(nd.target_prefix, "_", n.target_code)
           ELSE 
-            CONCAT(dnd.target_prefix)
+            CONCAT(nd.target_prefix)
           END AS node_id,
 			CASE
-          WHEN LENGTH(dn.target_code) > 0
-            THEN CONCAT(dnd.target_name, " ", dn.target_code)
+          WHEN LENGTH(n.target_code) > 0
+            THEN CONCAT(nd.target_prefix, "_", dl.main_seq, "_", n.target_code)
           ELSE 
-            CONCAT(dnd.target_name)
+            CONCAT(nd.target_prefix, "_", dl.main_seq)
+          END AS node_real_id,					
+			CASE
+          WHEN LENGTH(n.target_code) > 0
+            THEN CONCAT(nd.target_name, " ", n.target_code)
+          ELSE 
+            CONCAT(nd.target_name)
           END AS node_name,
 			CASE
-          WHEN dnc.is_sensor = 0
-            THEN r_ddd.str_data
+          WHEN nc.is_sensor = 0
+            THEN r_dd.str_data
           ELSE 
             r_dsd.num_data
           END AS node_data,
 			CASE
-          WHEN dnc.is_sensor = 0
-            THEN r_ddd.writedate
+          WHEN nc.is_sensor = 0
+            THEN r_dd.writedate
           ELSE 
             r_dsd.writedate
           END AS writedate,          
-         dnc.data_unit, dnc.is_sensor, dn.data_logger_index,
-  			dn.target_code AS dn_target_code,
-			dnc.target_id AS dnc_target_id, 
-			dnc.target_name AS dnc_target_name,
-			dnc.description AS dnc_description,
-			dnd.target_id AS dnd_target_id,
-			dnd.target_name AS dnd_target_name,
-			dnd.target_prefix AS dnd_target_prefix,
-			dnd.description AS dnd_description
-  FROM dv_node dn
- JOIN dv_node_def dnd
-  ON dnd.node_def_seq = dn.node_def_seq
- JOIN dv_node_class dnc
-  ON dnc.node_class_seq = dnd.node_class_seq
+         nc.data_unit, nc.is_sensor, n.data_logger_index,
+  			n.target_code AS n_target_code,
+			nc.target_id AS nc_target_id, 
+			nc.target_name AS nc_target_name,
+			nc.description AS nc_description,
+			nd.target_id AS nd_target_id,
+			nd.target_name AS nd_target_name,
+			nd.target_prefix AS nd_target_prefix,
+			nd.description AS nd_description
+  FROM dv_node n
+ JOIN dv_node_def nd
+  ON nd.node_def_seq = n.node_def_seq
+ JOIN dv_node_class nc
+  ON nc.node_class_seq = nd.node_class_seq
+ JOIN dv_data_logger dl
+  ON dl.data_logger_seq = n.data_logger_seq	
  LEFT OUTER JOIN 
  (
 	  SELECT 
@@ -58,20 +66,20 @@ SELECT
 		) temp
 		 ON dsd.sensor_data_seq = temp.sensor_data_seq
  ) r_dsd
-  ON r_dsd.node_seq = dn.node_seq
+  ON r_dsd.node_seq = n.node_seq
  LEFT OUTER JOIN 
  (
 	  SELECT 
-	  			ddd.node_seq,
-	  			ddd.str_data,
-	  			ddd.writedate
-		FROM dv_device_data ddd
+	  			dd.node_seq,
+	  			dd.str_data,
+	  			dd.writedate
+		FROM dv_device_data dd
 		INNER JOIN
 		(
 			SELECT MAX(device_data_seq) AS device_data_seq
 			 FROM dv_device_data
 			 GROUP BY node_seq
 		) temp
-		 ON ddd.device_data_seq = temp.device_data_seq
- ) r_ddd
-  ON r_ddd.node_seq = dn.node_seq
+		 ON dd.device_data_seq = temp.device_data_seq
+ ) r_dd
+  ON r_dd.node_seq = n.node_seq

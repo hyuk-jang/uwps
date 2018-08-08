@@ -1,5 +1,3 @@
-require('./define');
-
 /** @type {{hasDev: boolean, deviceInfo: deviceInfo}} */
 const config = {
   hasDev: false, // 장치 연결을 실제로 하는지 여부

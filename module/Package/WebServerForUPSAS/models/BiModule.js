@@ -172,8 +172,8 @@ class BiModule extends bmjh.BM {
         photovoltaic pv
         JOIN relation_power ru
           ON ru.photovoltaic_seq = pv.photovoltaic_seq
-        LEFT JOIN pl_saltern_block sb
-          ON sb.saltern_block_seq = ru.saltern_block_seq
+        LEFT JOIN v_dv_place vdp
+          ON vdp.place_seq = ru.place_seq
         LEFT OUTER JOIN 
         (
         SELECT 

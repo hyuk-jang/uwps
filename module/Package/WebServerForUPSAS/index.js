@@ -16,9 +16,6 @@ global.DU = DU;
 global.SU = SU;
 global._ = _;
 
-// FIXME: domUtil을 사용하기 위함. 수정 필요
-_.set(global, 'fixmeConfig.isTest', true);
-
 const MainControl = require('./src/MainControl');
 
 const CONTROLLERS_PATH = `${process.cwd()}\\controllers`;
@@ -56,8 +53,8 @@ async function operationController() {
       console.log('Controller Server is Running', initSetter.webPort);
     });
   } catch (error) {
+    BU.CLI(error)
     BU.errorLog('init', 'mainError', error);
-    throw error;
   }
 }
 
@@ -66,15 +63,11 @@ setTimeout(() => {
 }, 1000);
 
 process.on('uncaughtException', err => {
-  BU.debugConsole();
-  console.error(err.stack);
-  console.log(err.message);
+  BU.CLI(err);
   console.log('uncaughtException. Node NOT Exiting...');
 });
 
 process.on('unhandledRejection', err => {
-  BU.debugConsole();
-  console.error(err.stack);
-  console.log(err.message);
+  BU.CLI(err);
   console.log('unhandledRejection. Node NOT Exiting...');
 });

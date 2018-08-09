@@ -30,7 +30,7 @@ module.exports = app => {
       if (!req.user) {
         request.post(
           {
-            url: 'http://localhost:7500/auth/login',
+            url: `http://localhost:${process.env.WEB_UPSAS_PORT}/auth/login`,
             headers: req.headers,
             form: {
               userid: 'tester',

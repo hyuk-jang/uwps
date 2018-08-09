@@ -52,6 +52,8 @@ class Control {
    */
   async setMainStorageByDB(dbInfo) {
     dbInfo = dbInfo || this.config.dbInfo;
+
+    // BU.CLI(dbInfo)
     this.BM = new BM(dbInfo);
 
     // DB에서 main 정보를 가져옴
@@ -63,6 +65,9 @@ class Control {
     /** @type {nodeInfo[]} */
     const nodeList = await this.BM.getTable('v_dv_node');
 
+    /** @type {placeInfo[]} */
+    const placeRelationList = await this.BM.getTable('v_dv_place_relation');
+
     // TEST: main Seq 1번에 강제로 데이터를 넣으므로 정렬 시킴
     mainList = _.sortBy(mainList, 'main_seq');
     // Main 정보 만큼 List 생성
@@ -73,6 +78,11 @@ class Control {
       const filterNodeList = _.filter(nodeList, {
         main_seq: mainInfo.main_seq,
       });
+
+      const filterPlaceList = _.filter(placeRelationList, {
+        main_seq: mainInfo.main_seq,
+      });
+
       /** @type {msInfo} */
       const mainStorageInfo = {
         msFieldInfo: mainInfo,
@@ -80,6 +90,7 @@ class Control {
         msDataInfo: {
           dataLoggerList: filterDataLoggerList,
           nodeList: filterNodeList,
+          placeList: filterPlaceList,
           simpleOrderList: [],
         },
         msUserList: [],

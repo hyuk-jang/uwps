@@ -58,14 +58,15 @@ class SocketIoManager {
         if (foundIt) {
           foundIt.msUserList.push(msUser);
 
-          const {nodeList, simpleOrderList} = foundIt.msDataInfo;
+          const {simpleOrderList} = foundIt.msDataInfo;
 
           let connectedStatus = 'Disconnected';
           if (foundIt.msClient instanceof net.Socket) {
             connectedStatus = 'Connected';
           }
 
-          const pickedNodeList = this.pickNodeList(nodeList);
+          const pickedNodeList = this.pickNodeList(foundIt.msDataInfo);
+          // BU.CLI(pickedNodeList);
           socket.emit('updateMsClientStatus', connectedStatus);
           socket.emit('updateNodeInfo', pickedNodeList);
           socket.emit('updateOrderInfo', this.pickSimpleOrderList(simpleOrderList));
@@ -99,11 +100,25 @@ class SocketIoManager {
 
   /**
    * 노드 정보에서 UI에 보여줄 내용만을 반환
-   * @param {nodeInfo[]} nodeList
+   * @param {msDataInfo} dataInfo
    */
-  pickNodeList(nodeList) {
+  pickNodeList(dataInfo) {
     const pickList = ['node_id', 'nd_target_name', 'data'];
-    return _.map(nodeList, nodeInfo => _.pick(nodeInfo, pickList));
+    return _(dataInfo.nodeList)
+      .map(nodeInfo => {
+        const placeNameList = _(dataInfo.placeList)
+          .filter(placeInfo => placeInfo.node_real_id === nodeInfo.node_real_id)
+          .map(pInfo => pInfo.place_name)
+          .value();
+        //  _.filter(dataInfo.placeList, placeInfo => {
+        //   placeInfo.node_real_id === nodeInfo.node_real_id;
+        // })
+        return _(nodeInfo)
+          .pick(pickList)
+          .assign({place_name_list: placeNameList})
+          .value();
+      })
+      .sortBy('node_id');
   }
 
   /**

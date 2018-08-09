@@ -1,16 +1,17 @@
-'use strict';
+"use strict";
 
-const cron = require('cron');
+const cron = require("cron");
 
-const SmInfrared = require('../sm-infrared');
-const Vantagepro2 = require('../vantagepro2');
+const SmInfrared = require("../sm-infrared");
+const Vantagepro2 = require("../vantagepro2");
+const InclinedSolar = require("../inclined-solar");
 
-const Model = require('./Model');
+const Model = require("./Model");
 
-const config = require('./config');
+const mainConfig = require("./config");
 
 class Control {
-  /** @param {config} config */
+  /** @param {mainConfig} config */
   constructor(config) {
     this.config = config.current;
 
@@ -18,24 +19,25 @@ class Control {
 
     this.smInfrared = new SmInfrared(config.smInfrared);
     this.vantagepro2 = new Vantagepro2(config.vantagepro2);
-
+    this.inclinedSolar = new InclinedSolar(config.inclinedSolar);
 
     this.scheduler = null;
   }
-  
+
   /** 기상 장치 컨트롤러 객체를 초기화 하고 스케줄러를 호출. (장치 접속 및 프로그램 구동) */
-  init(){
+  init() {
     // TODO 적외선 센서 달면 활성화 할 것
     // this.smInfrared.init();
     this.vantagepro2.init();
+    this.inclinedSolar.init();
 
     this.runScheduler();
   }
 
   /** VantagePro2와 SmInfraredSensor 데이터를 가져올 스케줄러 */
-  runScheduler(){
-    // const scheduleIntervalSec = 10;
-    const scheduleIntervalMin = 1;  // 1분마다
+  runScheduler() {
+    const scheduleIntervalSec = 10;
+    // const scheduleIntervalMin = 1; // 1분마다
     try {
       if (this.scheduler !== null) {
         // BU.CLI('Stop')
@@ -43,12 +45,12 @@ class Control {
       }
       // 1분마다 요청
       this.scheduler = new cron.CronJob({
-        cronTime: `0 */${scheduleIntervalMin} * * * *`,
-        // cronTime: '*/10 * * * * *',
+        // cronTime: `0 */${scheduleIntervalMin} * * * *`,
+        cronTime: "*/10 * * * * *",
         onTick: () => {
           return this.model.getWeatherDeviceData(new Date());
         },
-        start: true,
+        start: true
       });
       return true;
     } catch (error) {
@@ -56,10 +58,9 @@ class Control {
     }
   }
 
-
   /**
    * 장치의 현재 데이터 및 에러 내역을 가져옴
-   * @return {deviceOperationInfo} 
+   * @return {deviceOperationInfo}
    */
   getDeviceOperationInfo() {
     return {
@@ -71,7 +72,5 @@ class Control {
       measureDate: new Date()
     };
   }
-
-
 }
 module.exports = Control;

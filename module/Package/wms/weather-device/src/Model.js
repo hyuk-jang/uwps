@@ -33,6 +33,7 @@ class Model extends AbstDeviceClientModel {
       deviceCategoryKey: 'target_category'
     });
 
+    BU.CLI(this.controller.config.dbInfo);
     this.setDbConnector(this.controller.config.dbInfo);
   }
 
@@ -71,12 +72,17 @@ class Model extends AbstDeviceClientModel {
     );
 
     // BU.CLI(vantagepro2Data.data);
-    /* 데이터에 null이 포함되어있다면 아직 준비가 안된것으로 판단 */
-    // if (_.includes(vantagepro2Data.data, null)) {
-    //   BU.log('장치의 데이터 수집이 준비가 안되었습니다.');
-    //   // BU.logFile('장치의 데이터 수집이 준비가 안되었습니다.');
-    //   return false;
-    // }
+    /* 모든 데이터가 null이나 undefined라면 아직 준비가 안된것으로 판단 */
+    if (
+      _(this.deviceData)
+        .values()
+        .value()
+        .every(_.isNil)
+    ) {
+      BU.log('장치의 데이터 수집이 준비가 안되었습니다.');
+      // BU.logFile('장치의 데이터 수집이 준비가 안되었습니다.');
+      return false;
+    }
 
     let returnValue = this.onDeviceOperationInfo(
       this.controller.getDeviceOperationInfo(),
@@ -86,14 +92,15 @@ class Model extends AbstDeviceClientModel {
     // BU.CLIN(returnValue, 3);
 
     // DB에 입력
-    const convertDataList = await this.refineTheDataToSaveDB(
+    const convertDataInfo = await this.refineTheDataToSaveDB(
       this.deviceCategory,
-      measureDate
+      measureDate,
+      true
     );
-    BU.CLI(convertDataList);
+    BU.CLI(convertDataInfo.insertDataList);
 
     const resultSaveToDB = await this.saveDataToDB(this.deviceCategory);
-    BU.CLI(resultSaveToDB);
+    // BU.CLI(resultSaveToDB);
   }
 }
 

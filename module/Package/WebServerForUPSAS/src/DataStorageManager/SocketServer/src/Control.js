@@ -113,10 +113,10 @@ class SocketServer extends EventEmitter {
           try {
             // Parser 가 EOT 까지 삭제하므로 끝에 붙임
             data += this.defaultConverter.protocolConverter.EOT;
-            BU.CLI(data);
+            // BU.CLI(data);
             // 수신받은 데이터의 CRC 계산 및 본 데이터 추출
             const strData = this.defaultConverter.decodingMsg(data).toString();
-            BU.CLI(strData);
+            // BU.CLI(strData);
 
             // JSON 형태로만 데이터를 받아 들임.
             if (!BU.IsJsonString(strData)) {
@@ -127,7 +127,7 @@ class SocketServer extends EventEmitter {
             // JSON 객체로 변환
             /** @type {defaultFormatToRequest|defaultFormatToResponse} */
             const requestedDataByDataLogger = JSON.parse(strData);
-            BU.CLI(requestedDataByDataLogger);
+            // BU.CLI(requestedDataByDataLogger);
 
             // isError Key가 존재하고 Number 형태라면 요청에 대한 응답이라고 판단하고 이벤트 발생
             if (_.isNumber(_.get(requestedDataByDataLogger, 'isError'))) {
@@ -142,7 +142,7 @@ class SocketServer extends EventEmitter {
             // JSON 객체 분석 메소드 호출
             const responseDataByServer = this.interpretCommand(socket, requestedDataByDataLogger);
             // 여기까지 오면 유효한 데이터로 생각하고 완료 처리
-            BU.CLI(responseDataByServer);
+            // BU.CLI(responseDataByServer);
             socket.write(this.defaultConverter.encodingMsg(responseDataByServer));
           } catch (error) {
             BU.logFile(error);
@@ -239,10 +239,16 @@ class SocketServer extends EventEmitter {
    * @return {defaultFormatToResponse} 정상적인 명령 해석이라면 true, 아니라면 throw
    */
   interpretCommand(client, requestedDataByDataLogger) {
-    BU.CLI(requestedDataByDataLogger);
+    // BU.CLI(requestedDataByDataLogger);
 
     try {
-      const {CERTIFICATION, COMMAND, NODE, STAUTS, POWER_BOARD} = dcmWsModel.transmitToServerCommandType;
+      const {
+        CERTIFICATION,
+        COMMAND,
+        NODE,
+        STAUTS,
+        POWER_BOARD,
+      } = dcmWsModel.transmitToServerCommandType;
       // client를 인증하고자 하는 경우
       if (requestedDataByDataLogger.commandId === CERTIFICATION) {
         return this.certifyClient(client, requestedDataByDataLogger);
@@ -350,7 +356,7 @@ class SocketServer extends EventEmitter {
           }
         });
       }
-      BU.CLI(renewalList);
+      // BU.CLI(renewalList);
       return renewalList;
     } catch (error) {
       throw error;
@@ -363,7 +369,7 @@ class SocketServer extends EventEmitter {
    * @param {simpleOrderInfo[]} receiveSimpleOrderList
    */
   compareSimpleOrderList(msInfo, receiveSimpleOrderList) {
-    BU.CLI(receiveSimpleOrderList);
+    // BU.CLI(receiveSimpleOrderList);
     try {
       // Data Logger에서 보내온 List를 전부 적용해버림
       msInfo.msDataInfo.simpleOrderList = receiveSimpleOrderList;

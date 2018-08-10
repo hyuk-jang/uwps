@@ -118,7 +118,8 @@ class SocketIoManager {
           .assign({place_name_list: placeNameList})
           .value();
       })
-      .sortBy('node_id');
+      .sortBy('node_id')
+      .value();
   }
 
   /**
@@ -201,7 +202,7 @@ class SocketIoManager {
    * @param {msInfo} msInfo
    */
   submitNodeListToIoClient(msInfo) {
-    const simpleNodeList = this.pickNodeList(msInfo.msDataInfo.nodeList);
+    const simpleNodeList = this.pickNodeList(msInfo.msDataInfo);
     // 해당 Socket Client에게로 데이터 전송
     msInfo.msUserList.forEach(clientInfo => {
       clientInfo.socketClient.emit('updateNodeInfo', simpleNodeList);

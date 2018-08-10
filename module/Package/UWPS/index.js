@@ -14,20 +14,15 @@ const _ = require('underscore');
 if (require !== undefined && require.main === module) {
   process.env.NODE_ENV = 'production';
 
-
   global._ = _;
   global.BU = BU;
 
-  process.on('unhandledRejection', function (reason, p) {
+  process.on('unhandledRejection', function(reason, p) {
     console.trace('Possibly Unhandled Rejection at: Promise ', p);
     console.trace(' reason: ', reason);
     // application specific logging here
   });
 
-
-
-
-  
   /**
    * Init Config Setting
    */
@@ -59,11 +54,6 @@ async function startIndex() {
   return true;
 }
 
-
-
-
-
-
 async function setter() {
   BU.CLI('setter');
   if (config.current.devOption.hasReloadInverterConfig) {
@@ -75,10 +65,15 @@ async function setter() {
   }
 
   if (config.current.devOption.hasSaveConfig) {
-    BU.writeFile('./config.json', `${JSON.stringify(config)}`, 'w', (err, res) => {
-      BU.CLI(err, res);
-      process.exit();
-    });
+    BU.writeFile(
+      './config.json',
+      `${JSON.stringify(config)}`,
+      'w',
+      (err, res) => {
+        BU.CLI(err, res);
+        process.exit();
+      }
+    );
   }
 
   return true;
@@ -91,7 +86,11 @@ async function inverterSetter() {
   let returnValue = [];
 
   let recentInverterDataList = await Promise.map(inverterList, inverter => {
-    return BM.db.single(`SELECT d_wh, c_wh FROM inverter_data WHERE ${inverter.inverter_seq} = inverter_seq ORDER BY inverter_data_seq DESC LIMIT 1 `);
+    return BM.db.single(
+      `SELECT d_wh, c_wh FROM inverter_data WHERE ${
+        inverter.inverter_seq
+      } = inverter_seq ORDER BY inverter_data_seq DESC LIMIT 1 `
+    );
   });
 
   let ivtDataList = _.flatten(recentInverterDataList);
@@ -103,8 +102,12 @@ async function inverterSetter() {
       deviceSavedInfo: element
     };
     // BU.CLI(element);
-    addObj.ivtDummyData.dailyKwh = ivtDataList[index] ? ivtDataList[index].d_wh / 10000 : 0;
-    addObj.ivtDummyData.cpKwh = ivtDataList[index] ? ivtDataList[index].c_wh / 10000 : 0;
+    addObj.ivtDummyData.dailyKwh = ivtDataList[index]
+      ? ivtDataList[index].d_wh / 10000
+      : 0;
+    addObj.ivtDummyData.cpKwh = ivtDataList[index]
+      ? ivtDataList[index].c_wh / 10000
+      : 0;
     returnValue.push({
       current: addObj
     });
@@ -116,16 +119,18 @@ async function inverterSetter() {
 
 async function connectorSetter() {
   BU.CLI('connectorSetter');
-  let connectorList = await BM.db.single('SELECT *,(SELECT COUNT(*) FROM relation_upms WHERE cnt.connector_seq = relation_upms.connector_seq  ) AS ch_number FROM connector cnt');
-  let relation_upms = await BM.getTable('relation_upms');
+  let connectorList = await BM.db.single(
+    'SELECT *,(SELECT COUNT(*) FROM relation_power WHERE cnt.connector_seq = relation_power.connector_seq  ) AS ch_number FROM connector cnt'
+  );
+  let relation_power = await BM.getTable('relation_power');
 
   let returnValue = [];
   // let moduleList = [];
-  connectorList.forEach((element) => {
+  connectorList.forEach(element => {
     let addObj = {
       hasDev: process.env.NODE_ENV === 'production' ? false : true,
       deviceSavedInfo: element,
-      moduleList: _.where(relation_upms, {
+      moduleList: _.where(relation_power, {
         connector_seq: element.connector_seq
       })
     };

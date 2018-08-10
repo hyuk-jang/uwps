@@ -30,18 +30,18 @@ const config = {
         hasOneAndOne: false,
         hasReconnect: true,
       },
-      // connect_info: {
-      //   type: 'serial',
-      //   baudRate: 19200,
-      //   port: 'COM18',
-      // },
       connect_info: {
-        type: 'modbus',
-        subType: 'tcp',
-        host: 'localhost',
-        port: 502,
+        type: 'serial',
         baudRate: 9600,
+        port: 'COM18',
       },
+      // connect_info: {
+      //   type: 'modbus',
+      //   subType: 'tcp',
+      //   host: 'localhost',
+      //   port: 502,
+      //   baudRate: 9600,
+      // },
     },
   },
 };

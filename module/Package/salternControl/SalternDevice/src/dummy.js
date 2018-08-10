@@ -1,9 +1,9 @@
 const _ = require('lodash');
 const Control = require('./Control');
-const {operationController} = require('../../../../module/device-protocol-converter-jh');
+// const {operationController} = require('../../../../module/device-protocol-converter-jh');
 const BU = require('base-util-jh').baseUtil;
 
-const cmdStorage = operationController.saltern.xbee;
+// const cmdStorage = operationController.saltern.xbee;
 
 const wdDummyList = [
   { type: 144,

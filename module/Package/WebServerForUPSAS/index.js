@@ -1,100 +1,73 @@
 process.env.NODE_ENV = 'production';
 process.env.NODE_ENV = 'development';
 
+process.env.NODE_ENV === 'development' && require('dotenv').config();
 
-const Promise = require('bluebird');
+const {BU, DU, SU} = require('base-util-jh');
+const _ = require('lodash');
+// const _ = require('underscore');
 
 const InitSetter = require('./config/InitSetter.js');
 
 const config = require('./config.js');
-const {BU, DU, SU} = require('base-util-jh');
-const _ = require('underscore');
 
 global.BU = BU;
 global.DU = DU;
 global.SU = SU;
 global._ = _;
 
-const SalternConnector = require('./src/SalternConnector');
+const MainControl = require('./src/MainControl');
 
-const CONTROLLERS_PATH = process.cwd() + '\\controllers';
+const CONTROLLERS_PATH = `${process.cwd()}\\controllers`;
 global.CONTROLLERS_PATH = CONTROLLERS_PATH;
 
-
 // TODO: 개선 필요
-let initSetter = new InitSetter(config.init);
+const initSetter = new InitSetter(config.init);
 global.initSetter = initSetter;
 
-// 통합 서버와 통신 (초기화)
-exchangeInfo()
-  .then(res => {
-    return downloadMap();
-  })
-  .then(res => {
-    // BU.CLI(res);
-    return operationController();
-  })
-  .catch(error => {
-    BU.CLI('????', error);
-    setTimeout(() => {
-      process.exit();
-    }, 10000);
-    BU.errorLog('init', 'init() 실패', error);
-  });
-
-process.on('unhandledRejection', r => console.log(BU.CLI(r)));
-
-// 통합 서버와 정보 교환
-function exchangeInfo() {
-  return new Promise((resolve, reject) => {
-    initSetter.exchangeInfo((err, resExchangeKey) => {
-      if (err) {
-        reject(Error('Fail'));
-      } else {
-        resolve(resExchangeKey);
-      }
-    });
-  });
-}
-// Map 초기화
-function downloadMap() {
-  return new Promise((resolve, reject) => {
-    initSetter.downloadMap((err, resDownloadMap) => {
-      if (err) {
-        reject(Error('Fail'));
-      } else {
-        resolve(resDownloadMap);
-      }
-    });
-  });
-}
-
-global.minyung = {
-  has: false,
-  webPort: 7400,
-  pushPort: 7401,
-  cmdPort: 7402
-};
-
 // 컨트롤러 구동 시작
-function operationController() {
-  // BU.CLI(mainConfig.workers.SocketServer.PushServer.current.port)
-  const salternConnector = new SalternConnector(config.init.salternInfo);
-  let app = require('./config/app.js')(initSetter.dbInfo);
-  let passport = require('./config/passport.js')(app, initSetter.aliceBobSecret);
-  app.set('passport', passport);
-  app.set('initSetter', initSetter);
+async function operationController() {
+  try {
+    const app = require('./config/app.js')(initSetter.dbInfo);
+    const passport = require('./config/passport.js')(app, initSetter.dbInfo);
+    app.set('passport', passport);
+    app.set('initSetter', initSetter);
 
-  require('./controllers')(app);
+    // 인증 시행 여부
+    // app.set('auth', true);
+    app.set('auth', 'dev');
 
-  /** Web Socket Binding */
-  var http = require('http').Server(app);
-  
-  
-  salternConnector.setSocketIO(http);
+    require('./controllers')(app);
 
-  // TEST
-  http.listen(global.minyung.has ? global.minyung.webPort : initSetter.webPort, (req, res) => {
-    console.log('Controller Server is Running', initSetter.webPort);
-  });
+    /** Web Socket Binding */
+    const http = require('http').Server(app);
+
+    const mainControl = new MainControl();
+    await mainControl.init();
+    mainControl.dataStorageManager.setSocketIO(http);
+    // 전역 변수로 설정
+    global.mainStorageList = mainControl.dataStorageManager.mainStorageList;
+
+    // TEST
+    http.listen(initSetter.webPort, (req, res) => {
+      console.log('Controller Server is Running', initSetter.webPort);
+    });
+  } catch (error) {
+    BU.CLI(error)
+    BU.errorLog('init', 'mainError', error);
+  }
 }
+
+setTimeout(() => {
+  operationController();
+}, 1000);
+
+process.on('uncaughtException', err => {
+  BU.CLI(err);
+  console.log('uncaughtException. Node NOT Exiting...');
+});
+
+process.on('unhandledRejection', err => {
+  BU.CLI(err);
+  console.log('unhandledRejection. Node NOT Exiting...');
+});

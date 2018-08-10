@@ -1,17 +1,21 @@
-module.exports = function(app) {
-  let router = require('express').Router();
+const router = require('express').Router();
 
-  let BU = require('base-util-jh').baseUtil;
-  let DU = require('base-util-jh').domUtil;
-    
+const {BU, DU} = require('base-util-jh');
+
+module.exports = app => {
   // server middleware
-  router.use(function(req, res, next) {
+  router.use((req, res, next) => {
+    if (app.get('auth')) {
+      if (!req.user) {
+        return res.redirect('/auth/login');
+      }
+    }
     req.locals = DU.makeBaseHtml(req, 8);
     next();
   });
 
   // Get
-  router.get('/', function(req, res) {
+  router.get('/', (req, res) => {
     BU.CLI('cctv', req.locals);
 
     return res.status(200).send(DU.locationJustGoBlank('http://115.23.49.28:7999'));

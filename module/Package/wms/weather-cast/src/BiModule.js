@@ -28,12 +28,11 @@ class BiModule extends bmjh.BM {
 
   /**
    * DB에 저장된 일기예보 추출
-   * @param {number} x
-   * @param {number} y
-   * @return {Array.<{kma_data_seq: number, x: number, y: number, temp: number, pty: number, pop: number, r12: number, wf_kor: string, wf_en: string, ws: number, wd: number, reh: number, applydate: Date, writedate: Date, updatedate: Date}> }
+   * @param {number} seq
    */
-  getPrevWeatherCast(x, y) {
-    let sql = `SELECT * FROM kma_data WHERE applydate > CURDATE() AND x = ${x} AND y = ${y} ORDER BY kma_data_seq DESC  LIMIT 24`;
+  getPrevWeatherCast(seq) {
+    let sql = `SELECT * FROM kma_data WHERE applydate > CURDATE() AND weather_location_seq = ${seq}
+    = ${seq} ORDER BY kma_data_seq DESC  LIMIT 24`;
 
     return this.db.single(sql, '', false);
   }

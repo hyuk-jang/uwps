@@ -185,56 +185,31 @@
         "ID": "SPL1",
         "Name": "1",
         "ImgID": "SaltPondLine_A",
-        "Points": [
-          450,
-          160,
-          450,
-          1080
-        ]
+        "Points": [450, 160, 450, 1080]
       },
       {
         "ID": "SPL2",
         "Name": "2",
         "ImgID": "SaltPondLine_A",
-        "Points": [
-          430,
-          180,
-          570,
-          180
-        ]
+        "Points": [430, 180, 570, 180]
       },
       {
         "ID": "SPL3",
         "Name": "3",
         "ImgID": "SaltPondLine_A",
-        "Points": [
-          690,
-          160,
-          690,
-          1080
-        ]
+        "Points": [690, 160, 690, 1080]
       },
       {
         "ID": "SPL4",
         "Name": "4",
         "ImgID": "SaltPondLine_A",
-        "Points": [
-          610,
-          180,
-          710,
-          180
-        ]
+        "Points": [610, 180, 710, 180]
       },
       {
         "ID": "SPL5",
         "Name": "5",
         "ImgID": "SaltPondLine_A",
-        "Points": [
-          750,
-          180,
-          850,
-          180
-        ]
+        "Points": [750, 180, 850, 180]
       }
     ],
     "SaltPlateList": [
@@ -539,177 +514,97 @@
         "ID": "PL1",
         "Name": "PL1",
         "ImgID": "PipeList_A",
-        "Points": [
-          100,
-          1080,
-          100,
-          1120
-        ]
+        "Points": [100, 1080, 100, 1120]
       },
       {
         "ID": "PL2",
         "Name": "PL2",
         "ImgID": "PipeList_A",
-        "Points": [
-          150,
-          950,
-          190,
-          950
-        ]
+        "Points": [150, 950, 190, 950]
       },
       {
         "ID": "PL3",
         "Name": "PL3",
         "ImgID": "PipeList_A",
-        "Points": [
-          190,
-          870,
-          190,
-          950
-        ]
+        "Points": [190, 870, 190, 950]
       },
       {
         "ID": "PL4",
         "Name": "PL4",
         "ImgID": "PipeList_A",
-        "Points": [
-          190,
-          870,
-          250,
-          870
-        ]
+        "Points": [190, 870, 250, 870]
       },
       {
         "ID": "PL5",
         "Name": "PL5",
         "ImgID": "PipeList_A",
-        "Points": [
-          250,
-          850,
-          250,
-          870
-        ]
+        "Points": [250, 850, 250, 870]
       },
       {
         "ID": "PL6",
         "Name": "PL6",
         "ImgID": "PipeList_A",
-        "Points": [
-          250,
-          870,
-          250,
-          890
-        ]
+        "Points": [250, 870, 250, 890]
       },
       {
         "ID": "PL7",
         "Name": "PL7",
         "ImgID": "PipeList_A",
-        "Points": [
-          190,
-          430,
-          190,
-          870
-        ]
+        "Points": [190, 430, 190, 870]
       },
       {
         "ID": "PL8",
         "Name": "PL8",
         "ImgID": "PipeList_A",
-        "Points": [
-          190,
-          430,
-          250,
-          430
-        ]
+        "Points": [190, 430, 250, 430]
       },
       {
         "ID": "PL9",
         "Name": "PL9",
         "ImgID": "PipeList_A",
-        "Points": [
-          250,
-          410,
-          250,
-          430
-        ]
+        "Points": [250, 410, 250, 430]
       },
       {
         "ID": "PL10",
         "Name": "PL10",
         "ImgID": "PipeList_A",
-        "Points": [
-          250,
-          430,
-          250,
-          450
-        ]
+        "Points": [250, 430, 250, 450]
       },
       {
         "ID": "PL11",
         "Name": "PL11",
         "ImgID": "PipeList_A",
-        "Points": [
-          190,
-          180,
-          190,
-          430
-        ]
+        "Points": [190, 180, 190, 430]
       },
       {
         "ID": "PL12",
         "Name": "PL12",
         "ImgID": "PipeList_A",
-        "Points": [
-          190,
-          180,
-          230,
-          180
-        ]
+        "Points": [190, 180, 230, 180]
       },
       {
         "ID": "PL13",
         "Name": "PL13",
         "ImgID": "PipeList_A",
-        "Points": [
-          570,
-          70,
-          610,
-          70
-        ]
+        "Points": [570, 70, 610, 70]
       },
       {
         "ID": "PL14",
         "Name": "PL14",
         "ImgID": "PipeList_A",
-        "Points": [
-          630,
-          160,
-          630,
-          220
-        ]
+        "Points": [630, 160, 630, 220]
       },
       {
         "ID": "PL15",
         "Name": "PL15",
         "ImgID": "PipeList_A",
-        "Points": [
-          770,
-          160,
-          770,
-          900
-        ]
+        "Points": [770, 160, 770, 900]
       },
       {
         "ID": "PL16",
         "Name": "PL16",
         "ImgID": "PipeList_A",
-        "Points": [
-          670,
-          900,
-          770,
-          900
-        ]
+        "Points": [670, 900, 770, 900]
       }
     ],
     "WaterOutList": [
@@ -728,9 +623,7 @@
         "ImgID": "WaterOut_B"
       }
     ],
-    "WaterWayList": [
-      {}
-    ],
+    "WaterWayList": [{}],
     "SaltRateSensorList": [
       {
         "ID": "S1",
@@ -1579,24 +1472,12 @@
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
         "SettingSalinity": "",
-        "ListModuleTemperature": [
-          "MT1"
-        ],
-        "ListUnderWaterTemperature": [
-          "UT1"
-        ],
-        "ListWaterDoor": [
-          "WD1"
-        ],
-        "ListWaterLevel": [
-          "WL1"
-        ],
-        "ListSalinity": [
-          "S1"
-        ],
-        "ListValve": [
-          "V1"
-        ],
+        "ListModuleTemperature": ["MT1"],
+        "ListUnderWaterTemperature": ["UT1"],
+        "ListWaterDoor": ["WD1"],
+        "ListWaterLevel": ["WL1"],
+        "ListSalinity": ["S1"],
+        "ListValve": ["V1"],
         "ListPump": []
       },
       {
@@ -1606,24 +1487,12 @@
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
         "SettingSalinity": "",
-        "ListModuleTemperature": [
-          "MT2"
-        ],
-        "ListUnderWaterTemperature": [
-          "UT2"
-        ],
-        "ListWaterDoor": [
-          "WD2"
-        ],
-        "ListWaterLevel": [
-          "WL2"
-        ],
-        "ListSalinity": [
-          "S2"
-        ],
-        "ListValve": [
-          "V2"
-        ],
+        "ListModuleTemperature": ["MT2"],
+        "ListUnderWaterTemperature": ["UT2"],
+        "ListWaterDoor": ["WD2"],
+        "ListWaterLevel": ["WL2"],
+        "ListSalinity": ["S2"],
+        "ListValve": ["V2"],
         "ListPump": []
       },
       {
@@ -1633,24 +1502,12 @@
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
         "SettingSalinity": "",
-        "ListModuleTemperature": [
-          "MT3"
-        ],
-        "ListUnderWaterTemperature": [
-          "UT3"
-        ],
-        "ListWaterDoor": [
-          "WD3"
-        ],
-        "ListWaterLevel": [
-          "WL3"
-        ],
-        "ListSalinity": [
-          "S3"
-        ],
-        "ListValve": [
-          "V3"
-        ],
+        "ListModuleTemperature": ["MT3"],
+        "ListUnderWaterTemperature": ["UT3"],
+        "ListWaterDoor": ["WD3"],
+        "ListWaterLevel": ["WL3"],
+        "ListSalinity": ["S3"],
+        "ListValve": ["V3"],
         "ListPump": []
       },
       {
@@ -1660,24 +1517,12 @@
         "MinWaterLevel": 1,
         "MaxWaterLevel": 4,
         "SettingSalinity": "",
-        "ListModuleTemperature": [
-          "MT4"
-        ],
-        "ListUnderWaterTemperature": [
-          "UT4"
-        ],
-        "ListWaterDoor": [
-          "WD4"
-        ],
-        "ListWaterLevel": [
-          "WL4"
-        ],
-        "ListSalinity": [
-          "S4"
-        ],
-        "ListValve": [
-          "V4"
-        ],
+        "ListModuleTemperature": ["MT4"],
+        "ListUnderWaterTemperature": ["UT4"],
+        "ListWaterDoor": ["WD4"],
+        "ListWaterLevel": ["WL4"],
+        "ListSalinity": ["S4"],
+        "ListValve": ["V4"],
         "ListPump": []
       },
       {
@@ -1688,21 +1533,11 @@
         "MaxWaterLevel": 4,
         "SettingSalinity": "",
         "ListModuleTemperature": [],
-        "ListUnderWaterTemperature": [
-          "UT5"
-        ],
-        "ListWaterDoor": [
-          "WD5"
-        ],
-        "ListWaterLevel": [
-          "WL5"
-        ],
-        "ListSalinity": [
-          "S5"
-        ],
-        "ListValve": [
-          "V5"
-        ],
+        "ListUnderWaterTemperature": ["UT5"],
+        "ListWaterDoor": ["WD5"],
+        "ListWaterLevel": ["WL5"],
+        "ListSalinity": ["S5"],
+        "ListValve": ["V5"],
         "ListPump": []
       },
       {
@@ -1713,21 +1548,11 @@
         "MaxWaterLevel": 4,
         "SettingSalinity": "",
         "ListModuleTemperature": [],
-        "ListUnderWaterTemperature": [
-          "UT6"
-        ],
-        "ListWaterDoor": [
-          "WD6"
-        ],
-        "ListWaterLevel": [
-          "WL6"
-        ],
-        "ListSalinity": [
-          "S6"
-        ],
-        "ListValve": [
-          "V8"
-        ],
+        "ListUnderWaterTemperature": ["UT6"],
+        "ListWaterDoor": ["WD6"],
+        "ListWaterLevel": ["WL6"],
+        "ListSalinity": ["S6"],
+        "ListValve": ["V8"],
         "ListPump": []
       },
       {
@@ -1738,19 +1563,10 @@
         "MaxWaterLevel": 4,
         "SettingSalinity": "",
         "ListModuleTemperature": [],
-        "ListUnderWaterTemperature": [
-          "UT7"
-        ],
-        "ListWaterDoor": [
-          "WD6",
-          "WD7"
-        ],
-        "ListWaterLevel": [
-          "WL7"
-        ],
-        "ListSalinity": [
-          "S7"
-        ],
+        "ListUnderWaterTemperature": ["UT7"],
+        "ListWaterDoor": ["WD6", "WD7"],
+        "ListWaterLevel": ["WL7"],
+        "ListSalinity": ["S7"],
         "ListValve": [],
         "ListPump": []
       },
@@ -1762,19 +1578,10 @@
         "MaxWaterLevel": 4,
         "SettingSalinity": "18",
         "ListModuleTemperature": [],
-        "ListUnderWaterTemperature": [
-          "UT8"
-        ],
-        "ListWaterDoor": [
-          "WD7",
-          "WD8"
-        ],
-        "ListWaterLevel": [
-          "WL8"
-        ],
-        "ListSalinity": [
-          "S8"
-        ],
+        "ListUnderWaterTemperature": ["UT8"],
+        "ListWaterDoor": ["WD7", "WD8"],
+        "ListWaterLevel": ["WL8"],
+        "ListSalinity": ["S8"],
         "ListValve": [],
         "ListPump": []
       },
@@ -1786,21 +1593,11 @@
         "MaxWaterLevel": 4,
         "SettingSalinity": "",
         "ListModuleTemperature": [],
-        "ListUnderWaterTemperature": [
-          "UT9"
-        ],
-        "ListWaterDoor": [
-          "WD9"
-        ],
-        "ListWaterLevel": [
-          "WL9"
-        ],
-        "ListSalinity": [
-          "S9"
-        ],
-        "ListValve": [
-          "V9"
-        ],
+        "ListUnderWaterTemperature": ["UT9"],
+        "ListWaterDoor": ["WD9"],
+        "ListWaterLevel": ["WL9"],
+        "ListSalinity": ["S9"],
+        "ListValve": ["V9"],
         "ListPump": []
       }
     ],
@@ -1814,19 +1611,11 @@
         "SettingSalinity": "5",
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [],
-        "ListWaterDoor": [
-          "WD10"
-        ],
-        "ListWaterLevel": [
-          "WL10"
-        ],
-        "ListSalinity": [
-          "S10"
-        ],
+        "ListWaterDoor": ["WD10"],
+        "ListWaterLevel": ["WL10"],
+        "ListSalinity": ["S10"],
         "ListValve": [],
-        "ListPump": [
-          "P3"
-        ]
+        "ListPump": ["P3"]
       },
       {
         "ID": "WT2",
@@ -1837,21 +1626,11 @@
         "SettingSalinity": "15",
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [],
-        "ListWaterDoor": [
-          "WD11"
-        ],
-        "ListWaterLevel": [
-          "WL11"
-        ],
-        "ListSalinity": [
-          "S11"
-        ],
-        "ListValve": [
-          "V7"
-        ],
-        "ListPump": [
-          "P4"
-        ]
+        "ListWaterDoor": ["WD11"],
+        "ListWaterLevel": ["WL11"],
+        "ListSalinity": ["S11"],
+        "ListValve": ["V7"],
+        "ListPump": ["P4"]
       },
       {
         "ID": "WT3",
@@ -1862,19 +1641,11 @@
         "SettingSalinity": "20",
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [],
-        "ListWaterDoor": [
-          "WD12"
-        ],
-        "ListWaterLevel": [
-          "WL12"
-        ],
-        "ListSalinity": [
-          "S12"
-        ],
+        "ListWaterDoor": ["WD12"],
+        "ListWaterLevel": ["WL12"],
+        "ListSalinity": ["S12"],
         "ListValve": [],
-        "ListPump": [
-          "P5"
-        ]
+        "ListPump": ["P5"]
       }
     ],
     "WaterOutData": [
@@ -1887,18 +1658,14 @@
         "ListWaterLevel": [],
         "ListSalinity": [],
         "ListValve": [],
-        "ListPump": [
-          "P1"
-        ]
+        "ListPump": ["P1"]
       },
       {
         "ID": "WO2",
         "Depth": -1,
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [],
-        "ListWaterDoor": [
-          "WD15"
-        ],
+        "ListWaterDoor": ["WD15"],
         "ListWaterLevel": [],
         "ListSalinity": [],
         "ListValve": [],
@@ -1912,39 +1679,20 @@
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [],
         "ListWaterDoor": [],
-        "ListWaterLevel": [
-          "WL13"
-        ],
-        "ListSalinity": [
-          "S13"
-        ],
-        "ListValve": [
-          "V6"
-        ],
-        "ListPump": [
-          "P2"
-        ]
+        "ListWaterLevel": ["WL13"],
+        "ListSalinity": ["S13"],
+        "ListValve": ["V6"],
+        "ListPump": ["P2"]
       }
     ],
     "WaterWayData": [
       {
         "ID": "WW1",
         "Depth": 0.9,
-        "ListSaltPondLine": [
-          "SPL1",
-          "SPL2"
-        ],
+        "ListSaltPondLine": ["SPL1", "SPL2"],
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [],
-        "ListWaterDoor": [
-          "WD1",
-          "WD2",
-          "WD3",
-          "WD4",
-          "WD5",
-          "WD10",
-          "WD13"
-        ],
+        "ListWaterDoor": ["WD1", "WD2", "WD3", "WD4", "WD5", "WD10", "WD13"],
         "ListWaterLevel": [],
         "ListSalinity": [],
         "ListValve": [],
@@ -1953,19 +1701,10 @@
       {
         "ID": "WW2",
         "Depth": 0.8,
-        "ListSaltPondLine": [
-          "SPL3",
-          "SPL4"
-        ],
+        "ListSaltPondLine": ["SPL3", "SPL4"],
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [],
-        "ListWaterDoor": [
-          "WD8",
-          "WD9",
-          "WD11",
-          "WD13",
-          "WD14"
-        ],
+        "ListWaterDoor": ["WD8", "WD9", "WD11", "WD13", "WD14"],
         "ListWaterLevel": [],
         "ListSalinity": [],
         "ListValve": [],
@@ -1974,16 +1713,10 @@
       {
         "ID": "WW3",
         "Depth": 0.7,
-        "ListSaltPondLine": [
-          "SPL5"
-        ],
+        "ListSaltPondLine": ["SPL5"],
         "ListModuleTemperature": [],
         "ListUnderWaterTemperature": [],
-        "ListWaterDoor": [
-          "WD12",
-          "WD14",
-          "WD15"
-        ],
+        "ListWaterDoor": ["WD12", "WD14", "WD15"],
         "ListWaterLevel": [],
         "ListSalinity": [],
         "ListValve": [],
@@ -1994,169 +1727,110 @@
       {
         "ID": "P1",
         "High": [],
-        "Low": [
-          "V6"
-        ]
+        "Low": ["V6"]
       },
       {
         "ID": "P2",
         "High": [],
-        "Low": [
-          "V1",
-          "V2",
-          "V3",
-          "V4",
-          "V5"
-        ]
+        "Low": ["V1", "V2", "V3", "V4", "V5"]
       },
       {
         "ID": "P3",
         "High": [],
-        "Low": [
-          "V7"
-        ]
+        "Low": ["V7"]
       },
       {
         "ID": "P4",
         "High": [],
-        "Low": [
-          "V8"
-        ]
+        "Low": ["V8"]
       },
       {
         "ID": "P5",
         "High": [],
-        "Low": [
-          "V9"
-        ]
+        "Low": ["V9"]
       },
       {
         "ID": "V1",
-        "High": [
-          "P2"
-        ],
-        "Low": [
-        ]
+        "High": ["P2"],
+        "Low": []
       },
       {
         "ID": "V2",
-        "High": [
-          "P2"
-        ],
-        "Low": [
-        ]
+        "High": ["P2"],
+        "Low": []
       },
       {
         "ID": "V3",
-        "High": [
-          "P2"
-        ],
-        "Low": [
-        ]
+        "High": ["P2"],
+        "Low": []
       },
       {
         "ID": "V4",
-        "High": [
-          "P2"
-        ],
-        "Low": [
-        ]
+        "High": ["P2"],
+        "Low": []
       },
       {
         "ID": "V5",
-        "High": [
-          "P2"
-        ],
-        "Low": [
-        ]
+        "High": ["P2"],
+        "Low": []
       },
       {
         "ID": "V6",
-        "High": [
-          "P1"
-        ],
-        "Low": [
-        ]
+        "High": ["P1"],
+        "Low": []
       },
       {
         "ID": "V7",
-        "High": [
-          "P3"
-        ],
-        "Low": [
-        ]
+        "High": ["P3"],
+        "Low": []
       },
       {
         "ID": "V8",
-        "High": [
-          "P4"
-        ],
-        "Low": [
-        ]
+        "High": ["P4"],
+        "Low": []
       },
       {
         "ID": "V9",
-        "High": [
-          "P5"
-        ],
-        "Low": [
-        ]
+        "High": ["P5"],
+        "Low": []
       }
     ],
     "FeedRankData": [
       {
         "ID": "SP1",
-        "Rank": [
-          "RV1"
-        ]
+        "Rank": ["RV1"]
       },
       {
         "ID": "SP2",
-        "Rank": [
-          "RV1"
-        ]
+        "Rank": ["RV1"]
       },
       {
         "ID": "SP3",
-        "Rank": [
-          "RV1"
-        ]
+        "Rank": ["RV1"]
       },
       {
         "ID": "SP4",
-        "Rank": [
-          "RV1"
-        ]
+        "Rank": ["RV1"]
       },
       {
         "ID": "SP5",
-        "Rank": [
-          "RV1"
-        ]
+        "Rank": ["RV1"]
       },
       {
         "ID": "SP6",
-        "Rank": [
-          "WT2"
-        ]
+        "Rank": ["WT2"]
       },
       {
         "ID": "SP7",
-        "Rank": [
-          "SP6"
-        ]
+        "Rank": ["SP6"]
       },
       {
         "ID": "SP8",
-        "Rank": [
-          "SP7"
-        ]
+        "Rank": ["SP7"]
       },
       {
         "ID": "SP9",
-        "Rank": [
-          "WT3"
-        ]
+        "Rank": ["WT3"]
       }
     ],
     "MaxSalinityFeedRankData": [
@@ -2190,10 +1864,7 @@
       },
       {
         "ID": "SP8",
-        "Rank": [
-          "WT3",
-          "WT2"
-        ]
+        "Rank": ["WT3", "WT2"]
       },
       {
         "ID": "SP9",
@@ -2209,78 +1880,26 @@
           {
             "DesID": "WT1",
             "Type": "Common",
-            "True": [
-              "WD1",
-              "WD10"
-            ],
-            "False": [
-              "WD2",
-              "WD3",
-              "WD4",
-              "WD5",
-              "WD13"
-            ]
+            "True": ["WD1", "WD10"],
+            "False": ["WD2", "WD3", "WD4", "WD5", "WD13"]
           },
           {
             "DesID": "WT2",
             "Type": "Common",
-            "True": [
-              "WD1",
-              "WD13",
-              "WD11"
-            ],
-            "False": [
-              "WD2",
-              "WD3",
-              "WD4",
-              "WD5",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD14"
-            ]
+            "True": ["WD1", "WD13", "WD11"],
+            "False": ["WD2", "WD3", "WD4", "WD5", "WD10", "WD8", "WD9", "WD14"]
           },
           {
             "DesID": "WT3",
             "Type": "Common",
-            "True": [
-              "WD1",
-              "WD13",
-              "WD14",
-              "WD12"
-            ],
-            "False": [
-              "WD2",
-              "WD3",
-              "WD4",
-              "WD5",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD11",
-              "WD15"
-            ]
+            "True": ["WD1", "WD13", "WD14", "WD12"],
+            "False": ["WD2", "WD3", "WD4", "WD5", "WD10", "WD8", "WD9", "WD11", "WD15"]
           },
           {
             "DesID": "WO2",
             "Type": "Common",
-            "True": [
-              "WD1",
-              "WD13",
-              "WD14",
-              "WD15"
-            ],
-            "False": [
-              "WD2",
-              "WD3",
-              "WD4",
-              "WD5",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD11",
-              "WD12"
-            ]
+            "True": ["WD1", "WD13", "WD14", "WD15"],
+            "False": ["WD2", "WD3", "WD4", "WD5", "WD10", "WD8", "WD9", "WD11", "WD12"]
           }
         ]
       },
@@ -2290,78 +1909,26 @@
           {
             "DesID": "WT1",
             "Type": "Common",
-            "True": [
-              "WD2",
-              "WD10"
-            ],
-            "False": [
-              "WD1",
-              "WD3",
-              "WD4",
-              "WD5",
-              "WD13"
-            ]
+            "True": ["WD2", "WD10"],
+            "False": ["WD1", "WD3", "WD4", "WD5", "WD13"]
           },
           {
             "DesID": "WT2",
             "Type": "Common",
-            "True": [
-              "WD2",
-              "WD13",
-              "WD11"
-            ],
-            "False": [
-              "WD1",
-              "WD3",
-              "WD4",
-              "WD5",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD14"
-            ]
+            "True": ["WD2", "WD13", "WD11"],
+            "False": ["WD1", "WD3", "WD4", "WD5", "WD10", "WD8", "WD9", "WD14"]
           },
           {
             "DesID": "WT3",
             "Type": "Common",
-            "True": [
-              "WD2",
-              "WD13",
-              "WD14",
-              "WD12"
-            ],
-            "False": [
-              "WD1",
-              "WD3",
-              "WD4",
-              "WD5",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD11",
-              "WD15"
-            ]
+            "True": ["WD2", "WD13", "WD14", "WD12"],
+            "False": ["WD1", "WD3", "WD4", "WD5", "WD10", "WD8", "WD9", "WD11", "WD15"]
           },
           {
             "DesID": "WO2",
             "Type": "Common",
-            "True": [
-              "WD2",
-              "WD13",
-              "WD14",
-              "WD15"
-            ],
-            "False": [
-              "WD1",
-              "WD3",
-              "WD4",
-              "WD5",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD11",
-              "WD12"
-            ]
+            "True": ["WD2", "WD13", "WD14", "WD15"],
+            "False": ["WD1", "WD3", "WD4", "WD5", "WD10", "WD8", "WD9", "WD11", "WD12"]
           }
         ]
       },
@@ -2371,78 +1938,26 @@
           {
             "DesID": "WT1",
             "Type": "Common",
-            "True": [
-              "WD3",
-              "WD10"
-            ],
-            "False": [
-              "WD1",
-              "WD2",
-              "WD4",
-              "WD5",
-              "WD13"
-            ]
+            "True": ["WD3", "WD10"],
+            "False": ["WD1", "WD2", "WD4", "WD5", "WD13"]
           },
           {
             "DesID": "WT2",
             "Type": "Common",
-            "True": [
-              "WD3",
-              "WD13",
-              "WD11"
-            ],
-            "False": [
-              "WD1",
-              "WD2",
-              "WD4",
-              "WD5",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD14"
-            ]
+            "True": ["WD3", "WD13", "WD11"],
+            "False": ["WD1", "WD2", "WD4", "WD5", "WD10", "WD8", "WD9", "WD14"]
           },
           {
             "DesID": "WT3",
             "Type": "Common",
-            "True": [
-              "WD3",
-              "WD13",
-              "WD14",
-              "WD12"
-            ],
-            "False": [
-              "WD1",
-              "WD2",
-              "WD4",
-              "WD5",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD11",
-              "WD15"
-            ]
+            "True": ["WD3", "WD13", "WD14", "WD12"],
+            "False": ["WD1", "WD2", "WD4", "WD5", "WD10", "WD8", "WD9", "WD11", "WD15"]
           },
           {
             "DesID": "WO2",
             "Type": "Common",
-            "True": [
-              "WD3",
-              "WD13",
-              "WD14",
-              "WD15"
-            ],
-            "False": [
-              "WD1",
-              "WD2",
-              "WD4",
-              "WD5",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD11",
-              "WD12"
-            ]
+            "True": ["WD3", "WD13", "WD14", "WD15"],
+            "False": ["WD1", "WD2", "WD4", "WD5", "WD10", "WD8", "WD9", "WD11", "WD12"]
           }
         ]
       },
@@ -2452,78 +1967,26 @@
           {
             "DesID": "WT1",
             "Type": "Common",
-            "True": [
-              "WD4",
-              "WD10"
-            ],
-            "False": [
-              "WD1",
-              "WD2",
-              "WD3",
-              "WD5",
-              "WD13"
-            ]
+            "True": ["WD4", "WD10"],
+            "False": ["WD1", "WD2", "WD3", "WD5", "WD13"]
           },
           {
             "DesID": "WT2",
             "Type": "Common",
-            "True": [
-              "WD4",
-              "WD13",
-              "WD11"
-            ],
-            "False": [
-              "WD1",
-              "WD2",
-              "WD3",
-              "WD5",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD14"
-            ]
+            "True": ["WD4", "WD13", "WD11"],
+            "False": ["WD1", "WD2", "WD3", "WD5", "WD10", "WD8", "WD9", "WD14"]
           },
           {
             "DesID": "WT3",
             "Type": "Common",
-            "True": [
-              "WD4",
-              "WD13",
-              "WD14",
-              "WD12"
-            ],
-            "False": [
-              "WD1",
-              "WD2",
-              "WD3",
-              "WD5",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD11",
-              "WD15"
-            ]
+            "True": ["WD4", "WD13", "WD14", "WD12"],
+            "False": ["WD1", "WD2", "WD3", "WD5", "WD10", "WD8", "WD9", "WD11", "WD15"]
           },
           {
             "DesID": "WO2",
             "Type": "Common",
-            "True": [
-              "WD4",
-              "WD13",
-              "WD14",
-              "WD15"
-            ],
-            "False": [
-              "WD1",
-              "WD2",
-              "WD3",
-              "WD5",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD11",
-              "WD12"
-            ]
+            "True": ["WD4", "WD13", "WD14", "WD15"],
+            "False": ["WD1", "WD2", "WD3", "WD5", "WD10", "WD8", "WD9", "WD11", "WD12"]
           }
         ]
       },
@@ -2533,78 +1996,26 @@
           {
             "DesID": "WT1",
             "Type": "Common",
-            "True": [
-              "WD5",
-              "WD10"
-            ],
-            "False": [
-              "WD1",
-              "WD2",
-              "WD3",
-              "WD4",
-              "WD13"
-            ]
+            "True": ["WD5", "WD10"],
+            "False": ["WD1", "WD2", "WD3", "WD4", "WD13"]
           },
           {
             "DesID": "WT2",
             "Type": "Common",
-            "True": [
-              "WD5",
-              "WD13",
-              "WD11"
-            ],
-            "False": [
-              "WD1",
-              "WD2",
-              "WD3",
-              "WD4",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD14"
-            ]
+            "True": ["WD5", "WD13", "WD11"],
+            "False": ["WD1", "WD2", "WD3", "WD4", "WD10", "WD8", "WD9", "WD14"]
           },
           {
             "DesID": "WT3",
             "Type": "Common",
-            "True": [
-              "WD5",
-              "WD13",
-              "WD14",
-              "WD12"
-            ],
-            "False": [
-              "WD1",
-              "WD2",
-              "WD3",
-              "WD4",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD11",
-              "WD15"
-            ]
+            "True": ["WD5", "WD13", "WD14", "WD12"],
+            "False": ["WD1", "WD2", "WD3", "WD4", "WD10", "WD8", "WD9", "WD11", "WD15"]
           },
           {
             "DesID": "WO2",
             "Type": "Common",
-            "True": [
-              "WD5",
-              "WD13",
-              "WD14",
-              "WD15"
-            ],
-            "False": [
-              "WD1",
-              "WD2",
-              "WD3",
-              "WD4",
-              "WD10",
-              "WD8",
-              "WD9",
-              "WD11",
-              "WD12"
-            ]
+            "True": ["WD5", "WD13", "WD14", "WD15"],
+            "False": ["WD1", "WD2", "WD3", "WD4", "WD10", "WD8", "WD9", "WD11", "WD12"]
           }
         ]
       },
@@ -2614,12 +2025,8 @@
           {
             "DesID": "SP7",
             "Type": "Common",
-            "True": [
-              "WD6"
-            ],
-            "False": [
-              "WD7"
-            ]
+            "True": ["WD6"],
+            "False": ["WD7"]
           }
         ]
       },
@@ -2629,13 +2036,8 @@
           {
             "DesID": "SP8",
             "Type": "Common",
-            "True": [
-              "WD7"
-            ],
-            "False": [
-              "WD6",
-              "WD8"
-            ]
+            "True": ["WD7"],
+            "False": ["WD6", "WD8"]
           }
         ]
       },
@@ -2645,48 +2047,20 @@
           {
             "DesID": "WT2",
             "Type": "Common",
-            "True": [
-              "WD8",
-              "WD11"
-            ],
-            "False": [
-              "WD7",
-              "WD9",
-              "WD13",
-              "WD14"
-            ]
+            "True": ["WD8", "WD11"],
+            "False": ["WD7", "WD9", "WD13", "WD14"]
           },
           {
             "DesID": "WT3",
             "Type": "Common",
-            "True": [
-              "WD8",
-              "WD14",
-              "WD12"
-            ],
-            "False": [
-              "WD7",
-              "WD9",
-              "WD13",
-              "WD11",
-              "WD15"
-            ]
+            "True": ["WD8", "WD14", "WD12"],
+            "False": ["WD7", "WD9", "WD13", "WD11", "WD15"]
           },
           {
             "DesID": "WO2",
             "Type": "Common",
-            "True": [
-              "WD8",
-              "WD14",
-              "WD15"
-            ],
-            "False": [
-              "WD7",
-              "WD9",
-              "WD13",
-              "WD11",
-              "WD12"
-            ]
+            "True": ["WD8", "WD14", "WD15"],
+            "False": ["WD7", "WD9", "WD13", "WD11", "WD12"]
           }
         ]
       },
@@ -2696,45 +2070,20 @@
           {
             "DesID": "WT2",
             "Type": "Common",
-            "True": [
-              "WD9",
-              "WD11"
-            ],
-            "False": [
-              "WD8",
-              "WD13",
-              "WD14"
-            ]
+            "True": ["WD9", "WD11"],
+            "False": ["WD8", "WD13", "WD14"]
           },
           {
             "DesID": "WT3",
             "Type": "Common",
-            "True": [
-              "WD9",
-              "WD14",
-              "WD12"
-            ],
-            "False": [
-              "WD8",
-              "WD13",
-              "WD11",
-              "WD15"
-            ]
+            "True": ["WD9", "WD14", "WD12"],
+            "False": ["WD8", "WD13", "WD11", "WD15"]
           },
           {
             "DesID": "WO2",
             "Type": "Common",
-            "True": [
-              "WD9",
-              "WD14",
-              "WD15"
-            ],
-            "False": [
-              "WD8",
-              "WD13",
-              "WD11",
-              "WD12"
-            ]
+            "True": ["WD9", "WD14", "WD15"],
+            "False": ["WD8", "WD13", "WD11", "WD12"]
           }
         ]
       },
@@ -2744,10 +2093,7 @@
           {
             "DesID": "RV1",
             "Type": "Common",
-            "True": [
-              "P1",
-              "V6"
-            ],
+            "True": ["P1", "V6"],
             "False": []
           }
         ]
@@ -2758,57 +2104,32 @@
           {
             "DesID": "SP1",
             "Type": "Common",
-            "True": [
-              "P2",
-              "V1"
-            ],
-            "False": [
-              "WD1"
-            ]
+            "True": ["P2", "V1"],
+            "False": ["WD1"]
           },
           {
             "DesID": "SP2",
             "Type": "Common",
-            "True": [
-              "P2",
-              "V2"
-            ],
-            "False": [
-              "WD2"
-            ]
+            "True": ["P2", "V2"],
+            "False": ["WD2"]
           },
           {
             "DesID": "SP3",
             "Type": "Common",
-            "True": [
-              "P2",
-              "V3"
-            ],
-            "False": [
-              "WD3"
-            ]
+            "True": ["P2", "V3"],
+            "False": ["WD3"]
           },
           {
             "DesID": "SP4",
             "Type": "Common",
-            "True": [
-              "P2",
-              "V4"
-            ],
-            "False": [
-              "WD4"
-            ]
+            "True": ["P2", "V4"],
+            "False": ["WD4"]
           },
           {
             "DesID": "SP5",
             "Type": "Common",
-            "True": [
-              "P2",
-              "V5"
-            ],
-            "False": [
-              "WD5"
-            ]
+            "True": ["P2", "V5"],
+            "False": ["WD5"]
           }
         ]
       },
@@ -2818,14 +2139,8 @@
           {
             "DesID": "WT2",
             "Type": "Common",
-            "True": [
-              "P3",
-              "V7"
-            ],
-            "False": [
-              "WD10",
-              "WD11"
-            ]
+            "True": ["P3", "V7"],
+            "False": ["WD10", "WD11"]
           }
         ]
       },
@@ -2835,14 +2150,8 @@
           {
             "DesID": "SP6",
             "Type": "Common",
-            "True": [
-              "P4",
-              "V8"
-            ],
-            "False": [
-              "WD6",
-              "WD11"
-            ]
+            "True": ["P4", "V8"],
+            "False": ["WD6", "WD11"]
           }
         ]
       },
@@ -2852,14 +2161,8 @@
           {
             "DesID": "SP9",
             "Type": "Common",
-            "True": [
-              "P5",
-              "V9"
-            ],
-            "False": [
-              "WD9",
-              "WD12"
-            ]
+            "True": ["P5", "V9"],
+            "False": ["WD9", "WD12"]
           }
         ]
       }
@@ -2867,9 +2170,7 @@
     "AutomationMode": [
       {
         "Des": "SP9",
-        "Src": [
-          "WT3"
-        ]
+        "Src": ["WT3"]
       }
     ],
     "SettingMode": [

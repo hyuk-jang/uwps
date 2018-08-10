@@ -1,6 +1,4 @@
-const {
-  expect
-} = require('chai');
+const { expect } = require('chai');
 const _ = require('underscore');
 const Promise = require('bluebird');
 
@@ -31,7 +29,7 @@ describe('Config Setter Test', () => {
   const BM = new bmjh.BM(config.current.dbInfo);
   // 인버터 데이터 DB 갱신 처리
   it('inverterSetter', async () => {
-    // 인버터 정보 DB에서 불러오지 않을 경우 
+    // 인버터 정보 DB에서 불러오지 않을 경우
     if (!hasReloadInverterConfig) {
       BU.CLI('인버터 config DB 갱신 X ');
       return true;
@@ -41,7 +39,11 @@ describe('Config Setter Test', () => {
 
     let inverterList = await BM.getTable('inverter');
     let recentInverterDataList = await Promise.map(inverterList, inverter => {
-      return BM.db.single(`SELECT d_wh, c_wh FROM inverter_data WHERE ${inverter.inverter_seq} = inverter_seq ORDER BY inverter_data_seq DESC LIMIT 1 `);
+      return BM.db.single(
+        `SELECT d_wh, c_wh FROM inverter_data WHERE ${
+          inverter.inverter_seq
+        } = inverter_seq ORDER BY inverter_data_seq DESC LIMIT 1 `
+      );
     });
 
     let ivtDataList = _.flatten(recentInverterDataList);
@@ -73,21 +75,23 @@ describe('Config Setter Test', () => {
 
   // 접속반 데이터 DB 갱신 처리
   it('connectorSetter', async () => {
-    // 접속반 정보 DB에서 불러오지 않을 경우 
+    // 접속반 정보 DB에서 불러오지 않을 경우
     if (!hasReloadConnectorConfig) {
       BU.CLI('접속반 config DB 갱신 X ');
       return true;
     }
     let returnValue = [];
-    let connectorList = await BM.db.single('SELECT *,(SELECT COUNT(*) FROM relation_upms WHERE cnt.connector_seq = relation_upms.connector_seq  ) AS ch_number FROM connector cnt');
-    let relation_upms = await BM.getTable('relation_upms');
+    let connectorList = await BM.db.single(
+      'SELECT *,(SELECT COUNT(*) FROM relation_power WHERE cnt.connector_seq = relation_power.connector_seq  ) AS ch_number FROM connector cnt'
+    );
+    let relation_power = await BM.getTable('relation_power');
 
-    connectorList.forEach((element) => {
+    connectorList.forEach(element => {
       let addObj = {
         hasDev: true,
         // devPort: basePort + index,
         deviceSavedInfo: element,
-        moduleList: _.where(relation_upms, {
+        moduleList: _.where(relation_power, {
           connector_seq: element.connector_seq
         })
       };
@@ -100,7 +104,6 @@ describe('Config Setter Test', () => {
     BU.CLI(returnValue);
 
     expect(returnValue).to.not.deep.equal([]);
-
   });
 
   // Json File 생성 유무. --> json 생성 시 해당 File에서 inverterList, connectorList 갱신 후 json File 삭제 요망
@@ -113,13 +116,21 @@ describe('Config Setter Test', () => {
     let wf = Promise.promisify(BU.writeFile);
 
     BU.CLI(config);
-    let result = await wf('./out/config.json', `${JSON.stringify(config)}`, 'w');
+    let result = await wf(
+      './out/config.json',
+      `${JSON.stringify(config)}`,
+      'w'
+    );
     BU.CLI(result);
     expect(result).to.equal(undefined);
 
     // 인버터 이상 데이터 생성
     let inverterDbTroubleList = await BM.db.single(getTroubleList('inverter'));
-    result = await wf('./out/inverterDbTroubleList.json', `${JSON.stringify(inverterDbTroubleList)}`, 'w');
+    result = await wf(
+      './out/inverterDbTroubleList.json',
+      `${JSON.stringify(inverterDbTroubleList)}`,
+      'w'
+    );
 
     expect(result).to.equal(undefined);
   });

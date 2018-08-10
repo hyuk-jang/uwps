@@ -1,8 +1,6 @@
 'use strict';
 const _ = require('lodash');
-const {
-  BU
-} = require('base-util-jh');
+const { BU } = require('base-util-jh');
 const cron = require('cron');
 // const AbstDeviceClient = require('device-client-controller-jh');
 const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
@@ -25,7 +23,9 @@ class Control extends AbstDeviceClient {
     this.config = _.get(config, 'current', {});
 
     this.converter = new AbstConverter(this.config.deviceInfo.protocol_info);
-    this.baseModel = new BaseModel.Weathercast(this.config.deviceInfo.protocol_info);
+    this.baseModel = new BaseModel.Weathercast(
+      this.config.deviceInfo.protocol_info
+    );
 
     this.model = new Model(this);
     /** 주기적으로 LOOP 명령을 내릴 시간 인터벌 */
@@ -68,12 +68,9 @@ class Control extends AbstDeviceClient {
           // /** @type {Array.<commandInfo>} */
           // let cmdList = this.converter.generationCommand();
 
-
           // this.discoveryRegularDevice();
-
-
         },
-        start: true,
+        start: true
       });
       return true;
     } catch (error) {
@@ -95,17 +92,23 @@ class Control extends AbstDeviceClient {
 
       // 데이터가 2번 이상 들어오지 않는다면 문제가 있다고 판단
       if (this.errorCount === 2) {
-        let commandSet = this.generationAutoCommand(this.baseModel.device.DEFAULT.COMMAND.LOOP);
+        let commandSet = this.generationAutoCommand(
+          this.baseModel.device.DEFAULT.COMMAND.LOOP
+        );
         this.executeCommand(commandSet);
         this.requestTakeAction(this.definedCommanderResponse.NEXT);
-      } else if (this.errorCount === 4) { // 그래도 정상적인 데이터가 들어오지 않는다면
-        let commandSet = this.generationAutoCommand(this.baseModel.device.DEFAULT.COMMAND.LOOP_INDEX);
+      } else if (this.errorCount === 4) {
+        // 그래도 정상적인 데이터가 들어오지 않는다면
+        let commandSet = this.generationAutoCommand(
+          this.baseModel.device.DEFAULT.COMMAND.LOOP_INDEX
+        );
         this.executeCommand(commandSet);
         this.requestTakeAction(this.definedCommanderResponse.NEXT);
-      } else if (this.errorCount === 6){ // 통제할 수 없는 에러라면
+      } else if (this.errorCount === 6) {
+        // 통제할 수 없는 에러라면
         this.requestTakeAction(this.definedCommanderResponse.NEXT);
-        this.errorCount = 0;  // 새롭게 시작
-        this.manager.disconnect();  // 장치 재접속 요청
+        this.errorCount = 0; // 새롭게 시작
+        this.manager.disconnect(); // 장치 재접속 요청
       } else {
         return false;
       }
@@ -128,10 +131,9 @@ class Control extends AbstDeviceClient {
     };
   }
 
-
   /**
    * Device Controller 변화가 생겨 관련된 전체 Commander에게 뿌리는 Event
-   * @param {dcEvent} dcEvent 
+   * @param {dcEvent} dcEvent
    */
   updatedDcEventOnDevice(dcEvent) {
     BU.log('updateDcEvent\t', dcEvent.eventName);
@@ -139,14 +141,15 @@ class Control extends AbstDeviceClient {
       /** @type {Array.<commandInfo>} */
       switch (dcEvent.eventName) {
       case this.definedControlEvent.CONNECT:
-        var cmdWakeUp = this.generationAutoCommand(this.baseModel.device.DEFAULT.COMMAND.WAKEUP);
+        var cmdWakeUp = this.generationAutoCommand(
+          this.baseModel.device.DEFAULT.COMMAND.WAKEUP
+        );
         this.executeCommand(cmdWakeUp);
         this.runCronDiscoveryRegularDevice();
         break;
       default:
         break;
       }
-
     } catch (error) {
       BU.CLI(error);
     }
@@ -165,7 +168,6 @@ class Control extends AbstDeviceClient {
     }
   }
 
-
   /**
    * 장치로부터 데이터 수신
    * @interface
@@ -173,13 +175,7 @@ class Control extends AbstDeviceClient {
    */
   onDcData(dcData) {
     try {
-
-      BU.CLI('data', dcData.data.toString());
-
-      if (this.config.deviceInfo.connect_info.type === 'socket') {
-        dcData.data = JSON.parse(dcData.data.toString());
-        dcData.data.data = Buffer.from(dcData.data.data);
-      }
+      // BU.CLI('data', dcData.data.toString());
 
       const resultParsing = this.converter.parsingUpdateData(dcData);
       // BU.CLI(resultParsing);
@@ -188,7 +184,11 @@ class Control extends AbstDeviceClient {
         this.hasReceivedData = true;
 
         this.model.onData(resultParsing.data);
-        BU.CLIN(this.getDeviceOperationInfo().data[BaseModel.Weathercast.BASE_KEY.SolarRadiation]);
+        BU.CLIN(
+          this.getDeviceOperationInfo().data[
+            BaseModel.Weathercast.BASE_KEY.SolarRadiation
+          ]
+        );
       }
     } catch (error) {
       // BU.CLI(error);

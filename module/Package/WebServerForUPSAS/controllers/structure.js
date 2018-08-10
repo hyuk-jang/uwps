@@ -1,38 +1,47 @@
-const wrap = require('express-async-wrap');
+const asyncHandler = require('express-async-handler');
 const router = require('express').Router();
-const _ = require('underscore');
-const BU = require('base-util-jh').baseUtil;
-const DU = require('base-util-jh').domUtil;
+const {BU, DU} = require('base-util-jh');
 
-let BiModule = require('../models/BiModule.js');
-let webUtil = require('../models/web.util');
+const BiModule = require('../models/BiModule.js');
+const webUtil = require('../models/web.util');
 
-module.exports = function (app) {
+module.exports = app => {
   const initSetter = app.get('initSetter');
   const biModule = new BiModule(initSetter.dbInfo);
 
   // server middleware
-  router.use(wrap(async (req, res, next) => {
-    req.locals = DU.makeBaseHtml(req, 2);
-    let currWeatherCastList = await biModule.getCurrWeatherCast();
-    let currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
-    let weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
-    req.locals.weatherCastInfo = weatherCastInfo;
-    next();
-  }));
-
+  router.use(
+    asyncHandler(async (req, res, next) => {
+      if (app.get('auth')) {
+        if (!req.user) {
+          return res.redirect('/auth/login');
+        }
+      }
+      req.locals = DU.makeBaseHtml(req, 2);
+      const currWeatherCastList = await biModule.getCurrWeatherCast();
+      const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
+      const weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
+      req.locals.weatherCastInfo = weatherCastInfo;
+      next();
+    }),
+  );
 
   // Get
-  router.get('/', wrap(async(req, res) => {
-    BU.CLI('structure', req.locals);
+  router.get(
+    '/',
+    asyncHandler(async (req, res) => {
+      BU.CLI('structure', req.locals);
 
-    return res.render('./structure/diagram.html', req.locals);
-  }));
+      return res.render('./structure/diagram.html', req.locals);
+    }),
+  );
 
-  router.use(wrap(async(err, req, res, next) => {
-    console.log('Err', err);
-    res.status(500).send(err);
-  }));
+  router.use(
+    asyncHandler(async (err, req, res) => {
+      console.log('Err', err);
+      res.status(500).send(err);
+    }),
+  );
 
   return router;
 };

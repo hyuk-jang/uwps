@@ -1,102 +1,127 @@
-const wrap = require('express-async-wrap');
+const asyncHandler = require('express-async-handler');
 const router = require('express').Router();
-const _ = require('underscore');
-const BU = require('base-util-jh').baseUtil;
-const DU = require('base-util-jh').domUtil;
+const {BU, DU} = require('base-util-jh');
 
 const BiModule = require('../models/BiModule.js');
-let webUtil = require('../models/web.util');
+const webUtil = require('../models/web.util');
 
-module.exports = function (app) {
+module.exports = app => {
   const initSetter = app.get('initSetter');
   const biModule = new BiModule(initSetter.dbInfo);
 
   // server middleware
-  router.use(wrap(async (req, res, next) => {
-    req.locals = DU.makeBaseHtml(req, 7);
-    let currWeatherCastList = await biModule.getCurrWeatherCast();
-    let currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
-    let weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
-    req.locals.weatherCastInfo = weatherCastInfo;
-    next();
-  }));
+  router.use(
+    asyncHandler(async (req, res, next) => {
+      if (app.get('auth')) {
+        if (!req.user) {
+          return res.redirect('/auth/login');
+        }
+      }
+      req.locals = DU.makeBaseHtml(req, 7);
+      const currWeatherCastList = await biModule.getCurrWeatherCast();
+      const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
+      const weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
+      req.locals.weatherCastInfo = weatherCastInfo;
+      next();
+    }),
+  );
 
   // Get
-  router.get('/', wrap(async(req, res) => {
-    // BU.CLI('alarm', req.query)
-    // 장비 종류 여부 all(전체), inverter(인버터), connector(접속반)
-    let deviceType = req.query.device_type === 'inverter' || req.query.device_type === 'connector' ? req.query.device_type : 'all';
-    /** 오류 상태 @property {string} error_status all(전체), deviceError(장치 에러), systemError(시스템 에러) */
-    let error_status = req.query.error_status == null || req.query.error_status === '' ? 'deviceError' : req.query.error_status;
-    
-    let param_page = req.query.page || 1;
+  router.get(
+    '/',
+    asyncHandler(async (req, res) => {
+      // BU.CLI('alarm', req.query)
+      // 장비 종류 여부 all(전체), inverter(인버터), connector(접속반)
+      let deviceType = 'all';
+      if (req.query.device_type === 'inverter' || req.query.device_type === 'connector') {
+        deviceType = req.query.device_type;
+      } else if (req.query.device_type === undefined) {
+        deviceType = 'inverter';
+      }
 
-    let startDate = req.query.start_date ? BU.convertTextToDate(req.query.start_date) : new Date();
-    let endDate = req.query.end_date ? BU.convertTextToDate(req.query.end_date) : new Date();
+      /** 오류 상태 @property {string} error_status all(전체), deviceError(장치 에러), systemError(시스템 에러) */
+      const error_status =
+        req.query.error_status == null || req.query.error_status === ''
+          ? 'deviceError'
+          : req.query.error_status;
 
-    // 기본 한달 간 검색
-    if(!req.query.start_date){
-      startDate.setMonth(startDate.getMonth() - 1);
-    }
-    startDate = BU.convertDateToText(startDate);
-    endDate = BU.convertDateToText(endDate);
+      const param_page = req.query.page || 1;
 
-    let searchRange = biModule.getSearchRange('range', startDate, endDate);
-    // 검색 조건 객체에 현재 페이지, 페이지당 출력 건수 정의
-    searchRange.page = Number(param_page);
-    searchRange.pageListCount = 20;
+      let startDate = req.query.start_date
+        ? BU.convertTextToDate(req.query.start_date)
+        : new Date();
+      let endDate = req.query.end_date ? BU.convertTextToDate(req.query.end_date) : new Date();
 
-    let troubleReport = {totalCount: 0, report: []};
+      // 기본 한달 간 검색
+      if (!req.query.start_date) {
+        startDate.setMonth(startDate.getMonth() - 1);
+      }
+      startDate = BU.convertDateToText(startDate);
+      endDate = BU.convertDateToText(endDate);
 
-    if(deviceType === 'inverter'){
-      troubleReport = await biModule.getAlarmReportForInverter(error_status, searchRange);
-    } else if(deviceType === 'connector'){
-      troubleReport = await biModule.getAlarmReportForConnector(error_status, searchRange);
-    } else {
-      troubleReport = await biModule.getAlarmReport(error_status, searchRange);
-    }
+      const searchRange = biModule.getSearchRange('range', startDate, endDate);
+      // 검색 조건 객체에 현재 페이지, 페이지당 출력 건수 정의
+      searchRange.page = Number(param_page);
+      searchRange.pageListCount = 20;
 
-    let queryString = {
-      start_date: searchRange.strStartDateInputValue,
-      end_date: searchRange.strEndDateInputValue,
-    };
-    
-    let paginationInfo = DU.makeBsPagination(searchRange.page, troubleReport.totalCount, '/alarm', queryString, searchRange.pageListCount);
+      let troubleReport = {totalCount: 0, report: []};
 
-    
-    let device_type_list = [
-      {type: 'all', name: '전체'},
-      {type: 'inverter', name: '인버터'},
-      {type: 'connector', name: '접속반'}
-    ];
+      if (deviceType === 'inverter') {
+        troubleReport = await biModule.getAlarmReportForInverter(error_status, searchRange);
+      } else if (deviceType === 'connector') {
+        troubleReport = await biModule.getAlarmReportForConnector(error_status, searchRange);
+      } else {
+        troubleReport = await biModule.getAlarmReport(error_status, searchRange);
+      }
 
-    let error_status_list = [
-      {type: 'all', name: '전체'},
-      {type: 'deviceError', name: '장치 오류'},
-      {type: 'systemError', name: '시스템 오류'}
-    ];
+      const queryString = {
+        start_date: searchRange.strStartDateInputValue,
+        end_date: searchRange.strEndDateInputValue,
+      };
 
-    // 차트 제어 및 자질 구래한 데이터 모음
-    let searchOption = {
-      device_type: deviceType,
-      device_type_list: device_type_list,
-      error_status: error_status,
-      error_status_list: error_status_list,
-      search_range: searchRange
-    };
+      const paginationInfo = DU.makeBsPagination(
+        searchRange.page,
+        troubleReport.totalCount,
+        '/alarm',
+        queryString,
+        searchRange.pageListCount,
+      );
 
+      const device_type_list = [
+        {type: 'all', name: '전체'},
+        {type: 'inverter', name: '인버터'},
+        {type: 'connector', name: '접속반'},
+      ];
 
-    req.locals.searchOption = searchOption;
-    req.locals.alarmList = troubleReport.report;
-    req.locals.paginationInfo = paginationInfo;
+      const error_status_list = [
+        {type: 'all', name: '전체'},
+        {type: 'deviceError', name: '장치 오류'},
+        {type: 'systemError', name: '시스템 오류'},
+      ];
 
-    return res.render('./alarm/alert.html', req.locals);
-  }));
+      // 차트 제어 및 자질 구래한 데이터 모음
+      const searchOption = {
+        device_type: deviceType,
+        device_type_list,
+        error_status,
+        error_status_list,
+        search_range: searchRange,
+      };
 
-  router.use(wrap(async(err, req, res) => {
-    console.log('Err', err);
-    res.status(500).send(err);
-  }));
+      req.locals.searchOption = searchOption;
+      req.locals.alarmList = troubleReport.report;
+      req.locals.paginationInfo = paginationInfo;
+
+      return res.render('./alarm/alert.html', req.locals);
+    }),
+  );
+
+  router.use(
+    asyncHandler(async (err, req, res) => {
+      console.log('Err', err);
+      res.status(500).send(err);
+    }),
+  );
 
   return router;
 };

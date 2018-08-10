@@ -20,16 +20,16 @@ module.exports = {
         hasReconnect: true
       },
       protocol_info: {
-        mainCategory: 'Saltern',
+        mainCategory: 'UPSAS',
         subCategory: 'xbee',
       },
       connect_info: {
-        type: 'zigbee',
-        // type: 'socket',
-        subType: 'xbee',
+        // type: 'zigbee',
+        type: 'socket',
+        // subType: 'xbee',
         baudRate: 9600,
-        port: 'COM2',
-        // port: 9000,
+        // port: 'COM2',
+        port: 9000,
         
       },
     },

@@ -15,33 +15,36 @@ const BU = require('base-util-jh').baseUtil;
  * @property {string} view_date 차트에 표현할 Date Format
  * @property {string} group_date 그룹 처리한 Date Format
  * @property {number} avg_sky 평균 운량
- */ 
-
+ */
 
 class BiModule extends bmjh.BM {
+  /** @param {dbInfo} dbInfo */
   constructor(dbInfo) {
     super(dbInfo);
 
+    this.dbInfo = dbInfo;
   }
 
   /**
    * 에러 내역
    * @param {searchRange} searchRange  검색 옵션
-   * @param {number[]=} inverter_seq_list 
+   * @param {number[]=} inverter_seq_list
    * @return {{comment: string, is_error: number}[]} SQL 실행 결과
    */
-  getCalendarComment(searchRange){
-    searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
+  getCalendarComment(searchRange) {
+    searchRange = searchRange || this.getSearchRange();
+    const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
 
-    let sql = `
+    const sql = `
       SELECT
         cal.comment,
         cal.is_error,
         ${dateFormat.selectViewDate},
         ${dateFormat.selectGroupDate}
         FROM calendar cal
-        WHERE writedate>= "${searchRange.strBetweenStart}" and writedate<"${searchRange.strBetweenEnd}"
+        WHERE writedate>= "${searchRange.strBetweenStart}" and writedate<"${
+      searchRange.strBetweenEnd
+    }"
         ORDER BY writedate
     `;
     return this.db.single(sql, '', false);
@@ -50,12 +53,12 @@ class BiModule extends bmjh.BM {
   /**
    * 수위
    * @param {searchRange} searchRange  검색 옵션
-   * @param {number[]=} inverter_seq_list 
+   * @param {number[]=} inverter_seq_list
    * @return {Promise} SQL 실행 결과
    */
-  getWaterLevel(searchRange, inverter_seq_list){
-    searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'applydate');
+  getWaterLevel(searchRange, inverter_seq_list) {
+    searchRange = searchRange || this.getSearchRange();
+    const dateFormat = this.makeDateFormatForReport(searchRange, 'applydate');
 
     // BU.CLI(dateFormat);
     let sql = `
@@ -66,7 +69,9 @@ class BiModule extends bmjh.BM {
         ${dateFormat.selectViewDate},
         ${dateFormat.selectGroupDate}
         FROM temp_water_level twl
-        WHERE applydate>= "${searchRange.strBetweenStart}" and applydate<"${searchRange.strBetweenEnd}"
+        WHERE applydate>= "${searchRange.strBetweenStart}" and applydate<"${
+      searchRange.strBetweenEnd
+    }"
     `;
     if (inverter_seq_list) {
       sql += `AND twl.inverter_seq IN (${inverter_seq_list})`;
@@ -82,7 +87,7 @@ class BiModule extends bmjh.BM {
    * 기상 관측 장비의 최신 데이터 1row를 가져옴.
    */
   getWeather() {
-    let sql = 'SELECT * FROM weather_device_data ORDER BY writedate DESC LIMIT 1';
+    const sql = 'SELECT * FROM weather_device_data ORDER BY writedate DESC LIMIT 1';
     return this.db.single(sql, '', false);
   }
 
@@ -92,9 +97,9 @@ class BiModule extends bmjh.BM {
    * @return {weatherRowDataPacketList}
    */
   getWeatherDeviceAverage(searchRange) {
-    searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
-    let sql = `
+    searchRange = searchRange || this.getSearchRange();
+    const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
+    const sql = `
       SELECT
           writedate,
           ${dateFormat.selectViewDate},
@@ -106,12 +111,14 @@ class BiModule extends bmjh.BM {
           ROUND(AVG(solar) / 6, 1) AS interval_solar,
           COUNT(*) AS first_count
       FROM weather_device_data wdd
-      WHERE writedate>= "${searchRange.strBetweenStart}" and writedate<"${searchRange.strBetweenEnd}"
+      WHERE writedate>= "${searchRange.strBetweenStart}" and writedate<"${
+      searchRange.strBetweenEnd
+    }"
       AND DATE_FORMAT(writedate, '%H') > '05' AND DATE_FORMAT(writedate, '%H') < '20'
       GROUP BY ${dateFormat.groupByFormat}
       ORDER BY writedate
     `;
-    return this.db.single(sql, '', true);
+    return this.db.single(sql, '', false);
   }
 
   /**
@@ -120,12 +127,12 @@ class BiModule extends bmjh.BM {
    * @return {weatherRowDataPacketList}
    */
   getWeatherCastAverage(searchRange) {
-    searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'applydate');
+    searchRange = searchRange || this.getSearchRange();
+    const dateFormat = this.makeDateFormatForReport(searchRange, 'applydate');
     // BU.CLI(dateFormat);
     // BU.CLI(searchRange);
 
-    let sql = `
+    const sql = `
     SELECT main.*,
     ${dateFormat.selectViewDate},
     ${dateFormat.selectGroupDate},
@@ -149,10 +156,9 @@ class BiModule extends bmjh.BM {
     return this.db.single(sql, '', false);
   }
 
-
   /**
    * 접속반 기준 Module 최신 데이터 가져옴
-   *  
+   *
    * @param {number|Array} photovoltatic_seq Format => Number or Array or undefinded
    * @return {Promise} 최신 데이터 리스트
    */
@@ -164,10 +170,10 @@ class BiModule extends bmjh.BM {
       curr_data.*	 		  
         FROM
         photovoltaic pv
-        JOIN relation_upms ru
+        JOIN relation_power ru
           ON ru.photovoltaic_seq = pv.photovoltaic_seq
-        LEFT JOIN saltern_block sb
-          ON sb.saltern_block_seq = ru.saltern_block_seq
+        LEFT JOIN v_dv_place vdp
+          ON vdp.place_seq = ru.place_seq
         LEFT OUTER JOIN 
         (
         SELECT 
@@ -196,16 +202,15 @@ class BiModule extends bmjh.BM {
     return this.db.single(sql, '', false);
   }
 
-
   /**
-   * 접속반 메뉴 에서 쓸 데이터 
+   * 접속반 메뉴 에서 쓸 데이터
    * @param {searchRange} searchRange  검색 옵션
    * @param {number[]=} module_seq_list null, String, Array
    * @return {Promise} SQL 실행 결과
    */
   getConnectorPower(searchRange, module_seq_list) {
-    searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
+    searchRange = searchRange || this.getSearchRange();
+    const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
 
     let sql = `
       SELECT
@@ -232,13 +237,12 @@ class BiModule extends bmjh.BM {
     return this.db.single(sql, '', false);
   }
 
-
-  /** 
+  /**
    * 기상청 날씨를 가져옴
    * @return {Array.<{temp: number, pty: number, wf: number, pop: number, r12: number, ws:number, wd: number, reh: number, applydate: Date}>} 날씨 정보
    */
   getCurrWeatherCast() {
-    let sql = `
+    const sql = `
       SELECT *, 
               ABS(CURRENT_TIMESTAMP() - applydate) AS cur_interval 
        FROM kma_data
@@ -247,8 +251,6 @@ class BiModule extends bmjh.BM {
     `;
     return this.db.single(sql, '', false);
   }
-
-
 
   /**
    * 검색 종류와 검색 기간에 따라 계산 후 검색 조건 객체 반환
@@ -259,13 +261,24 @@ class BiModule extends bmjh.BM {
    */
   getSearchRange(searchType, start_date, end_date) {
     // BU.CLIS(searchType, start_date, end_date);
-    let startDate = start_date instanceof Date ? start_date : _.isString(start_date) ? BU.convertTextToDate(start_date) : new Date();
-    let endDate = end_date instanceof Date ? end_date : searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : startDate;
+    let startDate = new Date();
+    if (start_date instanceof Date) {
+      startDate = start_date;
+    } else if (_.isString(start_date)) {
+      startDate = BU.convertTextToDate(start_date);
+    }
+
+    let endDate = startDate;
+    if (end_date instanceof Date) {
+      endDate = end_date;
+    } else if (searchType === 'range' && end_date !== '') {
+      endDate = BU.convertTextToDate(end_date);
+    }
     // let endDate = searchType === 'range' && end_date !== '' ? BU.convertTextToDate(end_date) : new Date(startDate);
     let convertEndDate = null;
     // BU.CLI(BU.convertDateToText(startDate), BU.convertDateToText(endDate));
     /** @type {searchRange} */
-    let returnValue = {
+    const returnValue = {
       searchType,
       searchInterval: searchType,
       resultGroupType: null,
@@ -285,31 +298,35 @@ class BiModule extends bmjh.BM {
     startDate.setHours(0, 0, 0, 0);
     if (searchType === 'hour' || searchType === '') {
       spliceIndex = 2;
-      convertEndDate = endDate = (new Date(startDate)).addDays(1);
+      endDate = new Date(startDate).addDays(1);
+      convertEndDate = endDate;
       // 검색 종료날짜가 현재 날짜라면 시간단위로 지정
       let currDate = new Date().setHours(0, 0, 0, 0);
       currDate = new Date(currDate).addDays(1);
-      if(BU.convertDateToText(currDate) === BU.convertDateToText(endDate)){
+      if (BU.convertDateToText(currDate) === BU.convertDateToText(endDate)) {
         convertEndDate = new Date(new Date().setMinutes(0, 0, 0));
       }
-    } else if (searchType === 'min' || searchType === 'min10'){
+    } else if (searchType === 'min' || searchType === 'min10') {
       spliceIndex = 2;
-      convertEndDate = endDate = (new Date(startDate)).addDays(1);
+      endDate = new Date(startDate).addDays(1);
+      convertEndDate = endDate;
       // 검색 종료날짜가 현재 날짜라면 시간단위로 지정
       let currDate = new Date().setHours(0, 0, 0, 0);
       currDate = new Date(currDate).addDays(1);
-      if(BU.convertDateToText(currDate) === BU.convertDateToText(endDate)){
-        let fixedMinutes = Math.floor(new Date().getMinutes() * 0.1) * 10; 
+      if (BU.convertDateToText(currDate) === BU.convertDateToText(endDate)) {
+        const fixedMinutes = Math.floor(new Date().getMinutes() * 0.1) * 10;
         convertEndDate = new Date(new Date().setMinutes(fixedMinutes, 0, 0));
       }
     } else if (searchType === 'day') {
       spliceIndex = 1;
       startDate.setDate(1);
-      convertEndDate = endDate = (new Date(startDate)).addMonths(1);
+      endDate = new Date(startDate).addMonths(1);
+      convertEndDate = endDate;
     } else if (searchType === 'month') {
       spliceIndex = 0;
       startDate.setMonth(0, 1);
-      convertEndDate = endDate = (new Date(startDate)).addYear(1);
+      endDate = new Date(startDate).addYear(1);
+      convertEndDate = endDate;
     } else if (searchType === 'range') {
       spliceIndex = 2;
       // chart title에 사용될 기간을 설정
@@ -317,7 +334,8 @@ class BiModule extends bmjh.BM {
       // 검색 조건 input value txt 설정
       returnValue.strEndDateInputValue = BU.convertDateToText(endDate, '', spliceIndex, 0);
       // SQL 날짜 검색에 사용할 범위를 위하여 하루 증가
-      convertEndDate = endDate = (new Date(endDate)).addDays(1);
+      endDate = new Date(endDate).addDays(1);
+      convertEndDate = endDate;
     } else if (searchType === 'fixRange') {
       returnValue.searchType = 'range';
       spliceIndex = 2;
@@ -327,9 +345,8 @@ class BiModule extends bmjh.BM {
       returnValue.strEndDateInputValue = BU.convertDateToText(endDate, '', spliceIndex, 0);
       // SQL 날짜 검색에 사용할 범위를 위하여 하루 증가
       convertEndDate = endDate;
-    } 
+    }
 
-    
     returnValue.rangeStart = BU.convertDateToText(startDate, 'kor', spliceIndex, 0);
     returnValue.strStartDateInputValue = BU.convertDateToText(startDate, '', spliceIndex, 0);
     returnValue.strStartDate = BU.convertDateToText(startDate);
@@ -346,8 +363,8 @@ class BiModule extends bmjh.BM {
    * @param {string} deviceType 장치 타입
    */
   async getDeviceList(deviceType) {
-    let returnValue = [];
-    deviceType = deviceType ? deviceType : 'all';
+    const returnValue = [];
+    deviceType = deviceType || 'all';
     if (deviceType === 'all' || deviceType === 'inverter') {
       let inverterList = await this.getTable('inverter');
       inverterList = _.sortBy(inverterList, 'chart_sort_rank');
@@ -357,36 +374,37 @@ class BiModule extends bmjh.BM {
     }
     // 인버터 이름순으로 정렬
     // returnValue = _.sortBy(returnValue, 'target_name');
-    
+
     if (deviceType === 'all' || deviceType === 'connector') {
       let connectorList = await this.getTable('connector');
       connectorList = _.sortBy(connectorList, 'chart_sort_rank');
       _.each(connectorList, info => {
-        returnValue.push({type: 'connector', seq: info.connector_seq, target_name: info.target_name});
+        returnValue.push({
+          type: 'connector',
+          seq: info.connector_seq,
+          target_name: info.target_name,
+        });
       });
     }
     // 모든 셀렉트 박스 정리 끝낸 후 최상단에 보일 셀렉트 박스 정의
     returnValue.unshift({
       type: 'all',
       seq: 'all',
-      target_name: '전체'
+      target_name: '전체',
     });
     return returnValue;
   }
 
-
-
-  
   /**
    * 종료일과 시작일 사이의 간격을 기준으로 조회 Interval Text 구함
-   * @param {String} strEndDate 
-   * @param {String} strStartDate 
+   * @param {String} strEndDate
+   * @param {String} strStartDate
    * @return {String} searchType
    */
   convertSearchTypeWithCompareDate(strEndDate, strStartDate) {
     let searchType = '';
-    let gapDate = BU.calcDateInterval(strEndDate, strStartDate);
-    let sumValues = Object.values(gapDate).sum();
+    const gapDate = BU.calcDateInterval(strEndDate, strStartDate);
+    const sumValues = Object.values(gapDate).sum();
     if (gapDate.remainDay >= 365) {
       searchType = 'year';
     } else if (gapDate.remainDay > 29) {
@@ -401,37 +419,36 @@ class BiModule extends bmjh.BM {
 
   /**
    * searchType을 받아 dateFormat String 변환하여 반환
-   * @param {string} searchType 
+   * @param {string} searchType
    * @return {string} dateFormat
    */
   convertSearchType2DateFormat(searchType) {
     let dateFormat = '';
     switch (searchType) {
-    case 'year':
-      dateFormat = '%Y';
-      break;
-    case 'month':
-      dateFormat = '%Y-%m';
-      break;
-    case 'day':
-      dateFormat = '%Y-%m-%d';
-      break;
-    case 'hour':
-      dateFormat = '%Y-%m-%d %H';
-      break;
-    case 'min10':
-      dateFormat = '%Y-%m-%d %H:%i';
-      break;
-    case 'min':
-      dateFormat = '%Y-%m-%d %H:%i';
-      break;
-    default:
-      dateFormat = '%Y-%m-%d %H:';
-      break;
+      case 'year':
+        dateFormat = '%Y';
+        break;
+      case 'month':
+        dateFormat = '%Y-%m';
+        break;
+      case 'day':
+        dateFormat = '%Y-%m-%d';
+        break;
+      case 'hour':
+        dateFormat = '%Y-%m-%d %H';
+        break;
+      case 'min10':
+        dateFormat = '%Y-%m-%d %H:%i';
+        break;
+      case 'min':
+        dateFormat = '%Y-%m-%d %H:%i';
+        break;
+      default:
+        dateFormat = '%Y-%m-%d %H:';
+        break;
     }
     return dateFormat;
   }
-
 
   /**
    * searchRange Type
@@ -451,16 +468,16 @@ class BiModule extends bmjh.BM {
 
   /**
    * 인버터 총 누적 발전량을 구함
-   * @param {number[]=} inverter_seq_list 
+   * @param {number[]=} inverter_seq_list
    */
-  getInverterCumulativePower(inverter_seq_list){
+  getInverterCumulativePower(inverter_seq_list) {
     let sql = `
       SELECT
         inverter_seq,
         ROUND(MAX(c_wh) / 10, 1) AS max_c_wh
       FROM inverter_data
       `;
-    if (typeof(inverter_seq_list) === 'number' ||  Array.isArray(inverter_seq_list)) {
+    if (typeof inverter_seq_list === 'number' || Array.isArray(inverter_seq_list)) {
       sql += ` AND inverter_seq IN (${inverter_seq_list})`;
     }
     sql += `        
@@ -472,13 +489,13 @@ class BiModule extends bmjh.BM {
   /**
    * 인버터 발전량 구해옴
    * @param {searchRange} searchRange  검색 옵션
-   * @param {number[]=} inverter_seq_list 
+   * @param {number[]=} inverter_seq_list
    * @return {{inverter_seq: number, group_date: string, }}
    */
   getInverterPower(searchRange, inverter_seq_list) {
-    searchRange = searchRange ? searchRange : this.getSearchRange();
+    searchRange = searchRange || this.getSearchRange();
     // let dateFormat = this.convertSearchType2DateFormat(searchRange.searchType);
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
+    const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
     // BU.CLI(dateFormat);
     let sql = `
     SELECT
@@ -509,14 +526,13 @@ class BiModule extends bmjh.BM {
     return this.db.single(sql, '', false);
   }
 
-  
   /**
    * 기상 관측 데이터 구해옴
    * @param {searchRange} searchRange  검색 옵션
    */
   getWeatherTrend(searchRange) {
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
-    let sql = `
+    const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
+    const sql = `
       SELECT
         ${dateFormat.selectViewDate},
         ${dateFormat.selectGroupDate},
@@ -548,17 +564,17 @@ class BiModule extends bmjh.BM {
     `;
     return this.db.single(sql, '', false);
   }
-  
+
   /**
    * 인버터 발전량 구해옴
    * @param {searchRange} searchRange  검색 옵션
-   * @param {number[]=} inverter_seq 
+   * @param {number[]=} inverter_seq
    * @return {{inverter_seq: number, group_date: string, }}
    */
   getInverterTrend(searchRange, inverter_seq) {
     // BU.CLI(searchRange);
-    searchRange = searchRange ? searchRange : this.getSearchRange();
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
+    searchRange = searchRange || this.getSearchRange();
+    const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
     // BU.CLI(searchRange);
     let sql = `
     SELECT 
@@ -593,7 +609,9 @@ class BiModule extends bmjh.BM {
               MIN(c_wh) AS min_c_wh,
               COUNT(*) AS first_count
       FROM inverter_data id
-            WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
+            WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${
+      searchRange.strEndDate
+    }"
     `;
     if (inverter_seq !== '' && inverter_seq && inverter_seq !== 'all') {
       sql += `AND id.inverter_seq = ${inverter_seq}`;
@@ -609,7 +627,6 @@ class BiModule extends bmjh.BM {
     return this.db.single(sql, '', false);
   }
 
-
   /**
    * 모듈 Seq List와 SearchRange 객체를 받아 Report 생성 및 반환
    * @param {Array} moduleSeqList [photovoltaic_seq]
@@ -624,10 +641,13 @@ class BiModule extends bmjh.BM {
 
     // 기간 검색일 경우 시작일과 종료일의 날짜 차 계산하여 searchType 정의
     if (searchRange.searchType === 'range') {
-      searchRange.searchType = this.convertSearchTypeWithCompareDate(searchRange.strEndDate, searchRange.strStartDate);
+      searchRange.searchType = this.convertSearchTypeWithCompareDate(
+        searchRange.strEndDate,
+        searchRange.strStartDate,
+      );
     }
 
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
+    const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
 
     let sql = `
       SELECT
@@ -665,9 +685,9 @@ class BiModule extends bmjh.BM {
 
   /**
    * 레포트 Date Format 자동 작성
-   * @param {searchRange} searchRange 
-   * @param {string} dateName 
-   * @return {{groupByFormat: string, firstGroupByFormat: string, selectGroupDate: string, selectViewDate: string, devideTimeNumber: number}} 
+   * @param {searchRange} searchRange
+   * @param {string} dateName
+   * @return {{groupByFormat: string, firstGroupByFormat: string, selectGroupDate: string, selectViewDate: string, devideTimeNumber: number}}
    */
   makeDateFormatForReport(searchRange, dateName) {
     // BU.CLI(searchRange);
@@ -676,7 +696,7 @@ class BiModule extends bmjh.BM {
       firstGroupByFormat: '',
       selectGroupDate: '',
       selectViewDate: '',
-      devideTimeNumber: 1
+      devideTimeNumber: 1,
     };
     // BU.CLI(returnValue.selectViewDate);
 
@@ -686,7 +706,7 @@ class BiModule extends bmjh.BM {
     // BU.CLI(dateFormat);
 
     // 검색 간격에 따라서 첫번째 Group Format을 정함
-    if(searchRange.searchInterval === 'min'){
+    if (searchRange.searchInterval === 'min') {
       returnValue.devideTimeNumber = 60;
       returnValue.firstGroupByFormat = `DATE_FORMAT(${dateName},"%Y-%m-%d %H:%i")`;
     } else {
@@ -697,7 +717,7 @@ class BiModule extends bmjh.BM {
     // 최종 묶는 타입을 지정 안했다면
     let dateFormat = '';
     let finalGroupingType = '';
-    if(searchRange.resultGroupType == null){
+    if (searchRange.resultGroupType == null) {
       finalGroupingType = searchRange.searchInterval;
       dateFormat = this.convertSearchType2DateFormat(searchRange.searchInterval);
     } else {
@@ -707,8 +727,7 @@ class BiModule extends bmjh.BM {
 
     // 최종적으로 묶을 데이터 형태를 정의하였다면 정의한 형태로 따라가고 아니라면 검색 간격에 따라감
 
-
-    if(finalGroupingType === 'min10'){
+    if (finalGroupingType === 'min10') {
       returnValue.devideTimeNumber = 6;
       returnValue.selectGroupDate = `CONCAT(LEFT(DATE_FORMAT(${dateName},"%Y-%m-%d %H:%i"), 15), "0")  AS group_date`;
       returnValue.selectViewDate = `CONCAT(LEFT(DATE_FORMAT(${dateName},"%H:%i"), 4), "0")  AS view_date`;
@@ -717,27 +736,26 @@ class BiModule extends bmjh.BM {
       returnValue.groupByFormat = `LEFT(DATE_FORMAT(${dateName},"%Y-%m-%d %H:%i"), 15)`;
     } else {
       returnValue.selectGroupDate = `DATE_FORMAT(${dateName},"${dateFormat}") AS group_date`;
-      
 
       let viewFormat = dateFormat;
       // let firstGroupFormat = '%Y-%m-%d %H';
       switch (searchRange.searchType) {
-      case 'min':
-        viewFormat = viewFormat.slice(9, 14);
-        // firstGroupFormat = '%Y-%m-%d %H:%i';
-        returnValue.devideTimeNumber = 60;
-        break;
-      case 'hour':
-        viewFormat = viewFormat.slice(9, 11);
-        break;
-      case 'day':
-        viewFormat = viewFormat.slice(6, 8);
-        break;
-      case 'month':
-        viewFormat = viewFormat.slice(3, 5);
-        break;
-      default:
-        break;
+        case 'min':
+          viewFormat = viewFormat.slice(9, 14);
+          // firstGroupFormat = '%Y-%m-%d %H:%i';
+          returnValue.devideTimeNumber = 60;
+          break;
+        case 'hour':
+          viewFormat = viewFormat.slice(9, 11);
+          break;
+        case 'day':
+          viewFormat = viewFormat.slice(6, 8);
+          break;
+        case 'month':
+          viewFormat = viewFormat.slice(3, 5);
+          break;
+        default:
+          break;
       }
       returnValue.selectViewDate = `DATE_FORMAT(${dateName},"${viewFormat}") AS view_date`;
       // returnValue.firstGroupByFormat = `DATE_FORMAT(${dateName},"${firstGroupFormat}")`;
@@ -753,8 +771,8 @@ class BiModule extends bmjh.BM {
    * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
    */
   async getInverterReport(searchRange, inverter_seq) {
-    let dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
-    
+    const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
+
     let sql = `
     SELECT
         group_date,
@@ -811,24 +829,26 @@ class BiModule extends bmjh.BM {
     `;
 
     // 총 갯수 구하는 Query 생성
-    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
+    const totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
     // Report 가져오는 Query 생성
-    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
+    const mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${
+      searchRange.pageListCount
+    }`;
 
-    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
-    let totalCount = resTotalCountQuery[0].total_count;
-    let resMainQuery = await this.db.single(mainQuery, '', false);
+    const resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
+    const totalCount = resTotalCountQuery[0].total_count;
+    const resMainQuery = await this.db.single(mainQuery, '', false);
 
     return {
       totalCount,
-      report: resMainQuery
+      report: resMainQuery,
     };
   }
 
   /**
    * 경보 페이지. 인버터 접속반 둘다 가져옴.
    * @param {string} errorStatus 오류 상태 (all, deviceError, systemError)
-   * @param {searchRange} searchRange 
+   * @param {searchRange} searchRange
    * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
    */
   async getAlarmReport(errorStatus, searchRange) {
@@ -850,11 +870,13 @@ class BiModule extends bmjh.BM {
                 '인버터' AS device_k_name
             FROM
               (SELECT * FROM inverter_trouble_data
-                WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
+                WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${
+      searchRange.strEndDate
+    }"
                 `;
-    if(errorStatus === 'deviceError'){
+    if (errorStatus === 'deviceError') {
       sql += 'AND is_error = "0"';
-    } else if(errorStatus === 'systemError'){
+    } else if (errorStatus === 'systemError') {
       sql += 'AND is_error = "1"';
     }
     sql += `
@@ -876,11 +898,13 @@ class BiModule extends bmjh.BM {
                 '접속반' AS device_k_name
             FROM
               (SELECT * FROM connector_trouble_data
-                WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
+                WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${
+      searchRange.strEndDate
+    }"
                 `;
-    if(errorStatus === 'deviceError'){
+    if (errorStatus === 'deviceError') {
       sql += 'AND is_error = "0"';
-    } else if(errorStatus === 'systemError'){
+    } else if (errorStatus === 'systemError') {
       sql += 'AND is_error = "1"';
     }
     sql += `
@@ -892,28 +916,27 @@ class BiModule extends bmjh.BM {
         ORDER BY trouble_list.occur_date DESC
     `;
 
-
     // 총 갯수 구하는 Query 생성
-    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
+    const totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
     // Report 가져오는 Query 생성
-      
-    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
-    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
-    let totalCount = resTotalCountQuery[0].total_count;
-    let resMainQuery = await this.db.single(mainQuery, '', false);
+
+    const mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${
+      searchRange.pageListCount
+    }`;
+    const resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
+    const totalCount = resTotalCountQuery[0].total_count;
+    const resMainQuery = await this.db.single(mainQuery, '', false);
 
     return {
       totalCount,
-      report: resMainQuery
+      report: resMainQuery,
     };
-
   }
-
 
   /**
    * 인버터 에러만 가져옴
    * @param {string} errorStatus 오류 상태 (all, deviceError, systemError)
-   * @param {searchRange} searchRange 
+   * @param {searchRange} searchRange
    * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
    */
   async getAlarmReportForInverter(errorStatus, searchRange) {
@@ -930,11 +953,13 @@ class BiModule extends bmjh.BM {
             '인버터' AS device_k_name
         FROM
           (SELECT * FROM inverter_trouble_data
-            WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
+            WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${
+      searchRange.strEndDate
+    }"
             `;
-    if(errorStatus === 'deviceError'){
+    if (errorStatus === 'deviceError') {
       sql += 'AND is_error = "0"';
-    } else if(errorStatus === 'systemError'){
+    } else if (errorStatus === 'systemError') {
       sql += 'AND is_error = "1"';
     }
     sql += `
@@ -944,27 +969,27 @@ class BiModule extends bmjh.BM {
         ORDER BY itd.occur_date DESC	
     `;
 
-
     // 총 갯수 구하는 Query 생성
-    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
+    const totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
     // Report 가져오는 Query 생성
-      
-    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
-    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
-    let totalCount = resTotalCountQuery[0].total_count;
-    let resMainQuery = await this.db.single(mainQuery, '', false);
+
+    const mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${
+      searchRange.pageListCount
+    }`;
+    const resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
+    const totalCount = resTotalCountQuery[0].total_count;
+    const resMainQuery = await this.db.single(mainQuery, '', false);
 
     return {
       totalCount,
-      report: resMainQuery
+      report: resMainQuery,
     };
-
   }
 
   /**
    * 인버터 에러만 가져옴
    * @param {string} errorStatus 오류 상태 (all, deviceError, systemError)
-   * @param {searchRange} searchRange 
+   * @param {searchRange} searchRange
    * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
    */
   async getAlarmReportForConnector(errorStatus, searchRange) {
@@ -981,11 +1006,13 @@ class BiModule extends bmjh.BM {
             '접속반' AS device_k_name
         FROM
             (SELECT * FROM connector_trouble_data
-              WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${searchRange.strEndDate}"
+              WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${
+      searchRange.strEndDate
+    }"
               `;
-    if(errorStatus === 'deviceError'){
+    if (errorStatus === 'deviceError') {
       sql += 'AND is_error = "0"';
-    } else if(errorStatus === 'systemError'){
+    } else if (errorStatus === 'systemError') {
       sql += 'AND is_error = "1"';
     }
     sql += `
@@ -995,57 +1022,57 @@ class BiModule extends bmjh.BM {
         ORDER BY ctd.occur_date DESC	
     `;
 
-
     // 총 갯수 구하는 Query 생성
-    let totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
+    const totalCountQuery = `SELECT COUNT(*) AS total_count FROM (${sql}) AS count_tbl`;
     // Report 가져오는 Query 생성
-      
-    let mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${searchRange.pageListCount}`;
-    let resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
-    let totalCount = resTotalCountQuery[0].total_count;
-    let resMainQuery = await this.db.single(mainQuery, '', false);
+
+    const mainQuery = `${sql}\n LIMIT ${(searchRange.page - 1) * searchRange.pageListCount}, ${
+      searchRange.pageListCount
+    }`;
+    const resTotalCountQuery = await this.db.single(totalCountQuery, '', false);
+    const totalCount = resTotalCountQuery[0].total_count;
+    const resMainQuery = await this.db.single(mainQuery, '', false);
 
     return {
       totalCount,
-      report: resMainQuery
+      report: resMainQuery,
     };
-
   }
-
-
 
   /**
    * 접속반, Relation, trend를 융합하여 chart data 를 뽑아냄
-   * @param {Object} connectorInfo 
-   * @param {Array} upsasProfile 
-   * @param {Array} moduleReportList 
+   * @param {Object} connectorInfo
+   * @param {Array} upsasProfile
+   * @param {Array} moduleReportList
    */
   processModuleReport(upsasProfile, moduleReportList, searchRange) {
     // BU.CLI('processTrendByConnector', searchRange)
     // 트렌드를 구할 모듈 정보 초기화
-    let trendReportList = [];
+    const trendReportList = [];
 
     // 모듈 기본정보 입력
     _.each(moduleReportList.gridPowerInfo, (moduleDataList, moduleSeq) => {
       // BU.CLI(moduleSeq)
-      let findProfile = _.findWhere(upsasProfile, {
-        photovoltaic_seq: Number(moduleSeq)
+      const findProfile = _.findWhere(upsasProfile, {
+        photovoltaic_seq: Number(moduleSeq),
       });
       // BU.CLI(findProfile)
-      let trendReportObj = {};
+      const trendReportObj = {};
       trendReportObj.id = `id_${moduleSeq}`;
       trendReportObj.name = `CH_${findProfile.connector_ch} ${findProfile.pv_target_name}`;
       trendReportObj.group_date = moduleReportList.betweenDatePointObj.fullTxtPoint;
       trendReportObj.data = [];
 
-      moduleReportList.betweenDatePointObj.fullTxtPoint.forEach((strDateFormat, ftpIndex) => {
+      moduleReportList.betweenDatePointObj.fullTxtPoint.forEach(strDateFormat => {
         // BU.CLIS(strDateFormat, moduleDataList)
-        let findGridObj = _.findWhere(moduleDataList, {
-          group_date: strDateFormat
+        const findGridObj = _.findWhere(moduleDataList, {
+          group_date: strDateFormat,
         });
 
         // BU.CLI(findGridObj)
-        let data = _.isEmpty(findGridObj) ? '' : this.convertValueBySearchType(searchRange.searchType, findGridObj.total_wh);
+        const data = _.isEmpty(findGridObj)
+          ? ''
+          : this.convertValueBySearchType(searchRange.searchType, findGridObj.total_wh);
         trendReportObj.data.push(data);
       });
       trendReportList.push(trendReportObj);
@@ -1053,41 +1080,38 @@ class BiModule extends bmjh.BM {
 
     // BU.CLI(trendReportList);
 
-    let chartDecorationInfo = this.makeChartDecorator(searchRange);
+    const chartDecorationInfo = this.makeChartDecorator(searchRange);
     // BU.CLI('moudlePowerReport', moudlePowerReport);
     return {
-      hasData: _.isEmpty(moduleReportList.gridPowerInfo) ? false : true,
+      hasData: !_.isEmpty(moduleReportList.gridPowerInfo),
       columnList: moduleReportList.betweenDatePointObj.shortTxtPoint,
       chartDecorationInfo,
-      series: trendReportList
+      series: trendReportList,
     };
   }
 
-
-
-
   /**
-   * 
-   * @param {String} searchType 
-   * @param {Number} number 
+   *
+   * @param {String} searchType
+   * @param {Number} number
    */
   convertValueBySearchType(searchType, number) {
     // BU.CLI('convertValueBySearchType', searchType, number)
     let returnValue = 0;
     switch (searchType) {
-    case 'year':
-      returnValue = (number / 1000 / 1000).toFixed(4);
-      break;
-    case 'month':
-      returnValue = (number / 1000).toFixed(3);
-      break;
-    case 'day':
-      returnValue = (number / 1000).toFixed(3);
-      break;
-    case 'hour':
-    default:
-      returnValue = number;
-      break;
+      case 'year':
+        returnValue = (number / 1000 / 1000).toFixed(4);
+        break;
+      case 'month':
+        returnValue = (number / 1000).toFixed(3);
+        break;
+      case 'day':
+        returnValue = (number / 1000).toFixed(3);
+        break;
+      case 'hour':
+      default:
+        returnValue = number;
+        break;
     }
     return Number(returnValue);
   }
@@ -1097,24 +1121,24 @@ class BiModule extends bmjh.BM {
     let xAxisTitle = '';
     let yAxisTitle = '';
     switch (searchRange.searchType) {
-    case 'year':
-      xAxisTitle = '시간(년)';
-      yAxisTitle = '발전량(MWh)';
-      break;
-    case 'month':
-      xAxisTitle = '시간(월)';
-      yAxisTitle = '발전량(kWh)';
-      break;
-    case 'day':
-      xAxisTitle = '시간(일)';
-      yAxisTitle = '발전량(kWh)';
-      break;
-    case 'hour':
-      xAxisTitle = '시간(시)';
-      yAxisTitle = '발전량(wh)';
-      break;
-    default:
-      break;
+      case 'year':
+        xAxisTitle = '시간(년)';
+        yAxisTitle = '발전량(MWh)';
+        break;
+      case 'month':
+        xAxisTitle = '시간(월)';
+        yAxisTitle = '발전량(kWh)';
+        break;
+      case 'day':
+        xAxisTitle = '시간(일)';
+        yAxisTitle = '발전량(kWh)';
+        break;
+      case 'hour':
+        xAxisTitle = '시간(시)';
+        yAxisTitle = '발전량(wh)';
+        break;
+      default:
+        break;
     }
 
     if (searchRange.rangeEnd !== '') {
@@ -1125,12 +1149,8 @@ class BiModule extends bmjh.BM {
     return {
       mainTitle,
       xAxisTitle,
-      yAxisTitle
+      yAxisTitle,
     };
   }
-
-
-
-
 }
 module.exports = BiModule;

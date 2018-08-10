@@ -1,9 +1,8 @@
 'use strict';
-const _ = require('lodash')
+const _ = require('lodash');
 
 const EventEmitter = require('events');
 const BU = require('base-util-jh').baseUtil;
-
 const P_WeatherCast = require('./P_WeatherCast.js');
 const Model = require('./Model');
 
@@ -15,7 +14,7 @@ class Control extends EventEmitter {
   constructor(config) {
     super();
     // 개발자모드(File load or 기상청 Rss) 좌표 정보, dao 정보, gcm 설정 정보
-    this.config = config.current;
+    this.config = config;
     
     // Procss
     this.p_WeatherCast = new P_WeatherCast(this);
@@ -57,18 +56,20 @@ class Control extends EventEmitter {
    * @param {weathercastModel} weatherCastData 
    */
   async processOnData(err, weatherCastData){
+    // BU.CLI(weatherCastData);
     if(err){
       BU.logFile(err);
-      BU.CLI('ERROR updateWeatherCast');
+      BU.CLI('ERROR updateWeatherCast', `seq: ${this.config.locationSeq}`);
       this.emit('updateWeatherCast', err);
     } else {
       // 모델에 토스
       try {
+        
         const resultOnData = await this.model.onData(weatherCastData);
-        BU.CLI('DONE updateWeatherCast');
+        BU.CLI('DONE updateWeatherCast', `seq: ${this.config.locationSeq}`);
         this.emit('updateWeatherCast', null, resultOnData);
       } catch (error) {
-        BU.CLI('ERROR updateWeatherCast');
+        BU.CLI('ERROR updateWeatherCast', `seq: ${this.config.locationSeq}`);
         this.emit('updateWeatherCast', error);
         BU.logFile(error);
       }

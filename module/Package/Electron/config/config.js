@@ -3,6 +3,7 @@ module.exports = {
     host: 'localhost',
     port: '3306',
     password: 'dddd1111',
+    // password: 'smsoftware',
     user: 'root',
     database: 'pv_led',
     // port: '7505',

@@ -77,16 +77,16 @@
               <input type="text" name="large" data-id="in_kw" data-type="kW" value="kW">
             </div>
             <div class="col-xs-6 power_3in">
-              <p>3.3kW 발전량</p>
-              <input type="text" name="large" data-id="in_total_kwh" data-type="kWh" value="kWh">
+              <p style="font-size: 12px; padding: 0px">3.3kW 태양광 누적량</p>
+              <input type="text" name="large" data-id="total_pv_generating_kwh" data-type="kWh" value="kWh">
             </div>
             <div class="col-xs-6 power_3in">
               <p>600W 발전</p>
               <input type="text" name="small" data-id="in_kw" data-type="kW" value="kW">
             </div>
             <div class="col-xs-6 power_3in">
-              <p>600W 발전량</p>
-              <input type="text" name="small" data-id="in_total_kwh" data-type="kWh" value="kWh">
+              <p style="font-size: 12px; padding: 0px">600W 태양광 누적량</p>
+              <input type="text" name="small" data-id="total_pv_generating_kwh" data-type="kWh" value="kWh">
             </div>
 
           </div>
@@ -300,7 +300,8 @@
                 <td name="large" style="vertical-align: middle" data-id="battery_charging_kw"></td>
                 <td name="large" style="vertical-align: middle" data-id="battery_discharging_kw"></td>
                 <td name="large" style="vertical-align: middle" data-id="battery_total_charging_kwh"></td>
-                <td name="large" style="vertical-align: middle" data-id="battery_total_discharging_kwh"></td>
+                <td style="vertical-align: middle" data-id="">0</td>
+                <!-- <td name="large" style="vertical-align: middle" data-id="battery_total_discharging_kwh"></td> -->
                 <!-- <td name="large" style="vertical-align: middle" data-id="operation_has_v">1</td>
                 <td name="large" style="vertical-align: middle" data-id="operation_mode">주간모드</td>
                 <td name="large" style="vertical-align: middle" data-id="operation_status">DC48V OC(Over Current)</td> -->
@@ -312,7 +313,8 @@
                 <td name="small" style="vertical-align: middle" data-id="battery_charging_kw"></td>
                 <td name="small" style="vertical-align: middle" data-id="battery_discharging_kw"></td>
                 <td name="small" style="vertical-align: middle" data-id="battery_total_charging_kwh"></td>
-                <td name="small" style="vertical-align: middle" data-id="battery_total_discharging_kwh"></td>
+                <td style="vertical-align: middle" data-id="">0</td>
+                <!-- <td name="small" style="vertical-align: middle" data-id="battery_total_discharging_kwh"></td> -->
                 <!-- <td name="small" style="vertical-align: middle" data-id="operation_has_v">1</td>
                 <td name="small" style="vertical-align: middle" data-id="operation_mode">주간모드</td>
                 <td name="small" style="vertical-align: middle" data-id="operation_status">DC48V OC(Over Current)</td> -->

@@ -13,7 +13,7 @@ module.exports = {
       user: 'upsas',
       password: process.env.SALTERN_PW ? process.env.SALTERN_PW : 'root',
       // database: process.env.SALTERN_DB ? process.env.SALTERN_DB : 'uwps'
-      database: 'upsas'
+      database: 'temp_upsas'
     },
     deviceInfo: {
       typeList: ['inverter', 'connector']

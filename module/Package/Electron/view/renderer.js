@@ -4,6 +4,7 @@ const {
 const $ = require('jquery');
 
 const moment = require('moment');
+console.log();
 
 const _ = require('lodash');
 const BU = require('base-util-jh').baseUtil;
@@ -20,14 +21,21 @@ let remainReloadSec = 60;
 function initRemainReloadSec() {
   remainReloadSec = 60; 
 }
+
+let nowDate = moment().date();
 function reloadMain(){
-  console.log('reloadMain');
   setInterval(() => {
     remainReloadSec--;
     document.querySelector('#reload-sec').innerHTML = remainReloadSec;
 
     // 시간이 다되면 새로 고침
     if(remainReloadSec === 0){
+      // 날짜가 변경되었다면
+      nowDate = 18;
+      if(nowDate !== moment().date()){
+        nowDate = moment().date();
+        document.querySelector('#start_date_input').value = moment().format('YYYY-MM-DD');
+      }
       ipcRenderer.send('navigationMenu', 'navi-main', getSearchOption());
     }
   }, 1000);

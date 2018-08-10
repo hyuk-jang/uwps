@@ -1,62 +1,118 @@
-const wrap = require('express-async-wrap');
+const asyncHandler = require('express-async-handler');
 const router = require('express').Router();
 const _ = require('lodash');
-const BU = require('base-util-jh').baseUtil;
-const DU = require('base-util-jh').domUtil;
+const {BU, DU} = require('base-util-jh');
 
 const BiModule = require('../models/BiModule.js');
-let webUtil = require('../models/web.util');
-
+const webUtil = require('../models/web.util');
 
 const map = require('../public/Map/map');
 
-
-const net = require('net');
-
-module.exports = function(app) {
-  
-
+module.exports = app => {
   const initSetter = app.get('initSetter');
   const biModule = new BiModule(initSetter.dbInfo);
-    
+
   // server middleware
-  router.use(wrap(async (req, res, next) => {
-    req.locals = DU.makeBaseHtml(req, 0);
-    let currWeatherCastList = await biModule.getCurrWeatherCast();
-    let currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
-    let weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
-    req.locals.weatherCastInfo = weatherCastInfo;
-    next();
-  }));
+  router.use(
+    asyncHandler(async (req, res, next) => {
+      if (app.get('auth')) {
+        if (!req.user) {
+          return res.redirect('/auth/login');
+        }
+      }
+      req.locals = DU.makeBaseHtml(req, 0);
+      const currWeatherCastList = await biModule.getCurrWeatherCast();
+      const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
+      const weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
+      req.locals.weatherCastInfo = weatherCastInfo;
+      next();
+    }),
+  );
 
   // Get
-  router.get('/', wrap(async (req, res) => {
-    BU.CLI('control', req.locals);
+  router.get(
+    '/',
+    asyncHandler(async (req, res) => {
+      // BU.CLI(req.user);
+      // BU.CLI('control', req.locals);
+      const deviceInfoList = [];
+      // FIXME: 로그인 한 사용자에 따라서 nodeList가 달라져야함.
+      /** @type {nodeInfo[]} */
+      const nodeList = await biModule.getTable('v_dv_node', {
+        main_seq: _.get(req.user, 'main_seq', null),
+      });
 
-    req.locals.hi = 'jhi';
-    req.locals.excuteControlList = map.controlList;
-    // req.locals.cancelControlList = map.controlList;
+      // BU.CLI(nodeList);
 
-    const compiled = _.template(`<option value="<%= controlName %>">
+      const compiledDeviceType = _.template(
+        '<option value="<%= nd_target_id %>"> <%= nd_target_name %></option>',
+      );
+
+      nodeList.forEach(nodeInfo => {
+        const {nd_target_id, nd_target_name, is_sensor, node_id, node_name} = nodeInfo;
+        // 센서가 아닌 장비만 등록
+        if (is_sensor === 0) {
+          let foundIt = _.find(deviceInfoList, {
+            type: nd_target_id,
+          });
+
+          if (_.isEmpty(foundIt)) {
+            // const onOffList = ['pump'];
+            foundIt = {
+              type: nd_target_id,
+              list: [],
+              template: compiledDeviceType({
+                nd_target_id,
+                nd_target_name,
+              }),
+              controlType: [],
+            };
+            deviceInfoList.push(foundIt);
+          }
+          const compiledDeviceList = _.template(
+            '<option value="<%= node_id %>"><%= node_name %></option>',
+          );
+
+          foundIt.list.push(
+            compiledDeviceList({
+              node_id,
+              node_name,
+            }),
+          );
+        }
+      });
+
+      // BU.CLI(deviceInfoList);
+
+      req.locals.excuteControlList = map.controlList;
+      // req.locals.cancelControlList = map.controlList;
+
+      const compiled = _.template(`<option value="<%= controlName %>">
         <%= controlName %>
       </option>`);
-    
-    let excuteControlList = [];
-    map.controlList.forEach(currentItem => {
-      excuteControlList.push(compiled({controlName: currentItem.cmdName})); 
-    });
 
-    BU.CLI(excuteControlList);
-    let singleControlList = _.pick(map.setInfo.modelInfo, ['waterDoor', 'valve', 'pump']);
+      const excuteControlList = [];
+      map.controlList.forEach(currentItem => {
+        excuteControlList.push(
+          compiled({
+            controlName: currentItem.cmdName,
+          }),
+        );
+      });
 
-    req.locals.singleControlList = singleControlList;
-    req.locals.automaticControlList = excuteControlList;
+      // BU.CLI(excuteControlList);
+      // 세션 정보를 넘김
+      req.locals.sessionID = req.sessionID;
+      req.locals.user = req.user;
 
-    // BU.CLI(req.locals);
-    // return res.status(200).send(DU.locationJustGoBlank('http://115.23.49.28:7999'));
-    return res.render('./controller/index.html', req.locals);
-  }));
+      req.locals.deviceInfoList = deviceInfoList;
+      req.locals.automaticControlList = excuteControlList;
 
+      // BU.CLI(req.locals);
+      // return res.status(200).send(DU.locationJustGoBlank('http://115.23.49.28:7999'));
+      return res.render('./controller/index.html', req.locals);
+    }),
+  );
 
   return router;
 };

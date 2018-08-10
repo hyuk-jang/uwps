@@ -1,0 +1,36 @@
+{
+  "window.zoomLevel": 1,
+  "editor.tabSize": 2,
+  "workbench.activityBar.visible": false,
+  "workbench.sideBar.location": "right",
+  "workbench.iconTheme": "vscode-icons",
+  "editor.minimap.enabled": false,
+  "terminal.integrated.shell.windows": "D:\\Program Files\\Git\\bin\\bash.exe",
+  "editor.suggestSelection": "recentlyUsedByPrefix",
+  "gitlens.advanced.messages": {
+    "suppressShowKeyBindingsNotice": true
+  },
+  "editor.formatOnSave": true,
+  "javascript.format.enable": false,
+  "prettier.eslintIntegration": true,
+  "html.format.enable": false,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/node_modules": true,
+    "**/.DS_Store": true
+  },
+  "beautify.language": {
+    "js": {
+      "type": [],
+      "filename": []
+    },
+    "css": [],
+    "html": [
+      "htm",
+      "html"
+    ]
+  }
+}

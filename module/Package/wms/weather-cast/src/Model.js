@@ -1,8 +1,8 @@
 'use strict';
 
-const _ = require('underscore');
-const BU = require('base-util-jh').baseUtil;
+const _ = require('lodash');
 
+const BU = require('base-util-jh').baseUtil;
 const BiModule = require('./BiModule');
 
 const Control = require('./Control');
@@ -12,7 +12,7 @@ require('./format');
 class Model {
   /** @param {Control} controller */
   constructor(controller) {
-    
+    this.weatherLocationSeq = controller.config.locationSeq;
     this.locationInfo = controller.config.locationInfo;
 
 
@@ -28,7 +28,7 @@ class Model {
   async onData(weatherCastData){
     // BU.CLI('onData');
     let tempStorage = new this.biModule.TempStorage();
-    let prevForecastList = await this.biModule.getPrevWeatherCast(this.locationInfo.x, this.locationInfo.y);
+    let prevForecastList = await this.biModule.getPrevWeatherCast(this.weatherLocationSeq);
     // BU.CLI(prevForecastList);
     prevForecastList.forEach(currentItem => {
       currentItem.applydate = BU.convertDateToText(currentItem.applydate);
@@ -38,7 +38,8 @@ class Model {
 
     
     weatherCastData.weatherCast.forEach(currentItem => {
-      _.extend(currentItem, {x: weatherCastData.x, y: weatherCastData.y});
+      // FK 확장
+      _.extend(currentItem, {weather_location_seq: this.weatherLocationSeq});
       tempStorage.addStorage(currentItem, 'applydate', 'kma_data_seq');
     });
     this.weatherCastData = weatherCastData;
@@ -52,7 +53,7 @@ class Model {
     // BU.CLI(finalStorage);
 
     const resultDoQuery = await this.biModule.doQuery(tempStorage, 'kma_data', 'kma_data_seq', false);
-    BU.CLI(resultDoQuery);
+    // BU.CLI(resultDoQuery);
     return resultDoQuery;
   }
 

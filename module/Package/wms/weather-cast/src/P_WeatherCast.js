@@ -1,7 +1,7 @@
 const xml2js = require('xml2js');
 const cron = require('cron');
 const http = require('http');
-const _ = require('underscore');
+const _ = require('lodash');
 
 const BU = require('base-util-jh').baseUtil;
 
@@ -18,7 +18,7 @@ class P_WeatherCast {
 
     this.cronScheduler = null;
   }
-
+  
   // Cron 구동시킬 시간
   runCronWeatherCast() {
     try {
@@ -39,22 +39,11 @@ class P_WeatherCast {
     } catch (error) {
       throw error;
     }
-
-    // let applyHour = parseInt(eachHour) >= 0 && parseInt(eachHour) < 24 ? parseInt(eachHour) : 0;
-    // let applyMin = parseInt(eachMin) >= 0 && parseInt(eachMin) < 60 ? parseInt(eachMin) : 0;
-
-    // if (this.cronJob !== null) {
-    //   this.cronJob.stop();
-    // }
-
-    // this.cronJob = cron.job(applyHour + ' ' + applyMin + ' * * * *', () => {
-    //   this.requestWeatherCast();
-    // });
   }
 
   // 날씨 정보 요청
   requestWeatherCast(callback) {
-    BU.CLI('requestWeatherCast');
+    // BU.CLI('requestWeatherCast');
     // BU.debugConsole();
     let options = {
       host: 'www.kma.go.kr',
@@ -117,7 +106,7 @@ class P_WeatherCast {
       weatherCast: []
     };
 
-    _.each(weatherCastObjBody.data, (castInfo) => {
+    _.forEach(weatherCastObjBody.data, (castInfo) => {
       let wf = 0;
       let wfEn = castInfo.wfEn[0];
       switch (wfEn) {
@@ -154,7 +143,9 @@ class P_WeatherCast {
         temp: castInfo.temp[0], // 날씨 
         pty: castInfo.pty[0], // [없음(0), 비(1), 비 / 눈(2), 눈(3)]
         sky: castInfo.sky[0], // ① 1 : 맑음 ② 2 : 구름조금 ③ 3 : 구름많음 ④ 4 : 흐림
-        wf, // ① Clear ② Partly Cloudy ③ Mostly Cloudy ④ Cloudy ⑤ Rain ⑥ Snow/Rain ⑦ Snow
+        wf, // ① Clear ② Partly Cloudy ③ Mostly Clou1dy ④ Cloudy ⑤ Rain ⑥ Snow/Rain ⑦ Snow
+        // wf_kor: castInfo.wfKor[0], // 날씨 한국어
+        // wf_en: castInfo.wfEn[0], // 날씨 영어
         pop: castInfo.pop[0], // 강수확율
         r12: castInfo.r12[0], // 12시간 예상강수량
         ws: Number(castInfo.ws[0]).toFixed(2), // 풍속
@@ -178,7 +169,6 @@ class P_WeatherCast {
     applydate.setSeconds(0);
     applydate.setDate(baseDate.getDate() + day);
     applydate.setHours(hour);
-
     return BU.convertDateToText(applydate);
   }
 }

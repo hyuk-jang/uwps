@@ -1,0 +1,315 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <%- include("../master/head.html") %>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+</head>
+
+<body>
+  <!--네비-->
+  <%- include("../master/header.html") %>
+    <!--메인-->
+    <div class="jumbotron text-center jumbotron_line">
+      <div class="row row_st_line min_h_780">
+
+        <div class="row row_width  top_box">
+          <div class="col-xs-3 sel_box" style="width: 200px">
+            <a class="btn btn-success btn-lg" id="scenario_control_run_btn" role="button">시연모드 1 실행</a>
+            <a class="btn btn-danger btn-lg" id="scenario_control_cancel_btn" role="button">시연모드 1 정지</a>
+          </div>
+
+          <div class="col-xs-3 sel_box" style="width: 250px">
+            명령 제어 목록
+            <select class="form-control form-control_st" id="automatic_control_list" name="" style="width: 230px">
+            </select>
+          </div>
+
+          <div class="sel_box_data" id="automatic_control_btn">
+            <button type="button" class="btn btn-primary" data-value="true" style="margin-bottom:3px; height:40px;" id="search">제어 요청</button>
+            <button type="button" class="btn btn-danger" data-value="false" style="margin-left: 10px; margin-bottom:3px; height:40px;"
+              id="search">취소 요청</button>
+          </div>
+        </div>
+        <div class="row row_width  top_box">
+          <div class="col-xs-3 sel_box" style="width: 200px">
+            장치 카테고리
+            <select class="form-control form-control_st" id="single_control_cate_list" name="" style="width: 180px">
+              <option value="수문">수문</option>
+              <option value="펌프">펌프</option>
+              <option value="밸브">밸브</option>
+            </select>
+          </div>
+          <div class="col-xs-3 sel_box" style="width: 200px">
+            장치 목록
+            <select class="form-control form-control_st" id="single_control_device_list" name="" style="width: 180px">
+
+            </select>
+          </div>
+          <div class="col-xs-3 sel_box" style="width: 150px">
+            제어 형식
+            <select class="form-control form-control_st" id="single_control_type" name="" style="width: 130px">
+              <option value="true">
+                Open
+              </option>
+              <option value="false">
+                Close
+              </option>
+            </select>
+          </div>
+          <div class="col-xs-3 sel_box" style="width: 150px">
+            우선 순위
+            <select class="form-control form-control_st" id="single_control_rank" name="" style="width: 130px">
+              <option value="0">긴급</option>
+              <option value="1">First</option>
+              <option value="2" selected>Second</option>
+              <option value="3">Third</option>
+            </select>
+          </div>
+          <div class=" sel_box_data">
+            <button type="button" id="single_control_btn" class="btn btn-primary" style="margin-bottom:3px; height:40px;" id="search">장치 제어 실행</button>
+          </div>
+        </div>
+        <div id="contents" style="padding: 30px">
+          <div style="float: left; width: 55%">
+            <div class="panel panel-default">
+              <!-- Default panel contents -->
+              <div class="panel-heading"> 현재 수행 명령 목록</div>
+              <!-- Table -->
+              <table id="saltern_current_command" class="table">
+                <thead>
+                  <tr>
+                    <th data-field="commandType">명령 타입</th>
+                    <th data-field="commandId">명령 ID</th>
+                    <th data-field="commandName">요청 명령</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="panel panel-default">
+              <!-- Default panel contents -->
+              <div class="panel-heading"> 대기 명령 목록</div>
+              <!-- Table -->
+              <table id="saltern_standby_command" class="table">
+                <thead>
+                  <tr>
+                    <th data-field="commandType">명령 타입</th>
+                    <th data-field="commandId">명령 ID</th>
+                    <th data-field="commandName">요청 명령</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="panel panel-default">
+              <!-- Default panel contents -->
+              <div class="panel-heading"> 지연 대기 명령</div>
+              <!-- Table -->
+              <table id="saltern_delay_command" class="table">
+                <thead>
+                  <tr>
+                    <th data-field="commandType">명령 타입</th>
+                    <th data-field="commandId">명령 ID</th>
+                    <th data-field="commandName">요청 명령</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+          </div>
+          <div style="float: right; width:40%">
+            <div class="panel panel-default">
+              <!-- Default panel contents -->
+              <div class="panel-heading"> 장치 상태 정보 목록</div>
+              <div class="panel-body">
+              </div>
+
+              <!-- Table -->
+              <table id="saltern_device_data_list" class="table">
+                <thead>
+                  <tr>
+                    <th data-field="targetCategory">장치 종류</th>
+                    <th data-field="targetName">장치 명</th>
+                    <th data-field="targetId">장치 ID</th>
+                    <th data-field="targetData">장치 상태</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    </div>
+
+
+    <script>
+      $("#single_control_cate_list").on("change", function (event) {
+        return setDeviceList();
+      })
+
+      function setDeviceList() {
+        var deviceGroup;
+        var category = $("#single_control_cate_list").val();
+        switch (category) {
+          case "수문":
+            deviceGroup = singleControlList.waterDoor;
+            break;
+          case "밸브":
+            deviceGroup = singleControlList.valve;
+            break;
+          case "펌프":
+            deviceGroup = singleControlList.pump;
+            break;
+          default:
+            break;
+        }
+
+        var single_control_device_list = document.getElementById("single_control_device_list");
+        single_control_device_list.innerHTML = '';
+        //Add the Options to the DropDownList.
+        for (var i = 0; i < deviceGroup.length; i++) {
+          var option = document.createElement("OPTION");
+          option.innerHTML = deviceGroup[i].targetName;
+          option.value = deviceGroup[i].targetId;
+          //Add the Option element to DropDownList.
+          single_control_device_list.options.add(option);
+        }
+      }
+
+      var singleControlList;
+      $(document).ready(function () {
+        var automaticDom = <% - JSON.stringify(automaticControlList) %>;
+        $("#automatic_control_list").html(automaticDom);
+
+        singleControlList = <% - JSON.stringify(singleControlList) %>;
+
+        setDeviceList();
+      })
+
+      // $("#single_control_device_list").trigger('click');
+    </script>
+
+
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script defer>
+      $(function () {
+        var socket = io();
+
+        $("#automatic_control_btn > button").on("click", function () {
+          var automaticId = $("#automatic_control_list option:selected").val();
+          // var controlType = $("#automatic_control_type option:selected").val();
+          var controlType = $(this).data("value");
+          console.log(controlType);
+
+          var requestMsg = {
+            cmdType: "AUTOMATIC",
+            cmdId: automaticId,
+            hasTrue: controlType
+          }
+          socket.emit("excuteSalternControl", requestMsg);
+        })
+
+        $("#single_control_btn").on("click", function () {
+          var deviceId = $("#single_control_device_list option:selected").val();
+          var controlType = $("#single_control_type option:selected").val();
+          var controlRank = $("#single_control_rank option:selected").val();
+          var requestMsg = {
+            cmdType: "SINGLE",
+            cmdId: deviceId,
+            cmdRank: Number(controlRank),
+            hasTrue: controlType === "true" ? true : false
+          }
+          socket.emit("excuteSalternControl", requestMsg);
+        })
+
+        $("#scenario_control_run_btn").on("click", function () {
+          var requestMsg = {
+            cmdType: "SCENARIO",
+            cmdId: "SCENARIO_1",
+            hasTrue: true
+          }
+          socket.emit("excuteSalternControl", requestMsg);
+        })
+
+        $("#scenario_control_cancel_btn").on("click", function () {
+          var requestMsg = {
+            cmdType: "SCENARIO",
+            cmdId: "SCENARIO_1",
+            hasTrue: false
+          }
+          socket.emit("excuteSalternControl", requestMsg);
+        })
+
+        // 초기 페이지에 접속하면 자동으로 데이터를 갱신하기 위함
+        var $saltern_current_command = $('#saltern_current_command');
+        var $saltern_standby_command = $('#saltern_standby_command');
+        var $saltern_delay_command = $('#saltern_delay_command');
+        var $saltern_device_table = $('#saltern_device_data_list');
+
+        socket.on("initSalternDevice", function (salternData) {
+
+          var salternDeviceDataStorage = JSON.parse(salternData);
+          $saltern_device_table.bootstrapTable({
+            data: salternDeviceDataStorage
+          });
+        });
+
+        socket.on("initSalternCommand", function (currentCommandSet, standbyCommandSetList, delayCommandSetList) {
+          // socket.on("initSalternCommand", function (standbyCommandSetList) {
+          // console.log(standbyCommandSetList);
+          var parseCurrentCommandSet = JSON.parse(currentCommandSet);
+          var parseDtandbyCommandSetList = JSON.parse(standbyCommandSetList);
+          var parseDelayCommandSetList = JSON.parse(delayCommandSetList);
+          $saltern_current_command.bootstrapTable({
+            data: [parseCurrentCommandSet]
+          });
+          $saltern_standby_command.bootstrapTable({
+            data: parseDtandbyCommandSetList
+          });
+          $saltern_delay_command.bootstrapTable({
+            data: parseDelayCommandSetList
+          });
+        });
+
+
+
+        // 명령 요청을 하고 데이터를 받을 경우
+        socket.on("onSalternDevice", function (salternData) {
+          var salternDeviceDataStorage = JSON.parse(salternData);
+          $saltern_device_table.bootstrapTable('destroy').bootstrapTable({
+            data: salternDeviceDataStorage
+          });
+        });
+
+        socket.on("onSalternCommand", function (currentCommandSet, standbyCommandSetList, delayCommandSetList) {
+          // socket.on("onSalternCommand", function (standbyCommandSetList) {
+          // console.log(standbyCommandSetList);
+          var parseCurrentCommandSet = JSON.parse(currentCommandSet);
+          var parseDtandbyCommandSetList = JSON.parse(standbyCommandSetList);
+          var parseDelayCommandSetList = JSON.parse(delayCommandSetList);
+          $saltern_current_command.bootstrapTable('destroy').bootstrapTable({
+            data: [parseCurrentCommandSet]
+          });
+          $saltern_standby_command.bootstrapTable('destroy').bootstrapTable({
+            data: parseDtandbyCommandSetList
+          });
+          $saltern_delay_command.bootstrapTable('destroy').bootstrapTable({
+            data: parseDelayCommandSetList
+          });
+        });
+      });
+    </script>
+
+
+    <%- include("../master/footer.html") %>
+</body>
+
+</html>

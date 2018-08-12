@@ -1,6 +1,3 @@
-require('./define');
-
-/** @type {{current: {hasDev: boolean, deviceInfo: deviceInfo}}} */
 const config = {
   current: {
     hasDev: false, // 장치 연결을 실제로 하는지 여부
@@ -14,19 +11,19 @@ const config = {
         hasDcEvent: true,
         hasReceiveData: true,
         hasDcMessage: true,
-        hasTransferCommand: true
+        hasTransferCommand: true,
       },
       protocol_info: {
         mainCategory: 'weathercast',
         subCategory: 'vantagepro2',
         protocolOptionInfo: {
-          hasTrackingData: false
-        }
+          hasTrackingData: true,
+        },
       },
       controlInfo: {
         hasErrorHandling: false,
         hasOneAndOne: true,
-        hasReconnect: true
+        hasReconnect: true,
       },
       connect_info: {
         type: 'serial',
@@ -37,7 +34,7 @@ const config = {
       //   type: 'socket',
       //   port: 9000
       // },
-    }
-  }
+    },
+  },
 };
 module.exports = config;

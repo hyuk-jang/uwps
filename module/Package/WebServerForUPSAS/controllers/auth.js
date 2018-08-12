@@ -39,7 +39,7 @@ module.exports = app => {
           },
           (err, httpResponse, msg) =>
             // BU.CLIS(err, req.user, msg);
-            res.redirect('/controller'),
+            res.redirect('/main'),
         );
       }
     } else {

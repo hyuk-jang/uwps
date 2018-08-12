@@ -62,7 +62,7 @@ module.exports = app => {
       // console.time('0.5');
       // 금일 발전 현황 데이터
       searchRange = biModule.getSearchRange('min10');
-      // searchRange = biModule.getSearchRange('hour', '2018-03-10');
+      // searchRange = biModule.getSearchRange('min10', '2018-08-12');
 
       const inverterTrend = await biModule.getInverterTrend(searchRange);
 

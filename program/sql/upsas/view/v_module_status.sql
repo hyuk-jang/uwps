@@ -1,7 +1,7 @@
 
       SELECT
         pv.*,
-        rp.connector_ch,
+        rp.connector_ch, rp.place_seq,
         curr_data.amp, curr_data.vol, curr_data.writedate
         FROM
         photovoltaic pv

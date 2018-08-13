@@ -1,5 +1,6 @@
 SELECT inverter.*, 
 	inverter_data_seq,
+	rp.place_seq,
 	ROUND(in_a / 10, 1) AS in_a,
 	ROUND(in_v / 10, 1) AS in_v,
 	ROUND(in_w / 10, 1) AS in_w,

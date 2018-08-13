@@ -4,6 +4,7 @@ const _ = require('lodash');
 const {BU, DU} = require('base-util-jh');
 
 const BiModule = require('../models/BiModule.js');
+const BiDevice = require('../models/BiDevice');
 const webUtil = require('../models/web.util');
 
 // TEST
@@ -12,6 +13,7 @@ const tempSacle = require('../temp/tempSacle');
 module.exports = app => {
   const initSetter = app.get('initSetter');
   const biModule = new BiModule(initSetter.dbInfo);
+  const biDevice = new BiDevice(initSetter.dbInfo);
   // CH 보여줄 최대 갯수
   const maxModuleViewNum = 8;
 
@@ -50,9 +52,13 @@ module.exports = app => {
       // 접속반에 물려있는 모듈 seq 정의
       const moduleSeqList = _.map(refinedConnectorList, 'photovoltaic_seq');
       // 모듈 현황
+      /** @type {V_MODULE_STATUS[]} */
       const moduleStatusList = await biModule.getTable('v_module_status', {
         photovoltaic_seq: moduleSeqList,
       });
+
+      // 인버터 데이터 목록에 모듈 온도를 확장
+      await biDevice.extendsPlaceDeviceData(moduleStatusList, 'moduleRearTemperature');
       // BU.CLI(moduleStatusList);
 
       // TEST 구간
@@ -60,8 +66,7 @@ module.exports = app => {
         const foundIt = _.find(tempSacle.moduleScale, {
           photovoltaic_seq: currentItem.photovoltaic_seq,
         });
-        currentItem.vol =
-          currentItem.vol === '' ? '' : Number((currentItem.vol * foundIt.scale).scale(1, 1));
+        currentItem.vol = currentItem.vol === '' ? '' : _.round(currentItem.vol * foundIt.scale, 1);
       });
 
       // 모듈 발전 현황 데이터 검증
@@ -75,18 +80,35 @@ module.exports = app => {
       validModuleStatusList.forEach(validInfo => {
         const hasOperation = validInfo.hasValidData;
         // let hasOperation = true;
-        const {amp, vol} = validInfo.data;
+        const {amp, vol, moduleRearTemperature} = validInfo.data;
 
         const findIt = _.find(refinedConnectorList, {
           photovoltaic_seq: validInfo.data.photovoltaic_seq,
         });
-        findIt.hasOperation = hasOperation;
-        findIt.amp = hasOperation ? amp : '';
-        findIt.vol = hasOperation ? vol : '';
-        findIt.power =
-          hasOperation && _.isNumber(amp) && _.isNumber(vol)
-            ? webUtil.calcValue(amp * vol, 1, 1)
-            : '';
+        // 객체 확장
+        _.assign(findIt, {
+          hasOperation,
+          amp: '',
+          vol: '',
+          power: '',
+          moduleTemperature: '',
+        });
+
+        if (hasOperation) {
+          findIt.amp = amp;
+          findIt.vol = vol;
+          findIt.power = _.round(amp * vol, 1);
+          findIt.moduleTemperature = moduleRearTemperature;
+        }
+
+        // findIt.hasOperation = hasOperation;
+        // findIt.amp = hasOperation ? amp : '';
+        // findIt.vol = hasOperation ? vol : '';
+        // findIt.power =
+        //   hasOperation && _.isNumber(amp) && _.isNumber(vol)
+        //     ? webUtil.calcValue(amp * vol, 1, 1)
+        //     : '';
+        //     findIt.moduleTemperature = moduleRearTemperature
       });
       // refinedConnectorList = _.sortBy(refinedConnectorList, 'ivt_target_id');
       // BU.CLI(refinedConnectorList);
@@ -102,15 +124,15 @@ module.exports = app => {
           'amp',
           'vol',
           'power',
-          'temperature',
+          'moduleTemperature',
           'hasOperation',
         ],
         maxModuleViewNum,
       );
       let totalAmp = webUtil.reduceDataList(refinedConnectorList, 'amp');
-      totalAmp = _.isNumber(totalAmp) ? totalAmp.scale(1, 1) : '';
+      totalAmp = _.isNumber(totalAmp) ? _.round(totalAmp, 1) : '';
       let avgVol = webUtil.reduceDataList(refinedConnectorList, 'vol');
-      avgVol = _.isNumber(avgVol) ? (avgVol / refinedConnectorList.length).scale(1, 1) : '';
+      avgVol = _.isNumber(avgVol) ? _.round(avgVol * refinedConnectorList.length, 1) : '';
       let totalPower = webUtil.reduceDataList(refinedConnectorList, 'power');
       totalPower = _.isNumber(totalPower) ? totalPower.scale(0.001, 3) : '';
 

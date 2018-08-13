@@ -7,6 +7,7 @@ SELECT
 			vdp.place_id, vdp.place_name,
 			vdp.pd_target_name, 
 			vdn.nc_target_name, vdn.nd_target_name, vdn.is_sensor,
+			vdn.nd_target_id, vdn.nc_target_id,
 			vddl.serial_number,
 			vdn.main_seq, vdn.data_logger_seq
   FROM dv_place_relation dpr

@@ -34,8 +34,9 @@ async function operationController() {
     app.set('initSetter', initSetter);
 
     // 인증 시행 여부
+    app.set('auth', false);
     // app.set('auth', true);
-    app.set('auth', 'dev');
+    // app.set('auth', 'dev');
 
     require('./controllers')(app);
 
@@ -53,7 +54,7 @@ async function operationController() {
       console.log('Controller Server is Running', initSetter.webPort);
     });
   } catch (error) {
-    BU.CLI(error)
+    BU.CLI(error);
     BU.errorLog('init', 'mainError', error);
   }
 }

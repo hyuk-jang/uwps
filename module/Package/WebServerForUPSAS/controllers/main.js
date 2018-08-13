@@ -4,6 +4,7 @@ const _ = require('lodash');
 const {BU, DU} = require('base-util-jh');
 
 const BiModule = require('../models/BiModule.js');
+const BiDevice = require('../models/BiDevice');
 const webUtil = require('../models/web.util');
 
 // TEST
@@ -12,6 +13,7 @@ const tempSacle = require('../temp/tempSacle');
 module.exports = app => {
   const initSetter = app.get('initSetter');
   const biModule = new BiModule(initSetter.dbInfo);
+  const biDevice = new BiDevice(initSetter.dbInfo);
 
   // server middleware
   router.use(
@@ -114,13 +116,16 @@ module.exports = app => {
       webUtil.applyScaleChart(chartData, 'day');
       webUtil.mappingChartDataName(chartData, '인버터 시간별 발전량');
 
+      biModule.getTable('v_dv_sensor_data');
+
       // console.timeEnd('0.5');
 
       // console.time('1');
       // 접속반 현재 발전 현황
       let moduleStatus = await biModule.getModuleStatus();
       moduleStatus = _.sortBy(moduleStatus, 'chart_sort_rank');
-      // BU.CLI(moduleStatus);
+
+      // 장소에 관련된 현재 모든 장치 데이터
 
       const weatherDeviceStatus = await biModule.getWeather();
       // 인버터 발전 현황 데이터 검증
@@ -163,6 +168,21 @@ module.exports = app => {
       // 금일 발전 현황
       // 인버터 현재 발전 현황
       const inverterDataList = await biModule.getTable('v_inverter_status');
+
+      // 인버터 데이터 목록에 모듈 온도를 확장
+      await biDevice.extendsPlaceDeviceData(inverterDataList, 'moduleRearTemperature');
+      // BU.CLI(inverterDataList);
+
+      const earthModuleTemp = _(inverterDataList)
+        .filter({install_place: '육상'})
+        .map('moduleRearTemperature')
+        .mean();
+
+      const waterModuleTemp = _(inverterDataList)
+        .filter({install_place: '수중'})
+        .map('moduleRearTemperature')
+        .mean();
+      // BU.CLIS(earthModuleTemp, waterModuleTemp)
       // 인버터 발전 현황 데이터 검증
       const validInverterDataList = webUtil.checkDataValidation(
         inverterDataList,
@@ -185,6 +205,8 @@ module.exports = app => {
         monthPower,
         cumulativePower,
         co2: _.round(cumulativePower * 0.424, 3),
+        earthModuleTemp: _.isNumber(earthModuleTemp) ? _.round(earthModuleTemp, 1) : '',
+        waterModuleTemp: _.isNumber(waterModuleTemp) ? _.round(waterModuleTemp, 1) : '',
         solarRadiation: _.get(validWeatherDevice, 'hasValidData')
           ? validWeatherDevice.data.solar
           : '',

@@ -1,7 +1,9 @@
-const _ = require('underscore');
+const _ = require('lodash');
 // const mome = require('mometo');
 const bmjh = require('base-model-jh');
 const BU = require('base-util-jh').baseUtil;
+
+require('../../../module/default-intelligence');
 
 /**
  * @typedef {Object[]} weatherRowDataPacketList
@@ -162,44 +164,52 @@ class BiModule extends bmjh.BM {
    * @param {number|Array} photovoltatic_seq Format => Number or Array or undefinded
    * @return {Promise} 최신 데이터 리스트
    */
-  getModuleStatus(photovoltatic_seq) {
-    let sql = `
-      SELECT
-        pv.*,
-        ru.connector_ch,
-      curr_data.*	 		  
-        FROM
-        photovoltaic pv
-        JOIN relation_power ru
-          ON ru.photovoltaic_seq = pv.photovoltaic_seq
-        LEFT JOIN v_dv_place vdp
-          ON vdp.place_seq = ru.place_seq
-        LEFT OUTER JOIN 
-        (
-        SELECT 
-            md.photovoltaic_seq,
-          ROUND(md.amp / 10, 1) AS amp,
-          ROUND(md.vol / 10, 1) AS vol,
-          md.writedate
-      FROM module_data md
-      INNER JOIN
-        (
-          SELECT MAX(module_data_seq) AS module_data_seq
-          FROM module_data
-          GROUP BY photovoltaic_seq
-        ) b
-      ON md.module_data_seq = b.module_data_seq
-        ) curr_data
-          ON curr_data.photovoltaic_seq = pv.photovoltaic_seq
-    `;
-    if (Number.isInteger(photovoltatic_seq)) {
-      sql += `WHERE pv.photovoltaic_seq = (${photovoltatic_seq})`;
-    } else if (Array.isArray(photovoltatic_seq)) {
-      sql += `WHERE pv.photovoltaic_seq IN (${photovoltatic_seq})`;
+  async getModuleStatus(photovoltatic_seq) {
+    let returnValue = [];
+    if (_.isNumber(photovoltatic_seq) || _.isArray(photovoltatic_seq)) {
+      returnValue = await this.getTable('v_module_status', {photovoltatic_seq});
+      return returnValue;
     }
-    sql += 'ORDER BY pv.target_id';
+    returnValue = await this.getTable('v_module_status');
+    return returnValue;
 
-    return this.db.single(sql, '', false);
+    // let sql = `
+    //   SELECT
+    //     pv.*,
+    //     ru.connector_ch,
+    //   curr_data.*
+    //     FROM
+    //     photovoltaic pv
+    //     JOIN relation_power ru
+    //       ON ru.photovoltaic_seq = pv.photovoltaic_seq
+    //     LEFT JOIN v_dv_place vdp
+    //       ON vdp.place_seq = ru.place_seq
+    //     LEFT OUTER JOIN
+    //     (
+    //     SELECT
+    //         md.photovoltaic_seq,
+    //       ROUND(md.amp / 10, 1) AS amp,
+    //       ROUND(md.vol / 10, 1) AS vol,
+    //       md.writedate
+    //   FROM module_data md
+    //   INNER JOIN
+    //     (
+    //       SELECT MAX(module_data_seq) AS module_data_seq
+    //       FROM module_data
+    //       GROUP BY photovoltaic_seq
+    //     ) b
+    //   ON md.module_data_seq = b.module_data_seq
+    //     ) curr_data
+    //       ON curr_data.photovoltaic_seq = pv.photovoltaic_seq
+    // `;
+    // if (Number.isInteger(photovoltatic_seq)) {
+    //   sql += `WHERE pv.photovoltaic_seq = (${photovoltatic_seq})`;
+    // } else if (Array.isArray(photovoltatic_seq)) {
+    //   sql += `WHERE pv.photovoltaic_seq IN (${photovoltatic_seq})`;
+    // }
+    // sql += 'ORDER BY pv.target_id';
+
+    // return this.db.single(sql, '', false);
   }
 
   /**
@@ -368,7 +378,7 @@ class BiModule extends bmjh.BM {
     if (deviceType === 'all' || deviceType === 'inverter') {
       let inverterList = await this.getTable('inverter');
       inverterList = _.sortBy(inverterList, 'chart_sort_rank');
-      _.each(inverterList, info => {
+      _.forEach(inverterList, info => {
         returnValue.push({type: 'inverter', seq: info.inverter_seq, target_name: info.target_name});
       });
     }
@@ -378,7 +388,7 @@ class BiModule extends bmjh.BM {
     if (deviceType === 'all' || deviceType === 'connector') {
       let connectorList = await this.getTable('connector');
       connectorList = _.sortBy(connectorList, 'chart_sort_rank');
-      _.each(connectorList, info => {
+      _.forEach(connectorList, info => {
         returnValue.push({
           type: 'connector',
           seq: info.connector_seq,
@@ -1051,9 +1061,9 @@ class BiModule extends bmjh.BM {
     const trendReportList = [];
 
     // 모듈 기본정보 입력
-    _.each(moduleReportList.gridPowerInfo, (moduleDataList, moduleSeq) => {
+    _.forEach(moduleReportList.gridPowerInfo, (moduleDataList, moduleSeq) => {
       // BU.CLI(moduleSeq)
-      const findProfile = _.findWhere(upsasProfile, {
+      const findProfile = _.find(upsasProfile, {
         photovoltaic_seq: Number(moduleSeq),
       });
       // BU.CLI(findProfile)
@@ -1065,7 +1075,7 @@ class BiModule extends bmjh.BM {
 
       moduleReportList.betweenDatePointObj.fullTxtPoint.forEach(strDateFormat => {
         // BU.CLIS(strDateFormat, moduleDataList)
-        const findGridObj = _.findWhere(moduleDataList, {
+        const findGridObj = _.find(moduleDataList, {
           group_date: strDateFormat,
         });
 

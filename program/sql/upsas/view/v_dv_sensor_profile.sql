@@ -24,18 +24,8 @@ SELECT
           ELSE 
             CONCAT(nd.target_name)
           END AS node_name,
-			CASE
-          WHEN nc.is_sensor = 0
-            THEN r_dd.str_data
-          ELSE 
-            r_dsd.num_data
-          END AS node_data,
-			CASE
-          WHEN nc.is_sensor = 0
-            THEN r_dd.writedate
-          ELSE 
-            r_dsd.writedate
-          END AS writedate,          
+            r_dsd.num_data AS node_data,
+            r_dsd.writedate,
          nc.data_unit, nc.is_sensor, n.data_logger_index,
   			n.target_code AS n_target_code,
 			nc.target_id AS nc_target_id, 
@@ -68,19 +58,3 @@ SELECT
 		 ON dsd.sensor_data_seq = temp.sensor_data_seq
  ) r_dsd
   ON r_dsd.node_seq = n.node_seq
- LEFT OUTER JOIN 
- (
-	  SELECT 
-	  			dd.node_seq,
-	  			dd.str_data,
-	  			dd.writedate
-		FROM dv_device_data dd
-		INNER JOIN
-		(
-			SELECT MAX(device_data_seq) AS device_data_seq
-			 FROM dv_device_data
-			 GROUP BY node_seq
-		) temp
-		 ON dd.device_data_seq = temp.device_data_seq
- ) r_dd
-  ON r_dd.node_seq = n.node_seq

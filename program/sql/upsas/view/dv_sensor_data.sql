@@ -6,4 +6,5 @@ SELECT
   FROM dv_sensor_data sd
  JOIN v_dv_node dn
   ON dn.node_seq = sd.node_seq
+ORDER BY sd.sensor_data_seq DESC  
 			

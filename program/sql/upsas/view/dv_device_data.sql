@@ -6,4 +6,4 @@ SELECT
   FROM dv_device_data dd
  JOIN v_dv_node dn
   ON dn.node_seq = dd.node_seq
-			
+ORDER BY dd.device_data_seq DESC  			

@@ -456,11 +456,7 @@ exports.makeDynamicChartData = makeDynamicChartData;
  * @return {chartData}
  */
 function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
-  const selectKey = chartOption.selectKey;
-  const dateKey = chartOption.dateKey;
-  const groupKey = chartOption.groupKey;
-  const colorKey = chartOption.colorKey;
-  const sortKey = chartOption.sortKey;
+  const {selectKey, dateKey, groupKey, colorKey, sortKey} = chartOption;
 
   // 반환 데이터 유형
   /** @type {chartData} */

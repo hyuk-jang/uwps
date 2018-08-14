@@ -7,11 +7,13 @@ const {BU, DU} = require('base-util-jh');
 const webUtil = require('../models/web.util');
 const excelUtil = require('../models/excel.util');
 const PowerModel = require('../models/PowerModel');
+const BiDevice = require('../models/BiDevice');
 
 const defaultRangeFormat = 'min10';
 module.exports = app => {
   const initSetter = app.get('initSetter');
   const powerModel = new PowerModel(initSetter.dbInfo);
+  const biDevice = new BiDevice(initSetter.dbInfo);
 
   // server middleware
   router.use(
@@ -35,6 +37,16 @@ module.exports = app => {
     '/',
     asyncHandler(async (req, res) => {
       // 장비 종류 여부 (전체, 인버터, 접속반)
+      /** @type {MAIN} */
+      const userInfo = _.get(req, 'user', {});
+
+      /** @type {V_UPSAS_PROFILE[]} */
+      const powerProfileList = await powerModel.getTable(
+        'v_upsas_profile',
+        {main_seq: userInfo.main_seq},
+        true,
+      );
+
       let deviceType = 'all';
       if (req.query.device_type === 'inverter' || req.query.device_type === 'connector') {
         deviceType = req.query.device_type;
@@ -48,9 +60,11 @@ module.exports = app => {
       }
 
       // 장비 선택 seq (all, number)
-      let deviceSeq = 'all';
+      let deviceSeqList = [];
       if (_.isNaN(req.query.device_seq) === false && req.query.device_seq !== '') {
-        deviceSeq = Number(req.query.device_seq);
+        deviceSeqList = Number(req.query.device_seq);
+      } else {
+        deviceSeqList = _.map(powerProfileList, 'inverter_seq');
       }
 
       // BU.CLIS(deviceType, deviceListType, deviceSeq);
@@ -100,7 +114,7 @@ module.exports = app => {
         device_type: deviceType,
         device_type_list,
         device_list_type: deviceListType,
-        device_seq: deviceSeq,
+        device_seq: deviceSeqList,
         device_list: deviceList,
         search_range: searchRange,
         search_type: searchType,
@@ -113,16 +127,25 @@ module.exports = app => {
         searchRange.strBetweenStart,
         searchRange.searchInterval,
       );
+
+      const {sensorChartData, sensorTrend} = await biDevice.getDeviceChart(
+        powerProfileList,
+        'moduleRearTemperature',
+        searchRange,
+        betweenDatePoint,
+      );
       // 인버터 차트
       const {
         inverterPowerChartData,
         inverterTrend,
         viewInverterPacketList,
       } = await powerModel.getInverterChart(searchOption, searchRange, betweenDatePoint);
+      // BU.CLI(inverterTrend);
       // 차트 Range 지정
       const powerChartData = {range: betweenDatePoint.shortTxtPoint, series: []};
       // 차트 합침
       powerChartData.series = inverterPowerChartData.series;
+      // BU.CLI(powerChartData)
 
       // /** 차트를 표현하는데 필요한 Y축, X축, Title Text 설정 객체 생성 */
       const chartDecoration = webUtil.makeChartDecoration(searchRange);
@@ -148,6 +171,8 @@ module.exports = app => {
         weatherTrend,
         weatherChartOptionList,
         searchRange,
+        sensorTrend,
+        sensorChartData,
       };
 
       const workSheetInfo = excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
@@ -209,8 +234,10 @@ module.exports = app => {
       testWeatherInfoChart.series = _.concat(testWeatherInfoChart.series, weatherChartData.series);
       // TEST Water Level Add Chart Code End *****************
 
+      // BU.CLI(sensorChartData)
       req.locals.searchOption = searchOption;
       req.locals.powerChartData = powerChartData;
+      req.locals.sensorChartData = sensorChartData;
       req.locals.chartDecorator = chartDecoration;
       req.locals.weatherChartData = testWeatherInfoChart;
       req.locals.workBook = excelContents;

@@ -144,7 +144,8 @@ class PowerModel extends BiModule {
     // TEST
     // searchRange = this.getSearchRange('day', '2018-02-17', '2018-02-18');
     // searchRange.searchType = 'hour';
-    // TODO 인버터 모듈 이름을 가져오기 위한 테이블. 성능을 위해서라면 다른 쿼리문 작성 사용 필요
+    // TODO: 인버터 모듈 이름을 가져오기 위한 테이블. 성능을 위해서라면 다른 쿼리문 작성 사용 필요
+    /** @type {V_INVERTER_STATUS[]} */
     const viewInverterPacketList = await this.getTable('v_inverter_status');
     // BU.CLI(viewInverterPacketList);
     // 인버터 차트 데이터 불러옴
@@ -437,7 +438,7 @@ class PowerModel extends BiModule {
 
     // TEST
     // searchRange = biModule.getSearchRange('range', '2018-02-10', '2018-02-14');
-    // TODO 접속반 모듈 이름을 가져오기 위한 테이블. 성능을 위해서라면 다른 쿼리문 작성 사용 필요
+    // TODO: 접속반 모듈 이름을 가져오기 위한 테이블. 성능을 위해서라면 다른 쿼리문 작성 사용 필요
     const upsasProfile = await this.getTable('v_upsas_profile');
     // BU.CLI(searchRange);
     // 접속반 리스트 불러옴(선택한 접속반의 모듈을 가져오기 위함)

@@ -33,10 +33,9 @@ async function operationController() {
     app.set('passport', passport);
     app.set('initSetter', initSetter);
 
+    BU.CLI(process.env.DEV_MODE);
     // 인증 시행 여부
-    app.set('auth', false);
-    // app.set('auth', true);
-    // app.set('auth', 'dev');
+    app.set('auth', process.env.DEV_MODE);
 
     require('./controllers')(app);
 

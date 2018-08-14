@@ -91,6 +91,12 @@
           <p class="re_p" style="margin: 5px 0px 0px">※ 단: 단결정, 다: 다결정</p>
 
           <div class="row row_title">
+            <div class="title title_trend">모듈 정보</div>
+          </div>
+
+          <div class="title_box2" id="sensorChart"></div>
+
+          <div class="row row_title">
             <div class="title title_trend">환경 정보</div>
           </div>
 
@@ -278,6 +284,60 @@
 
       <!-- 날씨 차트 -->
       <script>
+        var sensorChartData = <%- JSON.stringify(sensorChartData) %>;
+        console.log('sensorChartData.series', sensorChartData.series)
+
+        if (sensorChartData.series.length) {
+          Highcharts.chart('sensorChart', {
+            chart: {
+              type: 'spline',
+              zoomType: 'xy',
+            },
+            title: {
+              text: ''
+            },
+            xAxis: {
+              title: {
+                text: chartDecorator.xAxisTitle
+              },
+              tickInterval: 1,
+              categories: sensorChartData.range
+            },
+            yAxis: [{
+                title: {
+                  text: '모듈 온도 (℃)'
+                }
+              },
+              {
+                min: 0,
+                max: 40,
+                title: {
+                  text: ' '
+                },
+                opposite: true
+              }
+            ],
+            plotOptions: {
+              column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+              }
+            },
+            series: sensorChartData.series,
+            credits: {
+              enabled: false
+            },
+          });
+        } else {
+          $("#sensorChart").html("모듈 온도 내역이 존재하지 않습니다.").css({
+            "line-height": "240px",
+            "font-size": "25px"
+          });
+        }
+      </script>
+
+      <!-- 날씨 차트 -->
+      <script>
         var weatherChartData = <%- JSON.stringify(weatherChartData) %>;
         console.log('weatherChartData.series', weatherChartData.series)
 
@@ -321,42 +381,6 @@
             credits: {
               enabled: false
             },
-            // series: [{
-            //   name: '습도(%)',
-            //   data: [],
-            //   // data: moduleChart[0],
-            //   tooltip: {
-            //     headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
-            //     pointFormat: '<tr><td style="color:{series.color};padding:0">습도: </td>' +
-            //       '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
-            //     footerFormat: '</table>',
-            //     shared: true,
-            //     useHTML: true
-            //   }
-            // }, {
-            //   name: '기온(℃)',
-            //   data: [],
-            //   tooltip: {
-            //     headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
-            //     pointFormat: '<tr><td style="color:{series.color};padding:0">기온: </td>' +
-            //       '<td style="padding:0"><b>{point.y:.1f} ℃</b></td></tr>',
-            //     footerFormat: '</table>',
-            //     shared: true,
-            //     useHTML: true
-            //   }
-            // }, {
-            //   name: '일사량',
-            //   data: [],
-            //   tooltip: {
-            //     headerFormat: '<span style="font-size:10px">{point.key}시</span><br><table>',
-            //     pointFormat: '<tr><td style="color:{series.color};padding:0">일사량: </td>' +
-            //       '<td style="padding:0"><b>{point.y:.1f} W/m2</b></td></tr>',
-            //     footerFormat: '</table>',
-            //     shared: true,
-            //     useHTML: true
-            //   },
-            //   yAxis: 1
-            // }]
           });
         } else {
           $("#weatherChart").html("기상 관측 내역이 존재하지 않습니다.").css({

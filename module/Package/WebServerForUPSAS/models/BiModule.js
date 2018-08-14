@@ -624,7 +624,7 @@ class BiModule extends bmjh.BM {
     }"
     `;
     if (inverter_seq !== '' && inverter_seq && inverter_seq !== 'all') {
-      sql += `AND id.inverter_seq = ${inverter_seq}`;
+      sql += `AND id.inverter_seq IN (${inverter_seq})`;
     }
     sql += `            
       GROUP BY ${dateFormat.firstGroupByFormat}, id.inverter_seq

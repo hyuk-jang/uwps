@@ -44,20 +44,11 @@ module.exports = app => {
       const powerProfileList = await powerModel.getTable(
         'v_upsas_profile',
         {main_seq: userInfo.main_seq},
-        true,
+        false,
       );
 
-      let deviceType = 'all';
-      if (req.query.device_type === 'inverter' || req.query.device_type === 'connector') {
-        deviceType = req.query.device_type;
-      } else if (req.query.device_type === undefined) {
-        deviceType = 'inverter';
-      }
-
-      let deviceListType = 'all';
-      if (req.query.device_list_type === 'inverter' || req.query.device_list_type === 'connector') {
-        deviceListType = req.query.device_list_type;
-      }
+      const deviceType = 'inverter';
+      const deviceListType = 'inverter';
 
       // 장비 선택 seq (all, number)
       let deviceSeqList = [];
@@ -103,16 +94,9 @@ module.exports = app => {
       const deviceList = await powerModel.getDeviceList(deviceType);
       // BU.CLI(deviceList);
 
-      const device_type_list = [
-        {type: 'all', name: '전체'},
-        {type: 'inverter', name: '인버터'},
-        {type: 'connector', name: '접속반'},
-      ];
-
       // 차트 제어 및 자질 구래한 데이터 모음
       const searchOption = {
         device_type: deviceType,
-        device_type_list,
         device_list_type: deviceListType,
         device_seq: deviceSeqList,
         device_list: deviceList,
@@ -128,6 +112,7 @@ module.exports = app => {
         searchRange.searchInterval,
       );
 
+      // 모듈 뒷면 온도 데이터 가져옴
       const {sensorChartData, sensorTrend} = await biDevice.getDeviceChart(
         powerProfileList,
         'moduleRearTemperature',
@@ -138,7 +123,7 @@ module.exports = app => {
       const {
         inverterPowerChartData,
         inverterTrend,
-        viewInverterPacketList,
+        viewInverterStatusList,
       } = await powerModel.getInverterChart(searchOption, searchRange, betweenDatePoint);
       // BU.CLI(inverterTrend);
       // 차트 Range 지정
@@ -150,6 +135,7 @@ module.exports = app => {
       // /** 차트를 표현하는데 필요한 Y축, X축, Title Text 설정 객체 생성 */
       const chartDecoration = webUtil.makeChartDecoration(searchRange);
 
+      // 기상계측 Trend 및 차트 데이터
       const {
         weatherChartData,
         weatherTrend,
@@ -162,7 +148,7 @@ module.exports = app => {
       // BU.CLI(viewInverterPacketList);
       const createExcelOption = {
         calendarCommentList,
-        viewInverterPacketList,
+        viewInverterStatusList,
         inverterTrend,
         powerChartData,
         powerChartDecoration: chartDecoration,
@@ -171,8 +157,8 @@ module.exports = app => {
         weatherTrend,
         weatherChartOptionList,
         searchRange,
-        sensorTrend,
-        sensorChartData,
+        mrtTrend: sensorTrend,
+        mrtSensorChartData: sensorChartData,
       };
 
       const workSheetInfo = excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
@@ -192,19 +178,19 @@ module.exports = app => {
 
       webUtil.addKeyToReport(
         waterLevelDataPacketList,
-        viewInverterPacketList,
+        viewInverterStatusList,
         'chart_color',
         'inverter_seq',
       );
       webUtil.addKeyToReport(
         waterLevelDataPacketList,
-        viewInverterPacketList,
+        viewInverterStatusList,
         'chart_sort_rank',
         'inverter_seq',
       );
       webUtil.addKeyToReport(
         waterLevelDataPacketList,
-        viewInverterPacketList,
+        viewInverterStatusList,
         'target_name',
         'inverter_seq',
       );

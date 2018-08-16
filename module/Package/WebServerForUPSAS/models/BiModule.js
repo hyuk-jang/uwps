@@ -116,7 +116,7 @@ class BiModule extends bmjh.BM {
       WHERE writedate>= "${searchRange.strBetweenStart}" and writedate<"${
       searchRange.strBetweenEnd
     }"
-      AND DATE_FORMAT(writedate, '%H') > '05' AND DATE_FORMAT(writedate, '%H') < '20'
+      AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '20'
       GROUP BY ${dateFormat.groupByFormat}
       ORDER BY writedate
     `;
@@ -150,7 +150,7 @@ class BiModule extends bmjh.BM {
         END AS scale_sky
     FROM kma_data	
     WHERE applydate>= "${searchRange.strBetweenStart}" and applydate<"${searchRange.strBetweenEnd}"
-    AND DATE_FORMAT(applydate, '%H') > '05' AND DATE_FORMAT(applydate, '%H') < '21'
+    AND DATE_FORMAT(applydate, '%H') >= '05' AND DATE_FORMAT(applydate, '%H') < '20'
     ) main
     GROUP BY ${dateFormat.groupByFormat}
     ORDER BY applydate
@@ -568,7 +568,7 @@ class BiModule extends bmjh.BM {
           COUNT(*) AS first_count
         FROM weather_device_data
         WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
-        AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '21'
+        AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '20'
         GROUP BY ${dateFormat.firstGroupByFormat}) AS result_wdd
      GROUP BY ${dateFormat.groupByFormat}
     `;

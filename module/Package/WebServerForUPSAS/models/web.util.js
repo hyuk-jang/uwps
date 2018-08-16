@@ -21,6 +21,76 @@ function convertWeatherCast(weatherCastInfo) {
 exports.convertWeatherCast = convertWeatherCast;
 
 /**
+ * 검색 조건 (year, month, day)에 따라서 비율을 변환하여 반환
+ * @param {number} number
+ * @param {string} searchType
+ */
+function convertValueBySearchType(number, searchType) {
+  // BU.CLI('convertValueBySearchType', searchType, number)
+  let returnValue = 0;
+  if (_.isNumber(number)) {
+    switch (searchType) {
+      case 'year':
+        returnValue = _.round(number / 1000 / 1000, 4);
+        break;
+      case 'month':
+      case 'day':
+        returnValue = _.round(number / 1000, 3);
+        break;
+      case 'hour':
+      default:
+        returnValue = number;
+        break;
+    }
+    return Number(returnValue);
+  }
+  return '';
+}
+exports.convertValueBySearchType = convertValueBySearchType;
+
+/**
+ * 차트 데이터 레포트 통계치 계산
+ * @param {Object[]} rowDataPacketList
+ * @param {chartOption} chartOption
+ * @return {chartDataOption}
+ */
+function calcStatisticsReport(rowDataPacketList, chartOption) {
+  /** @type {chartDataOption} */
+  const returnValue = {};
+  const {sortKey, maxKey, minKey, averKey} = chartOption;
+
+  const dataRow = _.head(rowDataPacketList);
+
+  // 데이터가 없다면 빈 객체 반환
+  if (_.isEmpty(dataRow)) {
+    return returnValue;
+  }
+
+  // 정렬 우선 순위가 있다면 입력
+  if (sortKey) {
+    returnValue.sort = dataRow[sortKey];
+  }
+  // 최대 값을 구한다면
+  if (maxKey) {
+    const row = _.maxBy(rowDataPacketList, rowPacket => rowPacket[maxKey]);
+    returnValue.max = row[maxKey];
+  }
+  // 최소 값을 구한다면
+  if (minKey) {
+    const row = _.minBy(rowDataPacketList, rowPacket => rowPacket[minKey]);
+    returnValue.min = row[minKey];
+  }
+  // TODO
+  if (averKey) {
+    returnValue.aver = _(rowDataPacketList)
+      .map(averKey)
+      .mean();
+  }
+
+  return returnValue;
+}
+
+/**
  * 기준이 되는 날을 기준으로 해당 데이터의 유효성을 검증. 10분을 초과하면 유효하지 않는 데이터로 처리.
  * @param {Array|Object} targetData 점검하고자 하는 데이터
  * @param {Date} baseDate 기준 날짜
@@ -247,7 +317,7 @@ exports.calcScaleRowDataPacket = calcScaleRowDataPacket;
  * @param {number|string} connector_seq 선택한 접속반
  * @return {Array.<{photovoltaic_seq:number, connector_ch: number, pv_target_name:string, pv_manufacturer: string, cnt_target_name: string, ivt_target_name: string, install_place: string, writedate: Date, amp: number, vol: number, hasOperation: boolean }>}
  */
-function refineSelectedConnectorList(viewUpsasProfile, connector_seq) {
+function refineSelectedConnectorList(viewUpsasProfile) {
   // let sortedList = _.flatten(_.map(_.groupBy(viewUpsasProfile, profile => profile.connector_seq), group => _.sortBy(group, 'connector_ch')));
   // if (connector_seq !== 'all') {
   //   sortedList = _.filter(sortedList, info => info.connector_seq === connector_seq);
@@ -288,7 +358,7 @@ function convertColumn2Rows(targetList, priotyKeyList, repeatLength) {
   priotyKeyList.forEach(key => {
     const pluckData = _.map(targetList, key);
     const space = repeatLength - pluckData.length;
-    for (let i = 0; i < space; i++) {
+    for (let i = 0; i < space; i += 1) {
       pluckData.push('');
     }
     returnValue[key] = pluckData;
@@ -311,8 +381,7 @@ function refineSelectedInverterStatus(viewInverterStatus) {
   const currInverterDataList = [];
   _.forEach(viewInverterStatus, info => {
     // BU.CLI(info)
-    const hasValidData = info.hasValidData;
-    const data = info.data;
+    const {hasValidData, data} = info;
     const addObj = {
       inverter_seq: data.inverter_seq,
       target_id: data.target_id,
@@ -377,12 +446,7 @@ exports.refineSelectedInverterStatus = refineSelectedInverterStatus;
  */
 function makeDynamicChartData(rowDataPacketList, chartOption) {
   // BU.CLI(chartOption);
-  const selectKey = chartOption.selectKey;
-  const dateKey = chartOption.dateKey;
-  const groupKey = chartOption.groupKey;
-  const colorKey = chartOption.colorKey;
-  const sortKey = chartOption.sortKey;
-  const hasArea = chartOption.hasArea;
+  const {selectKey, dateKey, groupKey, colorKey, sortKey, hasArea} = chartOption;
 
   // 반환 데이터 유형
   const returnValue = {
@@ -529,82 +593,6 @@ function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
 exports.makeStaticChartData = makeStaticChartData;
 
 /**
- * 차트 데이터 레포트 통계치 계산
- * @param {Object[]} rowDataPacketList
- * @param {chartOption} chartOption
- * @return {chartDataOption}
- */
-function calcStatisticsReport(rowDataPacketList, chartOption) {
-  /** @type {chartDataOption} */
-  const returnValue = {};
-  const sortKey = chartOption.sortKey;
-  const maxKey = chartOption.maxKey;
-  const minKey = chartOption.minKey;
-  const averKey = chartOption.averKey;
-
-  const dataRow = _.head(rowDataPacketList);
-
-  // 데이터가 없다면 빈 객체 반환
-  if (_.isEmpty(dataRow)) {
-    return returnValue;
-  }
-
-  // 정렬 우선 순위가 있다면 입력
-  if (sortKey) {
-    returnValue.sort = dataRow[sortKey];
-  }
-  // 최대 값을 구한다면
-  if (maxKey) {
-    const row = _.maxBy(rowDataPacketList, rowPacket => rowPacket[maxKey]);
-    returnValue.max = row[maxKey];
-  }
-  // 최소 값을 구한다면
-  if (minKey) {
-    const row = _.minBy(rowDataPacketList, rowPacket => rowPacket[minKey]);
-    returnValue.min = row[minKey];
-  }
-  // TODO
-  if (averKey) {
-    returnValue.aver = 0;
-    const sum = reduceDataList(rowDataPacketList, averKey);
-    if (_.isNumber(sum)) {
-      returnValue.aver = sum / rowDataPacketList.length;
-    }
-    returnValue.aver = 0;
-  }
-
-  return returnValue;
-}
-
-/**
- * 검색 조건 (year, month, day)에 따라서 비율을 변환하여 반환
- * @param {number} number
- * @param {string} searchType
- */
-function convertValueBySearchType(number, searchType) {
-  // BU.CLI('convertValueBySearchType', searchType, number)
-  let returnValue = 0;
-  if (_.isNumber(number)) {
-    switch (searchType) {
-      case 'year':
-        returnValue = _.round(number / 1000 / 1000, 4);
-        break;
-      case 'month':
-      case 'day':
-        returnValue = _.round(number / 1000, 3);
-        break;
-      case 'hour':
-      default:
-        returnValue = number;
-        break;
-    }
-    return Number(returnValue);
-  }
-  return '';
-}
-exports.convertValueBySearchType = convertValueBySearchType;
-
-/**
  * 차트 데이터 검색 조건에 따라서 데이터 비율 적용
  * @param {chartData} chartData 차트 데이터
  * @param {string} searchType 검색 타입 year, month, day, hour
@@ -613,7 +601,7 @@ function applyScaleChart(chartData, searchType) {
   // BU.CLI(searchType);
   chartData.series.forEach(chart => {
     if (chart.option) {
-      const option = chart.option;
+      const {option} = chart;
       if (option.max) {
         option.max = _.isNumber(option.max) ? convertValueBySearchType(option.max, searchType) : '';
       }

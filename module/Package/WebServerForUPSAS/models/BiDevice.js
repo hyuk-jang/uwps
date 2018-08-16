@@ -2,7 +2,6 @@ const _ = require('lodash');
 
 const {BU} = require('base-util-jh');
 const moment = require('moment');
-const Promise = require('bluebird');
 
 const BiModule = require('./BiModule');
 const webUtil = require('./web.util');
@@ -105,11 +104,12 @@ class BiDevice extends BiModule {
       FROM v_dv_sensor_data
       WHERE node_seq IN (${node_seq})
         AND writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
+        AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '20'
       GROUP BY ${dateFormat.groupByFormat}, node_seq
       ORDER BY node_seq, writedate
     `;
 
-    return this.db.single(sql, '', true);
+    return this.db.single(sql, '', false);
   }
 
   /**
@@ -184,23 +184,25 @@ class BiDevice extends BiModule {
     webUtil.addKeyToReport(sensorTrend, viewUpsasProfileList, 'pv_chart_color', 'inverter_seq');
     webUtil.addKeyToReport(sensorTrend, viewUpsasProfileList, 'pv_chart_sort_rank', 'inverter_seq');
     // 검색 기간을 기준으로 data 비율을 조정함
-    BU.CLI(sensorTrend);
+    // BU.CLI(sensorTrend);
 
-    const chartOption = {
+    /** @type {chartOption} */
+    const chartOpt = {
       selectKey: 'avg_num_data',
       maxKey: 'avg_num_data',
       minKey: 'avg_num_data',
+      averKey: 'avg_num_data',
       dateKey: 'group_date',
       groupKey: 'node_seq',
       colorKey: 'pv_chart_color',
       sortKey: 'pv_chart_sort_rank',
     };
-    BU.CLI(betweenDatePoint);
+    // BU.CLI(betweenDatePoint);
 
     /** 정해진 column을 기준으로 모듈 데이터를 정리 */
-    const sensorChart = webUtil.makeStaticChartData(sensorTrend, betweenDatePoint, chartOption);
+    const sensorChart = webUtil.makeStaticChartData(sensorTrend, betweenDatePoint, chartOpt);
 
-    // BU.CLI(chartData);
+    // BU.CLI(sensorChart);
     // return;
     /** Grouping Chart에 의미있는 이름을 부여함. */
     sensorChart.series.forEach(seriesInfo => {

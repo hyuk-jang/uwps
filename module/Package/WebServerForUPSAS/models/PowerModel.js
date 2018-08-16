@@ -118,7 +118,7 @@ class PowerModel extends BiModule {
    * @param {{device_type: string, device_list_type: string, device_type_list: [], device_seq: string, search_type: string}} searchOption
    * @param {searchRange} searchRange
    * @param {{fullTxtPoint: [], shortTxtPoint: []}} betweenDatePoint
-   * @return {{inverterPowerChartData: chartData, inverterTrend: Object[], viewInverterPacketList: Array.<viewInverterDataPacket>}} chartData
+   * @return {{inverterPowerChartData: chartData, inverterTrend: Object[], viewInverterStatusList: V_INVERTER_STATUS[]}} chartData
    */
   async getInverterChart(searchOption, searchRange, betweenDatePoint) {
     // BU.CLI(searchRange);
@@ -146,7 +146,7 @@ class PowerModel extends BiModule {
     // searchRange.searchType = 'hour';
     // TODO: 인버터 모듈 이름을 가져오기 위한 테이블. 성능을 위해서라면 다른 쿼리문 작성 사용 필요
     /** @type {V_INVERTER_STATUS[]} */
-    const viewInverterPacketList = await this.getTable('v_inverter_status');
+    const viewInverterStatusList = await this.getTable('v_inverter_status');
     // BU.CLI(viewInverterPacketList);
     // 인버터 차트 데이터 불러옴
     // BU.CLI(searchRange);
@@ -187,8 +187,8 @@ class PowerModel extends BiModule {
       };
       webUtil.calcRangePower(inverterTrend, calcOption);
     }
-    webUtil.addKeyToReport(inverterTrend, viewInverterPacketList, 'target_id', 'inverter_seq');
-    webUtil.addKeyToReport(inverterTrend, viewInverterPacketList, 'target_name', 'inverter_seq');
+    webUtil.addKeyToReport(inverterTrend, viewInverterStatusList, 'target_id', 'inverter_seq');
+    webUtil.addKeyToReport(inverterTrend, viewInverterStatusList, 'target_name', 'inverter_seq');
     // 기간 발전량을 기준으로 실제 계통 출력량을 계산하여 추가함(grid_out_w)
     webUtil.calcRangeGridOutW(inverterTrend, searchRange, 'interval_power');
     // 검색 기간을 기준으로 data 비율을 조정함
@@ -231,7 +231,7 @@ class PowerModel extends BiModule {
     /** Grouping Chart에 의미있는 이름을 부여함. */
     webUtil.mappingChartDataName(
       inverterPowerChartData,
-      viewInverterPacketList,
+      viewInverterStatusList,
       'target_id',
       'target_name',
     );
@@ -239,7 +239,7 @@ class PowerModel extends BiModule {
     return {
       inverterPowerChartData,
       inverterTrend,
-      viewInverterPacketList,
+      viewInverterStatusList,
     };
   }
 

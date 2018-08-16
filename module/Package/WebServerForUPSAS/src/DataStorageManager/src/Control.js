@@ -122,7 +122,7 @@ class Control {
       dbInfo: this.config.dbInfo,
     });
     this.powerStatusMaker.mainStorageList = this.mainStorageList;
-    this.powerStatusMaker.requestCalcPowerStatus();
+    this.powerStatusMaker.runCronCalcPowerStatus();
   }
 
   /**

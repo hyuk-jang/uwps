@@ -112,7 +112,7 @@ class MuanTB {
       _.forEach(invertersEarth, (data, key) => _.set(invertersEarth, key, _.round(data * 10)));
       _.forEach(invertersWater, (data, key) => _.set(invertersWater, key, _.round(data * 10)));
 
-      // BU.CLIS(invertersWater, invertersEarth, invertersTotal);
+      BU.CLIS(invertersWater, invertersEarth, invertersTotal);
       const dataBodyList = [
         invertersWater.currKw,
         invertersWater.dailyPower,
@@ -159,7 +159,7 @@ class MuanTB {
       //   }
       // }
 
-      // BU.CLI(bufDataBody);
+      BU.CLI(bufDataBody);
       // msInfo에 직접적으로 데이터를 넣음
       _.set(msInfo, 'msDataInfo.statusBoard', bufDataBody);
       return bufDataBody;

@@ -275,6 +275,7 @@ class SocketServer extends EventEmitter {
             break;
           case POWER_BOARD: // 현황판 데이터를 요청할 경우
             responseDataByServer.contents = msInfo.msDataInfo.statusBoard;
+            // BU.CLI(responseDataByServer)
             break;
           default:
             responseDataByServer.isError = 1;

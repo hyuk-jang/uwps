@@ -16,6 +16,8 @@ class Control {
     this.config = mainConfig || config;
     this.biModule = new BiModule(this.config.dbInfo);
 
+    this.cronScheduler = null;
+
     /**
      * Main Storage List에서 각각의 거점 별 모든 정보를 가지고 있을 객체 정보 목록
      * @type {Array.<msInfo>}
@@ -44,7 +46,7 @@ class Control {
       }
       // 1분마다 현황판 데이터 갱신
       this.cronScheduler = new cron.CronJob({
-        cronTime: '* */1 * * * *',
+        cronTime: '0 */1 * * * *',
         onTick: () => {
           this.requestCalcPowerStatus();
         },

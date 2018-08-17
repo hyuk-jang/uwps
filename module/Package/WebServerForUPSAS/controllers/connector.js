@@ -67,8 +67,9 @@ module.exports = app => {
         photovoltaic_seq: moduleSeqList,
       });
 
-      // 인버터 데이터 목록에 모듈 온도를 확장
+      // 인버터 데이터 목록에 모듈 온도, 수온 확장
       await biDevice.extendsPlaceDeviceData(moduleStatusList, 'moduleRearTemperature');
+      await biDevice.extendsPlaceDeviceData(moduleStatusList, 'brineTemperature');
       // BU.CLI(moduleStatusList);
 
       // TEST 구간
@@ -90,7 +91,7 @@ module.exports = app => {
       validModuleStatusList.forEach(validInfo => {
         const hasOperation = validInfo.hasValidData;
         // let hasOperation = true;
-        const {amp, vol, moduleRearTemperature} = validInfo.data;
+        const {amp, vol, moduleRearTemperature, brineTemperature} = validInfo.data;
 
         const findIt = _.find(refinedConnectorList, {
           photovoltaic_seq: validInfo.data.photovoltaic_seq,
@@ -102,6 +103,7 @@ module.exports = app => {
           vol: '',
           power: '',
           moduleTemperature: '',
+          brineTemperature: '',
         });
 
         if (hasOperation) {
@@ -109,6 +111,7 @@ module.exports = app => {
           findIt.vol = vol;
           findIt.power = _.round(amp * vol, 1);
           findIt.moduleTemperature = moduleRearTemperature;
+          findIt.brineTemperature = brineTemperature;
         }
 
         // findIt.hasOperation = hasOperation;
@@ -135,6 +138,7 @@ module.exports = app => {
           'vol',
           'power',
           'moduleTemperature',
+          'brineTemperature',
           'hasOperation',
         ],
         maxModuleViewNum,

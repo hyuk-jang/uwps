@@ -390,12 +390,27 @@ class PowerModel extends BiModule {
     // BU.CLI(inverterTrend);
 
     // 모듈 뒷면 온도 데이터 가져옴
-    const {sensorChartData, sensorTrend} = await this.biDevice.getDeviceChart(
+    // const {sensorChartData, sensorTrend} = ;
+    const moduleRearTemperatureChartInfo = await this.biDevice.getDeviceChart(
       viewPowerProfileList,
       'moduleRearTemperature',
       searchRange,
       betweenDatePoint,
     );
+
+    // 수온을 가져옴
+    const brineTemperatureChartInfo = await this.biDevice.getDeviceChart(
+      viewPowerProfileList,
+      'brineTemperature',
+      searchRange,
+      betweenDatePoint,
+    );
+
+    // 장치 관련 차트 정보 객체
+    const deviceChartInfo = {
+      moduleRearTemperatureChartInfo,
+      brineTemperatureChartInfo,
+    };
 
     // BU.CLI(searchRange);
     // BU.CLI(inverterPowerChartData);
@@ -425,8 +440,7 @@ class PowerModel extends BiModule {
       weatherChartOptionList,
       calendarCommentList,
       searchRange,
-      mrtTrend: sensorTrend,
-      mrtSensorChartData: sensorChartData,
+      deviceChartInfo,
     };
     return excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
   }

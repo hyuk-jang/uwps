@@ -333,7 +333,7 @@ function refineSelectedConnectorList(viewUpsasProfile) {
       ivt_target_id: info.ivt_target_id,
       ivt_target_name: info.ivt_target_name,
       inverter_seq: info.inverter_seq,
-      install_place: info.sb_target_name ? info.sb_target_name : '육상',
+      install_place: info.pv_install_place === '육상' ? '육상' : info.place_name,
       writedate: '',
       amp: '',
       vol: '',

@@ -16,9 +16,15 @@ const webUtil = require('./web.util');
  * @property {chartDecoration} powerChartDecoration
  * @property {waterLevelDataPacket[]} waterLevelDataPacketList
  * @property {weatherChartOption[]} weatherChartOptionList
- * @property {V_DV_SENSOR_DATA[]} mrtTrend
- * @property {chartData} mrtSensorChartData
+ * @property {deviceChartInfo} deviceChartInfo
  * @property {Object[]} inverterTrend
+ */
+
+/**
+ * searchRange Type
+ * @typedef {Object} deviceChartInfo
+ * @property {{sensorTrend: V_DV_SENSOR_DATA[], sensorChartData: chartData}} moduleRearTemperatureChartInfo 인버터 장치 시퀀스
+ * @property {{sensorTrend: V_DV_SENSOR_DATA[], sensorChartData: chartData}} brineTemperatureChartInfo 인버터 장치 시퀀스
  */
 
 /**
@@ -144,8 +150,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     weatherCastRowDataPacketList,
     weatherTrend,
     weatherChartOptionList,
-    mrtTrend,
-    mrtSensorChartData,
+    deviceChartInfo,
   } = resource;
   const viewInverterStatusList = _.sortBy(resource.viewInverterStatusList, 'chart_sort_rank');
 
@@ -176,8 +181,16 @@ function makeChartDataToExcelWorkSheet(resource) {
   }
   // 발전 현황에 계산된 개요 추출
   const powerChartDataOptionList = _.map(powerChartData.series, chartInfo => chartInfo.option);
-  // 모듈 현황에 계산된 개요 추출
-  const mrtChartDataOptionList = _.map(mrtSensorChartData.series, chartInfo => chartInfo.option);
+  // 모듈 뒷면 온도에 계산된 개요 추출
+  const mrtChartDataOptionList = _.map(
+    deviceChartInfo.moduleRearTemperatureChartInfo.sensorChartData.series,
+    chartInfo => chartInfo.option,
+  );
+  // 수온에 계산된 개요 추출
+  const btChartDataOptionList = _.map(
+    deviceChartInfo.brineTemperatureChartInfo.sensorChartData.series,
+    chartInfo => chartInfo.option,
+  );
   ws.B4 = {t: 's', v: `가중치 미적용 \n${powerName} ${powerChartDecoration.yAxisTitle}`};
   ws.B5 = {t: 's', v: '비교(%)'};
   ws.B6 = {t: 's', v: '가중치'};
@@ -186,6 +199,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   ws.B9 = {t: 's', v: '이용률(%)'};
   ws.B10 = {t: 's', v: '수위(cm)'};
   ws.B11 = {t: 's', v: '모듈 온도(℃)'};
+  ws.B12 = {t: 's', v: '수온(℃)'};
   ws.B15 = {t: 's', v: powerChartDecoration.xAxisTitle};
 
   // 시작 지점 입력
@@ -244,13 +258,24 @@ function makeChartDataToExcelWorkSheet(resource) {
     ws[`${columnName}10`] = {t: 'n', v: waterLevel};
 
     // 모듈 온도
-
     const foundMrtOptionIt = _.find(mrtChartDataOptionList, {
       sort: viewInverterStatusInfo.chart_sort_rank,
     });
     ws[`${columnName}11`] = {t: 'n', v: _.round(_.get(foundMrtOptionIt, 'aver', ''), 1)};
+
+    // 모듈 온도
+    const foundbtOptionIt = _.find(btChartDataOptionList, {
+      sort: viewInverterStatusInfo.chart_sort_rank,
+    });
+
+    if (_.get(foundbtOptionIt, 'aver', '') === '') {
+      ws[`${columnName}12`] = {t: 'n', v: ''};
+    } else {
+      ws[`${columnName}12`] = {t: 'n', v: _.round(_.get(foundbtOptionIt, 'aver', ''), 1)};
+    }
   });
 
+  // BU.CLI(ws);
   /** 기상 개요 구성 시작 */
   summeryColumn = getNextAlphabet(summeryColumn, 1);
   ws[summeryColumn + 3] = {t: 's', v: '기상계측장치'};
@@ -353,16 +378,57 @@ function makeChartDataToExcelWorkSheet(resource) {
 
   // 발전 현황
   // 모듈 온도가 있을 경우에만 삽입
-  if (mrtTrend.length) {
+  if (deviceChartInfo.moduleRearTemperatureChartInfo.sensorTrend.length) {
     // 공백 삽입
     summeryColumn = getNextAlphabet(summeryColumn, 1);
-    const groupingMrtTrend = _.groupBy(mrtTrend, 'pv_chart_sort_rank');
+    const groupingMrtTrend = _.groupBy(
+      deviceChartInfo.moduleRearTemperatureChartInfo.sensorTrend,
+      'pv_chart_sort_rank',
+    );
     // 모듈 온도 표시
     ws[`${summeryColumn}14`] = {
       t: 's',
       v: '모듈 온도(℃)',
     };
     viewInverterStatusList.forEach(viewInverterStatusInfo => {
+      const {target_name} = viewInverterStatusInfo;
+      // 데이터 상세 리스트 제목도 같이 구성
+      const replaceTarget_name = _.replace(target_name, '(', '\n(');
+      ws[`${summeryColumn}15`] = {
+        t: 's',
+        v: replaceTarget_name,
+      };
+      summeryColumn = getNextAlphabet(summeryColumn, 1);
+    });
+    const mrtTrendDataList = _.map(groupingMrtTrend, trend => ({
+      trend,
+      pickValueKeyList: ['avg_num_data'],
+    }));
+    // 공백 삽입
+    mrtTrendDataList.unshift(null);
+    makeTrendToReport(excelDataList, defaultRange, mrtTrendDataList);
+  }
+
+  // 수온이 있을 경우에만 삽입
+  if (deviceChartInfo.brineTemperatureChartInfo.sensorTrend.length) {
+    // 공백 삽입
+
+    // 수중만 필터링
+    const filteredViewInverterStatusList = _.filter(viewInverterStatusList, {
+      install_place: '수중',
+    });
+
+    summeryColumn = getNextAlphabet(summeryColumn, 1);
+    const groupingMrtTrend = _.groupBy(
+      deviceChartInfo.brineTemperatureChartInfo.sensorTrend,
+      'pv_chart_sort_rank',
+    );
+    // 모듈 온도 표시
+    ws[`${summeryColumn}14`] = {
+      t: 's',
+      v: '수온(℃)',
+    };
+    filteredViewInverterStatusList.forEach(viewInverterStatusInfo => {
       const {target_name} = viewInverterStatusInfo;
       // 데이터 상세 리스트 제목도 같이 구성
       const replaceTarget_name = _.replace(target_name, '(', '\n(');

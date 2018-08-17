@@ -153,6 +153,7 @@
                   }
                   %>
                 </tr>
+
                 <tr class="sel">
                   <td class="td1">모듈온도(℃)</td>
                   <%
@@ -165,7 +166,18 @@
                   }
                   %>
                 </tr>
-
+                <tr class="sel">
+                  <td class="td1">수온(℃)</td>
+                  <%
+                  for(var i = 0; i < gridInfo.maxModuleViewNum; i++){
+                  %>
+                    <td>
+                      <%= connectorStatusData.brineTemperature[i] %>
+                    </td>
+                    <%
+                  }
+                  %>
+                </tr>
                 <tr class="sel">
                   <td class="td1">장치상태</td>
                   <%

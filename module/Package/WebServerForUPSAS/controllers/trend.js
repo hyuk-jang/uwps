@@ -122,12 +122,28 @@ module.exports = app => {
       );
 
       // 모듈 뒷면 온도 데이터 가져옴
-      const {sensorChartData, sensorTrend} = await biDevice.getDeviceChart(
+      // const {sensorChartData, sensorTrend} = ;
+      const moduleRearTemperatureChartInfo = await biDevice.getDeviceChart(
         viewPowerProfileList,
         'moduleRearTemperature',
         searchRange,
         betweenDatePoint,
       );
+
+      // 수온을 가져옴
+      const brineTemperatureChartInfo = await biDevice.getDeviceChart(
+        viewPowerProfileList,
+        'brineTemperature',
+        searchRange,
+        betweenDatePoint,
+      );
+
+      // 장치 관련 차트 정보 객체
+      const deviceChartInfo = {
+        moduleRearTemperatureChartInfo,
+        brineTemperatureChartInfo,
+      };
+
       // 인버터 차트
       const {
         inverterPowerChartData,
@@ -178,8 +194,9 @@ module.exports = app => {
         weatherTrend,
         weatherChartOptionList,
         searchRange,
-        mrtTrend: sensorTrend,
-        mrtSensorChartData: sensorChartData,
+        deviceChartInfo,
+        // mrtTrend: moduleRearTemperatureChartInfo.sensorTrend,
+        // mrtSensorChartData: moduleRearTemperatureChartInfo.sensorChartData,
       };
 
       const workSheetInfo = excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
@@ -244,7 +261,8 @@ module.exports = app => {
       // BU.CLI(sensorChartData)
       req.locals.searchOption = searchOption;
       req.locals.powerChartData = powerChartData;
-      req.locals.sensorChartData = sensorChartData;
+      req.locals.mrtChartData = deviceChartInfo.moduleRearTemperatureChartInfo.sensorChartData;
+      req.locals.btChartData = deviceChartInfo.brineTemperatureChartInfo.sensorChartData;
       req.locals.chartDecorator = chartDecoration;
       req.locals.weatherChartData = testWeatherInfoChart;
       req.locals.workBook = excelContents;

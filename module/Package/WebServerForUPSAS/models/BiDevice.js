@@ -123,12 +123,12 @@ class BiDevice extends BiModule {
   async getDeviceChart(viewUpsasProfileList, pickId, searchRange, betweenDatePoint) {
     // BU.CLI(searchRange);
     /** @type {chartData} */
-    const chartData = {
+    const chartInfo = {
       range: [],
       series: [],
     };
     const returnValue = {
-      sensorChartData: chartData,
+      sensorChartData: chartInfo,
       sensorTrend: [],
     };
 

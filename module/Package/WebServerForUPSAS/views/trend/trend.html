@@ -91,304 +91,364 @@
           <p class="re_p" style="margin: 5px 0px 0px">※ 단: 단결정, 다: 다결정</p>
 
           <div class="row row_title">
-            <div class="title title_trend">모듈 정보</div>
+            <div class="title title_trend">모듈 후면 온도 정보</div>
           </div>
 
-          <div class="title_box2" id="sensorChart"></div>
+          <div class="title_box2" id="mrtChart"></div>
 
           <div class="row row_title">
-            <div class="title title_trend">환경 정보</div>
+            <div class="row row_title">
+              <div class="title title_trend">모듈 수온 정보</div>
+            </div>
+
+            <div class="title_box2" id="btChart"></div>
+
+            <div class="row row_title">
+              <div class="title title_trend">환경 정보</div>
+            </div>
+
+            <div class="title_box2" id="weatherChart"></div>
+
           </div>
-
-          <div class="title_box2" id="weatherChart"></div>
-
         </div>
       </div>
-    </div>
-    <%- include("../master/footer.html") %>
+      <%- include("../master/footer.html") %>
 
-      <script>
-        var workBook = <%- JSON.stringify(workBook)  %>;
+        <script>
+          var workBook = <%- JSON.stringify(workBook)  %>;
 
-        function doit(type, fn, dl) {
-          var fileName = "";
-          if (searchRange.rangeEnd) {
-            fileName = searchRange.rangeStart + "~" + searchRange.rangeEnd;
-          } else {
-            fileName = searchRange.rangeStart
-          }
-          XLSX.writeFile(workBook, fileName + ".xlsx");
-        }
-      </script>
-
-      <!-- 기본 데이터 세팅 -->
-      <script>
-        $("#device_type_sel").on('change', function (event) {
-          console.log(event.target.value)
-          changeDeviceType(event.target.value)
-        })
-
-
-        // 초기 시작시 라디오 체크버튼 클릭처리
-        var searchRange = <%- JSON.stringify(searchOption.search_range)  %>;
-        var searchType = "<%- searchOption.search_type %>";
-
-        $(document).ready(function () {
-          var selectedObj = $("#sel_type_div_area").find("input[value=" + searchType + "]");
-          // document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
-
-          $(selectedObj).trigger('click');
-        })
-
-
-        /**
-         * 검색 기간 Radio 클릭 시 날짜 영역 설정
-         * @param {Dom} input[name='searchType']
-         * @return {void} 
-         */
-        function setterSelectType(target) {
-          var checkedSearchType = target.value;
-          var startDateDom = document.querySelector('#start_date_input');
-          var endDateDom = document.querySelector('#end_date_input');
-
-          var startDate = new Date(searchRange.strStartDateInputValue);
-          var endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
-            'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
-
-          var viewMode = 0;
-          var sliceEndIndex = 10;
-
-          checkedSearchType === 'range' ? $('#end_date_input').show() : $('#end_date_input').hide();
-
-          if (checkedSearchType == 'month') {
-            viewMode = 2;
-            sliceEndIndex = 4;
-          } else if (checkedSearchType == 'day') {
-            viewMode = 1;
-            sliceEndIndex = 7;
-          } else if (checkedSearchType == 'range') {
-            makeDatePicker(endDateDom, 0);
-            endDateDom.value = endDate.toISOString().substring(0, sliceEndIndex);
-          } else {
-            viewMode = 0;
-            sliceEndIndex = 10;
-          }
-          startDateDom.value = startDate.toISOString().substring(0, sliceEndIndex);
-          makeDatePicker(startDateDom, viewMode);
-        }
-
-        // 검색 클릭 시
-        function searchTrend() {
-          var $deviceListDom = $('#device_list_sel option:checked');
-          var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
-          var startDate = document.getElementById('start_date_input').value;
-          var endDate = '';
-
-          if (searchType === 'range') {
-            endDate = document.getElementById('end_date_input').value;
-            if (startDate > endDate) {
-              return alert('종료일이 시작일보다 빠를 수 없습니다.');
+          function doit(type, fn, dl) {
+            var fileName = "";
+            if (searchRange.rangeEnd) {
+              fileName = searchRange.rangeStart + "~" + searchRange.rangeEnd;
+            } else {
+              fileName = searchRange.rangeStart
             }
+            XLSX.writeFile(workBook, fileName + ".xlsx");
           }
-          var device_list_type = $deviceListDom.data('type');
-          var device_seq = $deviceListDom.val();
+        </script>
 
-          var locationHref = "trend?device_list_type=" + encodeURIComponent(device_list_type) + "&device_seq=" +
-            encodeURIComponent(device_seq) + "&start_date=" + encodeURIComponent(startDate) + "&end_date=" +
-            encodeURIComponent(endDate) + "&search_type=" + encodeURIComponent(searchType);
-          // alert(locationHref)
-          return location.href = locationHref;
-        }
+        <!-- 기본 데이터 세팅 -->
+        <script>
+          $("#device_type_sel").on('change', function (event) {
+            console.log(event.target.value)
+            changeDeviceType(event.target.value)
+          })
 
-        // 장치 타입 변경 시
-        function changeDeviceType(deviceType) {
-          // console.log("changeDeviceType", deviceType)
-          // var deviceName = deviceType === 'inverter' ? '인버터' : deviceType === 'connector' ? '접속반' : '모두';
-          $.ajax({
-            type: "GET",
-            url: "/trend/sub-list/" + encodeURIComponent(deviceType)
-          }).done(function (dataList, msg, res) {
-            // Check for a successful (blank) response
-            // console.log('dataList', dataList)
-            var resultData = dataList;
-            var html = '';
-            resultData.forEach(function (data) {
-              var seq = data.seq;
-              var target_name = data.target_name;
-              html += '<option value="' + seq + '">' + target_name + '</option>';
+
+          // 초기 시작시 라디오 체크버튼 클릭처리
+          var searchRange = <%- JSON.stringify(searchOption.search_range)  %>;
+          var searchType = "<%- searchOption.search_type %>";
+
+          $(document).ready(function () {
+            var selectedObj = $("#sel_type_div_area").find("input[value=" + searchType + "]");
+            // document.querySelector(`#sel_type_div_area input[value=${searchType}]`)
+
+            $(selectedObj).trigger('click');
+          })
+
+
+          /**
+           * 검색 기간 Radio 클릭 시 날짜 영역 설정
+           * @param {Dom} input[name='searchType']
+           * @return {void} 
+           */
+          function setterSelectType(target) {
+            var checkedSearchType = target.value;
+            var startDateDom = document.querySelector('#start_date_input');
+            var endDateDom = document.querySelector('#end_date_input');
+
+            var startDate = new Date(searchRange.strStartDateInputValue);
+            var endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
+              'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
+
+            var viewMode = 0;
+            var sliceEndIndex = 10;
+
+            checkedSearchType === 'range' ? $('#end_date_input').show() : $('#end_date_input').hide();
+
+            if (checkedSearchType == 'month') {
+              viewMode = 2;
+              sliceEndIndex = 4;
+            } else if (checkedSearchType == 'day') {
+              viewMode = 1;
+              sliceEndIndex = 7;
+            } else if (checkedSearchType == 'range') {
+              makeDatePicker(endDateDom, 0);
+              endDateDom.value = endDate.toISOString().substring(0, sliceEndIndex);
+            } else {
+              viewMode = 0;
+              sliceEndIndex = 10;
+            }
+            startDateDom.value = startDate.toISOString().substring(0, sliceEndIndex);
+            makeDatePicker(startDateDom, viewMode);
+          }
+
+          // 검색 클릭 시
+          function searchTrend() {
+            var $deviceListDom = $('#device_list_sel option:checked');
+            var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
+            var startDate = document.getElementById('start_date_input').value;
+            var endDate = '';
+
+            if (searchType === 'range') {
+              endDate = document.getElementById('end_date_input').value;
+              if (startDate > endDate) {
+                return alert('종료일이 시작일보다 빠를 수 없습니다.');
+              }
+            }
+            var device_list_type = $deviceListDom.data('type');
+            var device_seq = $deviceListDom.val();
+
+            var locationHref = "trend?device_list_type=" + encodeURIComponent(device_list_type) + "&device_seq=" +
+              encodeURIComponent(device_seq) + "&start_date=" + encodeURIComponent(startDate) + "&end_date=" +
+              encodeURIComponent(endDate) + "&search_type=" + encodeURIComponent(searchType);
+            // alert(locationHref)
+            return location.href = locationHref;
+          }
+
+          // 장치 타입 변경 시
+          function changeDeviceType(deviceType) {
+            // console.log("changeDeviceType", deviceType)
+            // var deviceName = deviceType === 'inverter' ? '인버터' : deviceType === 'connector' ? '접속반' : '모두';
+            $.ajax({
+              type: "GET",
+              url: "/trend/sub-list/" + encodeURIComponent(deviceType)
+            }).done(function (dataList, msg, res) {
+              // Check for a successful (blank) response
+              // console.log('dataList', dataList)
+              var resultData = dataList;
+              var html = '';
+              resultData.forEach(function (data) {
+                var seq = data.seq;
+                var target_name = data.target_name;
+                html += '<option value="' + seq + '">' + target_name + '</option>';
+              });
+
+              // $("#device_list_sel").parent().html(deviceName)
+              $("#device_list_sel").html(html);
+            }).fail(function (req, sts, err) {
+              alert(err);
             });
+          }
+        </script>
 
-            // $("#device_list_sel").parent().html(deviceName)
-            $("#device_list_sel").html(html);
-          }).fail(function (req, sts, err) {
-            alert(err);
-          });
-        }
-      </script>
-
-      <!-- 모듈 차트 -->
-      <script type="text/javascript">
-        var powerChartData = <%- JSON.stringify(powerChartData) %>;
-        var chartDecorator = <%- JSON.stringify(chartDecorator) %>;
-        if (powerChartData.series.length) {
-          $('#moduleChart_1').highcharts({
-            chart: {
-              type: "spline",
-              zoomType: 'xy',
-            },
-            title: {
-              text: chartDecorator.mainTitle
-            },
-            xAxis: {
-              title: {
-                text: chartDecorator.xAxisTitle
+        <!-- 모듈 차트 -->
+        <script type="text/javascript">
+          var powerChartData = <%- JSON.stringify(powerChartData) %>;
+          var chartDecorator = <%- JSON.stringify(chartDecorator) %>;
+          if (powerChartData.series.length) {
+            $('#moduleChart_1').highcharts({
+              chart: {
+                type: "spline",
+                zoomType: 'xy',
               },
-              tickInterval: 1,
-              categories: powerChartData.range
-            },
-            yAxis: [{
               title: {
-                text: chartDecorator.yAxisTitle
-              }
-            }, {
-              min: 0,
-              max: 1500,
-              title: {
-                text: '일사량'
+                text: chartDecorator.mainTitle
               },
-              opposite: true
-            }],
-            legend: { //범례
-              align: 'center',
-              verticalAlign: 'bottom',
-              borderWidth: 0
-            },
-            plotOptions: {
-              column: {
-                pointPadding: 0.2,
-                borderWidth: 0
-              }
-            },
-            series: powerChartData.series,
-            credits: {
-              enabled: false
-            },
-          });
-        } else {
-          $("#moduleChart_1").html("발전 내역이 존재하지 않습니다.").css({
-            "line-height": "240px",
-            "font-size": "25px"
-          });
-        }
-      </script>
-
-      <!-- 날씨 차트 -->
-      <script>
-        var sensorChartData = <%- JSON.stringify(sensorChartData) %>;
-        console.log('sensorChartData.series', sensorChartData.series)
-
-        if (sensorChartData.series.length) {
-          Highcharts.chart('sensorChart', {
-            chart: {
-              type: 'spline',
-              zoomType: 'xy',
-            },
-            title: {
-              text: ''
-            },
-            xAxis: {
-              title: {
-                text: chartDecorator.xAxisTitle
-              },
-              tickInterval: 1,
-              categories: sensorChartData.range
-            },
-            yAxis: [{
+              xAxis: {
                 title: {
-                  text: '모듈 온도 (℃)'
+                  text: chartDecorator.xAxisTitle
+                },
+                tickInterval: 1,
+                categories: powerChartData.range
+              },
+              yAxis: [{
+                title: {
+                  text: chartDecorator.yAxisTitle
+                }
+              }, {
+                min: 0,
+                max: 1500,
+                title: {
+                  text: '일사량'
+                },
+                opposite: true
+              }],
+              legend: { //범례
+                align: 'center',
+                verticalAlign: 'bottom',
+                borderWidth: 0
+              },
+              plotOptions: {
+                column: {
+                  pointPadding: 0.2,
+                  borderWidth: 0
                 }
               },
-              // {
-              //   min: 0,
-              //   max: 40,
-              //   title: {
-              //     text: ' '
-              //   },
-              //   opposite: true
-              // }
-            ],
-            plotOptions: {
-              column: {
-                pointPadding: 0.2,
-                borderWidth: 0
-              }
-            },
-            series: sensorChartData.series,
-            credits: {
-              enabled: false
-            },
-          });
-        } else {
-          $("#sensorChart").html("모듈 온도 내역이 존재하지 않습니다.").css({
-            "line-height": "240px",
-            "font-size": "25px"
-          });
-        }
-      </script>
-
-      <!-- 날씨 차트 -->
-      <script>
-        var weatherChartData = <%- JSON.stringify(weatherChartData) %>;
-        console.log('weatherChartData.series', weatherChartData.series)
-
-        if (weatherChartData.series.length) {
-          Highcharts.chart('weatherChart', {
-            chart: {
-              type: 'spline',
-              zoomType: 'xy',
-            },
-            title: {
-              text: ''
-            },
-            xAxis: {
-              title: {
-                text: chartDecorator.xAxisTitle
+              series: powerChartData.series,
+              credits: {
+                enabled: false
               },
-              tickInterval: 1,
-              categories: weatherChartData.range
-            },
-            yAxis: [{
-              min: 0,
-              max: 10,
-              title: {
-                text: '수위 (cm)'
-              }
-            }, {
-              // min: -10,
-              // max: 40,
-              title: {
-                text: '기온 (℃)'
+            });
+          } else {
+            $("#moduleChart_1").html("발전 내역이 존재하지 않습니다.").css({
+              "line-height": "240px",
+              "font-size": "25px"
+            });
+          }
+        </script>
+
+        <!-- 모듈 후면 온도 차트 -->
+        <script>
+          var mrtChartData = <%- JSON.stringify(mrtChartData) %>;
+          console.log('mrtChartData.series', mrtChartData.series)
+
+          if (mrtChartData.series.length) {
+            Highcharts.chart('mrtChart', {
+              chart: {
+                type: 'spline',
+                zoomType: 'xy',
               },
-              opposite: true
-            }],
-            plotOptions: {
-              column: {
-                pointPadding: 0.2,
-                borderWidth: 0
-              }
-            },
-            series: weatherChartData.series,
-            credits: {
-              enabled: false
-            },
-          });
-        } else {
-          $("#weatherChart").html("기상 관측 내역이 존재하지 않습니다.").css({
-            "line-height": "240px",
-            "font-size": "25px"
-          });
-        }
-      </script>
+              title: {
+                text: ''
+              },
+              xAxis: {
+                title: {
+                  text: chartDecorator.xAxisTitle
+                },
+                tickInterval: 1,
+                categories: mrtChartData.range
+              },
+              yAxis: [{
+                  title: {
+                    text: '모듈 온도 (℃)'
+                  }
+                },
+                // {
+                //   min: 0,
+                //   max: 40,
+                //   title: {
+                //     text: ' '
+                //   },
+                //   opposite: true
+                // }
+              ],
+              plotOptions: {
+                column: {
+                  pointPadding: 0.2,
+                  borderWidth: 0
+                }
+              },
+              series: mrtChartData.series,
+              credits: {
+                enabled: false
+              },
+            });
+          } else {
+            $("#mrtChart").html("모듈 온도 내역이 존재하지 않습니다.").css({
+              "line-height": "240px",
+              "font-size": "25px"
+            });
+          }
+        </script>
+        <!-- 수온 차트 -->
+        <script>
+          var btChartData = <%- JSON.stringify(btChartData) %>;
+          console.log('btChartData.series', btChartData.series)
+
+          if (btChartData.series.length) {
+            Highcharts.chart('btChart', {
+              chart: {
+                type: 'spline',
+                zoomType: 'xy',
+              },
+              title: {
+                text: ''
+              },
+              xAxis: {
+                title: {
+                  text: chartDecorator.xAxisTitle
+                },
+                tickInterval: 1,
+                categories: btChartData.range
+              },
+              yAxis: [{
+                  title: {
+                    text: '수온 (℃)'
+                  }
+                },
+                // {
+                //   min: 0,
+                //   max: 40,
+                //   title: {
+                //     text: ' '
+                //   },
+                //   opposite: true
+                // }
+              ],
+              plotOptions: {
+                column: {
+                  pointPadding: 0.2,
+                  borderWidth: 0
+                }
+              },
+              series: btChartData.series,
+              credits: {
+                enabled: false
+              },
+            });
+          } else {
+            $("#mrtChart").html("모듈 온도 내역이 존재하지 않습니다.").css({
+              "line-height": "240px",
+              "font-size": "25px"
+            });
+          }
+        </script>
+
+        <!-- 날씨 차트 -->
+        <script>
+          var weatherChartData = <%- JSON.stringify(weatherChartData) %>;
+          console.log('weatherChartData.series', weatherChartData.series)
+
+          if (weatherChartData.series.length) {
+            Highcharts.chart('weatherChart', {
+              chart: {
+                type: 'spline',
+                zoomType: 'xy',
+              },
+              title: {
+                text: ''
+              },
+              xAxis: {
+                title: {
+                  text: chartDecorator.xAxisTitle
+                },
+                tickInterval: 1,
+                categories: weatherChartData.range
+              },
+              yAxis: [{
+                min: 0,
+                max: 10,
+                title: {
+                  text: '수위 (cm)'
+                }
+              }, {
+                // min: -10,
+                // max: 40,
+                title: {
+                  text: '기온 (℃)'
+                },
+                opposite: true
+              }],
+              plotOptions: {
+                column: {
+                  pointPadding: 0.2,
+                  borderWidth: 0
+                }
+              },
+              series: weatherChartData.series,
+              credits: {
+                enabled: false
+              },
+            });
+          } else {
+            $("#weatherChart").html("기상 관측 내역이 존재하지 않습니다.").css({
+              "line-height": "240px",
+              "font-size": "25px"
+            });
+          }
+        </script>
 
 
 </body>

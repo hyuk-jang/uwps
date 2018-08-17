@@ -313,7 +313,7 @@ exports.calcScaleRowDataPacket = calcScaleRowDataPacket;
 
 /**
  * 접속반 메뉴에서 사용될 데이터 선언 및 부분 정의
- * @param {Array.<{connector_ch: number, photovoltaic_seq: number, pv_target_name: string, pv_manufacturer: string, cnt_target_name: string, ivt_target_name: string}>} viewUpsasProfile DB에서
+ * @param {V_UPSAS_PROFILE[]} viewUpsasProfile DB에서
  * @param {number|string} connector_seq 선택한 접속반
  * @return {Array.<{photovoltaic_seq:number, connector_ch: number, pv_target_name:string, pv_manufacturer: string, cnt_target_name: string, ivt_target_name: string, install_place: string, writedate: Date, amp: number, vol: number, hasOperation: boolean }>}
  */
@@ -370,7 +370,7 @@ exports.convertColumn2Rows = convertColumn2Rows;
 //
 /**
  * 인버터 메뉴에서 사용될 데이터 선언 및 부분 정의
- * @param {Object[]} viewInverterStatus DB에서
+ * @param {V_UPSAS_PROFILE[]} viewInverterStatus DB에서
  * @return {{totalInfo: {in_kw: number=, out_kw: number=, d_kwh: number=, c_mwh: number=}, dataList: Array.<{photovoltaic_seq:number, connector_ch: number, pv_target_name:string, pv_manufacturer: string, cnt_target_name: string, ivt_target_name: string, install_place: string, writedate: Date, amp: number, vol: number, hasOperation: boolean }>}}
  */
 function refineSelectedInverterStatus(viewInverterStatus) {

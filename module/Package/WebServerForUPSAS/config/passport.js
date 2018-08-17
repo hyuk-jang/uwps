@@ -54,25 +54,26 @@ module.exports = (app, dbInfo) => {
    */
   passport.deserializeUser(async (user_id, done) => {
     try {
-      /** @type {MEMBER} */
-      const result = await biAuth.getTable('MEMBER', {user_id});
+      /** @type {V_MEMBER} */
+      const result = await biAuth.getTable('V_MEMBER', {user_id});
       if (_.isEmpty(result)) {
         return done(null, false, {message: '아이디와 비밀번호를 확인해주세요.'});
       }
 
+      const pickedUserInfo = _.pick(_.head(result), [
+        'main_seq',
+        'weather_location_seq',
+        'user_id',
+        'name',
+        'nick_name',
+        'grade',
+        'address',
+        'tel',
+        'main_uuid',
+      ]);
+
       // BU.CLI('complete deserializeUser');
-      return done(
-        null,
-        _.pick(_.head(result), [
-          'main_seq',
-          'user_id',
-          'name',
-          'nick_name',
-          'grade',
-          'address',
-          'tel',
-        ]),
-      ); // 여기의 user가 req.user가 됨
+      return done(null, pickedUserInfo); // 여기의 user가 req.user가 됨
     } catch (error) {
       done(error, false, {message: '아이디와 비밀번호를 확인해주세요.'});
     }

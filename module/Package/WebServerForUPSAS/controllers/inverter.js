@@ -21,11 +21,23 @@ module.exports = app => {
           return res.redirect('/auth/login');
         }
       }
-      req.locals = DU.makeBaseHtml(req, 4);
-      const currWeatherCastList = await biModule.getCurrWeatherCast();
-      const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
-      const weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
-      req.locals.weatherCastInfo = weatherCastInfo;
+      _.set(req, 'locals.menuNum', 4);
+
+      /** @type {V_MEMBER} */
+      const user = _.get(req, 'user', {});
+      req.locals.user = user;
+
+      /** @type {V_UPSAS_PROFILE[]} */
+      const viewPowerProfile = await biModule.getTable(
+        'v_upsas_profile',
+        {main_seq: user.main_seq},
+        false,
+      );
+      req.locals.viewPowerProfile = viewPowerProfile;
+
+      // 로그인 한 사용자가 관리하는 염전의 동네예보 위치 정보에 맞는 현재 날씨 데이터를 추출
+      const currWeatherCastInfo = await biModule.getCurrWeatherCast(user.weather_location_seq);
+      req.locals.weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
       next();
     }),
   );
@@ -36,23 +48,36 @@ module.exports = app => {
     '/',
     asyncHandler(async (req, res) => {
       // BU.CLI('inverter', req.locals)
+      /** @type {V_UPSAS_PROFILE[]} */
+      const viewPowerProfileList = req.locals.viewPowerProfile;
       // console.time('getTable')
-      const viewInverterStatus = await biModule.getTable('v_inverter_status');
+
+      const inverterSeqList = _.map(viewPowerProfileList, 'inverter_seq');
+
+      /** @type {V_INVERTER_STATUS[]} */
+      const viewInverterStatus = await biModule.getTable('v_inverter_status', {
+        inverter_seq: inverterSeqList,
+      });
 
       let searchRange = biModule.getSearchRange('min10');
       // searchRange.searchInterval = 'day';
-      const waterLevelDataPacket = await biModule.getWaterLevel(searchRange);
+      const waterLevelDataPacket = await biModule.getWaterLevel(searchRange, inverterSeqList);
 
       // TEST 구간
-      viewInverterStatus.forEach(currentItem => {
-        const foundIt = _.find(tempSacle.inverterScale, {inverter_seq: currentItem.inverter_seq});
+      viewPowerProfileList.forEach(viewPowerPofileInfo => {
+        const foundIt = _.find(tempSacle.inverterScale, {
+          inverter_seq: viewPowerPofileInfo.inverter_seq,
+        });
         // currentItem.in_a = _.round(foundIt.scale * currentItem.in_a, 1);
-        currentItem.in_w = _.round(foundIt.scale * currentItem.in_w, 1);
+        viewPowerPofileInfo.in_w = _.round(foundIt.scale * viewPowerPofileInfo.in_w, 1);
         // currentItem.out_a = _.round(foundIt.scale * currentItem.out_a, 1);
-        currentItem.out_w = _.round(foundIt.scale * currentItem.out_w, 1);
+        viewPowerPofileInfo.out_w = _.round(foundIt.scale * viewPowerPofileInfo.out_w, 1);
         // currentItem.d_wh = _.round(foundIt.scale * currentItem.d_wh, 0);
         // currentItem.c_wh = _.round(foundIt.scale * currentItem.c_wh, 0);
-        currentItem.daily_power_wh = _.round(foundIt.scale * currentItem.daily_power_wh, 0);
+        viewPowerPofileInfo.daily_power_wh = _.round(
+          foundIt.scale * viewPowerPofileInfo.daily_power_wh,
+          0,
+        );
       });
 
       _.forEach(viewInverterStatus, data => {
@@ -79,11 +104,10 @@ module.exports = app => {
       // BU.CLI(_.map(viewInverterStatus, 'daily_power_wh'));
       /** 인버터 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
       const refinedInverterStatus = webUtil.refineSelectedInverterStatus(validInverterStatus);
-      // BU.CLI(refinedInverterStatus);
 
       // let searchRange = biModule.getSearchRange('hour', '2018-03-10');
       searchRange = biModule.getSearchRange('min10');
-      const inverterPowerList = await biModule.getInverterPower(searchRange);
+      const inverterPowerList = await biModule.getInverterPower(searchRange, inverterSeqList);
       // BU.CLI(inverterPowerList);
       const chartOption = {
         selectKey: 'out_w',

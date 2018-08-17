@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const _ = require('lodash');
 
 const {BU, DU} = require('base-util-jh');
 
@@ -10,7 +11,7 @@ module.exports = app => {
         return res.redirect('/auth/login');
       }
     }
-    req.locals = DU.makeBaseHtml(req, 8);
+    _.set(req, 'locals.menuNum', 8);
     next();
   });
 

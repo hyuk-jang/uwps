@@ -24,11 +24,23 @@ module.exports = app => {
         }
       }
 
-      req.locals = DU.makeBaseHtml(req, 1);
-      const currWeatherCastList = await biModule.getCurrWeatherCast();
-      const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
-      const weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
-      req.locals.weatherCastInfo = weatherCastInfo;
+      _.set(req, 'locals.menuNum', 1);
+
+      /** @type {V_MEMBER} */
+      const user = _.get(req, 'user', {});
+      req.locals.user = user;
+
+      /** @type {V_UPSAS_PROFILE[]} */
+      const viewPowerProfile = await biModule.getTable(
+        'v_upsas_profile',
+        {main_seq: user.main_seq},
+        false,
+      );
+      req.locals.viewPowerProfile = viewPowerProfile;
+
+      // 로그인 한 사용자가 관리하는 염전의 동네예보 위치 정보에 맞는 현재 날씨 데이터를 추출
+      const currWeatherCastInfo = await biModule.getCurrWeatherCast(user.weather_location_seq);
+      req.locals.weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
       next();
     }),
   );
@@ -39,12 +51,17 @@ module.exports = app => {
     asyncHandler(async (req, res) => {
       // NOTE : SQL문의 수정이 잦아지는 관계로 대표 Method로 처리. 성능을 위해서라면 차후 튜닝 필요
       // 당월 발전량을 구하기 위한 옵션 설정 (strStartDate, strEndDate 를 당월로 설정하기 위함)
+      /** @type {V_UPSAS_PROFILE[]} */
+      const viewPowerProfileList = req.locals.viewPowerProfile;
+
+      const inverterSeqList = _.map(viewPowerProfileList, 'inverter_seq');
+      const photovoltaicSeqList = _.map(viewPowerProfileList, 'photovoltaic_seq');
 
       // console.time('0');
       let searchRange = biModule.getSearchRange('day');
       // 검색 조건이 일 당으로 검색되기 때문에 금월 날짜로 date Format을 지정하기 위해 day --> month 로 변경
       searchRange.searchType = 'month';
-      const inverterPowerByMonth = await biModule.getInverterPower(searchRange);
+      const inverterPowerByMonth = await biModule.getInverterPower(searchRange, inverterSeqList);
       const monthPower = webUtil.calcValue(
         webUtil.reduceDataList(inverterPowerByMonth, 'interval_power'),
         0.001,
@@ -53,7 +70,7 @@ module.exports = app => {
 
       // 오늘자 발전 현황을 구할 옵션 설정(strStartDate, strEndDate 를 오늘 날짜로 설정하기 위함)
       // 검색 조건이 시간당으로 검색되기 때문에 금일 날짜로 date Format을 지정하기 위해 hour --> day 로 변경
-      const cumulativePowerList = await biModule.getInverterCumulativePower();
+      const cumulativePowerList = await biModule.getInverterCumulativePower(inverterSeqList);
       const cumulativePower = webUtil.calcValue(
         webUtil.reduceDataList(cumulativePowerList, 'max_c_wh'),
         0.000001,
@@ -66,7 +83,7 @@ module.exports = app => {
       searchRange = biModule.getSearchRange('min10');
       // searchRange = biModule.getSearchRange('min10', '2018-08-12');
 
-      const inverterTrend = await biModule.getInverterTrend(searchRange);
+      const inverterTrend = await biModule.getInverterTrend(searchRange, inverterSeqList);
 
       // 하루 데이터(10분 구간)는 특별히 데이터를 정제함.
       if (
@@ -122,12 +139,12 @@ module.exports = app => {
 
       // console.time('1');
       // 접속반 현재 발전 현황
-      let moduleStatus = await biModule.getModuleStatus();
+      let moduleStatus = await biModule.getModuleStatus(photovoltaicSeqList);
       moduleStatus = _.sortBy(moduleStatus, 'chart_sort_rank');
 
       // 장소에 관련된 현재 모든 장치 데이터
 
-      const weatherDeviceStatus = await biModule.getWeather();
+      const weatherDeviceStatus = await biModule.getWeather(photovoltaicSeqList);
       // 인버터 발전 현황 데이터 검증
       const validWeatherDeviceStatus = webUtil.checkDataValidation(
         weatherDeviceStatus,
@@ -162,12 +179,11 @@ module.exports = app => {
 
       // console.timeEnd('1');
       // BU.CLI(validModuleStatusList);
-      // console.time('2');
-      const v_upsas_profile = await biModule.getTable('v_upsas_profile');
-      // console.timeEnd('2');
       // 금일 발전 현황
       // 인버터 현재 발전 현황
-      const inverterDataList = await biModule.getTable('v_inverter_status');
+      const inverterDataList = await biModule.getTable('v_inverter_status', {
+        inverter_seq: inverterSeqList,
+      });
 
       // 인버터 데이터 목록에 모듈 온도를 확장
       await biDevice.extendsPlaceDeviceData(inverterDataList, 'moduleRearTemperature');
@@ -191,7 +207,7 @@ module.exports = app => {
       );
 
       // 설치 인버터 총 용량
-      const pv_amount = _(v_upsas_profile)
+      const pv_amount = _(viewPowerProfileList)
         .map('pv_amount')
         .sum();
       const powerGenerationInfo = {

@@ -20,11 +20,24 @@ module.exports = app => {
           return res.redirect('/auth/login');
         }
       }
-      req.locals = DU.makeBaseHtml(req, 0);
-      const currWeatherCastList = await biModule.getCurrWeatherCast();
-      const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
-      const weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
-      req.locals.weatherCastInfo = weatherCastInfo;
+
+      _.set(req, 'locals.menuNum', 0);
+
+      /** @type {V_MEMBER} */
+      const user = _.get(req, 'user', {});
+      req.locals.user = user;
+
+      /** @type {V_UPSAS_PROFILE[]} */
+      const viewPowerProfile = await biModule.getTable(
+        'v_upsas_profile',
+        {main_seq: user.main_seq},
+        false,
+      );
+      req.locals.viewPowerProfile = viewPowerProfile;
+
+      // 로그인 한 사용자가 관리하는 염전의 동네예보 위치 정보에 맞는 현재 날씨 데이터를 추출
+      const currWeatherCastInfo = await biModule.getCurrWeatherCast(user.weather_location_seq);
+      req.locals.weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
       next();
     }),
   );
@@ -33,13 +46,15 @@ module.exports = app => {
   router.get(
     '/',
     asyncHandler(async (req, res) => {
+      /** @type {V_MEMBER} */
+      const userInfo = req.locals.user;
       // BU.CLI(req.user);
       // BU.CLI('control', req.locals);
       const deviceInfoList = [];
       // FIXME: 로그인 한 사용자에 따라서 nodeList가 달라져야함.
       /** @type {nodeInfo[]} */
       const nodeList = await biModule.getTable('v_dv_node', {
-        main_seq: _.get(req.user, 'main_seq', null),
+        main_seq: _.get(userInfo, 'main_seq', null),
       });
 
       // BU.CLI(nodeList);

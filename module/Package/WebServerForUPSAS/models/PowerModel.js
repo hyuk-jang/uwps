@@ -3,7 +3,9 @@ const _ = require('lodash');
 const {BU} = require('base-util-jh');
 const moment = require('moment');
 const Promise = require('bluebird');
-const BiModule = require('../models/BiModule.js');
+const BiModule = require('../models/BiModule');
+const BiDevice = require('../models/BiDevice');
+
 const webUtil = require('../models/web.util');
 const excelUtil = require('../models/excel.util');
 // TEST
@@ -15,13 +17,16 @@ class PowerModel extends BiModule {
     super(dbInfo);
 
     this.dbInfo = dbInfo;
+
+    this.biDevice = new BiDevice(dbInfo);
   }
 
   /**
    * 테스트 수행 여부, 수위, 일사량, 온도, 운량 등을 달력을 생성하기 위한 데이터로 반환
+   * @param {V_MEMBER} userInfo
    * @return {{title: string, color: string, start: string}[]} title: 내용, color: 배경 색상, start: 시작 날짜
    */
-  async getCalendarEventList() {
+  async getCalendarEventList(userInfo) {
     const startDate = moment()
       .subtract(1, 'years')
       .format();
@@ -30,15 +35,18 @@ class PowerModel extends BiModule {
     searchRange.searchInterval = 'min10';
     searchRange.resultGroupType = 'day';
 
-    const weatherTrendList = await this.getWeatherTrend(searchRange);
+    const weatherTrendList = await this.getWeatherTrend(searchRange, userInfo.main_seq);
     // BU.CLI(weatherTrendList);
     // 수위는 수중 일반(단) 기준으로 가져옴
     const waterLevelList = await this.getWaterLevel(searchRange, 4);
     // BU.CLI(waterLevelList);
 
-    const weatherCastList = await this.getWeatherCastAverage(searchRange);
+    const weatherCastList = await this.getWeatherCastAverage(
+      searchRange,
+      userInfo.weather_location_seq,
+    );
     // BU.CLI(weatherCastList);
-    const calendarCommentList = await this.getCalendarComment(searchRange);
+    const calendarCommentList = await this.getCalendarComment(searchRange, userInfo.main_seq);
     // BU.CLI(calendarCommentList);
 
     /** @type {{title: string, start: string, color: string=}[]} */
@@ -140,17 +148,19 @@ class PowerModel extends BiModule {
       return returnValue;
     }
 
-    const device_seq = !_.isNaN(searchOption.device_seq) ? Number(searchOption.device_seq) : 'all';
+    // const device_seq = !_.isNaN(searchOption.device_seq) ? Number(searchOption.device_seq) : 'all';
     // TEST
     // searchRange = this.getSearchRange('day', '2018-02-17', '2018-02-18');
     // searchRange.searchType = 'hour';
     // TODO: 인버터 모듈 이름을 가져오기 위한 테이블. 성능을 위해서라면 다른 쿼리문 작성 사용 필요
     /** @type {V_INVERTER_STATUS[]} */
-    const viewInverterStatusList = await this.getTable('v_inverter_status');
+    const viewInverterStatusList = await this.getTable('v_inverter_status', {
+      inverter_seq: searchOption.device_seq,
+    });
     // BU.CLI(viewInverterPacketList);
     // 인버터 차트 데이터 불러옴
     // BU.CLI(searchRange);
-    const inverterTrend = await this.getInverterTrend(searchRange, device_seq);
+    const inverterTrend = await this.getInverterTrend(searchRange, searchOption.device_seq);
     // BU.CLI(inverterTrend);
 
     // 하루 데이터(10분 구간)는 특별히 데이터를 정제함.
@@ -247,9 +257,10 @@ class PowerModel extends BiModule {
    * 기상 관측 차트 반환
    * @param {searchRange} searchRange
    * @param {{fullTxtPoint: [], shortTxtPoint: []}} betweenDatePoint
+   * @param {number} main_seq Main 시퀀스
    */
-  async getWeatherChart(searchRange, betweenDatePoint) {
-    const weatherTrend = await this.getWeatherTrend(searchRange);
+  async getWeatherChart(searchRange, betweenDatePoint, main_seq) {
+    const weatherTrend = await this.getWeatherTrend(searchRange, main_seq);
     webUtil.calcScaleRowDataPacket(weatherTrend, searchRange, ['total_interval_solar']);
 
     let weatherChartOptionList = [
@@ -325,8 +336,10 @@ class PowerModel extends BiModule {
   /**
    * @param {searchRange} searchRange
    * @param {number} searchInterval
+   * @param {V_MEMBER} userInfo
+   * @param {V_UPSAS_PROFILE[]} viewPowerProfileList
    */
-  async makeExcelSheet(searchRange, searchInterval) {
+  async makeExcelSheet(searchRange, searchInterval, userInfo, viewPowerProfileList) {
     const startDate = new Date(searchRange.strBetweenStart);
     const endDate = new Date(searchRange.strBetweenEnd);
     const searchRangeList = [searchRange];
@@ -341,7 +354,7 @@ class PowerModel extends BiModule {
 
     // BU.CLI(searchRangeList);
     const workSheetInfoList = await Promise.all(
-      searchRangeList.map(sr => this.getExcelWorkSheet(sr)),
+      searchRangeList.map(sr => this.getExcelWorkSheet(sr, userInfo, viewPowerProfileList)),
     );
 
     const fileName = _.head(workSheetInfoList).sheetName;
@@ -355,11 +368,13 @@ class PowerModel extends BiModule {
   /**
    *
    * @param {searchRange} searchRange
+   * @param {V_MEMBER} userInfo
+   * @param {V_UPSAS_PROFILE[]} viewPowerProfileList
    */
-  async getExcelWorkSheet(searchRange) {
+  async getExcelWorkSheet(searchRange, userInfo, viewPowerProfileList) {
     const searchOption = {
       device_list_type: 'inverter',
-      device_seq: 'all',
+      device_seq: _.map(viewPowerProfileList, 'inverter_seq'),
     };
     const betweenDatePoint = BU.getBetweenDatePoint(
       searchRange.strBetweenEnd,
@@ -369,24 +384,38 @@ class PowerModel extends BiModule {
     const {
       inverterPowerChartData,
       inverterTrend,
-      viewInverterPacketList,
+      viewInverterStatusList,
     } = await this.getInverterChart(searchOption, searchRange, betweenDatePoint);
+
+    // BU.CLI(inverterTrend);
+
+    // 모듈 뒷면 온도 데이터 가져옴
+    const {sensorChartData, sensorTrend} = await this.biDevice.getDeviceChart(
+      viewPowerProfileList,
+      'moduleRearTemperature',
+      searchRange,
+      betweenDatePoint,
+    );
 
     // BU.CLI(searchRange);
     // BU.CLI(inverterPowerChartData);
     const {weatherTrend, weatherChartOptionList} = await this.getWeatherChart(
       searchRange,
       betweenDatePoint,
+      userInfo.main_seq,
     );
-    const weatherCastRowDataPacketList = await this.getWeatherCastAverage(searchRange);
+    const weatherCastRowDataPacketList = await this.getWeatherCastAverage(
+      searchRange,
+      userInfo.weather_location_seq,
+    );
     const chartDecoration = webUtil.makeChartDecoration(searchRange);
     const powerChartData = inverterPowerChartData;
 
-    const waterLevelDataPacketList = await this.getWaterLevel(searchRange);
-    const calendarCommentList = await this.getCalendarComment(searchRange);
+    const waterLevelDataPacketList = await this.getWaterLevel(searchRange, searchOption.device_seq);
+    const calendarCommentList = await this.getCalendarComment(searchRange, userInfo.main_seq);
 
     const createExcelOption = {
-      viewInverterPacketList,
+      viewInverterStatusList,
       inverterTrend,
       powerChartData,
       powerChartDecoration: chartDecoration,
@@ -396,6 +425,8 @@ class PowerModel extends BiModule {
       weatherChartOptionList,
       calendarCommentList,
       searchRange,
+      mrtTrend: sensorTrend,
+      mrtSensorChartData: sensorChartData,
     };
     return excelUtil.makeChartDataToExcelWorkSheet(createExcelOption);
   }

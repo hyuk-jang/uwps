@@ -23,11 +23,23 @@ module.exports = app => {
           return res.redirect('/auth/login');
         }
       }
-      req.locals = DU.makeBaseHtml(req, 5);
-      const currWeatherCastList = await powerModel.getCurrWeatherCast();
-      const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
-      const weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
-      req.locals.weatherCastInfo = weatherCastInfo;
+      _.set(req, 'locals.menuNum', 5);
+
+      /** @type {V_MEMBER} */
+      const user = _.get(req, 'user', {});
+      req.locals.user = user;
+
+      /** @type {V_UPSAS_PROFILE[]} */
+      const viewPowerProfile = await powerModel.getTable(
+        'v_upsas_profile',
+        {main_seq: user.main_seq},
+        false,
+      );
+      req.locals.viewPowerProfile = viewPowerProfile;
+
+      // 로그인 한 사용자가 관리하는 염전의 동네예보 위치 정보에 맞는 현재 날씨 데이터를 추출
+      const currWeatherCastInfo = await powerModel.getCurrWeatherCast(user.weather_location_seq);
+      req.locals.weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
       next();
     }),
   );
@@ -36,26 +48,23 @@ module.exports = app => {
   router.get(
     '/',
     asyncHandler(async (req, res) => {
-      // 장비 종류 여부 (전체, 인버터, 접속반)
-      /** @type {MAIN} */
-      const userInfo = _.get(req, 'user', {});
+      /** @type {V_MEMBER} */
+      const userInfo = req.locals.user;
 
       /** @type {V_UPSAS_PROFILE[]} */
-      const powerProfileList = await powerModel.getTable(
-        'v_upsas_profile',
-        {main_seq: userInfo.main_seq},
-        false,
-      );
+      let viewPowerProfileList = req.locals.viewPowerProfile;
 
       const deviceType = 'inverter';
       const deviceListType = 'inverter';
 
       // 장비 선택 seq (all, number)
+
       let deviceSeqList = [];
-      if (_.isNaN(req.query.device_seq) === false && req.query.device_seq !== '') {
+      if (BU.isNumberic(req.query.device_seq)) {
         deviceSeqList = Number(req.query.device_seq);
+        viewPowerProfileList = _.filter(viewPowerProfileList, {inverter_seq: deviceSeqList});
       } else {
-        deviceSeqList = _.map(powerProfileList, 'inverter_seq');
+        deviceSeqList = _.map(viewPowerProfileList, 'inverter_seq');
       }
 
       // BU.CLIS(deviceType, deviceListType, deviceSeq);
@@ -91,7 +100,7 @@ module.exports = app => {
       // BU.CLIS(req.query, searchRange);
 
       // 장비 선택 리스트 가져옴
-      const deviceList = await powerModel.getDeviceList(deviceType);
+      const deviceList = await powerModel.getInverterList(deviceSeqList);
       // BU.CLI(deviceList);
 
       // 차트 제어 및 자질 구래한 데이터 모음
@@ -114,7 +123,7 @@ module.exports = app => {
 
       // 모듈 뒷면 온도 데이터 가져옴
       const {sensorChartData, sensorTrend} = await biDevice.getDeviceChart(
-        powerProfileList,
+        viewPowerProfileList,
         'moduleRearTemperature',
         searchRange,
         betweenDatePoint,
@@ -140,10 +149,22 @@ module.exports = app => {
         weatherChartData,
         weatherTrend,
         weatherChartOptionList,
-      } = await powerModel.getWeatherChart(searchRange, betweenDatePoint);
-      const weatherCastRowDataPacketList = await powerModel.getWeatherCastAverage(searchRange);
-      const waterLevelDataPacketList = await powerModel.getWaterLevel(searchRange);
-      const calendarCommentList = await powerModel.getCalendarComment(searchRange);
+      } = await powerModel.getWeatherChart(searchRange, betweenDatePoint, userInfo.main_seq);
+      // 기상청 날씨 정보
+      const weatherCastRowDataPacketList = await powerModel.getWeatherCastAverage(
+        searchRange,
+        userInfo.weather_location_seq,
+      );
+      // 수위
+      const waterLevelDataPacketList = await powerModel.getWaterLevel(
+        searchRange,
+        searchOption.device_seq,
+      );
+      // 달력
+      const calendarCommentList = await powerModel.getCalendarComment(
+        searchRange,
+        userInfo.main_seq,
+      );
       // BU.CLI(calendarCommentList);
       // BU.CLI(viewInverterPacketList);
       const createExcelOption = {

@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const router = require('express').Router();
+const _ = require('lodash');
 const {BU, DU} = require('base-util-jh');
 
 const BiModule = require('../models/BiModule.js');
@@ -17,11 +18,23 @@ module.exports = app => {
           return res.redirect('/auth/login');
         }
       }
-      req.locals = DU.makeBaseHtml(req, 7);
-      const currWeatherCastList = await biModule.getCurrWeatherCast();
-      const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
-      const weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
-      req.locals.weatherCastInfo = weatherCastInfo;
+      _.set(req, 'locals.menuNum', 7);
+
+      /** @type {V_MEMBER} */
+      const user = _.get(req, 'user', {});
+      req.locals.user = user;
+
+      /** @type {V_UPSAS_PROFILE[]} */
+      const viewPowerProfile = await biModule.getTable(
+        'v_upsas_profile',
+        {main_seq: user.main_seq},
+        false,
+      );
+      req.locals.viewPowerProfile = viewPowerProfile;
+
+      // 로그인 한 사용자가 관리하는 염전의 동네예보 위치 정보에 맞는 현재 날씨 데이터를 추출
+      const currWeatherCastInfo = await biModule.getCurrWeatherCast(user.weather_location_seq);
+      req.locals.weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
       next();
     }),
   );
@@ -30,6 +43,12 @@ module.exports = app => {
   router.get(
     '/',
     asyncHandler(async (req, res) => {
+      /** @type {V_UPSAS_PROFILE[]} */
+      const viewPowerProfileList = req.locals.viewPowerProfile;
+
+      const inverterSeqList = _.map(viewPowerProfileList, 'inverter_seq');
+      const connectorSeqList = _.union(_.map(viewPowerProfileList, 'connector_seq'));
+
       // BU.CLI('alarm', req.query)
       // 장비 종류 여부 all(전체), inverter(인버터), connector(접속반)
       let deviceType = 'all';
@@ -67,11 +86,24 @@ module.exports = app => {
       let troubleReport = {totalCount: 0, report: []};
 
       if (deviceType === 'inverter') {
-        troubleReport = await biModule.getAlarmReportForInverter(error_status, searchRange);
+        troubleReport = await biModule.getAlarmReportForInverter(
+          error_status,
+          searchRange,
+          inverterSeqList,
+        );
       } else if (deviceType === 'connector') {
-        troubleReport = await biModule.getAlarmReportForConnector(error_status, searchRange);
+        troubleReport = await biModule.getAlarmReportForConnector(
+          error_status,
+          searchRange,
+          connectorSeqList,
+        );
       } else {
-        troubleReport = await biModule.getAlarmReport(error_status, searchRange);
+        troubleReport = await biModule.getAlarmReport(
+          error_status,
+          searchRange,
+          inverterSeqList,
+          connectorSeqList,
+        );
       }
 
       const queryString = {

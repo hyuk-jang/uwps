@@ -30,10 +30,10 @@ class BiModule extends bmjh.BM {
   /**
    * 에러 내역
    * @param {searchRange} searchRange  검색 옵션
-   * @param {number[]=} inverter_seq_list
+   * @param {number} mainSeq
    * @return {{comment: string, is_error: number}[]} SQL 실행 결과
    */
-  getCalendarComment(searchRange) {
+  getCalendarComment(searchRange, mainSeq) {
     searchRange = searchRange || this.getSearchRange();
     const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
 
@@ -44,7 +44,8 @@ class BiModule extends bmjh.BM {
         ${dateFormat.selectViewDate},
         ${dateFormat.selectGroupDate}
         FROM calendar cal
-        WHERE writedate>= "${searchRange.strBetweenStart}" and writedate<"${
+        WHERE main_seq = ${mainSeq}
+         AND writedate>= "${searchRange.strBetweenStart}" and writedate<"${
       searchRange.strBetweenEnd
     }"
         ORDER BY writedate
@@ -128,7 +129,7 @@ class BiModule extends bmjh.BM {
    * @param {searchRange} searchRange  검색 옵션
    * @return {weatherRowDataPacketList}
    */
-  getWeatherCastAverage(searchRange) {
+  getWeatherCastAverage(searchRange, weatherLocationSeq) {
     searchRange = searchRange || this.getSearchRange();
     const dateFormat = this.makeDateFormatForReport(searchRange, 'applydate');
     // BU.CLI(dateFormat);
@@ -149,8 +150,9 @@ class BiModule extends bmjh.BM {
         WHEN sky = 4 THEN 9.5
         END AS scale_sky
     FROM kma_data	
-    WHERE applydate>= "${searchRange.strBetweenStart}" and applydate<"${searchRange.strBetweenEnd}"
-    AND DATE_FORMAT(applydate, '%H') >= '05' AND DATE_FORMAT(applydate, '%H') < '20'
+    WHERE weather_location_seq = ${weatherLocationSeq}
+      AND applydate>= "${searchRange.strBetweenStart}" and applydate<"${searchRange.strBetweenEnd}"
+      AND DATE_FORMAT(applydate, '%H') >= '05' AND DATE_FORMAT(applydate, '%H') < '20'
     ) main
     GROUP BY ${dateFormat.groupByFormat}
     ORDER BY applydate
@@ -161,13 +163,13 @@ class BiModule extends bmjh.BM {
   /**
    * 접속반 기준 Module 최신 데이터 가져옴
    *
-   * @param {number|Array} photovoltatic_seq Format => Number or Array or undefinded
+   * @param {number|Array} photovoltaic_seq Format => Number or Array or undefinded
    * @return {Promise} 최신 데이터 리스트
    */
-  async getModuleStatus(photovoltatic_seq) {
+  async getModuleStatus(photovoltaic_seq) {
     let returnValue = [];
-    if (_.isNumber(photovoltatic_seq) || _.isArray(photovoltatic_seq)) {
-      returnValue = await this.getTable('v_module_status', {photovoltatic_seq});
+    if (_.isNumber(photovoltaic_seq) || _.isArray(photovoltaic_seq)) {
+      returnValue = await this.getTable('v_module_status', {photovoltaic_seq}, false);
       return returnValue;
     }
     returnValue = await this.getTable('v_module_status');
@@ -249,17 +251,24 @@ class BiModule extends bmjh.BM {
 
   /**
    * 기상청 날씨를 가져옴
-   * @return {Array.<{temp: number, pty: number, wf: number, pop: number, r12: number, ws:number, wd: number, reh: number, applydate: Date}>} 날씨 정보
+   * @param {number} weatherLocationSeq 기상청 동네 예보 위치 seq
+   * @return {KMA_DATA} 날씨 정보
    */
-  getCurrWeatherCast() {
+  async getCurrWeatherCast(weatherLocationSeq) {
     const sql = `
       SELECT *, 
               ABS(CURRENT_TIMESTAMP() - applydate) AS cur_interval 
-       FROM kma_data
+       FROM kma_data 
+      WHERE weather_location_seq = ${weatherLocationSeq}
       ORDER BY cur_interval 
       LIMIT 1
     `;
-    return this.db.single(sql, '', false);
+    /** @type {KMA_DATA[]} */
+    const weatherCastList = await this.db.single(sql, '', false);
+    if (weatherCastList.length) {
+      return _.head(weatherCastList);
+    }
+    return {};
   }
 
   /**
@@ -370,32 +379,33 @@ class BiModule extends bmjh.BM {
 
   /**
    * 장치 타입 종류 가져옴
-   * @param {string} deviceType 장치 타입
+   * @param {number[]} inverterSeqList 장치 타입
    */
-  async getDeviceList(deviceType) {
+  async getInverterList(inverterSeqList) {
     const returnValue = [];
-    deviceType = deviceType || 'all';
-    if (deviceType === 'all' || deviceType === 'inverter') {
-      let inverterList = await this.getTable('inverter');
-      inverterList = _.sortBy(inverterList, 'chart_sort_rank');
-      _.forEach(inverterList, info => {
-        returnValue.push({type: 'inverter', seq: info.inverter_seq, target_name: info.target_name});
-      });
-    }
+    // deviceType = deviceType || 'all';
+    // if (deviceType === 'all' || deviceType === 'inverter') {
+    /** @type {INVERTER[]} */
+    let inverterList = await this.getTable('inverter', {inverter_seq: inverterSeqList});
+    inverterList = _.sortBy(inverterList, 'chart_sort_rank');
+    _.forEach(inverterList, info => {
+      returnValue.push({type: 'inverter', seq: info.inverter_seq, target_name: info.target_name});
+    });
+    // }
     // 인버터 이름순으로 정렬
     // returnValue = _.sortBy(returnValue, 'target_name');
 
-    if (deviceType === 'all' || deviceType === 'connector') {
-      let connectorList = await this.getTable('connector');
-      connectorList = _.sortBy(connectorList, 'chart_sort_rank');
-      _.forEach(connectorList, info => {
-        returnValue.push({
-          type: 'connector',
-          seq: info.connector_seq,
-          target_name: info.target_name,
-        });
-      });
-    }
+    // if (deviceType === 'all' || deviceType === 'connector') {
+    //   let connectorList = await this.getTable('connector');
+    //   connectorList = _.sortBy(connectorList, 'chart_sort_rank');
+    //   _.forEach(connectorList, info => {
+    //     returnValue.push({
+    //       type: 'connector',
+    //       seq: info.connector_seq,
+    //       target_name: info.target_name,
+    //     });
+    //   });
+    // }
     // 모든 셀렉트 박스 정리 끝낸 후 최상단에 보일 셀렉트 박스 정의
     returnValue.unshift({
       type: 'all',
@@ -488,7 +498,7 @@ class BiModule extends bmjh.BM {
       FROM inverter_data
       `;
     if (typeof inverter_seq_list === 'number' || Array.isArray(inverter_seq_list)) {
-      sql += ` AND inverter_seq IN (${inverter_seq_list})`;
+      sql += ` WHERE inverter_seq IN (${inverter_seq_list})`;
     }
     sql += `        
     GROUP BY inverter_seq
@@ -540,7 +550,7 @@ class BiModule extends bmjh.BM {
    * 기상 관측 데이터 구해옴
    * @param {searchRange} searchRange  검색 옵션
    */
-  getWeatherTrend(searchRange) {
+  getWeatherTrend(searchRange, main_seq) {
     const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
     const sql = `
       SELECT
@@ -569,6 +579,7 @@ class BiModule extends bmjh.BM {
         FROM weather_device_data
         WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
         AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '20'
+        AND main_seq = ${main_seq}
         GROUP BY ${dateFormat.firstGroupByFormat}) AS result_wdd
      GROUP BY ${dateFormat.groupByFormat}
     `;
@@ -578,7 +589,7 @@ class BiModule extends bmjh.BM {
   /**
    * 인버터 발전량 구해옴
    * @param {searchRange} searchRange  검색 옵션
-   * @param {number[]=} inverter_seq
+   * @param {number[]} inverter_seq
    * @return {{inverter_seq: number, group_date: string, }}
    */
   getInverterTrend(searchRange, inverter_seq) {
@@ -586,7 +597,7 @@ class BiModule extends bmjh.BM {
     searchRange = searchRange || this.getSearchRange();
     const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
     // BU.CLI(searchRange);
-    let sql = `
+    const sql = `
     SELECT 
           id_group.inverter_seq,
           ${dateFormat.selectViewDate},
@@ -622,11 +633,7 @@ class BiModule extends bmjh.BM {
             WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${
       searchRange.strEndDate
     }"
-    `;
-    if (inverter_seq !== '' && inverter_seq && inverter_seq !== 'all') {
-      sql += `AND id.inverter_seq IN (${inverter_seq})`;
-    }
-    sql += `            
+    AND id.inverter_seq IN (${inverter_seq})
       GROUP BY ${dateFormat.firstGroupByFormat}, id.inverter_seq
       ORDER BY id.inverter_seq, writedate) AS id_group
       LEFT OUTER JOIN inverter ivt
@@ -783,7 +790,7 @@ class BiModule extends bmjh.BM {
   async getInverterReport(searchRange, inverter_seq) {
     const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
 
-    let sql = `
+    const sql = `
     SELECT
         group_date,
         ROUND(AVG(avg_in_a) / 10, 1) AS avg_in_a,
@@ -826,11 +833,7 @@ class BiModule extends bmjh.BM {
               MIN(c_wh) AS min_c_wh
         FROM inverter_data id
         WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
-        `;
-    if (inverter_seq !== 'all') {
-      sql += `AND inverter_seq = ${inverter_seq}`;
-    }
-    sql += `  
+      AND inverter_seq IN (${inverter_seq})
         GROUP BY ${dateFormat.firstGroupByFormat}, inverter_seq
         ORDER BY inverter_seq, writedate) AS id_group
       GROUP BY inverter_seq, ${dateFormat.groupByFormat}) AS id_report
@@ -859,9 +862,11 @@ class BiModule extends bmjh.BM {
    * 경보 페이지. 인버터 접속반 둘다 가져옴.
    * @param {string} errorStatus 오류 상태 (all, deviceError, systemError)
    * @param {searchRange} searchRange
+   * @param {number[]} inverterSeqList 인버터 seq 목록
+   * @param {number[]} connectorSeqList 접속반 seq 목록
    * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
    */
-  async getAlarmReport(errorStatus, searchRange) {
+  async getAlarmReport(errorStatus, searchRange, inverterSeqList, connectorSeqList) {
     let sql = `
       SELECT trouble_list.* 
         FROM
@@ -880,9 +885,9 @@ class BiModule extends bmjh.BM {
                 '인버터' AS device_k_name
             FROM
               (SELECT * FROM inverter_trouble_data
-                WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${
-      searchRange.strEndDate
-    }"
+                WHERE inverter_seq IN (${inverterSeqList})
+                  AND occur_date>= "${searchRange.strStartDate}" 
+                  AND occur_date<"${searchRange.strEndDate}"
                 `;
     if (errorStatus === 'deviceError') {
       sql += 'AND is_error = "0"';
@@ -908,9 +913,9 @@ class BiModule extends bmjh.BM {
                 '접속반' AS device_k_name
             FROM
               (SELECT * FROM connector_trouble_data
-                WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${
-      searchRange.strEndDate
-    }"
+                WHERE connector_seq IN (${connectorSeqList})
+                  AND occur_date>= "${searchRange.strStartDate}" 
+                  AND occur_date<"${searchRange.strEndDate}"
                 `;
     if (errorStatus === 'deviceError') {
       sql += 'AND is_error = "0"';
@@ -947,9 +952,10 @@ class BiModule extends bmjh.BM {
    * 인버터 에러만 가져옴
    * @param {string} errorStatus 오류 상태 (all, deviceError, systemError)
    * @param {searchRange} searchRange
+   * @param {number[]} inverterSeqList
    * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
    */
-  async getAlarmReportForInverter(errorStatus, searchRange) {
+  async getAlarmReportForInverter(errorStatus, searchRange, inverterSeqList) {
     let sql = `
         SELECT 
             itd.inverter_seq AS device_seq,
@@ -963,9 +969,9 @@ class BiModule extends bmjh.BM {
             '인버터' AS device_k_name
         FROM
           (SELECT * FROM inverter_trouble_data
-            WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${
-      searchRange.strEndDate
-    }"
+            WHERE inverter_seq IN (${inverterSeqList})
+              AND occur_date>= "${searchRange.strStartDate}"
+              AND occur_date<"${searchRange.strEndDate}"
             `;
     if (errorStatus === 'deviceError') {
       sql += 'AND is_error = "0"';
@@ -1000,9 +1006,10 @@ class BiModule extends bmjh.BM {
    * 인버터 에러만 가져옴
    * @param {string} errorStatus 오류 상태 (all, deviceError, systemError)
    * @param {searchRange} searchRange
+   * @param {number[]} connectorSeqList 접속반 Seq 목록
    * @return {{totalCount: number, report: []}} 총 갯수, 검색 결과 목록
    */
-  async getAlarmReportForConnector(errorStatus, searchRange) {
+  async getAlarmReportForConnector(errorStatus, searchRange, connectorSeqList) {
     let sql = `
         SELECT 
             ctd.connector_seq AS device_seq,
@@ -1016,9 +1023,9 @@ class BiModule extends bmjh.BM {
             '접속반' AS device_k_name
         FROM
             (SELECT * FROM connector_trouble_data
-              WHERE occur_date>= "${searchRange.strStartDate}" and occur_date<"${
-      searchRange.strEndDate
-    }"
+              WHERE connector_seq IN (${connectorSeqList})
+                AND occur_date>= "${searchRange.strStartDate}" 
+                AND occur_date<"${searchRange.strEndDate}"
               `;
     if (errorStatus === 'deviceError') {
       sql += 'AND is_error = "0"';

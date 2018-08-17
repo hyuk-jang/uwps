@@ -25,11 +25,23 @@ module.exports = app => {
           return res.redirect('/auth/login');
         }
       }
-      req.locals = DU.makeBaseHtml(req, 3);
-      const currWeatherCastList = await biModule.getCurrWeatherCast();
-      const currWeatherCastInfo = currWeatherCastList.length ? currWeatherCastList[0] : null;
-      const weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
-      req.locals.weatherCastInfo = weatherCastInfo;
+      _.set(req, 'locals.menuNum', 3);
+
+      /** @type {V_MEMBER} */
+      const user = _.get(req, 'user', {});
+      req.locals.user = user;
+
+      /** @type {V_UPSAS_PROFILE[]} */
+      const viewPowerProfile = await biModule.getTable(
+        'v_upsas_profile',
+        {main_seq: user.main_seq},
+        false,
+      );
+      req.locals.viewPowerProfile = viewPowerProfile;
+
+      // 로그인 한 사용자가 관리하는 염전의 동네예보 위치 정보에 맞는 현재 날씨 데이터를 추출
+      const currWeatherCastInfo = await biModule.getCurrWeatherCast(user.weather_location_seq);
+      req.locals.weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
       next();
     }),
   );
@@ -39,15 +51,13 @@ module.exports = app => {
     '/',
     asyncHandler(async (req, res) => {
       // upsas 현황
-      const upsasProfile = await biModule.getTable('v_upsas_profile');
+      /** @type {V_UPSAS_PROFILE[]} */
+      const viewPowerProfileList = req.locals.viewPowerProfile;
       // BU.CLI('connector', req.locals);
-      // 선택된 접속반 seq 정의
-      const connector_seq =
-        req.query.connector_seq == null || req.query.connector_seq === 'all'
-          ? 'all'
-          : Number(req.query.connector_seq);
+      const connector_seq = _.map(viewPowerProfileList, 'connector_seq');
+
       /** 접속반 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
-      const refinedConnectorList = webUtil.refineSelectedConnectorList(upsasProfile, connector_seq);
+      const refinedConnectorList = webUtil.refineSelectedConnectorList(viewPowerProfileList);
       // BU.CLI(refinedConnectorList);
       // 접속반에 물려있는 모듈 seq 정의
       const moduleSeqList = _.map(refinedConnectorList, 'photovoltaic_seq');
@@ -129,12 +139,10 @@ module.exports = app => {
         ],
         maxModuleViewNum,
       );
-      let totalAmp = webUtil.reduceDataList(refinedConnectorList, 'amp');
-      totalAmp = _.isNumber(totalAmp) ? _.round(totalAmp, 1) : '';
-      let avgVol = webUtil.reduceDataList(refinedConnectorList, 'vol');
-      avgVol = _.isNumber(avgVol) ? _.round(avgVol * refinedConnectorList.length, 1) : '';
-      let totalPower = webUtil.reduceDataList(refinedConnectorList, 'power');
-      totalPower = _.isNumber(totalPower) ? totalPower.scale(0.001, 3) : '';
+
+      const avgVol = _.round(_.meanBy(refinedConnectorList, 'vol'), 1);
+      const totalAmp = _.round(_.sumBy(refinedConnectorList, 'amp'), 1);
+      const totalPower = _.round(_.sumBy(refinedConnectorList, 'power') * 0.001, 3);
 
       // 금일 접속반 발전량 현황
       const searchRange = biModule.getSearchRange('min10');
@@ -164,9 +172,12 @@ module.exports = app => {
       // BU.CLI(chartData);
 
       webUtil.applyScaleChart(chartData, 'hour');
-      webUtil.mappingChartDataNameForModule(chartData, upsasProfile);
+      webUtil.mappingChartDataNameForModule(chartData, viewPowerProfileList);
 
-      const connectorList = await biModule.getTable('connector');
+      /** @type {CONNECTOR[]} */
+      const connectorList = await biModule.getTable('connector', {
+        connector_seq: _.map(viewPowerProfileList, 'connector_seq'),
+      });
       connectorList.unshift({
         connector_seq: 'all',
         target_name: '모두',

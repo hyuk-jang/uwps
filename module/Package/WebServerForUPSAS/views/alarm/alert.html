@@ -12,10 +12,10 @@
     <div class="jumbotron text-center  jumbotron_line">
       <div class="row  row_st_line min_h_780">
         <div class="row row_width top_box">
-            <div class="col-xs-2 sel_box">
-                장비 종류
-              <select class="form-control form-control_st" id="device_type_sel" name="">
-                <%
+          <div class="col-xs-2 sel_box">
+            장비 종류
+            <select class="form-control form-control_st" id="device_type_sel" name="">
+              <%
                   for(var i = 0 ; i < searchOption.device_type_list.length ; i++){
                     var deviceTypeInfo = searchOption.device_type_list[i];
                     var deviceType = deviceTypeInfo.type;
@@ -25,18 +25,18 @@
                     selected = 'selected';
                   }
                 %>
-                <option  value="<%= deviceType %>" <%=selected %> >
+                <option value="<%= deviceType %>" <%=selected %> >
                   <%= deviceName %>
                 </option>
                 <%
                   }
                 %>
-              </select>
-            </div>
+            </select>
+          </div>
           <div class="col-xs-2 pad sel_box">
             오류 상태
             <select class="form-control form-control_st" id="error_status_sel" name="">
-                <%
+              <%
                   for(var i = 0 ; i < searchOption.error_status_list.length ; i++){
                     var errorStatusInfo = searchOption.error_status_list[i];
                     var errorType = errorStatusInfo.type;
@@ -46,13 +46,13 @@
                     selected = 'selected';
                   }
                 %>
-                <option  value="<%= errorType %>" <%=selected %> >
+                <option value="<%= errorType %>" <%=selected %> >
                   <%= errorName %>
                 </option>
                 <%
                   }
                 %>
-              </select>
+            </select>
 
 
 
@@ -62,29 +62,33 @@
                 <option>시스템 오류</option>
             </select> -->
           </div>
-          
+
           <div class="pad serch_st sel_box_data" style="margin-top:5px;">
-           <div><span style="float:left; margin-left:35px;"> fromDate</span> <span style=" margin-left:-55px;"> ToDate</span>    </div> 
             <div>
-           <span>날짜</span>
-           
-            <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
-            <%
+              <span style="float:left; margin-left:35px;"> fromDate</span>
+              <span style=" margin-left:-55px;"> ToDate</span>
+            </div>
+            <div>
+              <span>날짜</span>
+
+              <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
+              <%
               var hiddenValue = '';
               if(searchOption.search_range.searchType !== 'range'){
                 hiddenValue = 'hidden';
               }
             %>
-            <span id="between-start-end" <%= hiddenValue %>>~</span>
-            <input class="input_tre" name="end"  id="end_date_input" type="text" readonly <%= hiddenValue %>>
-            <button type="button" class="btn btn-primary" onclick="searchReport()" style="" id="search">검색</button>
-          </div>
+                <span id="between-start-end" "<%= hiddenValue %>">~</span>
+                <input class="input_tre" name="end" id="end_date_input" type="text" readonly "<%= hiddenValue %>">
+                <button type="button" class="btn btn-primary" onclick="searchReport()" style="" id="search">검색</button>
+            </div>
           </div>
         </div>
         <div class="row_width search_area">
-          <b>검색결과 (총 <%- paginationInfo.totalCount %> 건)</b>
+          <b>검색결과 (총
+            <%- paginationInfo.totalCount %> 건)</b>
         </div>
-        <div class="table-responsive row_width" style="overflow-x: unset" >
+        <div class="table-responsive row_width" style="overflow-x: unset">
           <table class="table table-hover" style="border-bottom:1px solid #ddd;">
             <colgroup>
               <col style="width:5%">
@@ -120,12 +124,14 @@
                   <td class="td1 td1_num">
                     <%= startListNum + count %>
                   </td>
-                  <td><%= eleInfo.device_k_name %></td>
+                  <td>
+                    <%= eleInfo.device_k_name %>
+                  </td>
                   <td>
                     <%= eleInfo.target_name %>
                   </td>
                   <td>
-                    <%= eleInfo.code %>
+                    <%= eleInfo.msg %>
                   </td>
                   <td>
                     <%= occur_date  %>
@@ -163,7 +169,9 @@
             return alert('종료일이 시작일보다 빠를 수 없습니다.');
           }
 
-          var locationHref = "alarm?device_type=" + encodeURIComponent(device_type) + "&error_status=" + encodeURIComponent(error_status) + "&start_date=" + encodeURIComponent(startDate) + "&end_date=" + encodeURIComponent(endDate);
+          var locationHref = "alarm?device_type=" + encodeURIComponent(device_type) + "&error_status=" +
+            encodeURIComponent(error_status) + "&start_date=" + encodeURIComponent(startDate) + "&end_date=" +
+            encodeURIComponent(endDate);
 
           return location.href = locationHref;
 
@@ -172,7 +180,7 @@
           // return location.href = `/alarm?start_date=${startDate}&end_date=${endDate}`;
         }
 
-        $(document).ready(function(){
+        $(document).ready(function () {
           var startDateDom = document.querySelector('#start_date_input');
           var endDateDom = document.querySelector('#end_date_input');
 

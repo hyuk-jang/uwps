@@ -16,27 +16,11 @@
 
         <div class="row row_width top_box">
 
-          <div class="col-xs-2 sel_box">
+          <!-- <div class="col-xs-2 sel_box">
             접속반
             <select class="form-control form-control_st" id="sel1" name="connector_seq" onchange="changeConnector(this.value)">
-              <%
-              for(var i = 0 ; i < connectorList.length ; i++){
-                  var connectorInfo = connectorList[i];
-                  var cntSeq = connectorInfo.connector_seq;
-                  var cntName = connectorInfo.target_name;
-                  var selected = "";
-                  if(cntSeq === connector_seq){
-                    selected = "selected";
-                  }
-                %>
-                <option value="<%=cntSeq %>" <%=selected %> >
-                  <%= cntName %>
-                </option>
-                <%
-              }
-              %>
             </select>
-          </div>
+          </div> -->
 
           <div class="col-xs-9" style="float:right;">
             <div class="conne">

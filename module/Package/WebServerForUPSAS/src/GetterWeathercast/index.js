@@ -43,7 +43,7 @@ module.exports = class {
         locationSeq: _.get(currentItem, 'weather_location_seq'),
       };
 
-      BU.CLI(config);
+      // BU.CLI(config);
       const weathercast = new Weathercast(config);
       weathercast.init();
     });

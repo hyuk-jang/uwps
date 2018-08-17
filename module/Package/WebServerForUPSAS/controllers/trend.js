@@ -130,6 +130,8 @@ module.exports = app => {
         betweenDatePoint,
       );
 
+      // BU.CLI(moduleRearTemperatureChartInfo.sensorChartData)
+
       // 수온을 가져옴
       const brineTemperatureChartInfo = await biDevice.getDeviceChart(
         viewPowerProfileList,
@@ -258,11 +260,22 @@ module.exports = app => {
       testWeatherInfoChart.series = _.concat(testWeatherInfoChart.series, weatherChartData.series);
       // TEST Water Level Add Chart Code End *****************
 
+      // 모듈 수온에 육상 모듈 온도를 더하기 위한 작업
+      const earthModuleMrtChartSeries = _.filter(
+        moduleRearTemperatureChartInfo.sensorChartData.series,
+        seriesInfo => _.includes(seriesInfo.name, '육상'),
+      );
+
+      brineTemperatureChartInfo.sensorChartData.series = _.concat(
+        earthModuleMrtChartSeries,
+        brineTemperatureChartInfo.sensorChartData.series,
+      );
+
       // BU.CLI(sensorChartData)
       req.locals.searchOption = searchOption;
       req.locals.powerChartData = powerChartData;
-      req.locals.mrtChartData = deviceChartInfo.moduleRearTemperatureChartInfo.sensorChartData;
-      req.locals.btChartData = deviceChartInfo.brineTemperatureChartInfo.sensorChartData;
+      req.locals.mrtChartData = moduleRearTemperatureChartInfo.sensorChartData;
+      req.locals.btChartData = brineTemperatureChartInfo.sensorChartData;
       req.locals.chartDecorator = chartDecoration;
       req.locals.weatherChartData = testWeatherInfoChart;
       req.locals.workBook = excelContents;

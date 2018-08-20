@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 const {CU} = require('base-util-jh');
 
 class Model {
@@ -15,11 +17,15 @@ class Model {
   }
 
   /**
-   *
-   * @param {number} inclinedSolar
+   * 경사 일사량 데이터
+   * @param {number[]} inclinedSolar
    */
   onData(inclinedSolar) {
-    this.averageStorage.addData('inclinedSolar', inclinedSolar);
+    if (inclinedSolar.length) {
+      this.averageStorage.addData('inclinedSolar', _.head(inclinedSolar));
+    } else {
+      this.averageStorage.addData('inclinedSolar', null);
+    }
     this.deviceData.inclinedSolar = this.averageStorage.getAverage('inclinedSolar');
   }
 }

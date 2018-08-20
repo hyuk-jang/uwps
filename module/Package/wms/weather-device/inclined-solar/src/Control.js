@@ -4,7 +4,7 @@ const cron = require('cron');
 const {BU} = require('base-util-jh');
 
 const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
-const Model = require('./Model');
+const Model = require('./Model').default;
 
 const mainConfig = require('./config');
 
@@ -12,7 +12,7 @@ class Control extends AbstDeviceClient {
   /** @param {mainConfig} config */
   constructor(config) {
     super();
-    this.config = config.current;
+    this.config = config.current || mainConfig.current;
 
     /** 주기적으로 LOOP 명령을 내릴 시간 인터벌 */
     this.executeCommandInterval = null;
@@ -74,21 +74,6 @@ class Control extends AbstDeviceClient {
 
     const commandSet = this.generationAutoCommand(cmdFormat);
     this.executeCommand(commandSet);
-  }
-
-  /**
-   * 장치의 현재 데이터 및 에러 내역을 가져옴
-   * @return {{id: string, config: Object, data: {smRain: number}, systemErrorList: Array, troubleList: Array}}
-   */
-  getDeviceOperationInfo() {
-    return {
-      id: this.config.deviceInfo.target_id,
-      config: this.config.deviceInfo,
-      data: this.model.deviceData,
-      // systemErrorList: [{code: 'new Code22223', msg: '에러 테스트 메시지22', occur_date: new Date() }],
-      systemErrorList: this.systemErrorList,
-      troubleList: [],
-    };
   }
 
   /**

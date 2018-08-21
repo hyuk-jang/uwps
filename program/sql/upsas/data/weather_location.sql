@@ -12,10 +12,7 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 
--- saltpond_integratedserver 데이터베이스 구조 내보내기
-
--- 테이블 saltpond_integratedserver.weather_location 구조 내보내기
-CREATE TABLE IF NOT EXISTS `weather_location` (
+CREATE TABLE IF NOT EXISTS `wc_weather_location` (
   `weather_location_seq` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '기상청 정보 위치 시퀀스',
   `province` varchar(50) DEFAULT NULL COMMENT '도',
   `city` varchar(50) DEFAULT NULL COMMENT '시',
@@ -28,9 +25,8 @@ CREATE TABLE IF NOT EXISTS `weather_location` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='기상청의 날씨 API를 가져올 위치값 테이블';
 
 
--- 테이블 데이터 saltpond_integratedserver.weather_location:~3,166 rows (대략적) 내보내기
-/*!40000 ALTER TABLE `weather_location` DISABLE KEYS */;
-INSERT INTO `weather_location` (`province`, `city`, `town`, `latitude`, `longitude`, `x`, `y`) VALUES
+/*!40000 ALTER TABLE `wc_weather_location` DISABLE KEYS */;
+INSERT INTO `wc_weather_location` (`province`, `city`, `town`, `latitude`, `longitude`, `x`, `y`) VALUES
 	('강원도', '강릉시', '강남동', 37.7733, 128.919, 93, 132),
 	('강원도', '강릉시', '강동면', 37.7254, 128.957, 94, 131),
 	('강원도', '강릉시', '경포동', 37.781, 128.883, 92, 132),
@@ -3509,7 +3505,7 @@ INSERT INTO `weather_location` (`province`, `city`, `town`, `latitude`, `longitu
 	('충청북도', '충주시', '지현동', 36.9654, 127.935, 77, 114),
 	('충청북도', '충주시', '칠금.금릉동', 36.9791, 127.921, 76, 114),
 	('충청북도', '충주시', '호암.직동', 36.9531, 127.941, 77, 114);
-/*!40000 ALTER TABLE `weather_location` ENABLE KEYS */;
+/*!40000 ALTER TABLE `wc_weather_location` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;

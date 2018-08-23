@@ -1,10 +1,11 @@
+/** @type {current: } */
 const config = {
   current: {
     hasDev: false, // 장치 연결을 실제로 하는지 여부
     incliendSolarInfo: {
-      unitId: 9,
+      unitId: 1,
       address: 0,
-      length: 1,
+      length: 18,
     },
     deviceInfo: {
       target_id: 'InclinedSolar',
@@ -31,9 +32,10 @@ const config = {
         hasReconnect: true,
       },
       connect_info: {
-        type: 'serial',
+        type: 'modbus',
+        subType: 'rtu',
         baudRate: 9600,
-        port: 'COM18',
+        port: 'COM3',
       },
       // connect_info: {
       //   type: 'modbus',

@@ -4,7 +4,7 @@ const cron = require('cron');
 const {BU} = require('base-util-jh');
 
 const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
-const Model = require('./Model').default;
+const Model = require('./Model');
 
 const mainConfig = require('./config');
 
@@ -99,7 +99,7 @@ class Control extends AbstDeviceClient {
   onDcData(dcData) {
     super.onDcData(dcData);
 
-    BU.CLI(dcData.data);
+    // BU.CLI(dcData.data);
 
     this.requestTakeAction(this.definedCommanderResponse.DONE);
 

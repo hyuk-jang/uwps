@@ -590,7 +590,7 @@ class BiModule extends bmjh.BM {
    * 인버터 발전량 구해옴
    * @param {searchRange} searchRange  검색 옵션
    * @param {number[]} inverter_seq
-   * @return {{inverter_seq: number, group_date: string, }}
+   * @return {{inverter_seq: number, group_date: string, avg_in_a: number, avg_in_v: number, avg_in_w: number, avg_out_a: number, avg_out_v: number, avg_out_w: number, avg_p_f: number, max_c_wh: number, min_c_wh: number, interval_power: number, chart_color: string, chart_sort_rank: number, total_count: number}[]}
    */
   getInverterTrend(searchRange, inverter_seq) {
     // BU.CLI(searchRange);

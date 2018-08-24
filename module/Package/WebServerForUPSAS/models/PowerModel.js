@@ -227,6 +227,27 @@ class PowerModel extends BiModule {
     );
     // BU.CLI(inverterTrend);
     // return;
+
+    // TEST: 인버터 추출 데이터에 가중치를 계산
+    // inverterTrend.forEach(trendInfo => {
+    //   const foundIt = _.find(tempSacle.inverterScale, {
+    //     inverter_seq: trendInfo.inverter_seq,
+    //   });
+
+    //   if (_.isEmpty(foundIt)) return;
+
+    //   const pickKeyList = ['avg_out_a', 'avg_out_w', 'interval_power'];
+
+    //   pickKeyList.forEach(pickKey => {
+    //     const value = _.get(trendInfo, pickKey, '');
+    //     if (BU.isNumberic(value)) {
+    //       _.set(trendInfo, pickKey, _.round(value * foundIt.scale), 1);
+    //     } else {
+    //       _.set(trendInfo, pickKey, '');
+    //     }
+    //   });
+    // });
+
     this.tempApplyScaleInverter(inverterPowerChartData);
     chartOption = {
       selectKey: 'avg_out_w',

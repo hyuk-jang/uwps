@@ -197,9 +197,10 @@ function makeChartDataToExcelWorkSheet(resource) {
   ws.B7 = {t: 's', v: `가중치 적용 \n${powerName} ${powerChartDecoration.yAxisTitle}`};
   ws.B8 = {t: 's', v: '비교(%)'};
   ws.B9 = {t: 's', v: '이용률(%)'};
-  ws.B10 = {t: 's', v: '수위(cm)'};
-  ws.B11 = {t: 's', v: '모듈 온도(℃)'};
-  ws.B12 = {t: 's', v: '수온(℃)'};
+  ws.B10 = {t: 's', v: '발전효율(%)'};
+  ws.B11 = {t: 's', v: '수위(cm)'};
+  ws.B12 = {t: 's', v: '모듈 온도(℃)'};
+  ws.B13 = {t: 's', v: '수온(℃)'};
   ws.B15 = {t: 's', v: powerChartDecoration.xAxisTitle};
 
   // 시작 지점 입력
@@ -253,15 +254,19 @@ function makeChartDataToExcelWorkSheet(resource) {
     ws[`${columnName}9`] = {t: 'n', f: `${columnName}7/(${inverterAmount}*24)`};
     XLSX.utils.cell_set_number_format(ws[`${columnName}9`], '0.0%');
 
+    // 가중치가 적용된 발전 효율
+    ws[`${columnName}10`] = {t: 'n', f: `${columnName}7/(P5 * 0.975 * 1.65 * 6)`};
+    XLSX.utils.cell_set_number_format(ws[`${columnName}10`], '0.0%');
+
     // BU.CLI(ws);
     // 수위
-    ws[`${columnName}10`] = {t: 'n', v: waterLevel};
+    ws[`${columnName}11`] = {t: 'n', v: waterLevel};
 
     // 모듈 온도
     const foundMrtOptionIt = _.find(mrtChartDataOptionList, {
       sort: viewInverterStatusInfo.chart_sort_rank,
     });
-    ws[`${columnName}11`] = {t: 'n', v: _.round(_.get(foundMrtOptionIt, 'aver', ''), 1)};
+    ws[`${columnName}12`] = {t: 'n', v: _.round(_.get(foundMrtOptionIt, 'aver', ''), 1)};
 
     // 모듈 온도
     const foundbtOptionIt = _.find(btChartDataOptionList, {
@@ -269,9 +274,9 @@ function makeChartDataToExcelWorkSheet(resource) {
     });
 
     if (_.get(foundbtOptionIt, 'aver', '') === '') {
-      ws[`${columnName}12`] = {t: 'n', v: ''};
+      ws[`${columnName}13`] = {t: 'n', v: ''};
     } else {
-      ws[`${columnName}12`] = {t: 'n', v: _.round(_.get(foundbtOptionIt, 'aver', ''), 1)};
+      ws[`${columnName}13`] = {t: 'n', v: _.round(_.get(foundbtOptionIt, 'aver', ''), 1)};
     }
   });
 

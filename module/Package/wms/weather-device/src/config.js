@@ -7,15 +7,15 @@ module.exports = {
       user: process.env.DB_UPSAS_USER,
       port: process.env.DB_UPSAS_PORT,
       password: process.env.DB_UPSAS_PW,
-      database: process.env.DB_UPSAS_DB
+      database: process.env.DB_UPSAS_DB,
     },
     controllerInfo: {
       main_seq: 1,
       target_id: 'wds_01',
       target_category: 'weatherDevice',
       data_table_name: 'weather_device_data',
-      trouble_table_name: null
-    }
+      trouble_table_name: null,
+    },
   },
   smInfrared: {
     current: {
@@ -31,7 +31,7 @@ module.exports = {
           hasDcEvent: false,
           hasReceiveData: false,
           hasDcMessage: false,
-          hasTransferCommand: false
+          hasTransferCommand: false,
         },
         connect_info: {
           type: 'serial',
@@ -40,11 +40,11 @@ module.exports = {
           port: 'COM3',
           addConfigInfo: {
             parser: 'byteLengthParser',
-            option: 55
-          }
-        }
-      }
-    }
+            option: 55,
+          },
+        },
+      },
+    },
   },
   vantagepro2: {
     current: {
@@ -59,28 +59,28 @@ module.exports = {
           hasDcEvent: true,
           hasReceiveData: true,
           hasDcMessage: true,
-          hasTransferCommand: true
+          hasTransferCommand: true,
         },
         protocol_info: {
           mainCategory: 'weathercast',
-          subCategory: 'vantagepro2'
+          subCategory: 'vantagepro2',
         },
         controlInfo: {
           hasErrorHandling: false,
           hasOneAndOne: true,
-          hasReconnect: true
+          hasReconnect: true,
         },
         connect_info: {
           type: 'serial',
           baudRate: 19200,
-          port: 'COM3'
-        }
+          port: 'COM3',
+        },
         // connect_info: {
         //   type: 'socket',
         //   port: 9000
         // },
-      }
-    }
+      },
+    },
   },
   inclinedSolar: {
     current: {
@@ -88,7 +88,7 @@ module.exports = {
       incliendSolarInfo: {
         unitId: 9,
         address: 0,
-        length: 1
+        length: 1,
       },
       deviceInfo: {
         target_id: 'InclinedSolar',
@@ -100,19 +100,19 @@ module.exports = {
           hasDcEvent: true,
           hasReceiveData: true,
           hasDcMessage: true,
-          hasTransferCommand: true
+          hasTransferCommand: true,
         },
         protocol_info: {
           mainCategory: 'weathercast',
           subCategory: 'vantagepro2',
           protocolOptionInfo: {
-            hasTrackingData: false
-          }
+            hasTrackingData: false,
+          },
         },
         controlInfo: {
           hasErrorHandling: false,
           hasOneAndOne: false,
-          hasReconnect: true
+          hasReconnect: true,
         },
         // connect_info: {
         //   type: 'serial',
@@ -124,9 +124,9 @@ module.exports = {
           subType: 'tcp',
           host: 'localhost',
           port: 502,
-          baudRate: 9600
-        }
-      }
-    }
-  }
+          baudRate: 9600,
+        },
+      },
+    },
+  },
 };

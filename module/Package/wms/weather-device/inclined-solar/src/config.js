@@ -3,7 +3,7 @@ const config = {
   current: {
     hasDev: false, // 장치 연결을 실제로 하는지 여부
     incliendSolarInfo: {
-      unitId: 1,
+      unitId: 9,
       address: 0,
       length: 18,
     },

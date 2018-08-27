@@ -1,6 +1,4 @@
-
 const Control = require('./src/Control');
-
 
 module.exports = Control;
 
@@ -11,7 +9,6 @@ if (require !== undefined && require.main === module) {
   const {BU} = require('base-util-jh');
 
   const config = require('./src/config');
-
 
   const control = new Control(config);
 
@@ -24,19 +21,15 @@ if (require !== undefined && require.main === module) {
 
   control.init();
 
-
-  process.on('uncaughtException', function (err) {
-  // BU.debugConsole();
-    console.error(err.stack);
-    console.log(err.message);
+  process.on('uncaughtException', err => {
+    // BU.debugConsole();
+    console.trace(err);
     console.log('Node NOT Exiting...');
   });
 
-
-  process.on('unhandledRejection', function (err) {
-  // BU.debugConsole();
-    console.error(err.stack);
-    console.log(err.message);
+  process.on('unhandledRejection', err => {
+    // BU.debugConsole();
+    console.trace(err);
     console.log('Node NOT Exiting...');
   });
 }

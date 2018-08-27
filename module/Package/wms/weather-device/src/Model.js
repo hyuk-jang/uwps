@@ -1,13 +1,10 @@
-'use strict';
-
 const _ = require('lodash');
 
-const { BU } = require('base-util-jh');
+const {BU} = require('base-util-jh');
+const AbstDeviceClientModel = require('device-client-model-jh');
 const Control = require('./Control');
 
 const refinedDeviceDataConfig = require('../config/refinedDeviceDataConfig');
-
-const AbstDeviceClientModel = require('device-client-model-jh');
 
 class Model extends AbstDeviceClientModel {
   /**
@@ -30,7 +27,7 @@ class Model extends AbstDeviceClientModel {
     // super.hasSaveToDB = true;
     this.setDevice(this.dataStroageConfig, {
       idKey: 'target_id',
-      deviceCategoryKey: 'target_category'
+      deviceCategoryKey: 'target_category',
     });
 
     BU.CLI(this.controller.config.dbInfo);
@@ -44,9 +41,9 @@ class Model extends AbstDeviceClientModel {
   async getWeatherDeviceData(measureDate) {
     BU.CLI('getWeatherDeviceData');
 
-    let smInfraredData = this.controller.smInfrared.getDeviceOperationInfo();
-    let vantagepro2Data = this.controller.vantagepro2.getDeviceOperationInfo();
-    let inclinedSolarData = this.controller.inclinedSolar.getDeviceOperationInfo();
+    const smInfraredData = this.controller.smInfrared.getDeviceOperationInfo();
+    const vantagepro2Data = this.controller.vantagepro2.getDeviceOperationInfo();
+    const inclinedSolarData = this.controller.inclinedSolar.getDeviceOperationInfo();
 
     // 데이터를 추출한 후 평균 값 리스트 초기화
     this.controller.vantagepro2.model.init();
@@ -55,20 +52,20 @@ class Model extends AbstDeviceClientModel {
       smInfraredData.systemErrorList,
       vantagepro2Data.systemErrorList,
       inclinedSolarData.systemErrorList,
-      'code'
+      'code',
     );
     this.troubleList = _.unionBy(
       smInfraredData.troubleList,
       vantagepro2Data.troubleList,
       inclinedSolarData.troubleList,
-      'code'
+      'code',
     );
 
     // SM 적외선 데이터와 VantagePro2 객체 데이터를 합침
     this.deviceData = Object.assign(
       smInfraredData.data,
       vantagepro2Data.data,
-      inclinedSolarData.data
+      inclinedSolarData.data,
     );
 
     // BU.CLI(vantagepro2Data.data);
@@ -84,9 +81,9 @@ class Model extends AbstDeviceClientModel {
       return false;
     }
 
-    let returnValue = this.onDeviceOperationInfo(
+    const returnValue = this.onDeviceOperationInfo(
       this.controller.getDeviceOperationInfo(),
-      this.deviceCategory
+      this.deviceCategory,
     );
 
     // BU.CLIN(returnValue, 3);
@@ -95,7 +92,7 @@ class Model extends AbstDeviceClientModel {
     const convertDataInfo = await this.refineTheDataToSaveDB(
       this.deviceCategory,
       measureDate,
-      true
+      true,
     );
     BU.CLI(convertDataInfo.insertDataList);
 

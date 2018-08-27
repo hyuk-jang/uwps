@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const cron = require('cron');
+const cron = require('node-cron');
 const {BU} = require('base-util-jh');
 
 const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
@@ -46,19 +46,18 @@ class Control extends AbstDeviceClient {
 
   // Cron 구동시킬 시간
   runCronDiscoveryRegularDevice() {
+    BU.CLI('runCronDiscoveryRegularDevice');
     try {
       if (this.cronScheduler !== null) {
         // BU.CLI('Stop')
         this.cronScheduler.stop();
       }
       // 3초 마다 데이터 수신 확인
-      this.cronScheduler = new cron.CronJob({
-        cronTime: '*/3 * * * * *',
-        onTick: () => {
-          this.requestData();
-        },
-        start: true,
+      this.cronScheduler = cron.schedule('*/3 * * * * *', () => {
+        this.requestData();
       });
+
+      this.cronScheduler.start();
       return true;
     } catch (error) {
       throw error;
@@ -67,6 +66,7 @@ class Control extends AbstDeviceClient {
 
   /** 경사 일사량 센서로 데이터를 요청하는 명령 발송 */
   requestData() {
+    BU.CLI('requestData');
     const cmdFormat = this.MODBUS.readInputRegisters;
     cmdFormat.unitId = this.config.incliendSolarInfo.unitId;
     cmdFormat.params.address = this.config.incliendSolarInfo.address;

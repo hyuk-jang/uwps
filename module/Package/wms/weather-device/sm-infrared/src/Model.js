@@ -1,21 +1,14 @@
-'use strict';
 const _ = require('lodash');
 
 const {BU, CU} = require('base-util-jh');
 
-const Control = require('./Control');
-
 class Model {
-  /**
-   * 
-   * @param {Control} controller 
-   */
-  constructor(controller) {
+  constructor() {
     this.deviceData = {
-      smInfrared: null
+      smInfrared: null,
     };
 
-    let averConfig = {
+    const averConfig = {
       maxStorageNumber: 10, // 최대 저장 데이터 수
       keyList: Object.keys(this.deviceData),
     };
@@ -24,22 +17,25 @@ class Model {
   }
 
   /**
-   * 
-   * @param {Buffer} data 
+   *
+   * @param {Buffer} data
    */
-  onData(data){
+  onData(data) {
     const dataLength = data.length;
     const usefulLength = 55;
 
-    if(dataLength !== usefulLength){
+    if (dataLength !== usefulLength) {
       throw new Error('정상적인 데이터가 아닙니다.');
     }
 
     const rainDataLength = 8;
-    const endCharLength = 6; 
+    const endCharLength = 6;
 
-    let rainBufferData =  data.slice(dataLength - endCharLength - rainDataLength, dataLength - endCharLength );
-    let rainData = parseInt(rainBufferData, 16);
+    const rainBufferData = data.slice(
+      dataLength - endCharLength - rainDataLength,
+      dataLength - endCharLength,
+    );
+    const rainData = parseInt(rainBufferData, 16);
     this.averageStorage.addData('smInfrared', rainData);
     this.deviceData.smInfrared = this.averageStorage.getAverage('smInfrared');
   }
@@ -54,29 +50,28 @@ class Model {
     // 현재 기상 값의 범위에 들어있는 조건 탐색
     _.find(this.rainAlarmBoundaryList, (currItem, index) => {
       // 찾은 조건식 상 다음 Index가 실제 데이터이므로 1 증가
-      if(currItem.boundary < this.averageRain){
+      if (currItem.boundary < this.averageRain) {
         foundIndex = index + 1;
         return true;
       }
     });
-    
-    let foundRainAlarm = this.rainAlarmBoundaryList[foundIndex];
+
+    const foundRainAlarm = this.rainAlarmBoundaryList[foundIndex];
 
     // 날씨가 더 나빠질 경우 알람 필요
-    if(foundRainAlarm.rainLevel > this.lastestRainLevel  ){
-      let currTime = BU.convertDateToText(new Date(), 'kor', 4, 1);
+    if (foundRainAlarm.rainLevel > this.lastestRainLevel) {
+      const currTime = BU.convertDateToText(new Date(), 'kor', 4, 1);
       this.lastestRainLevel = foundRainAlarm.rainLevel;
       this.rainStatus = Object.assign({}, foundRainAlarm);
       this.rainStatus.averageRain = this.averageRain;
-      this.rainStatus.msg = currTime + '부터 ' + foundRainAlarm.msg;
+      this.rainStatus.msg = `${currTime}부터 ${foundRainAlarm.msg}`;
 
       return true;
-    } else {
-      if(foundRainAlarm.rainLevel === 0){
-        this.lastestRainLevel = 0;
-      }
-      return false;
     }
+    if (foundRainAlarm.rainLevel === 0) {
+      this.lastestRainLevel = 0;
+    }
+    return false;
   }
 }
 

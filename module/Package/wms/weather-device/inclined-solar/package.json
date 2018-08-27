@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "base-util-jh": "^1.1.13",
-    "cron": "^1.4.0",
-    "lodash": "^4.17.10"
+    "lodash": "^4.17.10",
+    "node-cron": "^1.2.1"
   }
 }

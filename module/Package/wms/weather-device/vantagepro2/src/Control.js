@@ -1,6 +1,6 @@
 const _ = require('lodash');
+const cron = require('node-cron');
 const {BU} = require('base-util-jh');
-const cron = require('cron');
 // const AbstDeviceClient = require('device-client-controller-jh');
 const Model = require('./Model');
 
@@ -94,13 +94,11 @@ class Control {
         this.cronScheduler.stop();
       }
       // 3초마다 데이터 수신 확인 (LOOP 명령은 2초 마다 전송하기 때문에 충분)
-      this.cronScheduler = new cron.CronJob({
-        cronTime: '*/3 * * * * *',
-        onTick: () => {
-          this.discoveryRegularDevice();
-        },
-        start: true,
+      this.cronScheduler = cron.schedule('*/3 * * * * *', () => {
+        this.discoveryRegularDevice();
       });
+
+      this.cronScheduler.start();
       return true;
     } catch (error) {
       throw error;

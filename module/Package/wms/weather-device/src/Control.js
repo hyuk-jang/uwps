@@ -1,19 +1,17 @@
-"use strict";
+const cron = require('node-cron');
 
-const cron = require("cron");
+const SmInfrared = require('../sm-infrared');
+const Vantagepro2 = require('../vantagepro2');
+const InclinedSolar = require('../inclined-solar');
 
-const SmInfrared = require("../sm-infrared");
-const Vantagepro2 = require("../vantagepro2");
-const InclinedSolar = require("../inclined-solar");
+const Model = require('./Model');
 
-const Model = require("./Model");
-
-const mainConfig = require("./config");
+const mainConfig = require('./config');
 
 class Control {
   /** @param {mainConfig} config */
   constructor(config) {
-    this.config = config.current;
+    this.config = config.current || mainConfig;
 
     this.model = new Model(this);
 
@@ -36,22 +34,17 @@ class Control {
 
   /** VantagePro2와 SmInfraredSensor 데이터를 가져올 스케줄러 */
   runScheduler() {
-    // const scheduleIntervalSec = 10;
-    const scheduleIntervalMin = 1; // 1분마다
     try {
       if (this.scheduler !== null) {
         // BU.CLI('Stop')
         this.scheduler.stop();
       }
       // 1분마다 요청
-      this.scheduler = new cron.CronJob({
-        cronTime: `0 */${scheduleIntervalMin} * * * *`,
-        // cronTime: "*/10 * * * * *",
-        onTick: () => {
-          return this.model.getWeatherDeviceData(new Date());
-        },
-        start: true
+      this.cronScheduler = cron.schedule('* * * * *', () => {
+        this.model.getWeatherDeviceData(new Date());
       });
+
+      this.cronScheduler.start();
       return true;
     } catch (error) {
       throw error;
@@ -69,7 +62,7 @@ class Control {
       data: this.model.deviceData,
       systemErrorList: this.model.systemErrorList,
       troubleList: this.model.troubleList,
-      measureDate: new Date()
+      measureDate: new Date(),
     };
   }
 }

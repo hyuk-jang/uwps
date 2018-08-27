@@ -12,15 +12,13 @@ if (require !== undefined && require.main === module) {
 
   process.on('uncaughtException', err => {
     // BU.debugConsole();
-    console.error(err.stack);
-    console.log(err.message);
+    console.trace(err);
     console.log('Node NOT Exiting...');
   });
 
   process.on('unhandledRejection', err => {
     // BU.debugConsole();
-    console.error(err.stack);
-    console.log(err.message);
+    console.trace(err);
     console.log('Node NOT Exiting...');
   });
 }

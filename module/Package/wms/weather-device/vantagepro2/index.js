@@ -14,4 +14,16 @@ if (require !== undefined && require.main === module) {
 
   // control.converter.setProtocolConverter(control.config.deviceInfo);
   // control.setDeviceClient(control.config.deviceInfo);
+
+  process.on('uncaughtException', err => {
+    // BU.debugConsole();
+    console.trace(err);
+    console.log('Node NOT Exiting...');
+  });
+
+  process.on('unhandledRejection', err => {
+    // BU.debugConsole();
+    console.trace(err);
+    console.log('Node NOT Exiting...');
+  });
 }

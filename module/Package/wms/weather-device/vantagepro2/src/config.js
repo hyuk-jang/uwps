@@ -4,15 +4,7 @@ const config = {
     deviceInfo: {
       target_id: 'VantagePro_1',
       target_name: 'Davis Vantage Pro2',
-      target_category: 'weathercast',
-      logOption: {
-        hasCommanderResponse: true,
-        hasDcError: true,
-        hasDcEvent: true,
-        hasReceiveData: true,
-        hasDcMessage: true,
-        hasTransferCommand: true,
-      },
+      target_category: 'weather',
       protocol_info: {
         mainCategory: 'weathercast',
         subCategory: 'vantagepro2',

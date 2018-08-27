@@ -1,11 +1,10 @@
-/** @type {current: } */
 const config = {
   current: {
     hasDev: false, // 장치 연결을 실제로 하는지 여부
     incliendSolarInfo: {
       unitId: 9,
       address: 0,
-      length: 18,
+      length: 1,
     },
     deviceInfo: {
       target_id: 'InclinedSolar',

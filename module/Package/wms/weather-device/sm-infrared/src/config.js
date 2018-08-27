@@ -5,26 +5,16 @@ module.exports = {
       target_id: 'SI1',
       target_name: 'SmRainSensor',
       target_category: 'weather',
-      hasOneAndOne: true,
-      logOption: {
-        hasCommanderResponse: false,
-        hasDcError: false,
-        hasDcEvent: false,
-        hasReceiveData: false,
-        hasDcMessage: false,
-        hasTransferCommand: false
-      },
       connect_info: {
         type: 'serial',
         subType: 'parser',
         baudRate: 9600,
-        port: 'COM15',
+        port: 'COM19',
         addConfigInfo: {
           parser: 'byteLengthParser',
-          option: 55
-        }
+          option: 55,
+        },
       },
     },
   },
-
 };

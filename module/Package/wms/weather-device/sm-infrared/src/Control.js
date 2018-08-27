@@ -45,12 +45,18 @@ class Control {
   }
 
   /**
+   * Device Controller에서 새로운 이벤트가 발생되었을 경우 알림
+   * @param {string} eventName 'dcConnect' 연결, 'dcClose' 닫힘, 'dcError' 에러
+   */
+  async onEvent(eventName) {}
+
+  /**
    * 장치로부터 데이터 수신
    * @interface
    * @param {buffer} bufData 현재 장비에서 실행되고 있는 명령 객체
    */
-  onDcData(bufData) {
-    BU.CLI(bufData.toString());
+  onData(bufData) {
+    // BU.CLI(bufData);
     const resultData = this.model.onData(bufData);
 
     // BU.CLI(this.getDeviceOperationInfo().data);

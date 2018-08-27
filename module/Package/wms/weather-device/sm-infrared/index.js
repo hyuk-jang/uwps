@@ -15,10 +15,6 @@ if (require !== undefined && require.main === module) {
   // let defaultCommandInfo = control.getDefaultCommandConfig();
   // BU.CLI(defaultCommandInfo);
 
-  control.on('updateSmRainSensor', data => {
-    BU.CLI(data);
-  });
-
   control.init();
 
   process.on('uncaughtException', err => {

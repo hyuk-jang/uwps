@@ -38,6 +38,7 @@ class Model {
     const rainData = parseInt(rainBufferData, 16);
     this.averageStorage.addData('smInfrared', rainData);
     this.deviceData.smInfrared = this.averageStorage.getAverage('smInfrared');
+    BU.CLI('smInfrared', this.deviceData.smInfrared);
   }
 
   /**

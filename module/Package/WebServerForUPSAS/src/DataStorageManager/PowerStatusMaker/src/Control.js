@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const cron = require('cron');
+const cron = require('node-cron');
 const {BU} = require('base-util-jh');
 
 const config = require('./config');
@@ -45,13 +45,11 @@ class Control {
         this.cronScheduler.stop();
       }
       // 1분마다 현황판 데이터 갱신
-      this.cronScheduler = new cron.CronJob({
-        cronTime: '0 */1 * * * *',
-        onTick: () => {
-          this.requestCalcPowerStatus();
-        },
-        start: true,
+      this.cronScheduler = cron.schedule('* * * * *', () => {
+        this.requestCalcPowerStatus();
       });
+
+      this.cronScheduler.start();
       return true;
     } catch (error) {
       throw error;

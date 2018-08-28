@@ -22,10 +22,13 @@ class Model {
    */
   onData(inclinedSolar) {
     if (inclinedSolar.length) {
-      this.averageStorage.addData('inclinedSolar', _.head(inclinedSolar));
+      if (_.isNumber(_.head(inclinedSolar))) {
+        this.averageStorage.addData('inclinedSolar', _.round(_.head(inclinedSolar) * 0.1), 1);
+      }
     } else {
       this.averageStorage.addData('inclinedSolar', null);
     }
+
     this.deviceData.inclinedSolar = this.averageStorage.getAverage('inclinedSolar');
   }
 }

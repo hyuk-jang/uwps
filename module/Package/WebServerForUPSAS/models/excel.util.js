@@ -306,7 +306,7 @@ function makeChartDataToExcelWorkSheet(resource) {
       case 'avg_inclined_solar':
         tempStr = ['min', 'min10', 'hour'].includes(searchRange.searchType) ? 'Wh/m²' : 'kWh/m²';
         strDataName = `총 경사 일사량\n(${tempStr})`;
-        data = _.sumBy(weatherTrend, 'total_inclined_interval_solar');
+        data = _.sumBy(weatherTrend, 'total_interval_inclined_solar');
         break;
       default:
         strDataName = `평균 ${strDataName}`;
@@ -560,7 +560,6 @@ function makeChartDataToExcelWorkSheet(resource) {
     {wch: 10},
     {wch: 10},
     {wch: 3},
-    {wch: 15},
   ];
 
   /* TEST: column props */
@@ -575,7 +574,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     {hpt: 20},
     {hpt: 20},
     {hpt: 35},
-    {hpt: 20},
+    {hpt: 35},
     {hpt: 20},
     {hpt: 20},
     {hpt: 20},

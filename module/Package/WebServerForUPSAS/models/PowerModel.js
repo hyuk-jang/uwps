@@ -294,7 +294,7 @@ class PowerModel extends BiModule {
       },
       {
         name: '경사 일사량(W/m²)',
-        color: 'purple',
+        color: 'brown',
         yAxis: 1,
         selectKey: 'avg_inclined_solar',
         dateKey: 'group_date',

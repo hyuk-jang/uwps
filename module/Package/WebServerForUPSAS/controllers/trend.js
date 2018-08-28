@@ -205,7 +205,23 @@ module.exports = app => {
       const excelContents = excelUtil.makeExcelWorkBook(workSheetInfo.sheetName, [workSheetInfo]);
       // let excelContents = excelUtil.makeExcelWorkBook(workSheetInfo.sheetName, [workSheetInfo]);
 
-      powerChartData.series = _.concat(powerChartData.series, _.pullAt(weatherChartData.series, 0));
+      // 발전량 차트에 일사량 차트 추가 및 환경 차트에서 일사량 차트 제거
+      // BU.CLI(weatherChartData);
+      // BU.CLI(weatherChartOptionList)
+      weatherChartOptionList.forEach(weatherChartInfo => {
+        if (weatherChartInfo.selectKey.includes('solar')) {
+          const removedList = _.remove(weatherChartData.series, series =>
+            _.eq(series.name, weatherChartInfo.name),
+          );
+          if (removedList.length) {
+            powerChartData.series = _.concat(powerChartData.series, removedList);
+          }
+        }
+      });
+
+      // _.forEach(weatherChartData.series, (series, index) => {
+      //   powerChartData.series = _.concat(powerChartData.series, _.pullAt(weatherChartData.series, 0));
+      // })
 
       // TEST Water Level Add Chart Code Start *****************
       const chartOption = {

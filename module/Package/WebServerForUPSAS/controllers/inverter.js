@@ -48,6 +48,8 @@ module.exports = app => {
     '/',
     asyncHandler(async (req, res) => {
       // BU.CLI('inverter', req.locals)
+      /** @type {V_MEMBER} */
+      const userInfo = req.locals.user;
       /** @type {V_UPSAS_PROFILE[]} */
       const viewPowerProfileList = req.locals.viewPowerProfile;
       // console.time('getTable')
@@ -55,7 +57,7 @@ module.exports = app => {
       const inverterSeqList = _.map(viewPowerProfileList, 'inverter_seq');
 
       /** @type {V_INVERTER_STATUS[]} */
-      const viewInverterStatus = await biModule.getTable('v_inverter_status', {
+      const viewInverterStatusList = await biModule.getTable('v_inverter_status', {
         inverter_seq: inverterSeqList,
       });
 
@@ -63,47 +65,89 @@ module.exports = app => {
       // searchRange.searchInterval = 'day';
       const waterLevelDataPacket = await biModule.getWaterLevel(searchRange, inverterSeqList);
 
-      // TEST 구간
-      viewPowerProfileList.forEach(viewPowerPofileInfo => {
+      // 기상 관측 장비 트렌드를 가져옴
+      const weatherDeviceTrend = await biModule.getWeatherTrend(searchRange, userInfo.main_seq);
+
+      // weatherDeviceTrend[0].total_interval_inclined_solar
+      // 수평 일사량
+      const dailyHorizontalSolar = _(weatherDeviceTrend)
+        .map('total_interval_solar')
+        .sum();
+      // 경사 일사량
+      const dailyInclinedSolar = _(weatherDeviceTrend)
+        .map('total_interval_inclined_solar')
+        .sum();
+
+      // TEST 모듈 가중치 적용 계산
+      viewInverterStatusList.forEach(viewInverterStatusInfo => {
         const foundIt = _.find(tempSacle.inverterScale, {
-          inverter_seq: viewPowerPofileInfo.inverter_seq,
+          inverter_seq: viewInverterStatusInfo.inverter_seq,
         });
         // currentItem.in_a = _.round(foundIt.scale * currentItem.in_a, 1);
-        viewPowerPofileInfo.in_w = _.round(foundIt.scale * viewPowerPofileInfo.in_w, 1);
+        viewInverterStatusInfo.in_w = _.round(foundIt.scale * viewInverterStatusInfo.in_w, 1);
         // currentItem.out_a = _.round(foundIt.scale * currentItem.out_a, 1);
-        viewPowerPofileInfo.out_w = _.round(foundIt.scale * viewPowerPofileInfo.out_w, 1);
+        viewInverterStatusInfo.out_w = _.round(foundIt.scale * viewInverterStatusInfo.out_w, 1);
         // currentItem.d_wh = _.round(foundIt.scale * currentItem.d_wh, 0);
         // currentItem.c_wh = _.round(foundIt.scale * currentItem.c_wh, 0);
-        viewPowerPofileInfo.daily_power_wh = _.round(
-          foundIt.scale * viewPowerPofileInfo.daily_power_wh,
+        viewInverterStatusInfo.daily_power_wh = _.round(
+          foundIt.scale * viewInverterStatusInfo.daily_power_wh,
           0,
         );
       });
 
-      _.forEach(viewInverterStatus, data => {
-        const waterLevelData = _.find(waterLevelDataPacket, {inverter_seq: data.inverter_seq});
-        const compareInverter = _.find(viewInverterStatus, {
-          inverter_seq: data.compare_inverter_seq,
+      // 인버터 현황 목록을 순회
+      _.forEach(viewInverterStatusList, inverterStatusInfo => {
+        const waterLevelData = _.find(waterLevelDataPacket, {
+          inverter_seq: inverterStatusInfo.inverter_seq,
         });
-        data.compare_efficiency = _.round(
-          (_.get(data, 'daily_power_wh') / _.get(compareInverter, 'daily_power_wh')) * 100,
+        const foundInverterStatusInfo = _.find(viewInverterStatusList, {
+          inverter_seq: inverterStatusInfo.compare_inverter_seq,
+        });
+
+        const foundViewPowerProfileInfo = _.find(viewPowerProfileList, {
+          inverter_seq: inverterStatusInfo.inverter_seq,
+        });
+
+        // 장소 관계에 따라 수평 일사량 or 경사 일사량 총량 정의
+        const dailySolarWh = foundViewPowerProfileInfo.place_id.includes('SEB')
+          ? dailyHorizontalSolar
+          : dailyInclinedSolar;
+        // 모듈 발전 효율 검증.
+        let modulePowerEfficiency = _.round(
+          (inverterStatusInfo.daily_power_wh / (dailySolarWh * 0.975 * 1.65 * 6)) * 100,
           1,
         );
-        data.water_level =
-          waterLevelData && _.isNumber(waterLevelData.water_level)
-            ? waterLevelData.water_level
-            : '';
+        modulePowerEfficiency = _.isNaN(modulePowerEfficiency) ? '' : modulePowerEfficiency;
+
+        // 추가할 확장 정보 정의
+        const addValueInfo = {
+          waterLevel:
+            waterLevelData && _.isNumber(waterLevelData.water_level)
+              ? waterLevelData.water_level
+              : '',
+          compareEfficiency: _.round(
+            (_.get(inverterStatusInfo, 'daily_power_wh') /
+              _.get(foundInverterStatusInfo, 'daily_power_wh')) *
+              100,
+            1,
+          ),
+          modulePowerEfficiency,
+        };
+
+        // 확장 실행
+        _.assign(inverterStatusInfo, addValueInfo);
       });
 
       // 데이터 검증
       const validInverterStatus = webUtil.checkDataValidation(
-        viewInverterStatus,
+        viewInverterStatusList,
         new Date(),
         'writedate',
       );
       // BU.CLI(_.map(viewInverterStatus, 'daily_power_wh'));
       /** 인버터 메뉴에서 사용 할 데이터 선언 및 부분 정의 */
       const refinedInverterStatus = webUtil.refineSelectedInverterStatus(validInverterStatus);
+      // BU.CLI(refinedInverterStatus);
 
       // let searchRange = biModule.getSearchRange('hour', '2018-03-10');
       searchRange = biModule.getSearchRange('min10');
@@ -131,7 +175,7 @@ module.exports = app => {
       });
 
       // BU.CLI(refinedInverterStatus);
-      webUtil.mappingChartDataName(chartData, viewInverterStatus, 'target_id', 'target_name');
+      webUtil.mappingChartDataName(chartData, viewInverterStatusList, 'target_id', 'target_name');
 
       req.locals.inverterStatus = refinedInverterStatus;
       req.locals.chartDataObj = chartData;

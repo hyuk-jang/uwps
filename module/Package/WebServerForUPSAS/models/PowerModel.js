@@ -286,10 +286,17 @@ class PowerModel extends BiModule {
 
     let weatherChartOptionList = [
       {
-        name: '일사량(W/m²)',
+        name: '수평 일사량(W/m²)',
         color: 'red',
         yAxis: 1,
         selectKey: 'avg_solar',
+        dateKey: 'group_date',
+      },
+      {
+        name: '경사 일사량(W/m²)',
+        color: 'purple',
+        yAxis: 1,
+        selectKey: 'avg_inclined_solar',
         dateKey: 'group_date',
       },
       {

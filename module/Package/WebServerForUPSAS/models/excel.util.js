@@ -255,7 +255,12 @@ function makeChartDataToExcelWorkSheet(resource) {
     XLSX.utils.cell_set_number_format(ws[`${columnName}9`], '0.0%');
 
     // 가중치가 적용된 발전 효율
-    ws[`${columnName}10`] = {t: 'n', f: `${columnName}7/(P5 * 0.975 * 1.65 * 6)`};
+    if (viewInverterStatusInfo.install_place === '수중') {
+      ws[`${columnName}10`] = {t: 'n', f: `${columnName}7/(P5 * 0.975 * 1.65 * 6)`};
+    } else {
+      ws[`${columnName}10`] = {t: 'n', f: `${columnName}7/(Q5 * 0.975 * 1.65 * 6)`};
+    }
+
     XLSX.utils.cell_set_number_format(ws[`${columnName}10`], '0.0%');
 
     // BU.CLI(ws);
@@ -268,7 +273,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     });
     ws[`${columnName}12`] = {t: 'n', v: _.round(_.get(foundMrtOptionIt, 'aver', ''), 1)};
 
-    // 모듈 온도
+    // 모듈 수온
     const foundbtOptionIt = _.find(btChartDataOptionList, {
       sort: viewInverterStatusInfo.chart_sort_rank,
     });
@@ -286,6 +291,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   ws[summeryColumn + 3] = {t: 's', v: '기상계측장치'};
 
   // 기상 계측 장치 옵션 만큼 반복
+  // BU.CLI(weatherChartOptionList);
   weatherChartOptionList.forEach(currentItem => {
     let strDataName = currentItem.name;
     strDataName = _.replace(strDataName, '(', '\n(');
@@ -294,15 +300,20 @@ function makeChartDataToExcelWorkSheet(resource) {
     switch (currentItem.selectKey) {
       case 'avg_solar':
         tempStr = ['min', 'min10', 'hour'].includes(searchRange.searchType) ? 'Wh/m²' : 'kWh/m²';
-        strDataName = `총 일사량\n(${tempStr})`;
+        strDataName = `총 수평 일사량\n(${tempStr})`;
         data = _.sumBy(weatherTrend, 'total_interval_solar');
+        break;
+      case 'avg_inclined_solar':
+        tempStr = ['min', 'min10', 'hour'].includes(searchRange.searchType) ? 'Wh/m²' : 'kWh/m²';
+        strDataName = `총 경사 일사량\n(${tempStr})`;
+        data = _.sumBy(weatherTrend, 'total_inclined_interval_solar');
         break;
       default:
         strDataName = `평균 ${strDataName}`;
         data = _.meanBy(weatherTrend, currentItem.selectKey);
         break;
     }
-    data = _.round(data, 1);
+    data = _.isNil(data) ? '' : _.round(data, 1);
     ws[`${summeryColumn}4`] = {t: 's', v: strDataName};
     ws[`${summeryColumn}5`] = {t: 'n', v: data};
     XLSX.utils.cell_set_number_format(ws[`${summeryColumn}5`], '#,#0.0##');

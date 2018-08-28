@@ -398,8 +398,8 @@ function refineSelectedInverterStatus(viewInverterStatus) {
       d_wh: '',
       d_kwh: '',
       c_kwh: '',
-      compare_efficiency: '',
-      water_level: '',
+      compareEfficiency: '',
+      waterLevel: '',
       writedate: data.writedate,
       hasOperation: false,
     };
@@ -416,8 +416,9 @@ function refineSelectedInverterStatus(viewInverterStatus) {
       addObj.out_kw = _.isNumber(data.out_w) ? calcValue(data.out_w, 0.001, 3) : '';
       addObj.p_f = data.p_f;
       addObj.d_wh = data.d_wh;
-      addObj.compare_efficiency = data.compare_efficiency;
-      addObj.water_level = data.water_level;
+      addObj.compareEfficiency = data.compareEfficiency;
+      addObj.waterLevel = data.waterLevel;
+      addObj.modulePowerEfficiency = data.modulePowerEfficiency;
       addObj.d_kwh = _.isNumber(data.daily_power_wh)
         ? calcValue(data.daily_power_wh, 0.001, 3)
         : '';

@@ -1,7 +1,6 @@
 const _ = require('lodash');
-// const mome = require('mometo');
-const bmjh = require('base-model-jh');
-const BU = require('base-util-jh').baseUtil;
+const {BM} = require('base-model-jh');
+const {BU} = require('base-util-jh');
 
 require('../../../module/default-intelligence');
 
@@ -12,14 +11,7 @@ require('../../../module/default-intelligence');
  * @property {number} avg_sky 평균 운량
  */
 
-/**
- * @typedef {Object[]} weatherDeviceRowDataPacketList
- * @property {string} view_date 차트에 표현할 Date Format
- * @property {string} group_date 그룹 처리한 Date Format
- * @property {number} avg_sky 평균 운량
- */
-
-class BiModule extends bmjh.BM {
+class BiModule extends BM {
   /** @param {dbInfo} dbInfo */
   constructor(dbInfo) {
     super(dbInfo);
@@ -111,6 +103,7 @@ class BiModule extends bmjh.BM {
           AVG(reh) AS avg_reh,
           AVG(ws) AS avg_ws,
           AVG(solar) AS avg_solar,
+          AVG(solar) AS avg_inclined_solar,
           ROUND(AVG(solar) / 6, 1) AS interval_solar,
           COUNT(*) AS first_count
       FROM weather_device_data wdd
@@ -549,6 +542,7 @@ class BiModule extends bmjh.BM {
   /**
    * 기상 관측 데이터 구해옴
    * @param {searchRange} searchRange  검색 옵션
+   * @return {{view_date: string, group_date: string, avg_sm_infrared: number, avg_temp: number, avg_reh: number, avg_solar: number, total_interval_solar: number, avg_inclined_solar: number, total_interval_inclined_solar: number, avg_wd: number, avg_ws: number, avg_uv: number}[]}
    */
   getWeatherTrend(searchRange, main_seq) {
     const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
@@ -561,6 +555,8 @@ class BiModule extends bmjh.BM {
           ROUND(AVG(avg_reh), 1) AS avg_reh,
           ROUND(AVG(avg_solar), 0) AS avg_solar,
           ROUND(SUM(interval_solar), 1) AS total_interval_solar,
+          ROUND(AVG(avg_inclined_solar), 0) AS avg_inclined_solar,
+          ROUND(SUM(interval_inclined_solar), 1) AS total_interval_inclined_solar,
           ROUND(AVG(avg_wd), 0) AS avg_wd,	
           ROUND(AVG(avg_ws), 1) AS avg_ws,	
           ROUND(AVG(avg_uv), 0) AS avg_uv
@@ -572,6 +568,8 @@ class BiModule extends bmjh.BM {
           AVG(reh) AS avg_reh,
           AVG(solar) AS avg_solar,
           AVG(solar) / ${dateFormat.devideTimeNumber} AS interval_solar,
+          AVG(inclined_solar) AS avg_inclined_solar,
+          AVG(inclined_solar) / ${dateFormat.devideTimeNumber} AS interval_inclined_solar,
           AVG(wd) AS avg_wd,	
           AVG(ws) AS avg_ws,	
           AVG(uv) AS avg_uv,

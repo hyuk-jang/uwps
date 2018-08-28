@@ -27,7 +27,7 @@ class Control {
     // TODO 적외선 센서 달면 활성화 할 것
     // this.smInfrared.init();
     this.vantagepro2.init();
-    this.inclinedSolar.init();
+    // this.inclinedSolar.init();
 
     this.runScheduler();
   }

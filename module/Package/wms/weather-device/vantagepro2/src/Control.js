@@ -22,8 +22,6 @@ class Control {
     this.converter = new AbstConverter(this.config.deviceInfo.protocol_info);
     this.baseModel = new BaseModel.Weathercast(this.config.deviceInfo.protocol_info);
 
-    this.serialClient = new Serial(this.config.deviceInfo, this.config.deviceInfo.connect_info);
-
     this.model = new Model(this);
     /** 주기적으로 LOOP 명령을 내릴 시간 인터벌 */
     this.executeCommandInterval = null;
@@ -42,6 +40,7 @@ class Control {
    */
   async init() {
     if (!this.config.hasDev) {
+      this.serialClient = new Serial(this.config.deviceInfo, this.config.deviceInfo.connect_info);
       this.serialClient.attach(this);
       await this.serialClient.connect();
     } else {

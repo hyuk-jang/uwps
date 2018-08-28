@@ -140,6 +140,10 @@ class AbstController {
    */
   notifyData(data) {
     // BU.CLI('notifyData', data, data.length);
+    BU.appendFile(
+      `./log/vantagePro2/${BU.convertDateToText(new Date(), '', 2)}.txt`,
+      `${data.toString('hex')}`,
+    );
     this.observers.forEach(observer => {
       observer.onData(data);
     });

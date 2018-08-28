@@ -28,7 +28,7 @@ module.exports = {
           type: 'serial',
           subType: 'parser',
           baudRate: 9600,
-          port: 'COM19',
+          port: 'COM20',
           addConfigInfo: {
             parser: 'byteLengthParser',
             option: 55,
@@ -103,7 +103,7 @@ module.exports = {
         type: 'modbus',
         subType: 'rtu',
         baudRate: 9600,
-        port: 'COM18',
+        port: 'COM19',
       },
       // connect_info: {
       //   type: 'modbus',

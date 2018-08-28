@@ -12,16 +12,16 @@ class Control {
   constructor(config) {
     this.config = config.current || mainConfig.current;
 
-    this.serialClient = new Serial(this.config.deviceInfo, this.config.deviceInfo.connect_info);
     // BU.CLI(this.config);
     this.model = new Model(this);
   }
-
+  
   /**
    * 개발 버젼일 경우 장치 연결 수립을 하지 않고 가상 데이터를 생성
    */
   async init() {
     if (!this.config.hasDev) {
+      this.serialClient = new Serial(this.config.deviceInfo, this.config.deviceInfo.connect_info);
       this.serialClient.attach(this);
       await this.serialClient.connect();
     } else {

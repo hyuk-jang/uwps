@@ -34,7 +34,7 @@ const config = {
         type: 'modbus',
         subType: 'rtu',
         baudRate: 9600,
-        port: 'COM3',
+        port: 'COM19',
       },
       // connect_info: {
       //   type: 'modbus',

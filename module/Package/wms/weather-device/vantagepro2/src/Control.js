@@ -81,7 +81,10 @@ class Control {
       this.hasReceivedData = true;
 
       this.model.onData(resultParsing.data);
-      BU.CLIN(this.getDeviceOperationInfo().data[BaseModel.Weathercast.BASE_KEY.SolarRadiation]);
+      BU.CLI(
+        'SolarRadiation',
+        this.getDeviceOperationInfo().data[BaseModel.Weathercast.BASE_KEY.SolarRadiation],
+      );
     }
   }
 

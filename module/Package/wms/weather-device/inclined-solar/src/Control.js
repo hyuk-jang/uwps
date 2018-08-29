@@ -66,13 +66,14 @@ class Control extends AbstDeviceClient {
 
   /** 경사 일사량 센서로 데이터를 요청하는 명령 발송 */
   requestData() {
-    BU.CLI('requestData');
+    // BU.CLI('requestData');
     const cmdFormat = this.MODBUS.readInputRegisters;
     cmdFormat.unitId = this.config.incliendSolarInfo.unitId;
     cmdFormat.params.address = this.config.incliendSolarInfo.address;
     cmdFormat.params.length = this.config.incliendSolarInfo.length;
 
     const commandSet = this.generationAutoCommand(cmdFormat);
+    // BU.CLIN(commandSet);
     this.executeCommand(commandSet);
   }
 
@@ -81,10 +82,33 @@ class Control extends AbstDeviceClient {
    * @param {dcEvent} dcEvent 'dcConnect', 'dcClose', 'dcError'
    */
   updatedDcEventOnDevice(dcEvent) {
-    BU.log('updateDcEvent\t', dcEvent.eventName);
+    // BU.log('updateDcEvent\t', dcEvent.eventName);
     switch (dcEvent.eventName) {
       case this.definedControlEvent.CONNECT:
         this.runCronDiscoveryRegularDevice();
+        break;
+      default:
+        break;
+    }
+  }
+
+  /**
+   * 장치에서 명령을 수행하는 과정에서 생기는 1:1 이벤트
+   * @param {dcMessage} dcMessage 현재 장비에서 실행되고 있는 명령 객체
+   */
+  onDcMessage(dcMessage) {}
+
+  /**
+   * 장치에서 명령을 수행하는 과정에서 생기는 1:1 이벤트
+   * @param {dcError} dcError 현재 장비에서 실행되고 있는 명령 객체
+   */
+  onDcError(dcError) {
+    super.onDcError(dcError);
+
+    switch (dcError.errorInfo.message) {
+      // 타임 아웃 에러가 발생했다면 빈데이터 반환
+      case this.definedOperationError.E_TIMEOUT:
+        this.model.onData([]);
         break;
       default:
         break;
@@ -97,7 +121,7 @@ class Control extends AbstDeviceClient {
    * @param {dcData} dcData 현재 장비에서 실행되고 있는 명령 객체
    */
   onDcData(dcData) {
-    super.onDcData(dcData);
+    // super.onDcData(dcData);
 
     // BU.CLI(dcData.data);
 

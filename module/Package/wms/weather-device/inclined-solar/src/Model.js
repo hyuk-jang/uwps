@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const {CU} = require('base-util-jh');
+const {BU, CU} = require('base-util-jh');
 
 class Model {
   constructor() {
@@ -30,6 +30,7 @@ class Model {
     }
 
     this.deviceData.inclinedSolar = this.averageStorage.getAverage('inclinedSolar');
+    BU.CLI('inclinedSolar', this.deviceData.inclinedSolar);
   }
 }
 

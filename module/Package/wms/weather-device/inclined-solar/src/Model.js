@@ -26,7 +26,9 @@ class Model {
         this.averageStorage.addData('inclinedSolar', _.round(_.head(inclinedSolar) * 0.1), 1);
       }
     } else {
-      this.averageStorage.addData('inclinedSolar', null);
+      // 에러나면 평균 값 인덱스 1개 제거
+      const foundIt = _.get(this.averageStorage.dataStorage, 'inclinedSolar', []);
+      Array.isArray(foundIt) && foundIt.length && foundIt.shift();
     }
 
     this.deviceData.inclinedSolar = this.averageStorage.getAverage('inclinedSolar');

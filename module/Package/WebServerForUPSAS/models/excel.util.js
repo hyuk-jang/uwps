@@ -206,6 +206,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   // 시작 지점 입력
   const fixedSummeryColumn = 'C';
   let summeryColumn = fixedSummeryColumn;
+
   // 인버터 종류별로 반복
   viewInverterStatusList.forEach(viewInverterStatusInfo => {
     // 컬럼 HexCode 값을 Str으로 변형
@@ -213,6 +214,11 @@ function makeChartDataToExcelWorkSheet(resource) {
     summeryColumn = getNextAlphabet(summeryColumn, 2);
   });
 
+  // 수평 일사량 컬럼명
+  const horizontalSolarCN = getNextAlphabet(
+    fixedSummeryColumn,
+    _.multiply(viewInverterStatusList.length, 2) + 1,
+  );
   // 인버터 종류 별로 반복
   viewInverterStatusList.forEach(viewInverterStatusInfo => {
     const foundOptionIt = _.find(powerChartDataOptionList, {
@@ -256,9 +262,15 @@ function makeChartDataToExcelWorkSheet(resource) {
 
     // 가중치가 적용된 발전 효율
     if (viewInverterStatusInfo.install_place === '수중') {
-      ws[`${columnName}10`] = {t: 'n', f: `${columnName}7/(P5 * 0.975 * 1.65 * 6)`};
+      ws[`${columnName}10`] = {
+        t: 'n',
+        f: `${columnName}7/(${horizontalSolarCN}5 * 0.975 * 1.65 * 6)`,
+      };
     } else {
-      ws[`${columnName}10`] = {t: 'n', f: `${columnName}7/(Q5 * 0.975 * 1.65 * 6)`};
+      ws[`${columnName}10`] = {
+        t: 'n',
+        f: `${columnName}7/(${getNextAlphabet(horizontalSolarCN, 1)}5 * 0.975 * 1.65 * 6)`,
+      };
     }
 
     XLSX.utils.cell_set_number_format(ws[`${columnName}10`], '0.0%');
@@ -355,13 +367,29 @@ function makeChartDataToExcelWorkSheet(resource) {
   summeryColumn = fixedSummeryColumn;
   // 발전 출력 표시
   ws[summeryColumn + 14] = {t: 's', v: '인버터 출력(W)'};
-  viewInverterStatusList.forEach(viewInverterStatusInfo => {
+
+  // 실제 존재하는 데이터로 체크
+  _.forEach(groupingInverterTrend, inverterTrendList => {
+    const ivtInfo = _.head(inverterTrendList);
+    const viewInverterStatusInfo = _.find(viewInverterStatusList, {
+      inverter_seq: ivtInfo.inverter_seq,
+    });
     const {target_name} = viewInverterStatusInfo;
-    // 데이터 상세 리스트 제목도 같이 구성
     const replaceTarget_name = _.replace(target_name, '(', '\n(');
-    ws[`${summeryColumn}15`] = {t: 's', v: replaceTarget_name};
+    ws[`${summeryColumn}15`] = {
+      t: 's',
+      v: replaceTarget_name,
+    };
     summeryColumn = getNextAlphabet(summeryColumn, 1);
   });
+
+  // viewInverterStatusList.forEach(viewInverterStatusInfo => {
+  //   const {target_name} = viewInverterStatusInfo;
+  //   // 데이터 상세 리스트 제목도 같이 구성
+  //   const replaceTarget_name = _.replace(target_name, '(', '\n(');
+  //   ws[`${summeryColumn}15`] = {t: 's', v: replaceTarget_name};
+  //   summeryColumn = getNextAlphabet(summeryColumn, 1);
+  // });
 
   const gridOutList = _.map(groupingInverterTrend, trend => ({
     trend,
@@ -374,9 +402,13 @@ function makeChartDataToExcelWorkSheet(resource) {
     t: 's',
     v: `인버터 ${powerChartDecoration.yAxisTitle}`,
   };
-  viewInverterStatusList.forEach(viewInverterStatusInfo => {
+  // 실제 존재하는 데이터로 체크
+  _.forEach(groupingInverterTrend, inverterTrendList => {
+    const ivtInfo = _.head(inverterTrendList);
+    const viewInverterStatusInfo = _.find(viewInverterStatusList, {
+      inverter_seq: ivtInfo.inverter_seq,
+    });
     const {target_name} = viewInverterStatusInfo;
-    // 데이터 상세 리스트 제목도 같이 구성
     const replaceTarget_name = _.replace(target_name, '(', '\n(');
     ws[`${summeryColumn}15`] = {
       t: 's',
@@ -384,6 +416,17 @@ function makeChartDataToExcelWorkSheet(resource) {
     };
     summeryColumn = getNextAlphabet(summeryColumn, 1);
   });
+
+  // viewInverterStatusList.forEach(viewInverterStatusInfo => {
+  //   const {target_name} = viewInverterStatusInfo;
+  //   // 데이터 상세 리스트 제목도 같이 구성
+  //   const replaceTarget_name = _.replace(target_name, '(', '\n(');
+  //   ws[`${summeryColumn}15`] = {
+  //     t: 's',
+  //     v: replaceTarget_name,
+  //   };
+  //   summeryColumn = getNextAlphabet(summeryColumn, 1);
+  // });
 
   // 발전량
   const inverterPowerList = _.map(groupingInverterTrend, trend => ({
@@ -406,9 +449,14 @@ function makeChartDataToExcelWorkSheet(resource) {
       t: 's',
       v: '모듈 온도(℃)',
     };
-    viewInverterStatusList.forEach(viewInverterStatusInfo => {
+
+    // 실제 존재하는 데이터로 체크
+    _.forEach(groupingMrtTrend, mrtTrendList => {
+      const mrtInfo = _.head(mrtTrendList);
+      const viewInverterStatusInfo = _.find(viewInverterStatusList, {
+        inverter_seq: mrtInfo.inverter_seq,
+      });
       const {target_name} = viewInverterStatusInfo;
-      // 데이터 상세 리스트 제목도 같이 구성
       const replaceTarget_name = _.replace(target_name, '(', '\n(');
       ws[`${summeryColumn}15`] = {
         t: 's',
@@ -416,6 +464,7 @@ function makeChartDataToExcelWorkSheet(resource) {
       };
       summeryColumn = getNextAlphabet(summeryColumn, 1);
     });
+
     const mrtTrendDataList = _.map(groupingMrtTrend, trend => ({
       trend,
       pickValueKeyList: ['avg_num_data'],
@@ -444,9 +493,14 @@ function makeChartDataToExcelWorkSheet(resource) {
       t: 's',
       v: '수온(℃)',
     };
-    filteredViewInverterStatusList.forEach(viewInverterStatusInfo => {
+
+    // 실제 존재하는 데이터로 체크
+    _.forEach(groupingMrtTrend, mrtTrendList => {
+      const mrtInfo = _.head(mrtTrendList);
+      const viewInverterStatusInfo = _.find(filteredViewInverterStatusList, {
+        inverter_seq: mrtInfo.inverter_seq,
+      });
       const {target_name} = viewInverterStatusInfo;
-      // 데이터 상세 리스트 제목도 같이 구성
       const replaceTarget_name = _.replace(target_name, '(', '\n(');
       ws[`${summeryColumn}15`] = {
         t: 's',
@@ -454,6 +508,7 @@ function makeChartDataToExcelWorkSheet(resource) {
       };
       summeryColumn = getNextAlphabet(summeryColumn, 1);
     });
+
     const mrtTrendDataList = _.map(groupingMrtTrend, trend => ({
       trend,
       pickValueKeyList: ['avg_num_data'],
@@ -544,23 +599,7 @@ function makeChartDataToExcelWorkSheet(resource) {
     CreatedDate: new Date(),
   };
 
-  const colsInfoList = [
-    {wch: 3},
-    {wch: 15},
-    {wch: 10},
-    {wch: 10},
-    {wch: 10},
-    {wch: 10},
-    {wch: 10},
-    {wch: 10},
-    {wch: 10},
-    {wch: 10},
-    {wch: 10},
-    {wch: 10},
-    {wch: 10},
-    {wch: 10},
-    {wch: 3},
-  ];
+  const colsInfoList = [{wch: 3}, {wch: 15}];
 
   /* TEST: column props */
   ws['!cols'] = colsInfoList;
@@ -586,7 +625,7 @@ function makeChartDataToExcelWorkSheet(resource) {
   ws['!rows'] = rowsInfoList;
 
   XLSX.utils.sheet_add_aoa(ws, [searchList], {origin: 'B2'});
-  XLSX.utils.sheet_add_aoa(ws, [commentInfo], {origin: 'P8'});
+  XLSX.utils.sheet_add_aoa(ws, [commentInfo], {origin: `${horizontalSolarCN}8`});
   // XLSX.utils.sheet_add_aoa(ws, [reportTitleList], { origin: 'C11' });
   // XLSX.utils.sheet_add_aoa(ws, [sumIntervalPowerList], {origin: -1});
   // BU.CLI(ws);

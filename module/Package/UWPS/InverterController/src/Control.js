@@ -13,7 +13,6 @@ const BU = require('base-util-jh').baseUtil;
 /** Device Connect, Write 처리 Middleware */
 const DCM = require('device-connect-manager');
 
-
 // Converter 매칭
 const P_Setter = require('./P_Setter.js');
 // Class Controller 데이터 관리
@@ -31,7 +30,7 @@ const DummyInverter = require('../DummyInverter');
  */
 class Control extends EventEmitter {
   /**
-   * 계측 프로그램을 구동하기 위해서 필요한 설정 정보 
+   * 계측 프로그램을 구동하기 위해서 필요한 설정 정보
    * @param {Object} config Controller 구동 설정 정보
    * @param {boolean} config.hasDev 개발용인지 여부. 개발용일 경우 Dummy Socket Server를 구동함.
    * @param {Object} config.ivtDummyData Dummy Program을 돌릴때 설정 초기 값
@@ -44,7 +43,7 @@ class Control extends EventEmitter {
       hasDev: true,
       baseFormat: {},
       ivtDummyData: {},
-      deviceSavedInfo: {},
+      deviceSavedInfo: {}
     };
     Object.assign(this.config, config.current);
 
@@ -119,7 +118,7 @@ class Control extends EventEmitter {
 
     // 접속반 종류별 프로토콜 장착 (개발용이고 socket 일 경우 port 자동 변경)
     await this.p_Setter.settingConverter(dialing);
-    
+
     // device connector 객체 연결
     this.dcm.init(this.model.deviceSavedInfo, this);
     // this에 Event Emitter Binding
@@ -138,9 +137,14 @@ class Control extends EventEmitter {
     try {
       // 장치 접속 객체에 connect 요청
       // BU.CLI('@@@@@@@@@@@@@@@@@@@@', `Port: ${this.model.deviceSavedInfo.port}`);
+      BU.CLI(this.model.deviceSavedInfo);
       this.hasConnect = await this.dcm.connect();
       this.model.onSystemError('Disconnected', false);
-      BU.log(`Sucess Connected to Device Id: ${this.model.deviceSavedInfo.target_id}, Port: ${this.model.deviceSavedInfo.port}`);
+      BU.log(
+        `Sucess Connected to Device Id: ${
+          this.model.deviceSavedInfo.target_id
+        }, Port: ${this.model.deviceSavedInfo.port}`
+      );
 
       // 운영 중 상태로 변경
       clearTimeout(this.setTimer);
@@ -184,8 +188,17 @@ class Control extends EventEmitter {
           resolve(this.getDeviceStatus());
         })
         .catch(err => {
-          let msg = `${this.deviceId}의 ${this.model.processCmd}명령 수행 도중 ${err.message}오류가 발생하였습니다.`;
-          BU.appendFile(`./log/inverter/error/measure/${BU.convertDateToText(new Date(), '', 2)}.txt`, msg);
+          let msg = `${this.deviceId}의 ${
+            this.model.processCmd
+          }명령 수행 도중 ${err.message}오류가 발생하였습니다.`;
+          BU.appendFile(
+            `./log/inverter/error/measure/${BU.convertDateToText(
+              new Date(),
+              '',
+              2
+            )}.txt`,
+            msg
+          );
 
           // 컨트롤 상태 초기화
           this.model.initControlStatus();
@@ -204,19 +217,17 @@ class Control extends EventEmitter {
   async send2Cmd(cmd) {
     // BU.CLI('send2Cmd', cmd);
     let timeout = {};
-    await Promise.race(
-      [
-        this.msgSendController(cmd),
-        new Promise((_, reject) => {
-          timeout = setTimeout(() => {
-            // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
-            // 명전 전송 후 제한시간안에 응답이 안올 경우 에러 
-            this.model.onSystemError('Timeout Error', true);
-            reject(new Error('timeout'));
-          }, this.model.controlStatus.sendMsgTimeOutSec);
-        })
-      ]
-    );
+    await Promise.race([
+      this.msgSendController(cmd),
+      new Promise((_, reject) => {
+        timeout = setTimeout(() => {
+          // BU.CLI(this.model.controlStatus.sendMsgTimeOutSec)
+          // 명전 전송 후 제한시간안에 응답이 안올 경우 에러
+          this.model.onSystemError('Timeout Error', true);
+          reject(new Error('timeout'));
+        }, this.model.controlStatus.sendMsgTimeOutSec);
+      })
+    ]);
     this.model.onSystemError('Timeout Error', false);
     clearTimeout(timeout);
     return this.model.refineData;
@@ -224,7 +235,7 @@ class Control extends EventEmitter {
 
   /**
    * 장치로 명령 발송 --> 명령 수행 후 응답 결과 timeout 처리를 위함
-   * @param {Buffer} cmd 
+   * @param {Buffer} cmd
    * @param {Promise} 정상 처리라면 true, 아닐 경우 throw error
    */
   async msgSendController(cmd) {
@@ -237,7 +248,7 @@ class Control extends EventEmitter {
     await this.dcm.write(cmd);
     // 수신된 메시지의 유효성 검증
     await eventToPromise.multi(this, ['completeSend2Msg'], ['errorSend2Msg']);
-    
+
     // 요청 메시지 리스트가 비어있다면 명령 리스트를 초기화하고 Resolve
     this.model.controlStatus.processCmd = {};
     this.model.controlStatus.retryChance = 3;
@@ -246,7 +257,7 @@ class Control extends EventEmitter {
 
   /**
    * eventHandler로 부터 넘겨받은 data 처리
-   * @param {Buffer} bufferMsg 
+   * @param {Buffer} bufferMsg
    */
   _onReceiveMsg(bufferMsg) {
     // BU.CLI('_onReceiveMsg', msg);
@@ -261,9 +272,16 @@ class Control extends EventEmitter {
         return this.emit('completeSend2Msg', result);
       } catch (error) {
         // BU.CLI('this.model.controlStatus.retryChance', this.model.controlStatus.retryChance);
-        // TEST 개발 버전이고, 일반 인버터 프로토콜을 사용, 테스트용 데이터가 있다면 
-        if (this.model.controlStatus.retryChance-- && this.config.hasDev && this.config.deviceSavedInfo.target_category !== 'dev' && !BU.isEmpty(this.testStubData[this.model.controlStatus.sendIndex]())) {
-          return this._onReceiveMsg(this.testStubData[this.model.controlStatus.sendIndex]());
+        // TEST 개발 버전이고, 일반 인버터 프로토콜을 사용, 테스트용 데이터가 있다면
+        if (
+          this.model.controlStatus.retryChance-- &&
+          this.config.hasDev &&
+          this.config.deviceSavedInfo.target_category !== 'dev' &&
+          !BU.isEmpty(this.testStubData[this.model.controlStatus.sendIndex]())
+        ) {
+          return this._onReceiveMsg(
+            this.testStubData[this.model.controlStatus.sendIndex]()
+          );
         }
         // 데이터가 깨질 경우를 대비해 기회를 더 줌
         if (this.model.controlStatus.retryChance--) {
@@ -316,14 +334,15 @@ class Control extends EventEmitter {
       return BU.errorLog('dcError', err);
     });
 
-
     /** 장치에서 수신된 데이터 처리 */
     this.on('dcData', data => {
       // BU.CLI(data);
-      BU.appendFile(`./log/inverter/data/${BU.convertDateToText(new Date(), '', 2)}.txt`, `${this.deviceId} : ${data}`);
+      BU.appendFile(
+        `./log/inverter/data/${BU.convertDateToText(new Date(), '', 2)}.txt`,
+        `${this.deviceId} : ${data}`
+      );
       return this._onReceiveMsg(data);
     });
-
   }
 }
 module.exports = Control;

@@ -4,7 +4,7 @@ module.exports = Control;
 
 // if __main process
 if (require !== undefined && require.main === module) {
-  process.on('unhandledRejection', function (reason, p) {
+  process.on('unhandledRejection', function(reason, p) {
     console.log('@@@ Possibly Unhandled Rejection at: Promise ', p);
     console.log('@@@ reason: ', reason);
     // application specific logging here
@@ -24,7 +24,8 @@ if (require !== undefined && require.main === module) {
   config.current.deviceSavedInfo.baud_rate = 9600;
 
   const control = new Control(config);
-  control.init()
+  control
+    .init()
     .then(result => {
       return control.measureDevice();
     })

@@ -32,6 +32,11 @@ exports.moduleScale = [
     target_name: '육상 일반 (다)',
     scale: 1,
   },
+  {
+    photovoltaic_seq: 7,
+    target_name: '개선형',
+    scale: 1,
+  },
 ];
 
 exports.inverterScale = [
@@ -72,6 +77,12 @@ exports.inverterScale = [
     inverter_seq: 6,
     target_id: 'IVT2',
     target_name: '육상 일반 (다)',
+    scale: 1,
+  },
+  {
+    inverter_seq: 7,
+    target_id: 'IVT7',
+    target_name: '개선형',
     scale: 1,
   },
 ];

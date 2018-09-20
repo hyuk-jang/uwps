@@ -20,8 +20,9 @@ class BiDevice extends BiModule {
    */
   async getPlaceRelation(receiveObjList) {
     // 장소 SeqList 추출
-    const placeSeqList = _.map(receiveObjList, receiveDataInfo =>
-      _.get(receiveDataInfo, 'place_seq'),
+    const placeSeqList = _.without(
+      _.map(receiveObjList, receiveDataInfo => _.get(receiveDataInfo, 'place_seq')),
+      null,
     );
     // BU.CLI(placeSeqList);
     // 추출된 seqList를 기준으로 장소 관계를 불러옴

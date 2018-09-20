@@ -109,9 +109,9 @@ module.exports = app => {
         });
 
         // 장소 관계에 따라 수평 일사량 or 경사 일사량 총량 정의
-        const dailySolarWh = foundViewPowerProfileInfo.place_id.includes('SEB')
-          ? dailyHorizontalSolar
-          : dailyInclinedSolar;
+        const dailySolarWh = _.includes(_.get(foundViewPowerProfileInfo, 'place_id', ''), 'EP')
+          ? dailyInclinedSolar
+          : dailyHorizontalSolar;
         // 모듈 발전 효율 검증.
         let modulePowerEfficiency = _.round(
           (inverterStatusInfo.daily_power_wh / (dailySolarWh * 0.975 * 1.65 * 6)) * 100,

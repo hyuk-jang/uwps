@@ -18,7 +18,7 @@ exports.moduleScale = [
   {
     photovoltaic_seq: 4,
     target_name: '수중 일반 (단)',
-    scale: 0.987561,
+    scale: 0.98756112,
     // scale: 	0.998509363
     // scale: 1.024210526
   },
@@ -35,7 +35,7 @@ exports.moduleScale = [
   {
     photovoltaic_seq: 7,
     target_name: '개선형',
-    scale: 1,
+    scale: 0.906583436,
   },
 ];
 
@@ -63,7 +63,7 @@ exports.inverterScale = [
     inverter_seq: 4,
     target_id: 'IVT6',
     target_name: '수중 일반 (단)',
-    scale: 0.987561,
+    scale: 0.98756112,
     // scale: 	0.998509363
     // scale: 1.024210526
   },
@@ -83,6 +83,6 @@ exports.inverterScale = [
     inverter_seq: 7,
     target_id: 'IVT7',
     target_name: '개선형',
-    scale: 1,
+    scale: 0.906583436,
   },
 ];

@@ -420,10 +420,14 @@ footer {
 }
 .con_b_d_f > p {
   font-size: 13px;
-  text-align: left;
-  margin-left: 5px;
-  margin-top: 10px;
   float: left;
+  display: flex;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  width: 75%;
+  height: 100%;
+  align-items: center;
+  justify-content: space-around;
 }
 .con_b_d_f > img {
   float: right;

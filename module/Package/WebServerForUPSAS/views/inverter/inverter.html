@@ -3,28 +3,28 @@
 
 <head>
   <%- include("../master/head.html") %>
-    <script src="js/hichart/highcharts.src.js"></script>
+  <script src="js/hichart/highcharts.src.js"></script>
 </head>
 
 <body>
 
   <!--네비-->
   <%- include("../master/header.html") %>
-    <!--메인-->
-    <div class="jumbotron text-center jumbotron_line">
-      <div class="row row_st_line min_h_780">
+  <!--메인-->
+  <div class="jumbotron text-center jumbotron_line">
+    <div class="row row_st_line min_h_780">
 
-        <div class="row row_title">
-          <div class="title" style="float: none; margin-bottom: 10px"> 실시간 인버터 모니터링
-            <span style="position: absolute;color: black;width: 300px; text-align: left; text-indent: 30px">
-              측정시간:
-              <%- powerInfo.measureTime %>
-            </span>
-          </div>
+      <div class="row row_title">
+        <div class="title" style="float: none; margin-bottom: 10px"> 실시간 인버터 모니터링
+          <span style="position: absolute;color: black;width: 300px; text-align: left; text-indent: 30px">
+            측정시간:
+            <%- powerInfo.measureTime %>
+          </span>
+        </div>
 
 
-          <div class="table-responsive">
-            <!-- <colgroup>
+        <div class="table-responsive">
+          <!-- <colgroup>
               <col style="width:10%">
               <col style="width:6%">
               <col style="width:10%">
@@ -39,40 +39,27 @@
               <col style="width:8%">
               <col style="width:5%">
             </colgroup> -->
-            <table class="table table-hover ">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>수위
-                    <br>(cm)</th>
-                  <th>일반 대비
-                    <br>모듈 효율(%)</th>
-                  <th>모듈 발전
-                    <br>효율(%)</th>
-                  <th>DC 전압
-                    <br>(V)</th>
-                  <th>DC 전류
-                    <br>(A)</th>
-                  <th>DC 전력
-                    <br>(kW)</th>
-                  <th>AC 전압
-                    <br>(V)</th>
-                  <th>AC 전류
-                    <br>(A)</th>
-                  <th>AC 전력
-                    <br>(kW)</th>
-                  <th>역률
-                    <br>(%)</th>
-                  <th>금일발전량
-                    <br>(kWh)</th>
-                  <th>누적발전량
-                    <br>(kWh)</th>
-                  <th style="text-align:center;">장치
-                    <br>상태</th>
-                </tr>
-              </thead>
-              <tbody id="myTable">
-                <%
+          <table class="table table-hover ">
+            <thead>
+              <tr>
+                <th></th>
+                <th>수위<br>(cm)</th>
+                <th>일반 대비<br>모듈 효율(%)</th>
+                <th>모듈 발전<br>효율(%)</th>
+                <th>DC 전압<br>(V)</th>
+                <th>DC 전류<br>(A)</th>
+                <th>DC 전력<br>(kW)</th>
+                <th>AC 전압<br>(V)</th>
+                <th>AC 전류<br>(A)</th>
+                <th>AC 전력<br>(kW)</th>
+                <th>역률<br>(%)</th>
+                <th>금일발전량<br>(kWh)</th>
+                <th>누적발전량<br>(kWh)</th>
+                <th style="text-align:center;">장치<br>상태</th>
+              </tr>
+            </thead>
+            <tbody id="myTable">
+              <%
                 var total_in_kw = inverterStatus.totalInfo.in_kw;
                 var total_out_kw = inverterStatus.totalInfo.out_kw;
                 var total_d_kwh = inverterStatus.totalInfo.d_kwh;
@@ -84,147 +71,147 @@
                    var deviceOperationImgName = inverterData.hasOperation ? "green.png" : "red.png";
                 %>
 
-                  <tr class="sel">
-                    <td class="td1">
-                      <%=inverterData.target_name %>
-                    </td>
-                    <td>
-                      <%=inverterData.waterLevel %>
-                    </td>
-                    <td>
-                      <%=inverterData.compareEfficiency %>
-                    </td>
-                    <td>
-                      <%=inverterData.modulePowerEfficiency %>
-                    </td>
-                    <td>
-                      <%=inverterData.in_v%>
-                    </td>
-                    <td>
-                      <%=inverterData.in_a%>
-                    </td>
-                    <td>
-                      <%=inverterData.in_kw%>
-                    </td>
-                    <td>
-                      <%=inverterData.out_v%>
-                    </td>
-                    <td>
-                      <%=inverterData.out_a%>
-                    </td>
-                    <td>
-                      <%=inverterData.out_kw%>
-                    </td>
-                    <td>
-                      <%=inverterData.p_f%>
-                    </td>
-                    <td>
-                      <%=inverterData.d_kwh %>
-                    </td>
-                    <td>
-                      <%=inverterData.c_kwh %>
-                    </td>
-                    <td class="center_ball">
-                      <img src="image/<%= deviceOperationImgName %>" />
-                    </td>
-                  </tr>
-                  <%
+              <tr class="sel">
+                <td class="td1">
+                  <%=inverterData.target_name %>
+                </td>
+                <td>
+                  <%=inverterData.waterLevel %>
+                </td>
+                <td>
+                  <%=inverterData.compareEfficiency %>
+                </td>
+                <td>
+                  <%=inverterData.modulePowerEfficiency %>
+                </td>
+                <td>
+                  <%=inverterData.in_v%>
+                </td>
+                <td>
+                  <%=inverterData.in_a%>
+                </td>
+                <td>
+                  <%=inverterData.in_kw%>
+                </td>
+                <td>
+                  <%=inverterData.out_v%>
+                </td>
+                <td>
+                  <%=inverterData.out_a%>
+                </td>
+                <td>
+                  <%=inverterData.out_kw%>
+                </td>
+                <td>
+                  <%=inverterData.p_f%>
+                </td>
+                <td>
+                  <%=inverterData.d_kwh %>
+                </td>
+                <td>
+                  <%=inverterData.c_kwh %>
+                </td>
+                <td class="center_ball">
+                  <img src="image/<%= deviceOperationImgName %>" />
+                </td>
+              </tr>
+              <%
                   }
                   %>
-                    <tr class="sel">
-                      <td class="td1" style="text-align:right;">계</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td>
-                        <%= inverterStatus.totalInfo.in_kw %>
-                      </td>
-                      <td></td>
-                      <td></td>
-                      <td>
-                        <%= inverterStatus.totalInfo.out_kw %>
-                      </td>
-                      <td></td>
-                      <td>
-                        <%= inverterStatus.totalInfo.d_kwh %>
-                      </td>
-                      <td>
-                        <%= inverterStatus.totalInfo.c_kwh %>
-                      </td>
-                      <td></td>
-                    </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="re_p">※ 금일 발전량, 누적 발전량, 장치 상태를 제외한 위의 데이터는 모두 해당
-            <span> 실시간 데이터</span> 입니다. </p>
-          <div class="row row_title">
-            <div class="title" style="margin-top:20px; float:left;"> 금일 시간 별 전력</div>
-          </div>
-          <div class="title_box" id="chart_div" style="height :400px"></div>
-          <p class="re_p" style="margin-top: 10px">※ 전력(W) 데이터는 계통측 전력 데이터이며
-            <span> 시간당 평균 값 </span> 입니다. </p>
-          <p class="re_p" style="margin: 5px 0px 0px">※ 단: 단결정, 다: 다결정</p>
+              <tr class="sel">
+                <td class="td1" style="text-align:right;">계</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                  <%= inverterStatus.totalInfo.in_kw %>
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+                  <%= inverterStatus.totalInfo.out_kw %>
+                </td>
+                <td></td>
+                <td>
+                  <%= inverterStatus.totalInfo.d_kwh %>
+                </td>
+                <td>
+                  <%= inverterStatus.totalInfo.c_kwh %>
+                </td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+        <p class="re_p">※ 금일 발전량, 누적 발전량, 장치 상태를 제외한 위의 데이터는 모두 해당
+          <span> 실시간 데이터</span> 입니다. </p>
+        <div class="row row_title">
+          <div class="title" style="margin-top:20px; float:left;"> 금일 시간 별 전력</div>
+        </div>
+        <div class="title_box" id="chart_div" style="height :400px"></div>
+        <p class="re_p" style="margin-top: 10px">※ 전력(W) 데이터는 계통측 전력 데이터이며
+          <span> 시간당 평균 값 </span> 입니다. </p>
+        <p class="re_p" style="margin: 5px 0px 0px">※ 단: 단결정, 다: 다결정</p>
       </div>
     </div>
-    <%- include("../master/footer.html") %>
+  </div>
+  <%- include("../master/footer.html") %>
 
 
 
-      <script type="text/javascript">
-        var chartDataObj = <%- JSON.stringify (chartDataObj) %>;
-        if (chartDataObj.series.length) {
-          // console.log("@@@", chartDataObj.range, chartDataObj.series)
-          var yMax = 1500;
+  <script type="text/javascript">
+    var chartDataObj = <%- JSON.stringify (chartDataObj) %>;
+    if (chartDataObj.series.length) {
+      // console.log("@@@", chartDataObj.range, chartDataObj.series)
+      var yMax = 1500;
 
-          $('#chart_div').highcharts({
-            chart: {
-              type: "spline",
-              zoomType: 'x',
-            },
-            title: {
-              text: ''
-            },
-            xAxis: {
-              // opposite: true,
-              title: {
-                text: '시간(시)'
-              },
-              // tickInterval: 6
-              categories: chartDataObj.range
-            },
-            yAxis: {
-              // max: yMax,
-              title: {
-                text: '전력(W)'
-              }
-            },
-            plotOptions: {
-              series: {
-                pointStart: 0
-              }
-            },
-            legend: { //범례
-              layout: 'vertical',
-              align: 'right',
-              verticalAlign: 'middle',
-              borderWidth: 0,
-            },
-            series: chartDataObj.series,
-            credits: {
-              enabled: false
-            },
-          });
-        } else {
-          $("#chart_div").html("발전 내역이 존재하지 않습니다.").css({
-            "line-height": "300px",
-            "font-size": "25px"
-          });
-        }
-      </script>
+      $('#chart_div').highcharts({
+        chart: {
+          type: "spline",
+          zoomType: 'x',
+        },
+        title: {
+          text: ''
+        },
+        xAxis: {
+          // opposite: true,
+          title: {
+            text: '시간(시)'
+          },
+          // tickInterval: 6
+          categories: chartDataObj.range
+        },
+        yAxis: {
+          // max: yMax,
+          title: {
+            text: '전력(W)'
+          }
+        },
+        plotOptions: {
+          series: {
+            pointStart: 0
+          }
+        },
+        legend: { //범례
+          layout: 'vertical',
+          align: 'right',
+          verticalAlign: 'middle',
+          borderWidth: 0,
+        },
+        series: chartDataObj.series,
+        credits: {
+          enabled: false
+        },
+      });
+    } else {
+      $("#chart_div").html("발전 내역이 존재하지 않습니다.").css({
+        "line-height": "300px",
+        "font-size": "25px"
+      });
+    }
+  </script>
 </body>
 
 </html>

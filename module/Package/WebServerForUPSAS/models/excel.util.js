@@ -248,7 +248,12 @@ function makeChartDataToExcelWorkSheet(resource) {
     ws[`${columnName}7`] = {t: 'n', f: `${columnName}4*${columnName}6`};
     XLSX.utils.cell_set_number_format(ws[`${columnName}7`], '#,#0.0##');
     // 가중치 적용 비교
-    ws[`${columnName}8`] = {t: 'n', f: `${columnName}7/${foundForeginOptionIt.columnName}7`};
+    ws[`${columnName}8`] = {
+      t: 'n',
+      f: `(${columnName}7/${viewInverterStatusInfo.compose_count})/(${
+        foundForeginOptionIt.columnName
+      }7/${foundForeginOptionIt.compose_count})`,
+    };
     XLSX.utils.cell_set_number_format(ws[`${columnName}8`], '0.0%');
 
     // 24시간 발전 용량 Wh(kw -> w 1000배, Scale 10 나눔 ---> 100(시간당 발전용량))
@@ -264,12 +269,16 @@ function makeChartDataToExcelWorkSheet(resource) {
     if (viewInverterStatusInfo.install_place === '수중') {
       ws[`${columnName}10`] = {
         t: 'n',
-        f: `${columnName}7/(${horizontalSolarCN}5 * 0.975 * 1.65 * 6)`,
+        f: `${columnName}7/(${horizontalSolarCN}5 * 0.975 * 1.65 * ${
+          viewInverterStatusInfo.compose_count
+        })`,
       };
     } else {
       ws[`${columnName}10`] = {
         t: 'n',
-        f: `${columnName}7/(${getNextAlphabet(horizontalSolarCN, 1)}5 * 0.975 * 1.65 * 6)`,
+        f: `${columnName}7/(${getNextAlphabet(horizontalSolarCN, 1)}5 * 0.975 * 1.65 * ${
+          viewInverterStatusInfo.compose_count
+        })`,
       };
     }
 

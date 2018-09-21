@@ -113,8 +113,11 @@ module.exports = app => {
           ? dailyInclinedSolar
           : dailyHorizontalSolar;
         // 모듈 발전 효율 검증.
+        BU.CLI(foundViewPowerProfileInfo);
         let modulePowerEfficiency = _.round(
-          (inverterStatusInfo.daily_power_wh / (dailySolarWh * 0.975 * 1.65 * 6)) * 100,
+          (inverterStatusInfo.daily_power_wh /
+            (dailySolarWh * 0.975 * 1.65 * foundViewPowerProfileInfo.pv_compose_count)) *
+            100,
           1,
         );
         modulePowerEfficiency = _.isNaN(modulePowerEfficiency) ? '' : modulePowerEfficiency;
@@ -126,9 +129,19 @@ module.exports = app => {
               ? waterLevelData.water_level
               : '',
           compareEfficiency: _.round(
-            (_.get(inverterStatusInfo, 'daily_power_wh') /
-              _.get(foundInverterStatusInfo, 'daily_power_wh')) *
+            _.multiply(
+              _.divide(
+                _.divide(
+                  _.get(inverterStatusInfo, 'daily_power_wh'),
+                  _.get(inverterStatusInfo, 'compose_count'),
+                ),
+                _.divide(
+                  _.get(foundInverterStatusInfo, 'daily_power_wh'),
+                  _.get(foundInverterStatusInfo, 'compose_count'),
+                ),
+              ),
               100,
+            ),
             1,
           ),
           modulePowerEfficiency,

@@ -44,7 +44,7 @@ class MuanTB {
 
       const EARTH = '육상';
 
-      const vInverterDataList = await this.biModule.getTable('v_inverter_status');
+      const vInverterDataList = await this.biModule.getTable('v_inverter_status', {amount: 15});
 
       const groupingInverterDataList = _.groupBy(vInverterDataList, 'install_place');
       // BU.CLI(groupingInverterDataList);

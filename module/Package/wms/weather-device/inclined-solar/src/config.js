@@ -4,7 +4,7 @@ const config = {
     incliendSolarInfo: {
       unitId: 9,
       address: 0,
-      length: 1,
+      dataLength: 1,
     },
     deviceInfo: {
       target_id: 'InclinedSolar',

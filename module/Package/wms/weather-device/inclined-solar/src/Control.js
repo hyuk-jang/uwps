@@ -70,7 +70,7 @@ class Control extends AbstDeviceClient {
     const cmdFormat = this.MODBUS.readInputRegisters;
     cmdFormat.unitId = this.config.incliendSolarInfo.unitId;
     cmdFormat.params.address = this.config.incliendSolarInfo.address;
-    cmdFormat.params.length = this.config.incliendSolarInfo.length;
+    cmdFormat.params.dataLength = this.config.incliendSolarInfo.dataLength;
 
     const commandSet = this.generationAutoCommand(cmdFormat);
     // BU.CLIN(commandSet);

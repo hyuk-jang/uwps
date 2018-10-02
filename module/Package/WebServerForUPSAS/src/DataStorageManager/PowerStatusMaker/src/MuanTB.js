@@ -126,6 +126,8 @@ class MuanTB {
         invertersTotal.co2,
       ];
 
+      BU.CLI(dataBodyList);
+
       const strDataBodyList = [];
       dataBodyList.forEach(ele => strDataBodyList.push(_.padStart(ele.toString(), 4, '0')));
 

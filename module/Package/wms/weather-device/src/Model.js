@@ -41,9 +41,25 @@ class Model extends AbstDeviceClientModel {
   async getWeatherDeviceData(measureDate) {
     BU.CLI("getWeatherDeviceData");
 
+    // 시간에 문제가 있다면 삽입하지 않음
+    if (measureDate.getSeconds() !== 0) {
+      BU.errorLog("vantage", BU.convertDateToText(measureDate));
+    }
+
     const smInfraredData = this.controller.smInfrared.getDeviceOperationInfo();
     const vantagepro2Data = this.controller.vantagepro2.getDeviceOperationInfo();
     const inclinedSolarData = this.controller.inclinedSolar.getDeviceOperationInfo();
+
+    // if (
+    //   _(vantagepro2Data.data)
+    //     .values()
+    //     .value()
+    //     .every(_.isNil())
+    // ) {
+    //   BU.logFile(vantagepro2Data.data);
+    // }
+
+    BU.errorLog("vantage", JSON.stringify(vantagepro2Data.data));
 
     // 데이터를 추출한 후 평균 값 리스트 초기화
     this.controller.vantagepro2.model.init();

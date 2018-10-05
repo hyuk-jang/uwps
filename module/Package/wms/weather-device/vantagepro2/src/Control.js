@@ -1,18 +1,17 @@
-const _ = require("lodash");
-const cron = require("node-cron");
-const { BU } = require("base-util-jh");
+const cron = require('node-cron');
+const {BU} = require('base-util-jh');
 // const AbstDeviceClient = require('device-client-controller-jh');
-const Model = require("./Model");
+const Model = require('./Model');
 
-const mainConfig = require("./config");
+const mainConfig = require('./config');
 
 // const {AbstConverter, controlFormat} = require('../../../../../../module/device-protocol-converter-jh');
-const { AbstConverter, BaseModel } = require("../../../../../module/device-protocol-converter-jh");
+const {AbstConverter, BaseModel} = require('../../../../../module/device-protocol-converter-jh');
 // const {AbstConverter} = require('device-protocol-converter-jh');
 
-const { dccFlagModel } = require("../../../../../module/default-intelligence");
+const {dccFlagModel} = require('../../../../../module/default-intelligence');
 
-const Serial = require("./DeviceClient/Serial");
+const Serial = require('./DeviceClient/Serial');
 
 class Control {
   /** @param {mainConfig} config */
@@ -26,7 +25,7 @@ class Control {
     /** 주기적으로 LOOP 명령을 내릴 시간 인터벌 */
     this.executeCommandInterval = null;
 
-    this.cronScheduler = null;
+    this.setInterval = null;
     this.hasReceivedData = false;
     this.errorCount = 0;
   }
@@ -44,8 +43,8 @@ class Control {
       this.serialClient.attach(this);
       await this.serialClient.connect();
     } else {
-      BU.CLI("생성기 호출", this.id);
-      require("./dummy")(this);
+      BU.CLI('생성기 호출', this.id);
+      require('./dummy')(this);
     }
     this.converter.setProtocolConverter(this.config.deviceInfo);
     return true;
@@ -60,7 +59,7 @@ class Control {
       case dccFlagModel.definedControlEvent.CONNECT:
         await this.serialClient.write(this.baseModel.device.DEFAULT.COMMAND.WAKEUP);
         // 데이터 수신 체크 크론 동작
-        this.runCronDiscoveryRegularDevice();
+        this.runDeviceInquiryScheduler();
         break;
       case dccFlagModel.definedControlEvent.DISCONNECT:
         break;
@@ -74,17 +73,17 @@ class Control {
    * @param {*} data
    */
   onData(data) {
-    BU.logFile("vantagePro: 데이터 수신");
-    const resultParsing = this.converter.parsingUpdateData({ data });
+    BU.logFile('vantagePro: 데이터 수신');
+    const resultParsing = this.converter.parsingUpdateData({data});
     // BU.CLI(resultParsing);
     if (resultParsing.eventCode === dccFlagModel.definedCommanderResponse.DONE) {
       // 정상적인 데이터가 들어왔다고 처리
       this.hasReceivedData = true;
-      BU.logFile("vantagePro: 데이터 파싱 성공");
+      BU.logFile('vantagePro: 데이터 파싱 성공');
       this.model.onData(resultParsing.data);
       BU.CLI(
-        "SolarRadiation",
-        this.getDeviceOperationInfo().data[BaseModel.Weathercast.BASE_KEY.SolarRadiation]
+        'SolarRadiation',
+        this.getDeviceOperationInfo().data[BaseModel.Weathercast.BASE_KEY.SolarRadiation],
       );
     } else {
       BU.logFile(JSON.stringify(resultParsing));
@@ -92,18 +91,19 @@ class Control {
   }
 
   // Cron 구동시킬 시간
-  runCronDiscoveryRegularDevice() {
+  runDeviceInquiryScheduler() {
     try {
-      if (this.cronScheduler !== null) {
+      if (this.setInterval !== null) {
         // BU.CLI('Stop')
-        this.cronScheduler.stop();
+        clearInterval(this.setInterval);
       }
       // 3초마다 데이터 수신 확인 (LOOP 명령은 2초 마다 전송하기 때문에 충분)
-      this.cronScheduler = cron.schedule("*/3 * * * * *", () => {
-        this.discoveryRegularDevice();
-      });
+      this.setInterval = setInterval(() => {
+        this.inquiryDevice();
+      }, 3000);
 
-      this.cronScheduler.start();
+      this.inquiryDevice();
+
       return true;
     } catch (error) {
       throw error;
@@ -113,7 +113,7 @@ class Control {
   /**
    * 데이터 탐색
    */
-  async discoveryRegularDevice() {
+  async inquiryDevice() {
     // 정상적인 데이터가 들어왔을 경우
     if (this.hasReceivedData) {
       // 초기화
@@ -124,22 +124,22 @@ class Control {
 
       // 데이터가 2번 이상 들어오지 않는다면 문제가 있다고 판단
       if (this.errorCount === 2) {
-        BU.logFile("vantagePro: ECOUNT:2, LOOP 요청");
+        BU.logFile('vantagePro: ECOUNT:2, LOOP 요청');
         await this.serialClient.write(this.baseModel.device.DEFAULT.COMMAND.LOOP);
-        BU.logFile("vantagePro: ECOUNT:2, LOOP 완료");
+        BU.logFile('vantagePro: ECOUNT:2, LOOP 완료');
       } else if (this.errorCount === 4) {
         // 그래도 정상적인 데이터가 들어오지 않는다면
-        BU.logFile("vantagePro: ECOUNT:4, LOOP_INDEX 요청");
+        BU.logFile('vantagePro: ECOUNT:4, LOOP_INDEX 요청');
         await this.serialClient.write(this.baseModel.device.DEFAULT.COMMAND.LOOP_INDEX);
-        BU.logFile("vantagePro: ECOUNT:4, LOOP_INDEX 완료");
+        BU.logFile('vantagePro: ECOUNT:4, LOOP_INDEX 완료');
       } else if (this.errorCount === 6) {
         // 통제할 수 없는 에러라면
         this.errorCount = 0; // 새롭게 시작
-        BU.logFile("vantagePro: ECOUNT:6, disconnect 요청");
+        BU.logFile('vantagePro: ECOUNT:6, disconnect 요청');
         // trackingDataBuffer 삭제
         this.converter.resetTrackingDataBuffer();
         await this.serialClient.disconnect(); // 장치 재접속 요청
-        BU.logFile("vantagePro: ECOUNT:6, disconnect 완료");
+        BU.logFile('vantagePro: ECOUNT:6, disconnect 완료');
       } else {
         return false;
       }
@@ -157,7 +157,7 @@ class Control {
       // systemErrorList: [{code: 'new Code2222', msg: '에러 테스트 메시지22', occur_date: new Date() }],
       systemErrorList: [],
       troubleList: [],
-      measureDate: new Date()
+      measureDate: new Date(),
     };
   }
 }

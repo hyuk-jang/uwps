@@ -1,12 +1,9 @@
-const _ = require('lodash');
+const { BU } = require("base-util-jh");
 
-const cron = require('node-cron');
-const {BU} = require('base-util-jh');
+const AbstDeviceClient = require("../../../../../module/device-client-controller-jh");
+const Model = require("./Model");
 
-const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
-const Model = require('./Model');
-
-const mainConfig = require('./config');
+const mainConfig = require("./config");
 
 class Control extends AbstDeviceClient {
   /** @param {mainConfig} config */
@@ -17,7 +14,7 @@ class Control extends AbstDeviceClient {
     /** 주기적으로 LOOP 명령을 내릴 시간 인터벌 */
     this.executeCommandInterval = null;
 
-    this.cronScheduler = null;
+    this.setInterval = null;
 
     this.model = new Model(this);
   }
@@ -31,7 +28,6 @@ class Control extends AbstDeviceClient {
 
   /**
    * 장치의 현재 데이터 및 에러 내역을 가져옴
-   * @return {{id: string, config: Object, data: {smRain: number}, systemErrorList: Array, troubleList: Array}}
    */
   getDeviceOperationInfo() {
     return {
@@ -40,24 +36,26 @@ class Control extends AbstDeviceClient {
       data: this.model.deviceData,
       // systemErrorList: [{code: 'new Code22223', msg: '에러 테스트 메시지22', occur_date: new Date() }],
       systemErrorList: this.systemErrorList,
-      troubleList: [],
+      troubleList: []
     };
   }
 
   // Cron 구동시킬 시간
-  runCronDiscoveryRegularDevice() {
-    BU.CLI('runCronDiscoveryRegularDevice');
+  runDeviceInquiryScheduler() {
+    BU.CLI("runCronDiscoveryRegularDevice");
     try {
-      if (this.cronScheduler !== null) {
+      if (this.setInterval !== null) {
         // BU.CLI('Stop')
-        this.cronScheduler.stop();
+        clearInterval(this.setInterval);
       }
-      // 3초 마다 데이터 수신 확인
-      this.cronScheduler = cron.schedule('*/3 * * * * *', () => {
-        this.requestData();
-      });
 
-      this.cronScheduler.start();
+      // 3초 마다 데이터 수신 확인
+      this.setInterval = setInterval(() => {
+        this.inquiryDevice();
+      }, 3000);
+
+      this.inquiryDevice();
+
       return true;
     } catch (error) {
       throw error;
@@ -65,14 +63,9 @@ class Control extends AbstDeviceClient {
   }
 
   /** 경사 일사량 센서로 데이터를 요청하는 명령 발송 */
-  requestData() {
+  inquiryDevice() {
     // BU.CLI('requestData');
-    const cmdFormat = this.MODBUS.readInputRegisters;
-    cmdFormat.unitId = this.config.incliendSolarInfo.unitId;
-    cmdFormat.params.address = this.config.incliendSolarInfo.address;
-    cmdFormat.params.dataLength = this.config.incliendSolarInfo.dataLength;
-
-    const commandSet = this.generationAutoCommand(cmdFormat);
+    const commandSet = this.generationAutoCommand(this.config.incliendSolarInfo);
     // BU.CLIN(commandSet);
     this.executeCommand(commandSet);
   }
@@ -85,7 +78,7 @@ class Control extends AbstDeviceClient {
     // BU.log('updateDcEvent\t', dcEvent.eventName);
     switch (dcEvent.eventName) {
       case this.definedControlEvent.CONNECT:
-        this.runCronDiscoveryRegularDevice();
+        this.runDeviceInquiryScheduler();
         break;
       default:
         break;
@@ -96,7 +89,7 @@ class Control extends AbstDeviceClient {
    * 장치에서 명령을 수행하는 과정에서 생기는 1:1 이벤트
    * @param {dcMessage} dcMessage 현재 장비에서 실행되고 있는 명령 객체
    */
-  onDcMessage(dcMessage) {}
+  onDcMessage() {}
 
   /**
    * 장치에서 명령을 수행하는 과정에서 생기는 1:1 이벤트

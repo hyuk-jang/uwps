@@ -11,7 +11,7 @@ const mainConfig = require('./config');
 class Control {
   /** @param {mainConfig} config */
   constructor(config) {
-    this.config = config.current || mainConfig;
+    this.config = config.current || mainConfig.current;
 
     this.model = new Model(this);
 

@@ -1,10 +1,10 @@
-const _ = require("lodash");
+const _ = require('lodash');
 
-const { BU } = require("base-util-jh");
-const AbstDeviceClientModel = require("device-client-model-jh");
-const Control = require("./Control");
+const {BU, CU} = require('base-util-jh');
+const AbstDeviceClientModel = require('device-client-model-jh');
+const Control = require('./Control');
 
-const refinedDeviceDataConfig = require("../config/refinedDeviceDataConfig");
+const refinedDeviceDataConfig = require('../config/refinedDeviceDataConfig');
 
 class Model extends AbstDeviceClientModel {
   /**
@@ -20,14 +20,16 @@ class Model extends AbstDeviceClientModel {
     this.systemErrorList = [];
     this.troubleList = [];
 
+    this.inquiryAllDeviceStatusTimer = null;
+
     this.init();
   }
 
   init() {
     // super.hasSaveToDB = true;
     this.setDevice(this.dataStroageConfig, {
-      idKey: "target_id",
-      deviceCategoryKey: "target_category"
+      idKey: 'target_id',
+      deviceCategoryKey: 'target_category',
     });
 
     BU.CLI(this.controller.config.dbInfo);
@@ -39,12 +41,25 @@ class Model extends AbstDeviceClientModel {
    * @param {Date} measureDate
    */
   async getWeatherDeviceData(measureDate) {
-    BU.CLI("getWeatherDeviceData");
+    BU.CLI('getWeatherDeviceData');
 
-    // 시간에 문제가 있다면 삽입하지 않음
-    if (measureDate.getSeconds() !== 0) {
-      BU.errorLog("vantage", BU.convertDateToText(measureDate));
+    // FIXME: cron 스케줄러가 중복 실행되는 버그가 해결되기 전까지 사용
+    if (
+      _.isNil(this.inquiryAllDeviceStatusTimer) ||
+      !this.inquiryAllDeviceStatusTimer.getStateRunning()
+    ) {
+      this.inquiryAllDeviceStatusTimer = new CU.Timer(() => {
+        this.inquiryAllDeviceStatusTimer.pause();
+      }, 1000 * this.config.inquiryIntervalSecond);
+    } else {
+      // Timer가 존재하다면 추가 조회는 하지 않음.
+      return false;
     }
+
+    // // 시간에 문제가 있다면 삽입하지 않음
+    // if (measureDate.getSeconds() !== 0) {
+    //   BU.errorLog('vantage', BU.convertDateToText(measureDate));
+    // }
 
     const smInfraredData = this.controller.smInfrared.getDeviceOperationInfo();
     const vantagepro2Data = this.controller.vantagepro2.getDeviceOperationInfo();
@@ -59,7 +74,7 @@ class Model extends AbstDeviceClientModel {
     //   BU.logFile(vantagepro2Data.data);
     // }
 
-    BU.errorLog("vantage", JSON.stringify(vantagepro2Data.data));
+    BU.errorLog('vantage', JSON.stringify(vantagepro2Data.data));
 
     // 데이터를 추출한 후 평균 값 리스트 초기화
     this.controller.vantagepro2.model.init();
@@ -69,20 +84,20 @@ class Model extends AbstDeviceClientModel {
       smInfraredData.systemErrorList,
       vantagepro2Data.systemErrorList,
       inclinedSolarData.systemErrorList,
-      "code"
+      'code',
     );
     this.troubleList = _.unionBy(
       smInfraredData.troubleList,
       vantagepro2Data.troubleList,
       inclinedSolarData.troubleList,
-      "code"
+      'code',
     );
 
     // SM 적외선 데이터와 VantagePro2 객체 데이터를 합침
     this.deviceData = Object.assign(
       smInfraredData.data,
       vantagepro2Data.data,
-      inclinedSolarData.data
+      inclinedSolarData.data,
     );
 
     // BU.CLI(vantagepro2Data.data);
@@ -93,14 +108,14 @@ class Model extends AbstDeviceClientModel {
         .value()
         .every(_.isNil)
     ) {
-      BU.log("장치의 데이터 수집이 준비가 안되었습니다.");
+      BU.log('장치의 데이터 수집이 준비가 안되었습니다.');
       // BU.logFile('장치의 데이터 수집이 준비가 안되었습니다.');
       return false;
     }
 
     const returnValue = this.onDeviceOperationInfo(
       this.controller.getDeviceOperationInfo(),
-      this.deviceCategory
+      this.deviceCategory,
     );
 
     // BU.CLIN(returnValue, 3);
@@ -109,7 +124,7 @@ class Model extends AbstDeviceClientModel {
     const convertDataInfo = await this.refineTheDataToSaveDB(
       this.deviceCategory,
       measureDate,
-      true
+      true,
     );
     BU.CLI(convertDataInfo.insertDataList);
 

@@ -16,6 +16,7 @@ module.exports = {
       data_table_name: 'weather_device_data',
       trouble_table_name: null,
     },
+    inquiryIntervalSecond: 60,
   },
   smInfrared: {
     current: {

@@ -7,7 +7,7 @@ const BU = require('base-util-jh').baseUtil;
  * @return {{temp: number, wf: number}}
  */
 function convertWeatherCast(weatherCastInfo) {
-  const returnValue = {temp: 0, wf: 0};
+  const returnValue = { temp: 0, wf: 0 };
 
   if (_.isEmpty(weatherCastInfo)) {
     return returnValue;
@@ -57,7 +57,7 @@ exports.convertValueBySearchType = convertValueBySearchType;
 function calcStatisticsReport(rowDataPacketList, chartOption) {
   /** @type {chartDataOption} */
   const returnValue = {};
-  const {sortKey, maxKey, minKey, averKey} = chartOption;
+  const { sortKey, maxKey, minKey, averKey } = chartOption;
 
   const dataRow = _.head(rowDataPacketList);
 
@@ -391,7 +391,7 @@ function refineSelectedInverterStatus(viewInverterStatus) {
   const currInverterDataList = [];
   _.forEach(viewInverterStatus, info => {
     // BU.CLI(info)
-    const {hasValidData, data} = info;
+    const { hasValidData, data } = info;
     const addObj = {
       inverter_seq: data.inverter_seq,
       target_id: data.target_id,
@@ -457,7 +457,7 @@ exports.refineSelectedInverterStatus = refineSelectedInverterStatus;
  */
 function makeDynamicChartData(rowDataPacketList, chartOption) {
   // BU.CLI(chartOption);
-  const {selectKey, dateKey, groupKey, colorKey, sortKey, hasArea} = chartOption;
+  const { selectKey, dateKey, groupKey, colorKey, sortKey, hasArea } = chartOption;
 
   // 반환 데이터 유형
   const returnValue = {
@@ -531,7 +531,7 @@ exports.makeDynamicChartData = makeDynamicChartData;
  * @return {chartData}
  */
 function makeStaticChartData(rowDataPacketList, baseRange, chartOption) {
-  const {selectKey, dateKey, groupKey, colorKey, sortKey} = chartOption;
+  const { selectKey, dateKey, groupKey, colorKey, sortKey } = chartOption;
 
   // 반환 데이터 유형
   /** @type {chartData} */
@@ -612,7 +612,7 @@ function applyScaleChart(chartData, searchType) {
   // BU.CLI(searchType);
   chartData.series.forEach(chart => {
     if (chart.option) {
-      const {option} = chart;
+      const { option } = chart;
       if (option.max) {
         option.max = _.isNumber(option.max) ? convertValueBySearchType(option.max, searchType) : '';
       }
@@ -767,7 +767,7 @@ exports.mappingChartDataNameForModule = mappingChartDataNameForModule;
 function addKeyToReport(sourceList, referenceList, addKey, referenceKey) {
   // BU.CLIS(sourceList, referenceList);
   sourceList.forEach(currentItem => {
-    const findIt = _.find(referenceList, {[referenceKey]: currentItem[referenceKey]});
+    const findIt = _.find(referenceList, { [referenceKey]: currentItem[referenceKey] });
 
     currentItem[addKey] = _.isEmpty(findIt) ? '' : findIt[addKey];
   });

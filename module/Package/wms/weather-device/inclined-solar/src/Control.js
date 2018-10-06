@@ -1,9 +1,9 @@
-const { BU } = require("base-util-jh");
+const { BU } = require('base-util-jh');
 
-const AbstDeviceClient = require("../../../../../module/device-client-controller-jh");
-const Model = require("./Model");
+const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
+const Model = require('./Model');
 
-const mainConfig = require("./config");
+const mainConfig = require('./config');
 
 class Control extends AbstDeviceClient {
   /** @param {mainConfig} config */
@@ -36,13 +36,13 @@ class Control extends AbstDeviceClient {
       data: this.model.deviceData,
       // systemErrorList: [{code: 'new Code22223', msg: '에러 테스트 메시지22', occur_date: new Date() }],
       systemErrorList: this.systemErrorList,
-      troubleList: []
+      troubleList: [],
     };
   }
 
   // Cron 구동시킬 시간
   runDeviceInquiryScheduler() {
-    BU.CLI("runCronDiscoveryRegularDevice");
+    BU.CLI('runCronDiscoveryRegularDevice');
     try {
       if (this.setInterval !== null) {
         // BU.CLI('Stop')

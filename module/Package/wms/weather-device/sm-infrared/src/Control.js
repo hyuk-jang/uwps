@@ -1,4 +1,4 @@
-const {BU} = require('base-util-jh');
+const { BU } = require('base-util-jh');
 
 const Model = require('./Model');
 
@@ -15,7 +15,7 @@ class Control {
     // BU.CLI(this.config);
     this.model = new Model(this);
   }
-  
+
   /**
    * 개발 버젼일 경우 장치 연결 수립을 하지 않고 가상 데이터를 생성
    */

@@ -1,6 +1,6 @@
 const _ = require('lodash');
-const {BU} = require('base-util-jh');
-const bmjh = require('base-model-jh');
+const { BU } = require('base-util-jh');
+const { BM } = require('base-model-jh');
 
 const Weathercast = require('weather-cast');
 
@@ -21,7 +21,7 @@ module.exports = class {
    */
   async init() {
     BU.CLI(this.dbInfo);
-    const bi = new bmjh.BM(this.dbInfo);
+    const biModule = new BM(this.dbInfo);
     const sql = `
     select weather_location.* from (
       select * from MAIN
@@ -31,7 +31,7 @@ module.exports = class {
     left join weather_location
      on m.weather_location_seq = weather_location.weather_location_seq
   `;
-    const deviceList = await bi.db.single(sql);
+    const deviceList = await biModule.db.single(sql);
     // BU.CLI(deviceList);
 
     deviceList.forEach(currentItem => {

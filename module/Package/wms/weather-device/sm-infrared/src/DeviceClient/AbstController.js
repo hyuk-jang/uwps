@@ -1,9 +1,11 @@
 const Promise = require('bluebird');
 const _ = require('lodash');
 
-const {BU, CU} = require('base-util-jh');
+const { BU, CU } = require('base-util-jh');
 
-const {definedControlEvent} = require('../../../../../../module/default-intelligence').dccFlagModel;
+const {
+  definedControlEvent,
+} = require('../../../../../../module/default-intelligence').dccFlagModel;
 
 class AbstController {
   constructor() {

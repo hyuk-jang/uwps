@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'development';
 
 process.env.NODE_ENV === 'development' && require('dotenv').config();
 
-const {BU, DU, SU} = require('base-util-jh');
+const { BU, DU, SU } = require('base-util-jh');
 const _ = require('lodash');
 // const _ = require('underscore');
 

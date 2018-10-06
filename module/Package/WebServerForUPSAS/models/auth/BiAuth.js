@@ -1,7 +1,7 @@
 const _ = require('lodash');
 // const mome = require('mometo');
-const {BM} = require('base-model-jh');
-const {BU, EU} = require('base-util-jh');
+const { BM } = require('base-model-jh');
+const { BU, EU } = require('base-util-jh');
 
 class BiAuth extends BM {
   /** @param {dbInfo} dbInfo */

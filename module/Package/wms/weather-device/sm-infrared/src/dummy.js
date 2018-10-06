@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const {BU} = require('base-util-jh');
+const { BU } = require('base-util-jh');
 const Control = require('./Control');
 
 const strData = '0000000000000000000000000000000000000000000000030000000';
@@ -27,7 +27,7 @@ const generateData = controller => {
 
       const strData = `0000000000000000000000000000000000000000000000${rData}000000`;
       controller.onDcData({
-        commandSet: {cmdList: [{data: '', commandExecutionTimeoutMs: 1000}]},
+        commandSet: { cmdList: [{ data: '', commandExecutionTimeoutMs: 1000 }] },
         currCmdIndex: 0,
         data: strData,
       });

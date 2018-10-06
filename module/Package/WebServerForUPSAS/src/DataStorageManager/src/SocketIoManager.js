@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const {BU} = require('base-util-jh');
+const { BU } = require('base-util-jh');
 
 const uuidv4 = require('uuid/v4');
 const Server = require('socket.io');
@@ -58,7 +58,7 @@ class SocketIoManager {
         if (foundIt) {
           foundIt.msUserList.push(msUser);
 
-          const {simpleOrderList} = foundIt.msDataInfo;
+          const { simpleOrderList } = foundIt.msDataInfo;
 
           let connectedStatus = 'Disconnected';
           if (foundIt.msClient instanceof net.Socket) {
@@ -115,7 +115,7 @@ class SocketIoManager {
         // })
         return _(nodeInfo)
           .pick(pickList)
-          .assign({place_name_list: placeNameList})
+          .assign({ place_name_list: placeNameList })
           .value();
       })
       .sortBy('node_id')
@@ -178,7 +178,7 @@ class SocketIoManager {
    */
   findMainStorageBySocketClient(socket) {
     return _.find(this.mainStorageList, msInfo =>
-      _.find(msInfo.msUserList, {socketClient: socket}),
+      _.find(msInfo.msUserList, { socketClient: socket }),
     );
   }
 
@@ -241,17 +241,17 @@ class SocketIoManager {
     );
 
     msInfo.msDataInfo.nodeList.forEach(nodeInfo => {
-      const {nd_target_id, nd_target_name, nc_is_sensor, node_id, node_name} = nodeInfo;
+      const { nd_target_id, nd_target_name, nc_is_sensor, node_id, node_name } = nodeInfo;
       // 센서가 아닌 장비만 등록
       if (nc_is_sensor === 0) {
-        let foundIt = _.find(deviceInfoList, {type: nd_target_id});
+        let foundIt = _.find(deviceInfoList, { type: nd_target_id });
 
         if (_.isEmpty(foundIt)) {
           // const onOffList = ['pump'];
           foundIt = {
             type: nd_target_id,
             list: [],
-            template: compiledDeviceType({nd_target_id, nd_target_name}),
+            template: compiledDeviceType({ nd_target_id, nd_target_name }),
             controlType: [],
           };
           deviceInfoList.push(foundIt);
@@ -260,7 +260,7 @@ class SocketIoManager {
           '<option value="<%= node_id %>"><%= node_name %></option>',
         );
 
-        foundIt.list.push(compiledDeviceList({node_id, node_name}));
+        foundIt.list.push(compiledDeviceList({ node_id, node_name }));
       }
     });
 

@@ -3,7 +3,7 @@ const LocalStrategy = require('passport-local').Strategy;
 // const FacebookStrategy = require('passport-facebook').Strategy;
 const request = require('request');
 const crypto = require('crypto');
-const {BU} = require('base-util-jh');
+const { BU } = require('base-util-jh');
 
 module.exports = (app, aliceBobSecret) => {
   // var biAuth = require('../models/auth/auth');

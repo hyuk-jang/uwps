@@ -46,29 +46,27 @@ dummyList.forEach((currentItem, index) => {
 
 let index = 0;
 
-
 let onceRun = true;
 /**
- * @param {Control} controller 
+ * @param {Control} controller
  */
-const generateData = (controller) => {
-  if(onceRun){
+const generateData = controller => {
+  if (onceRun) {
     onceRun = false;
     BU.CLI('데이터 생성기 시작');
     setInterval(() => {
-      controller.onDcData({commandSet: {cmdList: [{data:'LOOP\n', commandExecutionTimeoutMs:1000}]}, currCmdIndex:0, data: dummyList[index]});
+      controller.onDcData({
+        commandSet: { cmdList: [{ data: 'LOOP\n', commandExecutionTimeoutMs: 1000 }] },
+        currCmdIndex: 0,
+        data: dummyList[index],
+      });
       index += 1;
       // index = index >= dummyList.length ? 0 : index;
     }, 2000);
   }
 };
 
-
-
-
-
-
 /**
- * @param {Control} controller 
+ * @param {Control} controller
  */
 module.exports = controller => generateData(controller);

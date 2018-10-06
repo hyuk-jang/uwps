@@ -2,7 +2,7 @@ const _ = require('lodash');
 const expressApp = require('express')();
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const {BU} = require('base-util-jh');
+const { BU } = require('base-util-jh');
 
 const BiAuth = require('../models/auth/BiAuth');
 
@@ -35,7 +35,7 @@ module.exports = (app, dbInfo) => {
             password,
           })
           .then(memberInfo => done(null, memberInfo))
-          .catch(err => done(null, false, {message: '아이디와 비밀번호를 확인해주세요.'}));
+          .catch(err => done(null, false, { message: '아이디와 비밀번호를 확인해주세요.' }));
       },
     ),
   );
@@ -55,9 +55,9 @@ module.exports = (app, dbInfo) => {
   passport.deserializeUser(async (user_id, done) => {
     try {
       /** @type {V_MEMBER} */
-      const result = await biAuth.getTable('V_MEMBER', {user_id});
+      const result = await biAuth.getTable('V_MEMBER', { user_id });
       if (_.isEmpty(result)) {
-        return done(null, false, {message: '아이디와 비밀번호를 확인해주세요.'});
+        return done(null, false, { message: '아이디와 비밀번호를 확인해주세요.' });
       }
 
       const pickedUserInfo = _.pick(_.head(result), [
@@ -75,7 +75,7 @@ module.exports = (app, dbInfo) => {
       // BU.CLI('complete deserializeUser');
       return done(null, pickedUserInfo); // 여기의 user가 req.user가 됨
     } catch (error) {
-      done(error, false, {message: '아이디와 비밀번호를 확인해주세요.'});
+      done(error, false, { message: '아이디와 비밀번호를 확인해주세요.' });
     }
   });
 

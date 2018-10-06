@@ -1,11 +1,11 @@
-const Promise = require("bluebird");
-const _ = require("lodash");
+const Promise = require('bluebird');
+const _ = require('lodash');
 
-const { BU, CU } = require("base-util-jh");
+const { BU, CU } = require('base-util-jh');
 
 const {
-  definedControlEvent
-} = require("../../../../../../module/default-intelligence").dccFlagModel;
+  definedControlEvent,
+} = require('../../../../../../module/default-intelligence').dccFlagModel;
 
 class AbstController {
   constructor() {
@@ -38,14 +38,14 @@ class AbstController {
     }
     timer.pause();
     try {
-      BU.CLI("doConnect()", this.configInfo);
+      BU.CLI('doConnect()', this.configInfo);
       // 장치 접속 관리 객체가 없다면 접속 수행
       if (_.isEmpty(this.client)) {
         await this.connect();
 
         // 장치 연결 요청이 완료됐으나 연결 객체가 없다면 예외 발생
         if (_.isEmpty(this.client)) {
-          throw new Error("Try Connect To Device Error");
+          throw new Error('Try Connect To Device Error');
         }
       }
       // 장치와 접속이 되었다고 알림
@@ -64,7 +64,7 @@ class AbstController {
   /** @return {Promise} 접속 성공시 Resolve, 실패시 Reject  */
   async connect() {
     this.requestConnectCount += 1;
-    BU.CLI("?", this.requestConnectCount);
+    BU.CLI('?', this.requestConnectCount);
   }
 
   // TODO 장치와의 연결 접속 해제 필요시 작성
@@ -92,7 +92,7 @@ class AbstController {
   }
 
   notifyEvent(eventName) {
-    BU.CLI("notifyEvent", eventName);
+    BU.CLI('notifyEvent', eventName);
     this.observers.forEach(observer => {
       observer.onEvent(eventName);
     });
@@ -132,7 +132,7 @@ class AbstController {
    * @param {Error} error
    */
   notifyError(error) {
-    BU.CLI("notifyError", error);
+    BU.CLI('notifyError', error);
     // 장치에서 이미 에러 내역을 발송한 상태라면 이벤트를 보내지 않음
     // this.notifyDisconnect();
   }
@@ -143,8 +143,8 @@ class AbstController {
   notifyData(data) {
     // BU.CLI("notifyData", data, data.length);
     BU.appendFile(
-      `./log/vantagePro2/${BU.convertDateToText(new Date(), "", 2)}.txt`,
-      `${data.toString("hex")}`
+      `./log/vantagePro2/${BU.convertDateToText(new Date(), '', 2)}.txt`,
+      `${data.toString('hex')}`,
     );
     this.observers.forEach(observer => {
       observer.onData(data);

@@ -21,7 +21,7 @@
     hasExchangeKey: false, // exchangeKey
     hasMapDownload: false, // map download
     webServerUrl: 'http://115.23.49.28:7505',
-    controllerInfo: {web_port: process.env.WEB_UPSAS_PORT},
+    controllerInfo: { web_port: process.env.WEB_UPSAS_PORT },
     mapInfo: {},
   },
 };

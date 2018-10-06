@@ -4,10 +4,8 @@ const BU = require('base-util-jh').baseUtil;
 const config = require('../src/config.js');
 const Control = require('../src/Control');
 
-
 global._ = _;
 global.BU = BU;
-
 
 describe('Config Setter Test', () => {
   it('parsing Test', done => {
@@ -20,9 +18,5 @@ describe('Config Setter Test', () => {
     expect(true).to.be.ok;
 
     done();
-
-
-
   });
-
 });

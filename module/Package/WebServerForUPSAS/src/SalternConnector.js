@@ -4,9 +4,9 @@ const split = require('split');
 const eventToPromise = require('event-to-promise');
 
 const SocketIO = require('socket.io')();
-const {BU} = require('base-util-jh');
+const { BU } = require('base-util-jh');
 
-const {BaseModel} = require('../../../module/device-protocol-converter-jh');
+const { BaseModel } = require('../../../module/device-protocol-converter-jh');
 
 /** @type {Array.<{id: constructorSocket, instance: Socket}>} */
 const instanceList = [];
@@ -20,14 +20,16 @@ class SalternConnector {
     this.host = connectInfo.host || 'localhost';
     this.hasTryConnect = connectInfo.hasTryConnect;
 
-    const foundInstance = _.find(instanceList, instanceInfo => _.isEqual(instanceInfo.id, this.configInfo));
+    const foundInstance = _.find(instanceList, instanceInfo =>
+      _.isEqual(instanceInfo.id, this.configInfo),
+    );
 
     if (_.isEmpty(foundInstance)) {
       this.baseConverter = BaseModel.default;
       this.stringfySalternDevice = '';
       this.stringfyCommandStorage = '';
 
-      instanceList.push({id: this.configInfo, instance: this});
+      instanceList.push({ id: this.configInfo, instance: this });
 
       // 장치와 연결을 수행할지 여부
       if (this.hasTryConnect) {
@@ -45,12 +47,11 @@ class SalternConnector {
    */
   write(msg) {
     // BU.CLI(msg);
-    let res = this.client.write(msg);
-    if(res){
+    const res = this.client.write(msg);
+    if (res) {
       return Promise.resolve();
-    } 
-      return Promise.reject(res);
-    
+    }
+    return Promise.reject(res);
   }
 
   /** 장치 접속 시도 */
@@ -84,9 +85,7 @@ class SalternConnector {
 
       // BU.CLI(parseSalternData);
 
-      this.stringfySalternDevice = JSON.stringify(
-        parseSalternData.deviceStorage,
-      );
+      this.stringfySalternDevice = JSON.stringify(parseSalternData.deviceStorage);
       this.stringfyCurrentCommandSet = JSON.stringify(
         parseSalternData.commandStorage.currentCommandSet,
       );
@@ -119,11 +118,7 @@ class SalternConnector {
     });
 
     client.on('error', error => {});
-    await eventToPromise.multi(
-      client,
-      ['connect', 'connection', 'open'],
-      ['close, error'],
-    );
+    await eventToPromise.multi(client, ['connect', 'connection', 'open'], ['close, error']);
     BU.log('connected Saltern Socket', this.port);
     this.client = client;
     return this.client;
@@ -137,9 +132,7 @@ class SalternConnector {
     this.io = require('socket.io')(pramHttp);
     this.io.on('connection', socket => {
       socket.on('excuteSalternControl', msg => {
-        const encodingMsg = this.baseConverter.encodingDefaultRequestMsgForTransfer(
-          msg,
-        );
+        const encodingMsg = this.baseConverter.encodingDefaultRequestMsgForTransfer(msg);
 
         !_.isEmpty(this.client) &&
           this.write(encodingMsg).catch(err => {

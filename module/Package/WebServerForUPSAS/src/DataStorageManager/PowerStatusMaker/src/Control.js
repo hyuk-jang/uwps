@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const cron = require('node-cron');
-const {BU} = require('base-util-jh');
+const { BU } = require('base-util-jh');
 
 const config = require('./config');
 

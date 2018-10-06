@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const {BU} = require('base-util-jh');
+const { BU } = require('base-util-jh');
 const moment = require('moment');
 const Promise = require('bluebird');
 const BiModule = require('../models/BiModule');
@@ -390,7 +390,7 @@ class PowerModel extends BiModule {
     const excelContents = excelUtil.makeExcelWorkBook(fileName, workSheetInfoList);
 
     // return false;
-    return {workBook: excelContents, fileName};
+    return { workBook: excelContents, fileName };
   }
 
   /**
@@ -442,7 +442,7 @@ class PowerModel extends BiModule {
 
     // BU.CLI(searchRange);
     // BU.CLI(inverterPowerChartData);
-    const {weatherTrend, weatherChartOptionList} = await this.getWeatherChart(
+    const { weatherTrend, weatherChartOptionList } = await this.getWeatherChart(
       searchRange,
       betweenDatePoint,
       userInfo.main_seq,
@@ -497,7 +497,7 @@ class PowerModel extends BiModule {
    * @return {chartData} chartData
    */
   async getConnectorChart(searchOption, searchRange, betweenDatePoint) {
-    let chartData = {range: [], series: []};
+    let chartData = { range: [], series: [] };
 
     // 장비 종류가 인버터, 장비 선택이 전체라면 즉시 종료
     if (searchOption.device_type === 'inverter' && searchOption.device_list_type === 'all') {
@@ -547,7 +547,7 @@ class PowerModel extends BiModule {
 
     /* Scale 적용 */
     chartData.series.forEach(currentItem => {
-      const foundIt = _.find(tempSacle.moduleScale, {photovoltaic_seq: Number(currentItem.name)});
+      const foundIt = _.find(tempSacle.moduleScale, { photovoltaic_seq: Number(currentItem.name) });
       currentItem.scale = foundIt.scale;
       currentItem.data.forEach((data, index) => {
         currentItem.data[index] = data === '' ? '' : Number((data * foundIt.scale).scale(1, 1));

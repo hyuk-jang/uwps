@@ -1,8 +1,8 @@
 const _ = require('lodash');
-const {BU} = require('base-util-jh');
-const {BM} = require('base-model-jh');
+const { BU } = require('base-util-jh');
+const { BM } = require('base-model-jh');
 
-const {BaseModel} = require('../../../../../module/device-protocol-converter-jh');
+const { BaseModel } = require('../../../../../module/device-protocol-converter-jh');
 
 const SocketServer = require('../SocketServer');
 const PowerStatusMaker = require('../PowerStatusMaker');
@@ -57,7 +57,7 @@ class Control {
 
     // DB에서 main 정보를 가져옴
     /** @type {MAIN[]} */
-    let mainList = await this.BM.getTable('main', {is_deleted: 0});
+    let mainList = await this.BM.getTable('main', { is_deleted: 0 });
 
     /** @type {dataLoggerInfo[]} */
     const dataLoggerList = await this.BM.getTable('v_dv_data_logger');

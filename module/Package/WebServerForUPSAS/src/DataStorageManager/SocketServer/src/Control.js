@@ -1,14 +1,14 @@
 const EventEmitter = require('events');
 const _ = require('lodash');
 const split = require('split');
-const {BU} = require('base-util-jh');
-const {BM} = require('base-model-jh');
+const { BU } = require('base-util-jh');
+const { BM } = require('base-model-jh');
 
 const net = require('net');
 // const AbstDeviceClient = require('device-client-controller-jh');
-const {BaseModel} = require('../../../../../../module/device-protocol-converter-jh');
+const { BaseModel } = require('../../../../../../module/device-protocol-converter-jh');
 
-const {dcmWsModel} = require('../../../../../../module/default-intelligence');
+const { dcmWsModel } = require('../../../../../../module/default-intelligence');
 
 const socketServerConfig = require('./config');
 
@@ -57,7 +57,7 @@ class SocketServer extends EventEmitter {
 
     // DB에서 main 정보를 가져옴
     /** @type {MAIN[]} */
-    let mainList = await this.BM.getTable('main', {is_deleted: 0});
+    let mainList = await this.BM.getTable('main', { is_deleted: 0 });
 
     /** @type {dataLoggerInfo[]} */
     const dataLoggerList = await this.BM.getTable('v_dv_data_logger');

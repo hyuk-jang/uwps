@@ -103,7 +103,7 @@ class BiModule extends BM {
           AVG(reh) AS avg_reh,
           AVG(ws) AS avg_ws,
           AVG(solar) AS avg_solar,
-          AVG(solar) AS avg_inclined_solar,
+          AVG(inclined_solar) AS avg_inclined_solar,
           ROUND(AVG(solar) / 6, 1) AS interval_solar,
           COUNT(*) AS first_count
       FROM weather_device_data wdd
@@ -568,8 +568,8 @@ class BiModule extends BM {
           AVG(reh) AS avg_reh,
           AVG(solar) AS avg_solar,
           AVG(solar) / ${dateFormat.devideTimeNumber} AS interval_solar,
-          AVG(inclined_solar) AS avg_inclined_solar,
-          AVG(inclined_solar) / ${dateFormat.devideTimeNumber} AS interval_inclined_solar,
+          AVG(inclined_solar) * 1.17 AS avg_inclined_solar,
+          AVG(inclined_solar)  * 1.17 / ${dateFormat.devideTimeNumber} AS interval_inclined_solar,
           AVG(wd) AS avg_wd,	
           AVG(ws) AS avg_ws,	
           AVG(uv) AS avg_uv,

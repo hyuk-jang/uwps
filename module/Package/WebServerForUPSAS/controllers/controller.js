@@ -99,7 +99,7 @@ module.exports = app => {
 
       // BU.CLI(deviceInfoList);
 
-      req.locals.excuteControlList = map.controlList;
+      req.locals.excuteControlList = map.controlInfo.tempControlList;
       // req.locals.cancelControlList = map.controlList;
 
       const compiled = _.template(`<option value="<%= controlName %>">
@@ -107,7 +107,7 @@ module.exports = app => {
       </option>`);
 
       const excuteControlList = [];
-      map.controlList.forEach(currentItem => {
+      map.controlInfo.tempControlList.forEach(currentItem => {
         excuteControlList.push(
           compiled({
             controlName: currentItem.cmdName,

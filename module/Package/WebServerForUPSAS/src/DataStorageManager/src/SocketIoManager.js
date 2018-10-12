@@ -81,6 +81,7 @@ class SocketIoManager {
       });
 
       socket.on('executeCommand', msg => {
+        // BU.CLI(msg)
         /** @type {defaultFormatToRequest} */
         const defaultFormatToRequestInfo = msg;
 

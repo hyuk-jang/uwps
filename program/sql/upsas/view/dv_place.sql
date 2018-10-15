@@ -1,5 +1,6 @@
 SELECT 
           p.place_seq, p.place_def_seq, pc.place_class_seq,
+			 m.main_seq, m.uuid, m.name AS m_name,
           CASE
           WHEN LENGTH(p.target_code) > 0
             THEN CONCAT(pd.target_prefix, "_", p.target_code)
@@ -8,13 +9,22 @@ SELECT
           END AS place_id,
           CASE
           WHEN LENGTH(p.target_code) > 0
+            THEN CONCAT(pd.target_prefix, "_", m.main_seq, "_",  p.target_code)
+          ELSE 
+            CONCAT(pd.target_prefix, "_", m.main_seq)
+          END AS place_real_id,          
+          CASE
+          WHEN LENGTH(p.target_code) > 0
             THEN CONCAT(pd.target_name, " ", p.target_code)
           ELSE 
             CONCAT(pd.target_name)
-          END AS place_name,          
+          END AS place_name,
+          p.target_code AS p_target_code,
+          p.target_name AS p_target_name,
           p.depth,
           p.place_info,
-          p.target_code AS p_target_code,
+          p.chart_color,
+          p.chart_sort_rank,
           pd.target_prefix AS pd_target_prefix,          
           pd.target_id AS pd_target_id,
           pd.target_name AS pd_target_name,
@@ -24,3 +34,5 @@ SELECT
   ON pd.place_def_seq = p.place_def_seq
  JOIN dv_place_class pc
   ON pc.place_class_seq = pd.place_class_seq
+ JOIN main m
+  ON m.main_seq = p.main_seq

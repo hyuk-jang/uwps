@@ -1,5 +1,5 @@
 SELECT 
-	STRAIGHT_JOIN m.*, nsd.avg_num_data
+	STRAIGHT_JOIN m.*, nsd.module_temp
  FROM
 	(
 		(
@@ -20,7 +20,7 @@ SELECT
 						ELSE id_report.interval_wh
 					END AS interval_wh,
 					wdd.avg_temp, wdd.total_interval_solar, wdd.total_inclined_solar,
-					kd.avg_sky,
+					kd.avg_sky, kd.avg_ws,
 					twl.water_level
 		FROM
 			(
@@ -50,7 +50,7 @@ SELECT
 								MAX(c_wh) AS max_c_wh,
 								MIN(c_wh) AS min_c_wh
 				FROM inverter_data id
-				WHERE writedate>= "2018-08-01 00:00:00" and writedate<"2018-09-20 00:00:00"
+				WHERE writedate>= "2018-08-14 00:00:00" and writedate<"2018-10-12 00:00:00"
 				GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), inverter_seq
 				ORDER BY inverter_seq, writedate
 				) AS id_group
@@ -70,7 +70,7 @@ SELECT
 						ROUND(AVG(avg_temp), 1) AS avg_temp,
 						ROUND(AVG(avg_reh), 1) AS avg_reh,
 						ROUND(AVG(avg_solar), 0) AS avg_solar,
-						ROUND(SUM(inclined_solar), 1) AS total_inclined_solar,
+						ROUND(SUM(inclined_solar) * 1.17, 1) AS total_inclined_solar,
 						ROUND(SUM(interval_solar), 1) AS total_interval_solar,
 						ROUND(AVG(avg_wd), 0) AS avg_wd,
 						ROUND(AVG(avg_ws), 1) AS avg_ws,
@@ -90,7 +90,7 @@ SELECT
 							AVG(uv) AS avg_uv,
 							COUNT(*) AS first_count
 				FROM weather_device_data
-				WHERE writedate>= "2018-08-01 00:00:00" and writedate<"2018-09-20 00:00:00"
+				WHERE writedate>= "2018-08-14 00:00:00" and writedate<"2018-10-12 00:00:00"
 				AND DATE_FORMAT(writedate, '%H') > '05' AND DATE_FORMAT(writedate, '%H') < '21'
 				GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H")
 				) AS result_wdd
@@ -101,7 +101,8 @@ SELECT
 			(
 			SELECT
 						DATE_FORMAT(kd.applydate,"%Y-%m-%d %H") AS group_date,
-						ROUND(AVG(kd.scale_sky), 1) AS avg_sky
+						ROUND(AVG(kd.scale_sky), 1) AS avg_sky,
+						ROUND(AVG(kd.ws), 1) AS avg_ws
 			FROM
 				(
 				SELECT
@@ -114,7 +115,7 @@ SELECT
 								END AS scale_sky
 				FROM kma_data
 				) kd
-			WHERE applydate>= "2018-08-01 00:00:00" and applydate<"2018-09-20 00:00:00"
+			WHERE applydate>= "2018-08-14 00:00:00" and applydate<"2018-10-12 00:00:00"
 			AND DATE_FORMAT(applydate, '%H') > '05' AND DATE_FORMAT(applydate, '%H') < '21'
 			GROUP BY DATE_FORMAT(applydate,"%Y-%m-%d %H")
 			) AS kd
@@ -125,7 +126,7 @@ SELECT
 		LEFT JOIN
 		(
 		SELECT 
-					sd.group_date, sd.avg_num_data, dpr.place_seq
+					sd.group_date, sd.avg_num_data AS module_temp, dpr.place_seq
 		FROM `v_dv_place_relation` AS dpr
 		RIGHT OUTER JOIN `relation_power` AS sub_rp
 		 ON sub_rp.place_seq = dpr.place_seq AND dpr.nd_target_id = 'moduleRearTemperature'
@@ -136,7 +137,7 @@ SELECT
 							DATE_FORMAT(writedate,"%Y-%m-%d %H") AS group_date,
 							ROUND(AVG(num_data), 1) AS avg_num_data
 			FROM `v_dv_sensor_data` AS dsd
-			WHERE writedate>="2018-08-01 00:00:00" AND writedate<"2018-09-20 00:00:00"
+			WHERE writedate>="2018-08-14 00:00:00" AND writedate<"2018-10-12 00:00:00"
 			 AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '20'
 			GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), node_seq
 			ORDER BY node_seq, writedate

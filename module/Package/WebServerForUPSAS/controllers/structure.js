@@ -42,11 +42,31 @@ module.exports = app => {
   // Get
   router.get(
     '/',
-    asyncHandler(async (req, res) =>
-      // BU.CLI('structure', req.locals);
+    asyncHandler(async (req, res) => {
+      /** @type {V_MEMBER} */
+      const userInfo = req.locals.user;
+      BU.CLIN(userInfo);
 
-      res.render('./structure/diagram.html', req.locals),
-    ),
+      /** @type {MAIN[]} */
+      const mainRows = await biModule.getTable('main', { main_seq: userInfo.main_seq });
+
+      if (_.isEmpty(mainRows)) {
+        return res.render('./structure/diagram.html', req.locals);
+      }
+      const mapFile = _.head(mainRows).map;
+
+      if (!_.isString(mapFile)) {
+        return res.render('./structure/diagram.html', req.locals);
+      }
+
+      if (!BU.IsJsonString(mapFile)) {
+        return res.render('./structure/diagram.html', req.locals);
+      }
+
+      const map = JSON.parse(mapFile);
+      req.locals.map = map;
+      return res.render('./structure/newDiagram.html', req.locals);
+    }),
   );
 
   router.use(

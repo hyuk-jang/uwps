@@ -65,6 +65,7 @@ module.exports = (app, dbInfo) => {
         'weather_location_seq',
         'user_id',
         'name',
+        'map',
         'nick_name',
         'grade',
         'address',

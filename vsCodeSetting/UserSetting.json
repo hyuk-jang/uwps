@@ -1,11 +1,12 @@
 {
   "window.zoomLevel": 1,
   "editor.tabSize": 2,
-  "workbench.activityBar.visible": true,
+  "workbench.activityBar.visible": false,
   "workbench.sideBar.location": "right",
   "workbench.iconTheme": "vscode-icons",
   "editor.minimap.enabled": false,
-  "terminal.integrated.shell.windows": "C:\\Program Files\\Git\\bin\\bash.exe",
+  "terminal.integrated.shell.windows": "D:\\Program Files\\Git\\bin\\bash.exe",
+  "editor.suggestSelection": "recentlyUsedByPrefix",
   "gitlens.advanced.messages": {
     "suppressShowKeyBindingsNotice": true
   },
@@ -18,7 +19,7 @@
     "**/.svn": true,
     "**/.hg": true,
     "**/CVS": true,
-    "**/node_modules": false,
+    "**/node_modules": true,
     "**/.DS_Store": true
   },
   "beautify.language": {
@@ -27,9 +28,9 @@
       "filename": []
     },
     "css": [],
-    "html": ["htm", "html", "ejs"]
-  },
-  "extensions.ignoreRecommendations": true,
-  "editor.suggestSelection": "recentlyUsedByPrefix",
-  "workbench.colorTheme": "One Dark Pro"
+    "html": [
+      "htm",
+      "html"
+    ]
+  }
 }

@@ -113,7 +113,7 @@ module.exports = app => {
           ? dailyInclinedSolar
           : dailyHorizontalSolar;
         // 모듈 발전 효율 검증.
-        BU.CLI(foundViewPowerProfileInfo);
+        // BU.CLI(foundViewPowerProfileInfo);
         let modulePowerEfficiency = _.round(
           (inverterStatusInfo.daily_power_wh /
             (dailySolarWh * 0.975 * 1.65 * foundViewPowerProfileInfo.pv_compose_count)) *

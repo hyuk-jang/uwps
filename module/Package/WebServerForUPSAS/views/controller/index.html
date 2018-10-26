@@ -3,289 +3,291 @@
 
 <head>
   <%- include("../master/head.html") %>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
-    <script src="js/lodash-4.17.10.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+  <script src="js/lodash-4.17.10.min.js"></script>
 </head>
 
 <body>
   <!--네비-->
   <%- include("../master/header.html") %>
-    <!--메인-->
-    <div class="jumbotron text-center jumbotron_line">
-      <div class="row row_st_line min_h_780">
-        <div>
-          <p>장치 연결 상태:
-            <span id="device_connected_stauts"></span>
-          </p>
+  <!--메인-->
+  <div class="jumbotron text-center jumbotron_line">
+    <div class="row row_st_line min_h_780">
+      <div>
+        <p>장치 연결 상태:
+          <span id="device_connected_stauts"></span>
+        </p>
+      </div>
+      <div class="row row_width  top_box">
+        <div class="col-xs-3 sel_box" id="scenario_control_div" style="width: 200px">
+          <a class="btn btn-success btn-lg" id="scenario_control_run_btn" data-value="CONTROL" role="button">시연모드 1 실행</a>
+          <a class="btn btn-danger btn-lg" id="scenario_control_cancel_btn" data-value="CANCEL" role="button">시연모드 1 정지</a>
         </div>
-        <div class="row row_width  top_box">
-          <div class="col-xs-3 sel_box" id="scenario_control_div" style="width: 200px">
-            <a class="btn btn-success btn-lg" id="scenario_control_run_btn" data-value="CONTROL" role="button">시연모드 1 실행</a>
-            <a class="btn btn-danger btn-lg" id="scenario_control_cancel_btn" data-value="CANCEL" role="button">시연모드 1 정지</a>
-          </div>
 
-          <div class="col-xs-3 sel_box" style="width: 250px">
-            명령 제어 목록
-            <select class="form-control form-control_st" id="automatic_control_list" name="" style="width: 230px">
-            </select>
-          </div>
-
-          <div class="sel_box_data" id="automatic_control_div">
-            <button type="button" class="btn btn-primary" data-value="CONTROL" style="margin-bottom:3px; height:40px;" id="search">제어 요청</button>
-            <button type="button" class="btn btn-danger" data-value="CANCEL" style="margin-left: 10px; margin-bottom:3px; height:40px;"
-              id="search">취소 요청</button>
-          </div>
+        <div class="col-xs-3 sel_box" style="width: 250px">
+          명령 제어 목록
+          <select class="form-control form-control_st" id="automatic_control_list" name="" style="width: 230px">
+          </select>
         </div>
-        <div class="row row_width  top_box">
-          <div class="col-xs-3 sel_box" style="width: 200px">
-            장치 카테고리
-            <select class="form-control form-control_st" id="single_control_cate_list" name="" style="width: 180px">
-            </select>
-          </div>
-          <div class="col-xs-3 sel_box" style="width: 200px">
-            장치 목록
-            <select class="form-control form-control_st" id="single_control_device_list" name="" style="width: 180px">
 
-            </select>
-          </div>
-          <div class="col-xs-3 sel_box" style="width: 150px">
-            제어 형식
-            <select class="form-control form-control_st" id="single_control_type" name="" style="width: 130px">
-              <option value="1">
-                Open
-              </option>
-              <option value="0">
-                Close
-              </option>
-            </select>
-          </div>
-          <div class="col-xs-3 sel_box" style="width: 150px">
-            우선 순위
-            <select class="form-control form-control_st" id="single_control_rank" name="" style="width: 130px">
-              <option value="0">긴급</option>
-              <option value="1">First</option>
-              <option value="2" selected>Second</option>
-              <option value="3">Third</option>
-            </select>
-          </div>
-          <div class=" sel_box_data">
-            <button type="button" id="single_control_btn" class="btn btn-primary" style="margin-bottom:3px; height:40px;" id="search">장치 제어 실행</button>
-          </div>
-        </div>
-        <div id="contents" style="padding: 30px">
-          <div style="float: left; width: 55%">
-            <div class="panel panel-default">
-              <!-- Default panel contents -->
-              <div class="panel-heading"> 명령 목록 </div>
-              <div class="panel-body"> 갱신 시간:
-                <span id="CMD_order_date"></span>
-              </div>
-              <!-- Table -->
-              <table id="CMD_order_list" class="table">
-                <thead>
-                  <tr>
-                    <th data-field="orderCommandType">명령 종류</th>
-                    <th data-field="orderStatus">명령 상태</th>
-                    <th data-field="commandId">요청 ID</th>
-                    <th data-field="commandName">명령 이름</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-          <div style="float: right; width:40%">
-            <div class="panel panel-default">
-              <!-- Default panel contents -->
-              <div class="panel-heading"> 장치 상태 정보 목록</div>
-              <div class="panel-body"> 갱신 시간:
-                <span id="CMD_node_date"></span>
-              </div>
-              <!-- Table -->
-              <table id="MS_node_list" class="table">
-                <thead>
-                  <tr>
-                    <th data-field="nd_target_name">장치 명</th>
-                    <th data-field="node_id">장치 ID</th>
-                    <th data-field="place_name_list">관련 장소</th>
-                    <th data-field="data">데이터</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-
-          </div>
+        <div class="sel_box_data" id="automatic_control_div">
+          <button type="button" class="btn btn-primary" data-value="CONTROL" style="margin-bottom:3px; height:40px;" id="search">제어
+            요청</button>
+          <button type="button" class="btn btn-danger" data-value="CANCEL" style="margin-left: 10px; margin-bottom:3px; height:40px;"
+            id="search">취소 요청</button>
         </div>
       </div>
+      <div class="row row_width  top_box">
+        <div class="col-xs-3 sel_box" style="width: 200px">
+          장치 카테고리
+          <select class="form-control form-control_st" id="single_control_cate_list" name="" style="width: 180px">
+          </select>
+        </div>
+        <div class="col-xs-3 sel_box" style="width: 200px">
+          장치 목록
+          <select class="form-control form-control_st" id="single_control_device_list" name="" style="width: 180px">
 
+          </select>
+        </div>
+        <div class="col-xs-3 sel_box" style="width: 150px">
+          제어 형식
+          <select class="form-control form-control_st" id="single_control_type" name="" style="width: 130px">
+            <option value="1">
+              Open
+            </option>
+            <option value="0">
+              Close
+            </option>
+          </select>
+        </div>
+        <div class="col-xs-3 sel_box" style="width: 150px">
+          우선 순위
+          <select class="form-control form-control_st" id="single_control_rank" name="" style="width: 130px">
+            <option value="0">긴급</option>
+            <option value="1">First</option>
+            <option value="2" selected>Second</option>
+            <option value="3">Third</option>
+          </select>
+        </div>
+        <div class=" sel_box_data">
+          <button type="button" id="single_control_btn" class="btn btn-primary" style="margin-bottom:3px; height:40px;"
+            id="search">장치 제어 실행</button>
+        </div>
+      </div>
+      <div id="contents" style="padding: 30px">
+        <div style="float: left; width: 55%">
+          <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading"> 명령 목록 </div>
+            <div class="panel-body"> 갱신 시간:
+              <span id="CMD_order_date"></span>
+            </div>
+            <!-- Table -->
+            <table id="CMD_order_list" class="table">
+              <thead>
+                <tr>
+                  <th data-field="orderCommandType">명령 종류</th>
+                  <th data-field="orderStatus">명령 상태</th>
+                  <th data-field="commandId">요청 ID</th>
+                  <th data-field="commandName">명령 이름</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <div style="float: right; width:40%">
+          <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading"> 장치 상태 정보 목록</div>
+            <div class="panel-body"> 갱신 시간:
+              <span id="CMD_node_date"></span>
+            </div>
+            <!-- Table -->
+            <table id="MS_node_list" class="table">
+              <thead>
+                <tr>
+                  <th data-field="nd_target_name">장치 명</th>
+                  <th data-field="node_id">장치 ID</th>
+                  <th data-field="place_name_list">관련 장소</th>
+                  <th data-field="data">데이터</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
     </div>
 
-    </div>
+  </div>
+
+  </div>
 
 
-    <script>
-      $("#single_control_cate_list").on("change", function (event) {
-        return setDeviceInfoList();
+  <script>
+    $("#single_control_cate_list").on("change", function (event) {
+      return setDeviceInfoList();
+    })
+
+    // 장치 카테고리 설정
+    function setDomDeviceType() {
+      var deviceTypeList = _.map(deviceInfoList, "template")
+      var single_control_device_list = document.getElementById("single_control_cate_list");
+      single_control_device_list.innerHTML = deviceTypeList;
+    }
+
+    function setDeviceInfoList() {
+      var deviceGroup;
+      var category = $("#single_control_cate_list").val();
+
+      var domInfo = _.find(deviceInfoList, {
+        type: category
       })
+      var single_control_device_list = document.getElementById("single_control_device_list");
+      single_control_device_list.innerHTML = domInfo.list;
+    }
 
-      // 장치 카테고리 설정
-      function setDomDeviceType() {
-        var deviceTypeList = _.map(deviceInfoList, "template")
-        var single_control_device_list = document.getElementById("single_control_cate_list");
-        single_control_device_list.innerHTML = deviceTypeList;
-      }
+    var deviceInfoList;
+    $(document).ready(function () {
+      var automaticDom = <%- JSON.stringify(automaticControlList) %>
+      $('#automatic_control_list').html(automaticDom);
 
-      function setDeviceInfoList() {
-        var deviceGroup;
-        var category = $("#single_control_cate_list").val();
+      deviceInfoList = <%- JSON.stringify(deviceInfoList) %>;
 
-        var domInfo = _.find(deviceInfoList, {
-          type: category
-        })
-        var single_control_device_list = document.getElementById("single_control_device_list");
-        single_control_device_list.innerHTML = domInfo.list;
-      }
+      setDomDeviceType();
+      setDeviceInfoList()
+    })
 
-      var deviceInfoList;
-      $(document).ready(function () {
-        var automaticDom = <%- JSON.stringify(automaticControlList) %>
-        $('#automatic_control_list').html(automaticDom);
-
-        deviceInfoList = <%- JSON.stringify(deviceInfoList) %>;
-
-        setDomDeviceType();
-        setDeviceInfoList()
-      })
-
-      // $("#single_control_device_list").trigger('click');
-    </script>
+    // $("#single_control_device_list").trigger('click');
+  </script>
 
 
-    <script src="/socket.io/socket.io.js" defer></script>
-    <script defer>
-      // 초기 페이지에 접속하면 자동으로 데이터를 갱신하기 위함
-      var $CMD_order_table = $('#CMD_order_list');
-      var $MS_node_table = $('#MS_node_list');
+  <script src="/socket.io/socket.io.js" defer></script>
+  <script defer>
+    // 초기 페이지에 접속하면 자동으로 데이터를 갱신하기 위함
+    var $CMD_order_table = $('#CMD_order_list');
+    var $MS_node_table = $('#MS_node_list');
 
-      $(function () {
-        var socket = io();
-
-
-        // 접속한 사용자의 정보를 보내줌.
-        socket.emit("certifySocket", {
-          sessionID: "<%- sessionID %>",
-          sessionUserInfo: <%- JSON.stringify(user) %>
-        });
-
-        // 장치 연결 상태 반영
-        var dataLoggerConnectedStatus = document.getElementById("device_connected_stauts");
-        socket.on("updateMsClientStatus", function (string) {
-          dataLoggerConnectedStatus.innerText = string;
-        });
-
-        // 노드 관련 갱신 반영
-        socket.on("updateNodeInfo", function (nodeList) {
-          $MS_node_table.bootstrapTable('destroy').bootstrapTable({
-            data: nodeList
-          });
-          document.getElementById("CMD_node_date").innerText = new Date().toLocaleString();
-        });
-
-        // 명령 관련 갱신 반영
-        socket.on("updateOrderInfo", function (orderList) {
-          $CMD_order_table.bootstrapTable('destroy').bootstrapTable({
-            data: orderList
-          });
-          document.getElementById("CMD_order_date").innerText = new Date().toLocaleString();
-        });
+    $(function () {
+      var socket = io();
 
 
-        // TODO: socket.emit 함수 생성 및 장치 연결 중일 때만 emit하도록 해주는 함수 구현
-
-
-        // 저장된 명령을 실행하고자 할 경우 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
-        $("#automatic_control_div > button").on("click", function () {
-          var automaticId = $("#automatic_control_list option:selected").val();
-          // var controlType = $("#automatic_control_type option:selected").val();
-          var controlType = $(this).data("value");
-          // console.log(controlType);
-
-          var requestMsg = {
-            commandId: "AUTOMATIC",
-            contents: {
-              /**
-               * 명령 제어 타입 (requestOrderCommandType) 
-               * @example
-               * CONTROL: 장치 제어 요청
-               * CANCEL: 명령 제어 취소 요청
-               * MEASURE: 명령 계측 요청
-               */
-              requestCommandType: controlType,
-              savedCommandId: automaticId,
-            }
-          }
-          socket.emit("executeCommand", requestMsg);
-        })
-
-        // 장치 단일 제어 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
-        $("#single_control_btn").on("click", function () {
-          var deviceId = $("#single_control_device_list option:selected").val();
-          var controlType = $("#single_control_type option:selected").val();
-          var controlRank = $("#single_control_rank option:selected").val();
-          var requestMsg = {
-            commandId: "SINGLE",
-            contents: {
-              /**
-               * 명령 제어 타입 (requestOrderCommandType) 
-               * @example
-               * CONTROL: 장치 제어 요청
-               * CANCEL: 명령 제어 취소 요청
-               * MEASURE: 명령 계측 요청
-               */
-              requestCommandType: "CONTROL", // 단일 동작 제어는 모두 명령 요청으로 처리
-              nodeId: deviceId,
-              /**
-               * 장치 제어 타입 (requestDeviceControlType)
-               * @example
-               * 0: 장치 Close, Off
-               * 1: 장치 Open, On
-               * 2: 장치 Measure
-               * 3: 장치 값 설정
-               */
-              controlValue: controlType,
-              rank: Number(controlRank),
-            }
-          }
-          socket.emit("executeCommand", requestMsg);
-        })
-
-        // 시나리오 요청 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
-        $("#scenario_control_div > a").on("click", function () {
-          var controlType = $(this).data("value");
-          var requestMsg = {
-            commandId: "SCENARIO",
-            contents: {
-              /**
-               * 명령 제어 타입 (requestOrderCommandType) 
-               * @example
-               * CONTROL: 장치 제어 요청
-               * CANCEL: 명령 제어 취소 요청
-               * MEASURE: 명령 계측 요청
-               */
-              requestCommandType: controlType,
-              scenarioId: "scenario1",
-              rank: 1,
-            }
-          }
-          socket.emit("executeCommand", requestMsg);
-        })
+      // 접속한 사용자의 정보를 보내줌.
+      socket.emit("certifySocket", {
+        sessionID: "<%- sessionID %>",
+        sessionUserInfo: <%- JSON.stringify(user) %>
       });
-    </script>
+
+      // 장치 연결 상태 반영
+      var dataLoggerConnectedStatus = document.getElementById("device_connected_stauts");
+      socket.on("updateMsClientStatus", function (string) {
+        dataLoggerConnectedStatus.innerText = string;
+      });
+
+      // 노드 관련 갱신 반영
+      socket.on("updateNodeInfo", function (nodeList) {
+        $MS_node_table.bootstrapTable('destroy').bootstrapTable({
+          data: nodeList
+        });
+        document.getElementById("CMD_node_date").innerText = new Date().toLocaleString();
+      });
+
+      // 명령 관련 갱신 반영
+      socket.on("updateOrderInfo", function (orderList) {
+        $CMD_order_table.bootstrapTable('destroy').bootstrapTable({
+          data: orderList
+        });
+        document.getElementById("CMD_order_date").innerText = new Date().toLocaleString();
+      });
 
 
-    <%- include("../master/footer.html") %>
+      // TODO: socket.emit 함수 생성 및 장치 연결 중일 때만 emit하도록 해주는 함수 구현
+
+
+      // 저장된 명령을 실행하고자 할 경우 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
+      $("#automatic_control_div > button").on("click", function () {
+        var automaticId = $("#automatic_control_list option:selected").val();
+        // var controlType = $("#automatic_control_type option:selected").val();
+        var controlType = $(this).data("value");
+        // console.log(controlType);
+
+        var requestMsg = {
+          commandId: "AUTOMATIC",
+          contents: {
+            /**
+             * 명령 제어 타입 (requestOrderCommandType) 
+             * @example
+             * CONTROL: 장치 제어 요청
+             * CANCEL: 명령 제어 취소 요청
+             * MEASURE: 명령 계측 요청
+             */
+            requestCommandType: controlType,
+            savedCommandId: automaticId,
+          }
+        }
+        socket.emit("executeCommand", requestMsg);
+      })
+
+      // 장치 단일 제어 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
+      $("#single_control_btn").on("click", function () {
+        var deviceId = $("#single_control_device_list option:selected").val();
+        var controlType = $("#single_control_type option:selected").val();
+        var controlRank = $("#single_control_rank option:selected").val();
+        var requestMsg = {
+          commandId: "SINGLE",
+          contents: {
+            /**
+             * 명령 제어 타입 (requestOrderCommandType) 
+             * @example
+             * CONTROL: 장치 제어 요청
+             * CANCEL: 명령 제어 취소 요청
+             * MEASURE: 명령 계측 요청
+             */
+            requestCommandType: "CONTROL", // 단일 동작 제어는 모두 명령 요청으로 처리
+            nodeId: deviceId,
+            /**
+             * 장치 제어 타입 (requestDeviceControlType)
+             * @example
+             * 0: 장치 Close, Off
+             * 1: 장치 Open, On
+             * 2: 장치 Measure
+             * 3: 장치 값 설정
+             */
+            controlValue: controlType,
+            rank: Number(controlRank),
+          }
+        }
+        socket.emit("executeCommand", requestMsg);
+      })
+
+      // 시나리오 요청 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
+      $("#scenario_control_div > a").on("click", function () {
+        var controlType = $(this).data("value");
+        var requestMsg = {
+          commandId: "SCENARIO",
+          contents: {
+            /**
+             * 명령 제어 타입 (requestOrderCommandType) 
+             * @example
+             * CONTROL: 장치 제어 요청
+             * CANCEL: 명령 제어 취소 요청
+             * MEASURE: 명령 계측 요청
+             */
+            requestCommandType: controlType,
+            scenarioId: "scenario1",
+            rank: 1,
+          }
+        }
+        socket.emit("executeCommand", requestMsg);
+      })
+    });
+  </script>
+
+
+  <%- include("../master/footer.html") %>
 </body>
 
 </html>

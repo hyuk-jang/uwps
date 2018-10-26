@@ -64,8 +64,10 @@ module.exports = app => {
       }
 
       const map = JSON.parse(mapFile);
+      req.locals.sessionID = req.sessionID;
       req.locals.map = map;
-      return res.render('./structure/newDiagram.html', req.locals);
+      return res.render('./structure/diagram.html', req.locals);
+      // return res.render('./structure/newDiagram.html', req.locals);
     }),
   );
 

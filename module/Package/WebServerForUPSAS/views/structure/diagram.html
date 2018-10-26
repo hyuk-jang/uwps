@@ -20,6 +20,29 @@
     <%- include("../master/footer.html") %>
 
 
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script defer>
+        $(function () {
+            var socket = io();
+            // 접속한 사용자의 정보를 보내줌.
+            socket.emit("certifySocket", {
+                sessionID: "<%- sessionID %>",
+                sessionUserInfo: <%- JSON.stringify(user) %>
+            });
+
+            // 노드 관련 갱신 반영
+            socket.on("updateNodeInfo", function (nodeList) {
+                console.log(nodeList)
+                // $MS_node_table.bootstrapTable('destroy').bootstrapTable({
+                //     data: nodeList
+                // });
+                // document.getElementById("CMD_node_date").innerText = new Date().toLocaleString();
+            });
+
+        })
+    </script>
+
+
 
 </body>
 

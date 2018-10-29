@@ -6,7 +6,7 @@ const { BU, DU } = require('base-util-jh');
 const BiModule = require('../models/BiModule.js');
 const webUtil = require('../models/web.util');
 
-const map = require('../public/Map/map');
+// const map = require('../public/Map/map');
 
 module.exports = app => {
   const initSetter = app.get('initSetter');
@@ -56,6 +56,15 @@ module.exports = app => {
       const nodeList = await biModule.getTable('v_dv_node', {
         main_seq: _.get(userInfo, 'main_seq', null),
       });
+
+      // TODO:
+      // map 정보 가져오기
+      /** @type {MAIN[]} */
+      const mainRows = await biModule.getTable('main', { main_seq: userInfo.main_seq });
+      const mapFile = _.head(mainRows).map;
+      const map = JSON.parse(mapFile);
+      req.locals.sessionID = req.sessionID;
+      req.locals.map = map;
 
       // BU.CLI(nodeList);
 

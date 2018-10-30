@@ -11,6 +11,7 @@ function svgCanvas(documentId) {
   // canvas 생성
   const { width: canvasWidth, height: canvasHeight } = realMap.drawInfo.frame.mapSize;
   const canvas = SVG(documentId).size(canvasWidth, canvasHeight);
+  canvas.attr({ id: 'canvasId' });
 
   // Place 그리기
   realMap.drawInfo.positionInfo.svgPlaceList.forEach(svgPlaceInfo => {

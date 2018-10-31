@@ -234,8 +234,9 @@ function dataInstallEvent() {
 
   realMap.drawInfo.positionInfo.svgNodeList.forEach(svgNodeInfo => {
     svgNodeInfo.defList.forEach(defInfo => {
-      const getSvgElement = SVG.get(defInfo.id);
-      getSvgElement.click(e => {
+      const getSvgElement = $(`#${defInfo.id}`);
+      // const getSvgElement = SVG.get(defInfo.id);
+      getSvgElement.on('click touchstart', e => {
         const inputValue = prompt(`${defInfo.name}의 값을 입력하세요`);
 
         const resourceInfo = _.find(realMap.drawInfo.frame.svgModelResourceList, {

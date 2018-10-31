@@ -50,16 +50,14 @@
                     Zoom-out</button>
                 <button id="reset" class="btn btn-default btn-sm" style="margin-right: 5px"><span class="glyphicon glyphicon-refresh"></span>
                     Reset</button>
-                <button id="reset" class="btn btn-default btn-sm" style="margin-right: 5px"><span class="glyphicon glyphicon-refresh"></span>
-                    Reset</button>
-                <input id="toggle-event" type="checkbox" data-toggle="toggle">
             </div>
             <!-- canvas -->
-            <div>
+            <div id="svgArea">
                 <div id="canvas"></div>
             </div>
         </div>
     </div>
+
 
     <script>
         var map = <%- JSON.stringify(map) %>
@@ -75,24 +73,27 @@
         var $panzoom = $('#canvas').panzoom({
             // $zoomIn: $('#zoom-in'),
             // $zoomOut: $('#zoom-out'),
-            // $reset: $('#reset'),
+            $reset: $('#reset'),
             cursor: "context-menu",
             startTransform: 'matrix(0.6, 0, 0, 0.6, -256, -245)',
-            disablePan: true,
-            disableZoom: true
         })
 
-        //toggle 이벤트
-        $('#toggle-event').change(function () {
-            if ($(this).prop('checked')) {
-                $panzoom.on('panzoomzoom', function (e, panzoom) {
-                    alert('on')
-                })
-            } else {
-                alert('off')
-            }
+        // zoom 기능 기준점 재정의
+        $('#zoom-in').click(function (e) {
+            e.clientX = 300
+            e.clientY = 200
+            $panzoom.panzoom('zoom', {
+                focal: e
+            })
         })
 
+        $('#zoom-out').click(function (e) {
+            e.clientX = 300
+            e.clientY = 200
+            $panzoom.panzoom('zoom', 'zoomOut', {
+                focal: e
+            })
+        })
 
         dataInstallEvent();
         // drawExistCanvasValue(id, value)

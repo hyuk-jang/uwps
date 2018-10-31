@@ -9,40 +9,6 @@
   <script type="text/javascript" src="js/svg.js"></script>
   <script type="text/javascript" src="js/svg.filter.js"></script>
   <script type="text/javascript" src="js/contents/svgMap/drawSvg.js"></script>
-  <script type="text/javascript" src="js/jquery.panzoom.js"></script>
-  <style>
-    button {
-          cursor: pointer;
-          margin: 5px;
-      }
-
-      #zoom {
-          /* position: absolute;
-          z-index: 2; */
-          margin: 5px;
-          display: flex;
-          justify-content: center;
-          /* flex-direction: column; */
-      }
-
-      #canvas {
-          display: flex;
-          justify-content: center;
-          margin: 5px;
-          cursor: non
-      }
-
-      .data {
-          fill: rgb(2, 236, 33);
-          font-size: 8pt;
-          stroke: rgb(2, 236, 33);
-          stroke-width: 0.2
-      }
-
-      .node {
-          cursor: pointer;
-      }
-  </style>
 </head>
 
 <body>
@@ -113,7 +79,7 @@
         </div>
       </div>
       <div id="contents" style="padding: 30px">
-        <div style="float: left; width: 100%">
+        <div style="float: left; width: 55%">
           <div class="panel panel-default">
             <!-- Default panel contents -->
             <div class="panel-heading"> 명령 목록 </div>
@@ -134,24 +100,31 @@
             </table>
           </div>
         </div>
-        <div style="float: right; width:100%;">
-
-          <!-- zoom button -->
-          <div id="zoom">
-            <button id="zoom-in" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-zoom-in"></span>
-              Zoom-in</button>
-            <button id="zoom-out" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-zoom-out"></span>
-              Zoom-out</button>
-            <button id="reset" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-refresh"></span> Reset</button>
+        <div style="float: right; width:40%;">
+          <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading"> 장치 상태 정보 목록</div>
+            <div class="panel-body"> 갱신 시간:
+              <span id="CMD_node_date"></span>
+            </div>
+            <!-- Table -->
+            <table id="MS_node_list" class="table">
+              <thead>
+                <tr>
+                  <th data-field="nd_target_name">장치 명</th>
+                  <th data-field="node_id">장치 ID</th>
+                  <th data-field="place_name_list">관련 장소</th>
+                  <th data-field="data">데이터</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
 
-          <!-- canvas -->
-          <div>
-            <div id="canvas"></div>
-          </div>
         </div>
       </div>
 
+      <div id="canvas"></div>
     </div>
 
   </div>
@@ -317,58 +290,6 @@
       })
     });
   </script>
-
-  <script>
-    // TODO:
-
-    // map 그리기
-    var map = <%- JSON.stringify(map) %>
-    svgCanvas('canvas')
-
-    // size 재설정
-    var svgMap = SVG.get('canvasId')
-    var canvas = document.getElementById('canvas')
-    canvas.style.width = svgMap.node.width.baseVal.value + 'px'
-    canvas.style.height = svgMap.node.height.baseVal.value + 'px'
-
-    // panzoom 기능
-    var $panzoom = $('#canvas').panzoom({
-      $zoomIn: $('#zoom-in'),
-      $zoomOut: $('#zoom-out'),
-      $reset: $('#reset'),
-      cursor: "context-menu",
-      startTransform: 'matrix(0.591716, 0, 0, 0.591716, -256, -245)',
-      disablePan: false
-    })
-
-    // $('#canvasId').on('touchstart', function (e) {
-    //   e.stopImmediatePropagation()
-    // });
-
-    // $panzoom.on('panzoomend', function (e, panzoom, matrix, changed) {
-    //   if (changed) {
-    //     // deal with drags or touch moves
-    //     panzoom.options.disablePan = false;
-    //   } else {
-    //     // deal with clicks or taps
-    //     panzoom.options.disablePan = true;
-    //   }
-    // });
-
-    // $panzoom.on('panzoomzoom', function (e, panzoom, scale, opts) {
-    //   e.stopImmediatePropagation();
-    //   panzoom.options.disablePan = false;
-    //   if (scale === 1) {
-    //     panzoom.options.disablePan = true;
-    //     panzoom.reset();
-    //   }
-    // });
-
-
-    dataInstallEvent();
-    // drawExistCanvasValue(id, value)
-  </script>
-
 
   <%- include("../master/footer.html") %>
 </body>

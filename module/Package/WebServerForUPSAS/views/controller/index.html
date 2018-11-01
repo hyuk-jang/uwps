@@ -8,6 +8,7 @@
   <script src="js/lodash.js"></script>
   <script type="text/javascript" src="js/svg.js"></script>
   <script type="text/javascript" src="js/svg.filter.js"></script>
+  <script type="text/javascript" src="js/jquery.panzoom.js"></script>
   <script type="text/javascript" src="js/contents/svgMap/drawSvg.js"></script>
 </head>
 
@@ -16,16 +17,26 @@
   <%- include("../master/header.html") %>
   <!--메인-->
   <div class="jumbotron text-center jumbotron_line">
+    <div class="row row_st_line" style="padding: 20px 0 0">
+      <div class="table-responsive row_width" style="text-align: left">
+        <button type="button" name="selectMode" data-value="tableMode" class="btn btn-default">표</button>
+        <button type="button" name="selectMode" data-value="structureMode" class="btn btn-default">구성도</button>
+      </div>
+    </div>
     <div class="row row_st_line min_h_780">
+      <!-- 장치 연결 상태 -->
       <div>
         <p>장치 연결 상태:
           <span id="device_connected_stauts"></span>
         </p>
       </div>
+      <!-- 명령 제어 -->
       <div class="row row_width  top_box">
         <div class="col-xs-3 sel_box" id="scenario_control_div" style="width: 200px">
-          <a class="btn btn-success btn-lg" id="scenario_control_run_btn" data-value="CONTROL" role="button">시연모드 1 실행</a>
-          <a class="btn btn-danger btn-lg" id="scenario_control_cancel_btn" data-value="CANCEL" role="button">시연모드 1 정지</a>
+          <a class="btn btn-success btn-lg" id="scenario_control_run_btn" data-value="CONTROL" role="button">시연모드 1
+            실행</a>
+          <a class="btn btn-danger btn-lg" id="scenario_control_cancel_btn" data-value="CANCEL" role="button">시연모드 1
+            정지</a>
         </div>
 
         <div class="col-xs-3 sel_box" style="width: 250px">
@@ -41,6 +52,7 @@
             id="search">취소 요청</button>
         </div>
       </div>
+      <!-- 장치 제어 -->
       <div class="row row_width  top_box">
         <div class="col-xs-3 sel_box" style="width: 200px">
           장치 카테고리
@@ -78,58 +90,140 @@
             id="search">장치 제어 실행</button>
         </div>
       </div>
-      <div id="contents" style="padding: 30px">
-        <div style="float: left; width: 55%">
-          <div class="panel panel-default">
-            <!-- Default panel contents -->
-            <div class="panel-heading"> 명령 목록 </div>
-            <div class="panel-body"> 갱신 시간:
-              <span id="CMD_order_date"></span>
+      <!-- tableContent -->
+      <div id="tableMode">
+        <div style="display: flex; justify-content: center">
+          <div id="contents" class="row row_st_line min_h_780" style="padding: 30px">
+            <div class=" panel panel-default">
+              <!-- Default panel contents -->
+              <div class="panel-heading"> 명령 목록 </div>
+              <div class="panel-body"> 갱신 시간:
+                <span id="CMD_order_date"></span>
+              </div>
+              <!-- Table -->
+              <table id="CMD_order_list" class="table">
+                <thead>
+                  <tr>
+                    <th data-field="orderCommandType">명령 종류</th>
+                    <th data-field="orderStatus">명령 상태</th>
+                    <th data-field="commandId">요청 ID</th>
+                    <th data-field="commandName">명령 이름</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
             </div>
-            <!-- Table -->
-            <table id="CMD_order_list" class="table">
-              <thead>
-                <tr>
-                  <th data-field="orderCommandType">명령 종류</th>
-                  <th data-field="orderStatus">명령 상태</th>
-                  <th data-field="commandId">요청 ID</th>
-                  <th data-field="commandName">명령 이름</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+          </div>
+          <div id="contents" class="row row_st_line min_h_780" style="padding: 30px">
+            <div class="panel panel-default">
+              <!-- Default panel contents -->
+              <div class="panel-heading"> 장치 상태 정보 목록</div>
+              <div class="panel-body"> 갱신 시간:
+                <span id="CMD_node_date"></span>
+              </div>
+              <!-- Table -->
+              <table id="MS_node_list" class="table">
+                <thead>
+                  <tr>
+                    <th data-field="nd_target_name">장치 명</th>
+                    <th data-field="node_id">장치 ID</th>
+                    <th data-field="place_name_list">관련 장소</th>
+                    <th data-field="data">데이터</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
           </div>
         </div>
-        <div style="float: right; width:40%;">
-          <div class="panel panel-default">
-            <!-- Default panel contents -->
-            <div class="panel-heading"> 장치 상태 정보 목록</div>
-            <div class="panel-body"> 갱신 시간:
-              <span id="CMD_node_date"></span>
-            </div>
-            <!-- Table -->
-            <table id="MS_node_list" class="table">
-              <thead>
-                <tr>
-                  <th data-field="nd_target_name">장치 명</th>
-                  <th data-field="node_id">장치 ID</th>
-                  <th data-field="place_name_list">관련 장소</th>
-                  <th data-field="data">데이터</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+      </div>
+      <!-- structureContent -->
+      <div id="structureMode">
+        <div style="display: flex; justify-content: center; flex-direction: column">
+          <div id="zoom">
+            <button id="zoom-in" class="btn btn-default btn-sm" style="margin-right: 5px"><span class="glyphicon glyphicon-zoom-in"></span>
+              Zoom-in</button>
+            <button id="zoom-out" class="btn btn-default btn-sm" style="margin-right: 5px"><span class="glyphicon glyphicon-zoom-out"></span>
+              Zoom-out</button>
+            <button id="reset" class="btn btn-default btn-sm" style="margin-right: 5px"><span class="glyphicon glyphicon-refresh"></span>
+              Reset</button>
           </div>
-
+          <!-- canvas -->
+          <div>
+            <div id="canvas" style="margin: 5px"></div>
+          </div>
         </div>
       </div>
 
-      <div id="canvas"></div>
     </div>
 
+
   </div>
 
   </div>
+
+  <script>
+    // tabsheet
+    var $selectDomList = $("button[name=selectMode]");
+    $("button[name=selectMode]").on("click", function (event) {
+      var selectValue = $(this).data("value");
+      $selectDomList.each(function (index, ele) {
+        var $ele = $(ele);
+        var eleValue = $ele.data("value");
+        if (eleValue === selectValue) {
+          $ele.removeClass("btn-default")
+          $ele.addClass("btn-success")
+          $("#" + eleValue).removeAttr("hidden")
+        } else {
+          $ele.removeClass("btn-success")
+          $ele.addClass("btn-default")
+          $("#" + eleValue).attr("hidden", "hidden")
+        }
+      })
+    })
+    $("button[data-value=structureMode]").trigger("click"); // FIXME:
+  </script>
+
+  <script>
+    // drawing map
+    var map = <%- JSON.stringify(map) %>
+    svgCanvas('canvas')
+
+    // size 재설정
+    var svgMap = SVG.get('canvasId')
+    var canvas = document.getElementById('canvas')
+    canvas.style.width = svgMap.node.width.baseVal.value + 'px'
+    canvas.style.height = svgMap.node.height.baseVal.value + 'px'
+
+    // panzoom 기능
+    var $panzoom = $('#canvas').panzoom({
+      // $zoomIn: $('#zoom-in'),
+      // $zoomOut: $('#zoom-out'),
+      $reset: $('#reset'),
+      cursor: "context-menu",
+      startTransform: 'matrix(0.6, 0, 0, 0.6, -256, -245)',
+    })
+
+    // zoom 기능 기준점 재정의
+    $('#zoom-in').click(function (e) {
+      e.clientX = 300
+      e.clientY = 200
+      $panzoom.panzoom('zoom', {
+        // focal: e
+      })
+    })
+
+    $('#zoom-out').click(function (e) {
+      e.clientX = 300
+      e.clientY = 200
+      $panzoom.panzoom('zoom', 'zoomOut', {
+        focal: e
+      })
+    })
+    // dataInstallEvent()
+    // drawExistCanvasValue(id, value)
+  </script>
 
 
   <script>
@@ -178,12 +272,13 @@
 
     $(function () {
       var socket = io();
+      dataInstallEvent(socket)
 
 
       // 접속한 사용자의 정보를 보내줌.
       socket.emit("certifySocket", {
         sessionID: "<%- sessionID %>",
-        sessionUserInfo: <%- JSON.stringify(user) %>
+        sessionUserInfo: <%- JSON.stringify(user) %>,
       });
 
       // 장치 연결 상태 반영
@@ -194,6 +289,9 @@
 
       // 노드 관련 갱신 반영
       socket.on("updateNodeInfo", function (nodeList) {
+        _.forEach(nodeList, nodeInfo => {
+          drawExistCanvasValue(nodeInfo.node_id, nodeInfo.data) // FIXME:
+        })
         $MS_node_table.bootstrapTable('destroy').bootstrapTable({
           data: nodeList
         });
@@ -290,6 +388,7 @@
       })
     });
   </script>
+
 
   <%- include("../master/footer.html") %>
 </body>

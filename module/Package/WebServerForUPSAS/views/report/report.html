@@ -5,15 +5,15 @@
   <%- include("../master/head.html") %>
   <%- include("../master/excel.html") %>
   <link href='/css/fullcalendar/fullcalendar.min.css' rel='stylesheet' />
-    <link href='/css/fullcalendar/fullcalendar.print.min.css' rel='stylesheet' media='print' />
-    <script src='/js/moment.min.js'></script>
-    
-    <script src='/js/fullcalendar/fullcalendar.min.js'></script>
-    <script src='/js/fullcalendar/locale-all.js'></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <style>
-      #calendar div.fc-view-container > div > table  {
+  <link href='/css/fullcalendar/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+  <script src='/js/moment.min.js'></script>
+
+  <script src='/js/fullcalendar/fullcalendar.min.js'></script>
+  <script src='/js/fullcalendar/locale-all.js'></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <style>
+    #calendar div.fc-view-container > div > table  {
         background-color: aliceblue
       }
 
@@ -37,26 +37,27 @@
 
   <!--네비-->
   <%- include("../master/header.html") %>
-    <!--메인-->
-    <div class="jumbotron text-center jumbotron_line">
-      <div class="row row_st_line" style="padding: 20px 0 0">
-        <div class="table-responsive row_width" style="text-align: left">
-          <button type="button" name="selectMode" data-value="calendarMode" class="btn btn-default">달력</button>
-          <button type="button" name="selectMode" data-value="reportMode" class="btn btn-default">보고서</button>
-        </div>
-      </div>  
-      <div id="calendarMode" class="row row_st_line min_h_780">
-        <div class="table-responsive row_width">
-          <div id="calendar"></div>
-          <p class="re_p" style="margin-top: 10px">※ 각 데이터는 05:00 ~ 21:00 까지 측정된 데이터가 기준이며 <span> 일사량 (10분간의 평균치를 량으로 환산) </span> 을 제외한 데이터는 당일 데이터의 <span> 평균치 </span> 입니다. </p>
-        </div>
-      </div>  
-      <div id="reportMode" class="row row_st_line min_h_780">  
-        <div class="row row_width top_box" style="margin-bottom:20px;">
-          <div class="col-xs-2 pad sel_box" style="margin-left: 0px">
-              인버터
-              <select class="form-control form-control_st" id="device_list_sel" name="device_seq">
-                  <%
+  <!--메인-->
+  <div class="jumbotron text-center jumbotron_line">
+    <div class="row row_st_line" style="padding: 20px 0 0">
+      <div class="table-responsive row_width" style="text-align: left">
+        <button type="button" name="selectMode" data-value="calendarMode" class="btn btn-default">달력</button>
+        <button type="button" name="selectMode" data-value="reportMode" class="btn btn-default">보고서</button>
+      </div>
+    </div>
+    <div id="calendarMode" class="row row_st_line min_h_780">
+      <div class="table-responsive row_width">
+        <div id="calendar"></div>
+        <p class="re_p" style="margin-top: 10px">※ 각 데이터는 05:00 ~ 21:00 까지 측정된 데이터가 기준이며 <span> 일사량 (10분간의 평균치를 량으로 환산)
+          </span> 을 제외한 데이터는 당일 데이터의 <span> 평균치 </span> 입니다. </p>
+      </div>
+    </div>
+    <div id="reportMode" class="row row_st_line min_h_780">
+      <div class="row row_width top_box" style="margin-bottom:20px;">
+        <div class="col-xs-2 pad sel_box" style="margin-left: 0px">
+          인버터
+          <select class="form-control form-control_st" id="device_list_sel" name="device_seq">
+            <%
                     for(var i = 0 ; i < device_list.length ; i++){
                       var deviceInfo = device_list[i];
                       var device_seq = deviceInfo.seq;
@@ -67,352 +68,351 @@
                         selected = 'selected';
                       }
                     %>
-                    <option data-type="<%= device_type %>"  value="<%= device_seq %>" <%=selected %> >
-                        <%= device_name %>
-                    </option>
-                    <%
+            <option data-type="<%= device_type %>" value="<%= device_seq %>" <%=selected %> >
+              <%= device_name %>
+            </option>
+            <%
                       }
                     %>
-                </select>
+          </select>
+        </div>
+        <div class="col-xs-7 pad" style="width:560px;">
+
+          <div class="input_st" style="display:inline-block; width:210px; padding-left:28px; padding-right:15px; margin-left:20px;">
+            <span style="float:left; line-height:2; margin-right:10px; ">조회간격</span>
+            <select class="form-control" id="search_interval_sel" style="width:80px; margin-top:-2px; height:30px; padding: 4px 8px;">
+              <option value="min">1분</option>
+              <option value="min10">10분</option>
+              <option value="hour">1시간</option>
+              <option value="day">1일</option>
+              <option value="month">1달</option>
+              <option value="year">1년</option>
+            </select>
           </div>
-          <div class="col-xs-7 pad" style="width:560px;">
-
-            <div class="input_st" style="display:inline-block; width:210px; padding-left:28px; padding-right:15px; margin-left:20px;">
-              <span style="float:left; line-height:2; margin-right:10px; ">조회간격</span>
-              <select class="form-control" id="search_interval_sel" style="width:80px; margin-top:-2px; height:30px; padding: 4px 8px;">
-                <option value="min">1분</option>
-                <option value="min10">10분</option>
-                <option value="hour">1시간</option>
-                <option value="day">1일</option>
-                <option value="month">1달</option>
-                <option value="year">1년</option>
-              </select>
-            </div>
 
 
-            <div id="sel_type_div_area" class="input_st">
-              <label class="radio-inline">
-                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="hour">일일</label>
-              <label class="radio-inline">
-                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="day">월간</label>
-              <label class="radio-inline">
-                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="month">년간</label>
-              <label class="radio-inline">
-                <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="range">기간선택</label>
-            </div>
+          <div id="sel_type_div_area" class="input_st">
+            <label class="radio-inline">
+              <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="hour">일일</label>
+            <label class="radio-inline">
+              <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="day">월간</label>
+            <label class="radio-inline">
+              <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="month">년간</label>
+            <label class="radio-inline">
+              <input type="radio" onclick="setterSelectType(this)" class="" name="searchType" value="range">기간선택</label>
           </div>
-          <div class="pad serch_st sel_box_data" style="margin-top:17px;" >
-             
-            <span>날짜</span>
-            
-            <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
-            <%
+        </div>
+        <div class="pad serch_st sel_box_data" style="margin-top:17px;">
+
+          <span>날짜</span>
+
+          <input class="input_tre" name="start" id="start_date_input" type="text" readonly>
+          <%
               var hiddenValue = '';
               if(searchRange.searchType !== 'range'){
                 hiddenValue = 'hidden';
               }
             %>
-            <span id="between-start-end" <%= hiddenValue %>>~</span>
-           <input class="input_tre" name="end"  id="end_date_input" type="text" readonly <%= hiddenValue %>>
-            <button type="button" class="btn btn-primary" onclick="searchReport()" style="" id="search">검색</button>
-            
-          </div>
+          <span id="between-start-end" <%=hiddenValue %>>~</span>
+          <input class="input_tre" name="end" id="end_date_input" type="text" readonly <%=hiddenValue %>>
+          <button type="button" class="btn btn-primary" onclick="searchReport()" style="" id="search">검색</button>
+
         </div>
-        <!-- <div style="position: absolute; text-align: right; margin-right: 50px" >
+      </div>
+      <!-- <div style="position: absolute; text-align: right; margin-right: 50px" >
           <button type="button" class="btn btn-warning"  id="download_excel">Download Excel</button>
         </div> -->
-        <div style="text-align: right; margin-right: 31px">
-          <button type="button" class="btn btn-warning"  id="download_excel">Download Excel</button>
-        </div>
-        <div class="row_width search_area">
-          <b>검색결과 (총 <%- paginationInfo.totalCount %> 건)</b>
-          </div>
-        <div class="table-responsive row_width">
+      <div style="text-align: right; margin-right: 31px">
+        <button type="button" class="btn btn-warning" id="download_excel">Download Excel</button>
+      </div>
+      <div class="row_width search_area">
+        <b>검색결과 (총
+          <%- paginationInfo.totalCount %> 건)</b>
+      </div>
+      <div class="table-responsive row_width">
 
-          <table class="tbl_va_middle table table-hover" style="border-bottom:1px solid #ddd;">
-            <colgroup>
-              <col style="width:6%">
-              <col style="width:10%">
-              <col style="width:7%">
-              <col style="width:7%">
-              <col style="width:7%">
-              <col style="width:7%">
-              <col style="width:7%">
-              <col style="width:7%">
-              <col style="width:10%">
-              <col style="width:10%">
-              <col style="width:7%">
-              <!-- <col style="width:7%">
+        <table class="tbl_va_middle table table-hover" style="border-bottom:1px solid #ddd;">
+          <colgroup>
+            <col style="width:6%">
+            <col style="width:10%">
+            <col style="width:7%">
+            <col style="width:7%">
+            <col style="width:7%">
+            <col style="width:7%">
+            <col style="width:7%">
+            <col style="width:7%">
+            <col style="width:10%">
+            <col style="width:10%">
+            <col style="width:7%">
+            <!-- <col style="width:7%">
               <col style="width:7%"> -->
-            </colgroup>
-            <thead>
-              <tr class="report_table">
-                <th rowspan="2">번호</th>
-                <th rowspan="2">일시</th>
-                <th colspan="3">AC</th>
-                <th colspan="6">DC</th>
-                <!-- <th colspan="2">온도</th> -->
-              </tr>
+          </colgroup>
+          <thead>
+            <tr class="report_table">
+              <th rowspan="2">번호</th>
+              <th rowspan="2">일시</th>
+              <th colspan="3">AC</th>
+              <th colspan="6">DC</th>
+              <!-- <th colspan="2">온도</th> -->
+            </tr>
 
 
-              <tr class="report_table">
-                <th>전압(V)</th>
-                <th>전류(A)</th>
-                <th>전력(W)</th>
-                <th>전압(V)</th>
-                <th>전류(A)</th>
-                <th>전력(W)</th>
-                <th>기간발전량(kWh)</th>
-                <th>누적발전량(MWh)</th>
-                <th>역률(%)</th>
-                <!-- <th>모듈(℃)</th>
+            <tr class="report_table">
+              <th>전압(V)</th>
+              <th>전류(A)</th>
+              <th>전력(W)</th>
+              <th>전압(V)</th>
+              <th>전류(A)</th>
+              <th>전력(W)</th>
+              <th>기간발전량(kWh)</th>
+              <th>누적발전량(MWh)</th>
+              <th>역률(%)</th>
+              <!-- <th>모듈(℃)</th>
                 <th>외기(℃)</th> -->
-              </tr>
+            </tr>
 
 
 
-            </thead>
-            <tbody>
-              <%  
+          </thead>
+          <tbody>
+            <%  
                 var startListNum = (paginationInfo.page - 1) * paginationInfo.pageListCount;
                 for(var index = 0; index < reportList.length; index++){
                   
                   var reportInfo = reportList[index];
                   var count = index + 1;
               %>
-                <tr class="sel">
-                  <td class="td1 td1_num">
-                    <%= startListNum + count %>
-                  </td>
-                  <td>
-                    <%= reportInfo.group_date %>
-                  </td>
-                  <td>
-                    <%= reportInfo.avg_in_v %>
-                  </td>
-                  <td>
-                    <%= reportInfo.avg_in_a %>
-                  </td>
-                  <td>
-                    <%= reportInfo.avg_in_w %>
-                  </td>
-                  <td>
-                    <%= reportInfo.avg_out_v %>
-                  </td>
-                  <td>
-                    <%= reportInfo.avg_out_a %>
-                  </td>
-                  <td>
-                    <%= reportInfo.avg_out_w %>
-                  </td>
-                  <td>
-                    <%= reportInfo.total_s_kwh %>
-                  </td>
-                  <td>
-                    <%= reportInfo.total_c_mwh %>
-                  </td>
-                  <td>
-                    <%= reportInfo.avg_p_f %>
-                  </td>
-                  <!-- <td>11</td>
+            <tr class="sel">
+              <td class="td1 td1_num">
+                <%= startListNum + count %>
+              </td>
+              <td>
+                <%= reportInfo.group_date %>
+              </td>
+              <td>
+                <%= reportInfo.avg_in_v %>
+              </td>
+              <td>
+                <%= reportInfo.avg_in_a %>
+              </td>
+              <td>
+                <%= reportInfo.avg_in_w %>
+              </td>
+              <td>
+                <%= reportInfo.avg_out_v %>
+              </td>
+              <td>
+                <%= reportInfo.avg_out_a %>
+              </td>
+              <td>
+                <%= reportInfo.avg_out_w %>
+              </td>
+              <td>
+                <%= reportInfo.total_s_kwh %>
+              </td>
+              <td>
+                <%= reportInfo.total_c_mwh %>
+              </td>
+              <td>
+                <%= reportInfo.avg_p_f %>
+              </td>
+              <!-- <td>11</td>
                   <td>11</td> -->
-                </tr>
+            </tr>
 
-                <%
+            <%
             }
             %>
 
-            </tbody>
-          </table>
-          <p class="re_p">※ 기간 발전량, 누적 발전량을 제외한 위의 데이터는 모두 해당<span> 조회 간격의 평균 값</span> 입니다. </p>
-          <nav aria-label="...">
-            <%- paginationInfo.paginationDom %>
-          </nav>
-        </div>
+          </tbody>
+        </table>
+        <p class="re_p">※ 기간 발전량, 누적 발전량을 제외한 위의 데이터는 모두 해당<span> 조회 간격의 평균 값</span> 입니다. </p>
+        <nav aria-label="...">
+          <%- paginationInfo.paginationDom %>
+        </nav>
       </div>
     </div>
-    <%- include("../master/footer.html") %>
+  </div>
+  <%- include("../master/footer.html") %>
 
-    <script>
-
-      var $selectDomList = $("button[name=selectMode]");
-      $("button[name=selectMode]").on("click", function(event){
-        var selectValue = $(this).data("value");
-        $selectDomList.each(function(index, ele){
-          var $ele = $(ele);
-          var eleValue = $ele.data("value");
-          if(eleValue === selectValue){
-            $ele.removeClass("btn-default")
-            $ele.addClass("btn-success")
-            $("#" + eleValue).removeAttr("hidden")
-          } else {
-            $ele.removeClass("btn-success")
-            $ele.addClass("btn-default")
-            $("#" + eleValue).attr("hidden", "hidden")
-          }
-        })
+  <script>
+    var $selectDomList = $("button[name=selectMode]");
+    $("button[name=selectMode]").on("click", function (event) {
+      var selectValue = $(this).data("value");
+      $selectDomList.each(function (index, ele) {
+        var $ele = $(ele);
+        var eleValue = $ele.data("value");
+        if (eleValue === selectValue) {
+          $ele.removeClass("btn-default")
+          $ele.addClass("btn-success")
+          $("#" + eleValue).removeAttr("hidden")
+        } else {
+          $ele.removeClass("btn-success")
+          $ele.addClass("btn-default")
+          $("#" + eleValue).attr("hidden", "hidden")
+        }
       })
-      
+    })
+
     var selectedReportMode = "<%- selectedReportMode %>";
     console.log(selectedReportMode);
-    if(selectedReportMode === "calendarMode"){
+    if (selectedReportMode === "calendarMode") {
       $("button[data-value=calendarMode]").trigger("click");
     } else {
       $("button[data-value=reportMode]").trigger("click");
     }
 
-      var calendarEventList = <%- JSON.stringify(calendarEventList) %>;
-      console.log(calendarEventList);
-      $(document).ready(function () {
-        $("#calendar").fullCalendar({
-            header: {
-              left: "prev,next today",
-              // left: "",
-              center: "title",
-              right: "",
-              // right: "month,agendaWeek,agendaDay,listMonth",
-            },
-            // height: 800,
-            selectable: true,
-            locale: "ko",
-            // defaultDate: "2018-04-12",
-            // navLinks: true, // can click day/week names to navigate views
-            // businessHours: true, // display business hours
-            // eventLimit: true, // allow "more" link when too many events
-            editable: true,
-            events: calendarEventList,
-            eventClick: function (date, jsEvent, view) {
-              alert($(this).find("span.fc-title").text());
-            }
-          }
-        );
+    var calendarEventList = <%- JSON.stringify(calendarEventList) %>;
+    console.log(calendarEventList);
+    $(document).ready(function () {
+      $("#calendar").fullCalendar({
+        header: {
+          left: "prev,next today",
+          // left: "",
+          center: "title",
+          right: "",
+          // right: "month,agendaWeek,agendaDay,listMonth",
+        },
+        // height: 800,
+        selectable: true,
+        locale: "ko",
+        // defaultDate: "2018-04-12",
+        // navLinks: true, // can click day/week names to navigate views
+        // businessHours: true, // display business hours
+        // eventLimit: true, // allow "more" link when too many events
+        editable: true,
+        events: calendarEventList,
+        eventClick: function (date, jsEvent, view) {
+          alert($(this).find("span.fc-title").text());
+        }
       });
-    </script>
+    });
+  </script>
 
-      <!-- 기본 데이터 세팅 -->
-      <script>
-        // 초기 시작시 라디오 체크버튼 클릭처리
-        var searchRange = <%- JSON.stringify(searchRange)  %>;
-        var trendReportList = '';
+  <!-- 기본 데이터 세팅 -->
+  <script>
+    // 초기 시작시 라디오 체크버튼 클릭처리
+    var searchRange = <%- JSON.stringify(searchRange)  %>;
+    var trendReportList = '';
 
-        var $is = $("#search_interval_sel option");
-        $is.each(function(index, dom){
-          // dom.getAttribute('value')
-          if (dom.getAttribute('value') === searchRange.searchInterval) {
-            dom.selected = true;
-          } else {
-            dom.selected = false;
-          }
-        })
+    var $is = $("#search_interval_sel option");
+    $is.each(function (index, dom) {
+      // dom.getAttribute('value')
+      if (dom.getAttribute('value') === searchRange.searchInterval) {
+        dom.selected = true;
+      } else {
+        dom.selected = false;
+      }
+    })
 
-        $(document).ready(function() {
-          var selectedObj = $("#sel_type_div_area").find("input[value=" + searchRange.searchType + "]")
-          $(selectedObj).trigger('click');
-        })
+    $(document).ready(function () {
+      var selectedObj = $("#sel_type_div_area").find("input[value=" + searchRange.searchType + "]")
+      $(selectedObj).trigger('click');
+    })
 
 
-        /**
-         * 검색 기간 Radio 클릭 시 날짜 영역 설정
-         * @param {Dom} input[name='searchType']
-         * @return {void} 
-         */
-        function setterSelectType(target) {
-          var checkedSearchType = target.value;
-          var startDateDom = document.querySelector('#start_date_input');
-          var endDateDom = document.querySelector('#end_date_input');
+    /**
+     * 검색 기간 Radio 클릭 시 날짜 영역 설정
+     * @param {Dom} input[name='searchType']
+     * @return {void} 
+     */
+    function setterSelectType(target) {
+      var checkedSearchType = target.value;
+      var startDateDom = document.querySelector('#start_date_input');
+      var endDateDom = document.querySelector('#end_date_input');
 
-          var startDate = new Date(searchRange.strStartDateInputValue);
-          var endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
-            'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
+      var startDate = new Date(searchRange.strStartDateInputValue);
+      var endDate = searchRange.strEndDateInputValue === '' || new Date(searchRange.strEndDateInputValue) ===
+        'Invalid Date' ? startDate : new Date(searchRange.strEndDateInputValue);
 
-          var viewMode = 0;
-          var sliceEndIndex = 10;
+      var viewMode = 0;
+      var sliceEndIndex = 10;
 
-          if(checkedSearchType === 'range'){
-            $('#end_date_input').show()
-            $('#between-start-end').show()
-          } else {
-            $('#end_date_input').hide();
-            $('#between-start-end').hide()
-          }
+      if (checkedSearchType === 'range') {
+        $('#end_date_input').show()
+        $('#between-start-end').show()
+      } else {
+        $('#end_date_input').hide();
+        $('#between-start-end').hide()
+      }
 
-          if (checkedSearchType == 'month') {
-            viewMode = 2;
-            sliceEndIndex = 4;
-          } else if (checkedSearchType == 'day') {
-            viewMode = 1;
-            sliceEndIndex = 7;
-          } else if (checkedSearchType == 'range') {
-            makeDatePicker(endDateDom, 0);
-            endDateDom.value = endDate.toISOString().substring(0, sliceEndIndex);
-          } else {
-            viewMode = 0;
-            sliceEndIndex = 10;
-          }
-          startDateDom.value = startDate.toISOString().substring(0, sliceEndIndex);
-          makeDatePicker(startDateDom, viewMode);
+      if (checkedSearchType == 'month') {
+        viewMode = 2;
+        sliceEndIndex = 4;
+      } else if (checkedSearchType == 'day') {
+        viewMode = 1;
+        sliceEndIndex = 7;
+      } else if (checkedSearchType == 'range') {
+        makeDatePicker(endDateDom, 0);
+        endDateDom.value = endDate.toISOString().substring(0, sliceEndIndex);
+      } else {
+        viewMode = 0;
+        sliceEndIndex = 10;
+      }
+      startDateDom.value = startDate.toISOString().substring(0, sliceEndIndex);
+      makeDatePicker(startDateDom, viewMode);
+    }
+
+    // 검색 클릭 시
+    function searchReport() {
+      var inverter_seq = document.querySelector('#device_list_sel option:checked').value;
+      inverter_seq = inverter_seq.trim();
+      var searchInterval = document.querySelector('#search_interval_sel option:checked').value;
+      var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
+      var startDate = document.getElementById('start_date_input').value;
+      var endDate = '';
+
+      if (searchType === 'range') {
+        endDate = document.getElementById('end_date_input').value;
+        if (startDate > endDate) {
+          return alert('종료일이 시작일보다 빠를 수 없습니다.');
         }
+      }
 
-        // 검색 클릭 시
-        function searchReport() {
-          var inverter_seq = document.querySelector('#device_list_sel option:checked').value;
-          inverter_seq = inverter_seq.trim();
-          var searchInterval = document.querySelector('#search_interval_sel option:checked').value;
-          var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
-          var startDate = document.getElementById('start_date_input').value;
-          var endDate = '';
+      return location.href = "/report?inverter_seq=" + inverter_seq + "&start_date=" + startDate + "&end_date=" +
+        endDate + "&search_type=" + searchType + "&search_interval=" + searchInterval;
+    }
+  </script>
 
-          if (searchType === 'range') {
-            endDate = document.getElementById('end_date_input').value;
-            if (startDate > endDate) {
-              return alert('종료일이 시작일보다 빠를 수 없습니다.');
-            }
-          }
+  <script>
+    $("#download_excel").on('click', function (event) {
+      var inverter_seq = document.querySelector('#device_list_sel option:checked').value;
+      inverter_seq = inverter_seq.trim();
+      var searchInterval = document.querySelector('#search_interval_sel option:checked').value;
+      var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
+      var startDate = document.getElementById('start_date_input').value;
+      var endDate = '';
 
-          return location.href = "/report?inverter_seq=" + inverter_seq + "&start_date=" + startDate + "&end_date=" + endDate + "&search_type=" + searchType + "&search_interval=" + searchInterval;
+      if (searchType === 'range') {
+        endDate = document.getElementById('end_date_input').value;
+        if (startDate > endDate) {
+          return alert('종료일이 시작일보다 빠를 수 없습니다.');
         }
-      </script>
+      }
 
-      <script>
-        $("#download_excel").on('click', function(event){
-          var inverter_seq = document.querySelector('#device_list_sel option:checked').value;
-          inverter_seq = inverter_seq.trim();
-          var searchInterval = document.querySelector('#search_interval_sel option:checked').value;
-          var searchType = document.querySelector('#sel_type_div_area input[name="searchType"]:checked').value;
-          var startDate = document.getElementById('start_date_input').value;
-          var endDate = '';
+      if (!_.contains(['min', 'min10', 'hour'], searchInterval)) {
+        return alert("엑셀 Download는 1분, 10분, 1시간 단위 생성만 지원합니다.")
+      }
 
-          if (searchType === 'range') {
-            endDate = document.getElementById('end_date_input').value;
-            if (startDate > endDate) {
-              return alert('종료일이 시작일보다 빠를 수 없습니다.');
-            }
-          }
+      var dataParam = {
+        inverter_seq: inverter_seq,
+        search_interval: searchInterval,
+        search_type: searchType,
+        start_date: startDate,
+        end_date: endDate
+      }
 
-          if(!_.contains(['min', 'min10', 'hour'], searchInterval)){
-            return alert("엑셀 Download는 1분, 10분, 1시간 단위 생성만 지원합니다.")
-          }
-
-          var dataParam = {
-            inverter_seq: inverter_seq,
-            search_interval: searchInterval,
-            search_type: searchType,
-            start_date: startDate,
-            end_date: endDate
-          }
-
-          $.ajax({
-            type: "GET",
-            url: "/report/excel/",
-            data: dataParam
-          }).done(function (excelData) {
-            XLSX.writeFile(excelData.workBook, excelData.fileName + ".xlsx");
-          }).fail(function (req, sts, err) {
-            alert(err);
-          });
-        })
-
-      </script>
+      $.ajax({
+        type: "GET",
+        url: "/report/excel/",
+        data: dataParam
+      }).done(function (excelData) {
+        XLSX.writeFile(excelData.workBook, excelData.fileName + ".xlsx");
+      }).fail(function (req, sts, err) {
+        alert(err);
+      });
+    })
+  </script>
 
 
 </body>

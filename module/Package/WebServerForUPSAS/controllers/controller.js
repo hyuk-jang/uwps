@@ -57,16 +57,13 @@ module.exports = app => {
         main_seq: _.get(userInfo, 'main_seq', null),
       });
 
-      // TODO:
-      // map 정보 가져오기
+      // TODO: map 정보 가져오기
       /** @type {MAIN[]} */
       const mainRows = await biModule.getTable('main', { main_seq: userInfo.main_seq });
       const mapFile = _.head(mainRows).map;
       const map = JSON.parse(mapFile);
       req.locals.sessionID = req.sessionID;
       req.locals.map = map;
-
-      // BU.CLI(nodeList);
 
       const compiledDeviceType = _.template(
         '<option value="<%= nd_target_id %>"> <%= nd_target_name %></option>',

@@ -3,37 +3,11 @@
 
 <head>
     <%- include("../master/head.html") %>
-    <script type="text/javascript" src="js/lodash.js"></script>
     <script type="text/javascript" src="js/svg.js"></script>
     <script type="text/javascript" src="js/svg.filter.js"></script>
     <script type="text/javascript" src="js/jquery.panzoom.js"></script>
     <script type="text/javascript" src="js/contents/svgMap/drawSvg.js"></script>
     <style>
-        #zoom {
-            /* position: absolute;
-            z-index: 2; */
-            display: flex;
-            justify-content: center;
-            /* flex-direction: column; */
-        }
-
-        #canvas {
-            display: flex;
-            justify-content: center;
-            margin: 5px;
-            cursor: non
-        }
-
-        .data {
-            fill: rgb(2, 236, 33);
-            font-size: 8pt;
-            stroke: rgb(2, 236, 33);
-            stroke-width: 0.2
-        }
-
-        .node {
-            cursor: pointer;
-        }
     </style>
 </head>
 
@@ -43,7 +17,7 @@
     <!--메인-->
     <div class="jumbotron text-center jumbotron_line">
         <div class="row row_st_line min_h_780">
-            <div id="zoom">
+            <div id="zoom" style="display: flex; justify-content: center;">
                 <button id="zoom-in" class="btn btn-default btn-sm" style="margin-right: 5px"><span class="glyphicon glyphicon-zoom-in"></span>
                     Zoom-in</button>
                 <button id="zoom-out" class="btn btn-default btn-sm" style="margin-right: 5px"><span class="glyphicon glyphicon-zoom-out"></span>
@@ -52,8 +26,8 @@
                     Reset</button>
             </div>
             <!-- canvas -->
-            <div id="svgArea">
-                <div id="canvas"></div>
+            <div>
+                <div id="canvas" style=" display: flex; justify-content: center; margin: 5px"></div>
             </div>
         </div>
     </div>
@@ -83,7 +57,7 @@
             e.clientX = 300
             e.clientY = 200
             $panzoom.panzoom('zoom', {
-                focal: e
+                // focal: e
             })
         })
 
@@ -95,7 +69,7 @@
             })
         })
 
-        dataInstallEvent();
+        // dataInstallEvent();
         // drawExistCanvasValue(id, value)
     </script>
 

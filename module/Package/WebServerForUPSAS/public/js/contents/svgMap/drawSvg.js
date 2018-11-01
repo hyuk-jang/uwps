@@ -67,8 +67,8 @@ function drawExistCanvasValue(nodeId, svgValue) {
   const foundCanvas = _.find(svgNodeTextList, { id: nodeId });
   if (_.isUndefined(foundCanvas)) return false;
   const nodeX = foundCanvas.text.node.attributes.x.value;
-  foundCanvas.text.node.innerHTML = `<tspan dy="5">${foundCanvas.name}</tspan>`;
-  foundCanvas.text.node.innerHTML += `<tspan class='data' dy="14" x=${nodeX}>${svgValue}</tspan>`;
+  foundCanvas.text.node.innerHTML = `<tspan dy="0.5%">${foundCanvas.name}</tspan>`;
+  foundCanvas.text.node.innerHTML += `<tspan class="data" style="fill: #00c51a; font-size: 8pt; stroke: #00c51a; stroke-width: 0.2" dy="1.2em" x=${nodeX}>${svgValue}</tspan>`;
 
   // 받아온 id 값으로  color 값 찾기
   realMap.drawInfo.positionInfo.svgNodeList.forEach(svgNodeInfo => {
@@ -116,7 +116,7 @@ function writeText(canvas, defInfo, resourceInfo) {
   /** @type {mDeviceMap} */
   const realMap = map;
 
-  let [textX, textY, textSize, textColor, leading] = [0, 0, 10, '#fdfe02', '1.1em'];
+  let [textX, textY, textSize, textColor, leading] = [0, 0, 10, '#fdfe02', '1em'];
   const { width, height, radius } = resourceInfo.elementDrawInfo;
   const [x1, y1, x2, y2] = defInfo.point;
 
@@ -133,11 +133,9 @@ function writeText(canvas, defInfo, resourceInfo) {
   // 제외목록 서칭
   const writeTextBoolean = excludeText(defInfo.id);
   if (writeTextBoolean === true) {
-    // 센서를 찾아 글자색 변경
-    textX = x1 + width / 2;
-    textY = y1 + height / 2;
-
     if (resourceInfo.type === 'rect' || resourceInfo.type === 'pattern') {
+      textX = x1 + width / 2;
+      textY = y1 + height / 2;
       // 노드중 sensor style 지정
       if (foundSvgInfo.is_sensor === 1) {
         textColor = 'black';
@@ -228,39 +226,63 @@ function excludeText(id) {
 /**
  * view에서 데이터를 입력하기위한 이벤트 함수
  */
-function dataInstallEvent() {
+function dataInstallEvent(socket) {
   /** @type {mDeviceMap} */
   const realMap = map;
+  let controlValue;
 
   realMap.drawInfo.positionInfo.svgNodeList.forEach(svgNodeInfo => {
     svgNodeInfo.defList.forEach(defInfo => {
       const getSvgElement = $(`#${defInfo.id}`);
-      // const getSvgElement = SVG.get(defInfo.id);
       getSvgElement.on('click touchstart', e => {
-        const inputValue = prompt(`${defInfo.name}의 값을 입력하세요`);
+        // 받아온 id 값이 sensor인지 체크  0: 장치, 1: 센서, -1: 미분류
+        const foundSvgNodeInfo = _.find(realMap.drawInfo.positionInfo.svgNodeList, snInfo =>
+          _.map(snInfo.defList, 'id').includes(defInfo.id),
+        );
+        if (_.isUndefined(foundSvgNodeInfo)) return false;
 
-        const resourceInfo = _.find(realMap.drawInfo.frame.svgModelResourceList, {
-          id: defInfo.resourceId,
-        });
-        let { color } = resourceInfo.elementDrawInfo;
-        // color가 배열이 아니면 배열로 변환
-        color = Array.isArray(color) ? color : [color];
+        // FIXME:
+        controlValue =
+          foundSvgNodeInfo.is_sensor === 1
+            ? prompt(`${defInfo.name}의 값을 입력하세요`)
+            : alert('combobox 준비중');
+        // controlValue = prompt(`${defInfo.name}의 값을 입력하세요`);
 
         const falseValueList = ['CLOSE', 'CLOSING', 'OFF', 0, '0'];
         const trueValueList = ['OPEN', 'OPENING', 'ON', 1, '1'];
 
-        if (inputValue != null) {
-          drawExistCanvasValue(defInfo.id, inputValue);
-          const falseValueCheck = _.includes(falseValueList, inputValue.toUpperCase());
-          const trueValueCheck = _.includes(trueValueList, inputValue.toUpperCase());
+        if (controlValue != null) {
+          drawExistCanvasValue(defInfo.id, controlValue);
+          const falseValueCheck = _.includes(falseValueList, controlValue.toUpperCase());
+          const trueValueCheck = _.includes(trueValueList, controlValue.toUpperCase());
 
+          /**
+           * 장치 제어 타입 (controlValue)
+           * @example
+           * 0: 장치 Close, Off
+           * 1: 장치 Open, On
+           * 2: 장치 Measure
+           * 3: 장치 값 설정
+           */
           if (falseValueCheck === true && trueValueCheck === false) {
-            getSvgElement.attr({ fill: color[0] });
+            controlValue = 0;
           } else if (falseValueCheck === false && trueValueCheck === true) {
-            getSvgElement.attr({ fill: color[1] });
+            controlValue = 1;
           } else {
-            getSvgElement.attr({ fill: color[2] });
+            controlValue = 3;
           }
+
+          const requestMsg = {
+            commandId: 'SINGLE',
+            contents: {
+              requestCommandType: 'CONTROL',
+              nodeId: defInfo.id,
+              controlValue,
+              rank: 2,
+            },
+          };
+          console.log(requestMsg);
+          socket.emit('executeCommand', requestMsg);
         }
       });
     });

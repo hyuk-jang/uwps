@@ -235,35 +235,16 @@ function dataInstallEvent(socket) {
     svgNodeInfo.defList.forEach(defInfo => {
       const getSvgElement = $(`#${defInfo.id}`);
       getSvgElement.on('click touchstart', e => {
-        // 받아온 id 값이 sensor인지 체크  0: 장치, 1: 센서, -1: 미분류
-        const foundSvgNodeInfo = _.find(realMap.drawInfo.positionInfo.svgNodeList, snInfo =>
-          _.map(snInfo.defList, 'id').includes(defInfo.id),
-        );
-        if (_.isUndefined(foundSvgNodeInfo)) return false;
-
-        // FIXME:
-        controlValue =
-          foundSvgNodeInfo.is_sensor === 1
-            ? prompt(`${defInfo.name}의 값을 입력하세요`)
-            : alert('combobox 준비중');
-        // controlValue = prompt(`${defInfo.name}의 값을 입력하세요`);
-
         const falseValueList = ['CLOSE', 'CLOSING', 'OFF', 0, '0'];
         const trueValueList = ['OPEN', 'OPENING', 'ON', 1, '1'];
 
+        controlValue = prompt(`${defInfo.name}의 값을 입력하세요`);
         if (controlValue != null) {
           drawExistCanvasValue(defInfo.id, controlValue);
+
           const falseValueCheck = _.includes(falseValueList, controlValue.toUpperCase());
           const trueValueCheck = _.includes(trueValueList, controlValue.toUpperCase());
 
-          /**
-           * 장치 제어 타입 (controlValue)
-           * @example
-           * 0: 장치 Close, Off
-           * 1: 장치 Open, On
-           * 2: 장치 Measure
-           * 3: 장치 값 설정
-           */
           if (falseValueCheck === true && trueValueCheck === false) {
             controlValue = 0;
           } else if (falseValueCheck === false && trueValueCheck === true) {

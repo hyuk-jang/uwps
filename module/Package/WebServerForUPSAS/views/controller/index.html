@@ -182,7 +182,7 @@
         }
       })
     })
-    $("button[data-value=structureMode]").trigger("click"); // FIXME:
+    $("button[data-value=tableMode]").trigger("click"); // FIXME:
   </script>
 
   <script>
@@ -221,10 +221,7 @@
         focal: e
       })
     })
-    // dataInstallEvent()
-    // drawExistCanvasValue(id, value)
   </script>
-
 
   <script>
     $("#single_control_cate_list").on("change", function (event) {
@@ -289,12 +286,17 @@
 
       // 노드 관련 갱신 반영
       socket.on("updateNodeInfo", function (nodeList) {
+        console.log(nodeList)
         _.forEach(nodeList, nodeInfo => {
-          drawExistCanvasValue(nodeInfo.node_id, nodeInfo.data) // FIXME:
+          drawExistCanvasValue(nodeInfo.node_id, nodeInfo.data)
         })
+        // TODO: 데이터 갱신시에 스크롤 버벅임 오류 수정 중.... 원인 : bootstrapTable()을 이용해 테이블을 만들 때 버벅임. 
         $MS_node_table.bootstrapTable('destroy').bootstrapTable({
           data: nodeList
         });
+        // $MS_node_table.bootstrapTable('destroy').bootstrapTable({
+        //   data: nodeList
+        // });
         document.getElementById("CMD_node_date").innerText = new Date().toLocaleString();
       });
 

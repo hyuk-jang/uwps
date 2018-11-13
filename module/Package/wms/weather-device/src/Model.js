@@ -74,7 +74,7 @@ class Model extends AbstDeviceClientModel {
     //   BU.logFile(vantagepro2Data.data);
     // }
 
-    BU.errorLog('vantage', JSON.stringify(vantagepro2Data.data));
+    // BU.errorLog('vantage', JSON.stringify(vantagepro2Data.data));
 
     // 데이터를 추출한 후 평균 값 리스트 초기화
     this.controller.vantagepro2.model.init();

@@ -75,20 +75,19 @@ class Control {
    * @param {*} data
    */
   onData(data) {
-    BU.logFile('vantagePro: 데이터 수신');
     const resultParsing = this.converter.parsingUpdateData({ data });
     // BU.CLI(resultParsing);
     if (resultParsing.eventCode === dccFlagModel.definedCommanderResponse.DONE) {
       // 정상적인 데이터가 들어왔다고 처리
       this.hasReceivedData = true;
-      BU.logFile('vantagePro: 데이터 파싱 성공');
       this.model.onData(resultParsing.data);
       BU.CLI(
         'SolarRadiation',
         this.getDeviceOperationInfo().data[BaseModel.Weathercast.BASE_KEY.SolarRadiation],
       );
     } else {
-      BU.logFile(JSON.stringify(resultParsing));
+      BU.CLI(resultParsing)
+      // BU.logFile(JSON.stringify(resultParsing));
     }
   }
 
@@ -126,22 +125,22 @@ class Control {
 
       // 데이터가 2번 이상 들어오지 않는다면 문제가 있다고 판단
       if (this.errorCount === 2) {
-        BU.logFile('vantagePro: ECOUNT:2, LOOP 요청');
+        BU.CLI('vantagePro: ECOUNT:2, LOOP 요청');
         await this.serialClient.write(this.baseModel.device.DEFAULT.COMMAND.LOOP);
-        BU.logFile('vantagePro: ECOUNT:2, LOOP 완료');
+        BU.CLI('vantagePro: ECOUNT:2, LOOP 완료');
       } else if (this.errorCount === 4) {
         // 그래도 정상적인 데이터가 들어오지 않는다면
-        BU.logFile('vantagePro: ECOUNT:4, LOOP_INDEX 요청');
+        BU.CLI('vantagePro: ECOUNT:4, LOOP_INDEX 요청');
         await this.serialClient.write(this.baseModel.device.DEFAULT.COMMAND.LOOP_INDEX);
-        BU.logFile('vantagePro: ECOUNT:4, LOOP_INDEX 완료');
+        BU.CLI('vantagePro: ECOUNT:4, LOOP_INDEX 완료');
       } else if (this.errorCount === 6) {
         // 통제할 수 없는 에러라면
         this.errorCount = 0; // 새롭게 시작
-        BU.logFile('vantagePro: ECOUNT:6, disconnect 요청');
+        BU.CLI('vantagePro: ECOUNT:6, disconnect 요청');
         // trackingDataBuffer 삭제
         this.converter.resetTrackingDataBuffer();
         await this.serialClient.disconnect(); // 장치 재접속 요청
-        BU.logFile('vantagePro: ECOUNT:6, disconnect 완료');
+        BU.CLI('vantagePro: ECOUNT:6, disconnect 완료');
       } else {
         return false;
       }

@@ -44,7 +44,7 @@ class Model {
 
     BU.CLI(this.averageStorage.dataStorage);
     this.deviceData.inclinedSolar = this.averageStorage.getAverage('inclinedSolar');
-    BU.CLI('inclinedSolar', this.deviceData.inclinedSolar);
+    // BU.CLI('inclinedSolar', this.deviceData.inclinedSolar);
   }
 }
 

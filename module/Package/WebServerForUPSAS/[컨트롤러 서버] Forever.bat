@@ -1,1 +1,1 @@
-forever start -o ../out.log -e ../err.log --minUptime 5000 --spinSleepTime 2000 -a index.js
+forever start -o ../out.log -e ../err.log --minUptime 5000 --spinSleepTime 2000 -a --max_old_space_size=4096 index.js

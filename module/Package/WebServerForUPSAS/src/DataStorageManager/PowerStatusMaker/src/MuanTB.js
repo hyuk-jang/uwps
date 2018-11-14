@@ -126,6 +126,13 @@ class MuanTB {
         invertersTotal.co2,
       ];
 
+      // 데이터가 존재하지 않는다면 0으로 삽입
+      dataBodyList.forEach((v, index) => {
+        if (_.isNil(v)) {
+          dataBodyList[index] = 0;
+        }
+      });
+
       BU.CLI(dataBodyList);
 
       const strDataBodyList = [];

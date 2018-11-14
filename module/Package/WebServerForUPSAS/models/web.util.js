@@ -68,17 +68,17 @@ function calcStatisticsReport(rowDataPacketList, chartOption) {
 
   // 정렬 우선 순위가 있다면 입력
   if (sortKey) {
-    returnValue.sort = dataRow[sortKey];
+    returnValue.sort = _.get(dataRow, sortKey, 0);
   }
   // 최대 값을 구한다면
   if (maxKey) {
-    const row = _.maxBy(rowDataPacketList, rowPacket => rowPacket[maxKey]);
-    returnValue.max = row[maxKey];
+    const row = _.maxBy(rowDataPacketList, rowPacket => _.get(rowPacket, maxKey, 0));
+    returnValue.max = _.get(row, maxKey, 0);
   }
   // 최소 값을 구한다면
   if (minKey) {
-    const row = _.minBy(rowDataPacketList, rowPacket => rowPacket[minKey]);
-    returnValue.min = row[minKey];
+    const row = _.minBy(rowDataPacketList, rowPacket => _.get(rowPacket, minKey, 0));
+    returnValue.min = _.get(row, minKey, 0);
   }
   // TODO
   if (averKey) {

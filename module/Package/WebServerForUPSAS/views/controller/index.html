@@ -4,10 +4,12 @@
 <head>
   <%- include("../master/head.html") %>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
+  <link rel="stylesheet" href="css/bootstrap-dialog.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
   <script src="js/lodash.js"></script>
   <script type="text/javascript" src="js/svg.js"></script>
   <script type="text/javascript" src="js/svg.filter.js"></script>
+  <script type="text/javascript" src="js/bootstrap-dialog.js"></script>
   <script type="text/javascript" src="js/jquery.panzoom.js"></script>
   <script type="text/javascript" src="js/contents/svgMap/drawSvg.js"></script>
 </head>
@@ -182,7 +184,7 @@
         }
       })
     })
-    $("button[data-value=tableMode]").trigger("click"); // FIXME:
+    $("button[data-value=structureMode]").trigger("click"); // FIXME:
   </script>
 
   <script>
@@ -217,9 +219,7 @@
     $('#zoom-out').click(function (e) {
       e.clientX = 300
       e.clientY = 200
-      $panzoom.panzoom('zoom', 'zoomOut', {
-        focal: e
-      })
+      $panzoom.panzoom('zoom', 'zoomOut', {})
     })
   </script>
 
@@ -286,17 +286,13 @@
 
       // 노드 관련 갱신 반영
       socket.on("updateNodeInfo", function (nodeList) {
-        console.log(nodeList)
+        // draw map
         _.forEach(nodeList, nodeInfo => {
           drawExistCanvasValue(nodeInfo.node_id, nodeInfo.data)
         })
-        // TODO: 데이터 갱신시에 스크롤 버벅임 오류 수정 중.... 원인 : bootstrapTable()을 이용해 테이블을 만들 때 버벅임. 
         $MS_node_table.bootstrapTable('destroy').bootstrapTable({
           data: nodeList
         });
-        // $MS_node_table.bootstrapTable('destroy').bootstrapTable({
-        //   data: nodeList
-        // });
         document.getElementById("CMD_node_date").innerText = new Date().toLocaleString();
       });
 

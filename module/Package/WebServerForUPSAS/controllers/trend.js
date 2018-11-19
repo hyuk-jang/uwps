@@ -100,6 +100,7 @@ module.exports = app => {
       // BU.CLIS(req.query, searchRange);
 
       // 장비 선택 리스트 가져옴
+      BU.CLI(deviceSeqList);
       const deviceList = await powerModel.getInverterList(deviceSeqList);
       // BU.CLI(deviceList);
 

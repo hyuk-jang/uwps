@@ -67,7 +67,7 @@ function drawExistCanvasValue(nodeId, svgValue) {
   const foundCanvas = _.find(svgNodeTextList, { id: nodeId });
   if (_.isUndefined(foundCanvas)) return false;
   const nodeX = foundCanvas.text.node.attributes.x.value;
-  foundCanvas.text.node.innerHTML = `<tspan dy="0.5%">${foundCanvas.name}</tspan>`;
+  foundCanvas.text.node.innerHTML = `<tspan dy="5">${foundCanvas.name}</tspan>`;
   foundCanvas.text.node.innerHTML += `<tspan class="data" style="fill: #00c51a; font-size: 8pt; stroke: #00c51a; stroke-width: 0.2" dy="1.2em" x=${nodeX}>${svgValue}</tspan>`;
 
   // 받아온 id 값으로  color 값 찾기
@@ -229,45 +229,108 @@ function excludeText(id) {
 function dataInstallEvent(socket) {
   /** @type {mDeviceMap} */
   const realMap = map;
-  let controlValue;
 
   realMap.drawInfo.positionInfo.svgNodeList.forEach(svgNodeInfo => {
     svgNodeInfo.defList.forEach(defInfo => {
       const getSvgElement = $(`#${defInfo.id}`);
       getSvgElement.on('click touchstart', e => {
-        const falseValueList = ['CLOSE', 'CLOSING', 'OFF', 0, '0'];
-        const trueValueList = ['OPEN', 'OPENING', 'ON', 1, '1'];
+        let controlValue;
 
-        controlValue = prompt(`${defInfo.name}의 값을 입력하세요`);
-        if (controlValue != null) {
-          drawExistCanvasValue(defInfo.id, controlValue);
+        // 장치 or 센서 구분  1: 센서, 0: 장치, -1: 미분류
+        const foundSvgNodeInfo = _.find(realMap.drawInfo.positionInfo.svgNodeList, info =>
+          _.map(info.defList, 'id').includes(defInfo.id),
+        );
+        if (_.isUndefined(foundSvgNodeInfo)) return false;
 
-          const falseValueCheck = _.includes(falseValueList, controlValue.toUpperCase());
-          const trueValueCheck = _.includes(trueValueList, controlValue.toUpperCase());
+        if (foundSvgNodeInfo.is_sensor === 1) {
+          BootstrapDialog.show({
+            message: `${
+              defInfo.name
+            } 의 값을 입력하세요.: <input type="text" class="form-control">`,
+            buttons: [
+              {
+                label: 'OK',
+                action(dialogItself) {
+                  const getDialogValue = dialogItself
+                    .getModalBody()
+                    .find('input')
+                    .val();
+                  if (_.isUndefined(getDialogValue)) return false;
 
-          if (falseValueCheck === true && trueValueCheck === false) {
-            controlValue = 0;
-          } else if (falseValueCheck === false && trueValueCheck === true) {
-            controlValue = 1;
-          } else {
-            controlValue = 3;
-          }
-
-          const requestMsg = {
-            commandId: 'SINGLE',
-            contents: {
-              requestCommandType: 'CONTROL',
-              nodeId: defInfo.id,
-              controlValue,
-              rank: 2,
-            },
-          };
-          console.log(requestMsg);
-          socket.emit('executeCommand', requestMsg);
+                  insertData(socket, getDialogValue, defInfo.id);
+                  dialogItself.close();
+                },
+              },
+              {
+                label: 'CANCEL',
+                cssClass: 'btn-primary',
+                action(dialogItself) {
+                  dialogItself.close();
+                },
+              },
+            ],
+          });
+        } else {
+          BootstrapDialog.show({
+            message: `'${defInfo.name}' 의 상태를 변경합니다.`,
+            buttons: [
+              {
+                label: 'OPEN',
+                action(dialogItself) {
+                  controlValue = 'open';
+                  insertData(socket, controlValue, defInfo.id);
+                  dialogItself.close();
+                },
+              },
+              {
+                label: 'CLOSE',
+                action(dialogItself) {
+                  controlValue = 'close';
+                  insertData(socket, controlValue, defInfo.id);
+                  dialogItself.close();
+                },
+              },
+              {
+                label: 'CANCEL',
+                cssClass: 'btn-primary',
+                action(dialogItself) {
+                  dialogItself.close();
+                },
+              },
+            ],
+          });
         }
       });
     });
   });
+}
+
+function insertData(socket, controlValue, nodeId) {
+  const falseValueList = ['CLOSE', 'CLOSING', 'OFF', 0, '0'];
+  const trueValueList = ['OPEN', 'OPENING', 'ON', 1, '1'];
+  if (controlValue != null) {
+    const falseValueCheck = _.includes(falseValueList, controlValue.toUpperCase());
+    const trueValueCheck = _.includes(trueValueList, controlValue.toUpperCase());
+
+    if (falseValueCheck === true && trueValueCheck === false) {
+      controlValue = 0;
+    } else if (falseValueCheck === false && trueValueCheck === true) {
+      controlValue = 1;
+    } else {
+      controlValue = 3;
+    }
+
+    const requestMsg = {
+      commandId: 'SINGLE',
+      contents: {
+        requestCommandType: 'CONTROL',
+        nodeId,
+        controlValue,
+        rank: 2,
+      },
+    };
+    socket.emit('executeCommand', requestMsg);
+  }
 }
 
 /**
@@ -309,6 +372,7 @@ function svgDrawing(canvas, type, point, elementDrawInfo, id) {
  */
 function svgDrawingRect(canvas, point, elementDrawInfo, id) {
   const [x, y] = point;
+
   let { width, height, color } = elementDrawInfo;
   // color가 배열이 아니면 배열로 변환
   color = Array.isArray(color) ? color : [color];

@@ -100,7 +100,7 @@ module.exports = app => {
       // BU.CLIS(req.query, searchRange);
 
       // 장비 선택 리스트 가져옴
-      BU.CLI(deviceSeqList);
+      // BU.CLI(deviceSeqList);
       const deviceList = await powerModel.getInverterList(deviceSeqList);
       // BU.CLI(deviceList);
 
@@ -120,6 +120,7 @@ module.exports = app => {
         searchRange.strBetweenEnd,
         searchRange.strBetweenStart,
         searchRange.searchInterval,
+        {},
       );
 
       // 모듈 뒷면 온도 데이터 가져옴

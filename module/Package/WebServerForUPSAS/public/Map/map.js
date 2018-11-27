@@ -2036,7 +2036,7 @@ const map = {
   controlInfo: {
     tempControlList: [
       { cmdName: '바다 → 저수지', trueList: ['P_001'], falseList: [] },
-      { cmdName: '저수조 → 증발지 1_E', trueList: ['P_006'], falseList: ['GV_005'] },
+
       {
         cmdName: '저수조 → 증발지 1',
         trueList: ['V_006', 'V_001', 'V_002', 'V_003', 'V_004', 'P_002'],
@@ -2101,6 +2101,7 @@ const map = {
         trueList: ['V_006', 'V_004', 'P_002'],
         falseList: ['GV_004'],
       },
+      { cmdName: '저수조 → 증발지 1_E', trueList: ['P_006'], falseList: ['GV_005'] },
       {
         cmdName: '해주 1 → 증발지 1A',
         trueList: ['V_007', 'V_001', 'P_003'],
@@ -2127,6 +2128,6 @@ const map = {
       { cmdName: '증발지 1D → 해주 1', trueList: ['GV_004', 'WD_013', 'WD_010'], falseList: [] },
     ],
   },
-}
+};
 
 module.exports = map;

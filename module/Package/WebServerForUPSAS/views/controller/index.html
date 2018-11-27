@@ -9,9 +9,11 @@
   <script src="js/lodash.js"></script>
   <script type="text/javascript" src="js/svg.js"></script>
   <script type="text/javascript" src="js/svg.filter.js"></script>
+
   <script type="text/javascript" src="js/bootstrap-dialog.js"></script>
   <script type="text/javascript" src="js/jquery.panzoom.js"></script>
   <script type="text/javascript" src="js/contents/svgMap/drawSvg.js"></script>
+  <script type="text/javascript" src="js/config/upsasConfig.js"></script>
 </head>
 
 <body>
@@ -190,10 +192,10 @@
   <script>
     // drawing map
     var map = <%- JSON.stringify(map) %>
-    svgCanvas('canvas')
+    drawSvgBackground('canvas')
 
     // size 재설정
-    var svgMap = SVG.get('canvasId')
+    var svgMap = SVG.get('svgCanvas')
     var canvas = document.getElementById('canvas')
     canvas.style.width = svgMap.node.width.baseVal.value + 'px'
     canvas.style.height = svgMap.node.height.baseVal.value + 'px'
@@ -204,7 +206,7 @@
       // $zoomOut: $('#zoom-out'),
       $reset: $('#reset'),
       cursor: "context-menu",
-      startTransform: 'matrix(0.6, 0, 0, 0.6, -256, -245)',
+      startTransform: 'matrix(0.4, 0, 0, 0.4, -850, -900)',
     })
 
     // zoom 기능 기준점 재정의
@@ -269,7 +271,7 @@
 
     $(function () {
       var socket = io();
-      dataInstallEvent(socket)
+      bindingClickEventNode(socket)
 
 
       // 접속한 사용자의 정보를 보내줌.
@@ -288,7 +290,7 @@
       socket.on("updateNodeInfo", function (nodeList) {
         // draw map
         _.forEach(nodeList, nodeInfo => {
-          drawExistCanvasValue(nodeInfo.node_id, nodeInfo.data)
+          showNodeData(nodeInfo.node_id, nodeInfo.data)
         })
         $MS_node_table.bootstrapTable('destroy').bootstrapTable({
           data: nodeList
@@ -304,10 +306,7 @@
         document.getElementById("CMD_order_date").innerText = new Date().toLocaleString();
       });
 
-
       // TODO: socket.emit 함수 생성 및 장치 연결 중일 때만 emit하도록 해주는 함수 구현
-
-
       // 저장된 명령을 실행하고자 할 경우 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
       $("#automatic_control_div > button").on("click", function () {
         var automaticId = $("#automatic_control_list option:selected").val();
@@ -361,6 +360,7 @@
             rank: Number(controlRank),
           }
         }
+        console.log(requestMsg)
         socket.emit("executeCommand", requestMsg);
       })
 

@@ -314,7 +314,10 @@ function isExcludableText(defId) {
 function bindingClickEventNode(socket) {
   /** @type {mDeviceMap} */
   const realMap = map;
+<<<<<<< HEAD
   let controlValue;
+=======
+>>>>>>> a3fc25d13b937e339d8328ffbd9935185a1d4591
 
   realMap.drawInfo.positionInfo.svgNodeList.forEach(svgNodeInfo => {
     svgNodeInfo.defList.forEach(nodeDefInfo => {

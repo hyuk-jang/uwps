@@ -5,8 +5,10 @@
     <%- include("../master/head.html") %>
     <script type="text/javascript" src="js/svg.js"></script>
     <script type="text/javascript" src="js/svg.filter.js"></script>
+    <script type="text/javascript" src="js/bootstrap-dialog.js"></script>
     <script type="text/javascript" src="js/jquery.panzoom.js"></script>
     <script type="text/javascript" src="js/contents/svgMap/drawSvg.js"></script>
+    <script type="text/javascript" src="js/config/upsasConfig.js"></script>
     <style>
     </style>
 </head>
@@ -35,10 +37,10 @@
 
     <script>
         var map = <%- JSON.stringify(map) %>
-        svgCanvas('canvas');
+        drawSvgBackground('canvas');
 
         // size 재설정
-        var svgMap = SVG.get('canvasId')
+        var svgMap = SVG.get('svgCanvas')
         var canvas = document.getElementById('canvas')
         canvas.style.width = svgMap.node.width.baseVal.value + 'px'
         canvas.style.height = svgMap.node.height.baseVal.value + 'px'
@@ -49,7 +51,7 @@
             // $zoomOut: $('#zoom-out'),
             $reset: $('#reset'),
             cursor: "context-menu",
-            startTransform: 'matrix(0.6, 0, 0, 0.6, -256, -245)',
+            startTransform: 'matrix(0.4, 0, 0, 0.4, -850, -900)',
         })
 
         // zoom 기능 기준점 재정의
@@ -88,7 +90,7 @@
                 // console.log(nodeList)
                 _.forEach(nodeList, nodeInfo => {
                     // console.log(nodeInfo.node_id, nodeInfo.data)
-                    drawExistCanvasValue(nodeInfo.node_id, nodeInfo.data)
+                    showNodeData(nodeInfo.node_id, nodeInfo.data)
                 })
                 // $MS_node_table.bootstrapTable('destroy').bootstrapTable({
                 //     data: nodeList

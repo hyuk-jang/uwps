@@ -126,7 +126,6 @@ class MuanTB {
         invertersTotal.co2,
       ];
 
-<<<<<<< HEAD
       // 데이터가 존재하지 않는다면 0으로 삽입
       dataBodyList.forEach((v, index) => {
         if (_.isNil(v)) {
@@ -135,13 +134,6 @@ class MuanTB {
       });
 
       BU.CLI(dataBodyList);
-=======
-      // BU.CLI(dataBodyList);
-<<<<<<< HEAD
->>>>>>> @ controller 페이지 리뉴얼 1차 완료,  flexbox 적용,  map을 이용한 control 기능 적용 중
-=======
->>>>>>> 0a85dbdbaffd30812eccd7dc1d49e586d6d44d5e
->>>>>>> a3fc25d13b937e339d8328ffbd9935185a1d4591
 
       const strDataBodyList = [];
       dataBodyList.forEach(ele => strDataBodyList.push(_.padStart(ele.toString(), 4, '0')));

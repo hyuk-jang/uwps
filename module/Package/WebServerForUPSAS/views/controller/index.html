@@ -4,13 +4,11 @@
 <head>
   <%- include("../master/head.html") %>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
-  <link rel="stylesheet" href="css/bootstrap-dialog.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
   <script src="js/lodash.js"></script>
   <script type="text/javascript" src="js/svg.js"></script>
   <script type="text/javascript" src="js/svg.filter.js"></script>
 
-  <script type="text/javascript" src="js/bootstrap-dialog.js"></script>
   <script type="text/javascript" src="js/jquery.panzoom.js"></script>
   <script type="text/javascript" src="js/contents/svgMap/drawSvg.js"></script>
   <script type="text/javascript" src="js/config/upsasConfig.js"></script>
@@ -192,37 +190,64 @@
   <script>
     // drawing map
     var map = <%- JSON.stringify(map) %>
-    drawSvgBackground('canvas')
+    drawSvgBasePlace('canvas');
 
-    // size 재설정
-    var svgMap = SVG.get('svgCanvas')
-    var canvas = document.getElementById('canvas')
-    canvas.style.width = svgMap.node.width.baseVal.value + 'px'
-    canvas.style.height = svgMap.node.height.baseVal.value + 'px'
+// size 재설정
+var svgMap = SVG.get('svgCanvas');
+var canvas = document.getElementById('canvas');
+canvas.style.width = svgMap.node.width.baseVal.value + 'px';
+canvas.style.height = svgMap.node.height.baseVal.value + 'px';
+var $canvas = $('#canvas')
+var matrix = 'matrix(0.4, 0, 0, 0.4, -850, -600)'
 
-    // panzoom 기능
-    var $panzoom = $('#canvas').panzoom({
-      // $zoomIn: $('#zoom-in'),
-      // $zoomOut: $('#zoom-out'),
+var filter = "win16|win32|win64|mac";
+if (navigator.platform) {
+  if (0 > filter.indexOf(navigator.platform.toLowerCase())) {
+    // mobile
+    // panzoom
+    $canvas.panzoom({
+      disablePan: true,
+      disableZoom: true,
+      startTransform: matrix,
+    })
+    $('#zoom-out', '#zoom-in', '#reset').hide()
+  } else {
+    // pc
+    // panzoom
+    $canvas.panzoom({
       $reset: $('#reset'),
       cursor: "context-menu",
-      startTransform: 'matrix(0.4, 0, 0, 0.4, -850, -900)',
+      startTransform: matrix,
+    })
+
+    // mouseWheel
+    $canvas.panzoom().on('mousewheel.focal', function (e) {
+      e.preventDefault();
+      var delta = e.delta || e.originalEvent.wheelDelta;
+      var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+      $canvas.panzoom('zoom', zoomOut, {
+        animate: false,
+        focal: e
+      });
     })
 
     // zoom 기능 기준점 재정의
     $('#zoom-in').click(function (e) {
-      e.clientX = 300
-      e.clientY = 200
-      $panzoom.panzoom('zoom', {
+      e.clientX = 300;
+      e.clientY = 200;
+      $canvas.panzoom('zoom', {
         // focal: e
-      })
-    })
-
+      });
+    });
     $('#zoom-out').click(function (e) {
-      e.clientX = 300
-      e.clientY = 200
-      $panzoom.panzoom('zoom', 'zoomOut', {})
-    })
+      e.clientX = 300;
+      e.clientY = 200;
+      $canvas.panzoom('zoom', 'zoomOut', {
+        focal: e,
+      });
+    });
+  }
+}
   </script>
 
   <script>

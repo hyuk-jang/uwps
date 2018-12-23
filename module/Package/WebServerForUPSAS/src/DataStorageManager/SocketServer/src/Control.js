@@ -6,9 +6,9 @@ const { BM } = require('base-model-jh');
 
 const net = require('net');
 // const AbstDeviceClient = require('device-client-controller-jh');
-const { BaseModel } = require('../../../../../../module/device-protocol-converter-jh');
+const { BaseModel } = require('../../../../../../../../module/device-protocol-converter-jh');
 
-const { dcmWsModel } = require('../../../../../../module/default-intelligence');
+const { dcmWsModel } = require('../../../../../../../../module/default-intelligence');
 
 const socketServerConfig = require('./config');
 
@@ -204,6 +204,7 @@ class SocketServer extends EventEmitter {
    * @return {defaultFormatToResponse}
    */
   certifyClient(client, requestedDataByDataLogger) {
+    BU.CLI('certifyClient');
     /** @type {defaultFormatToResponse} */
     const responseDataByServer = {
       commandId: requestedDataByDataLogger.commandId,
@@ -215,6 +216,7 @@ class SocketServer extends EventEmitter {
     );
     // 인증이 성공했다면 Socket Client를 적용.
     if (foundIt) {
+      BU.CLI('인증 성공');
       foundIt.msClient = client;
       responseDataByServer.isError = 0;
 

@@ -16,8 +16,7 @@ const {
   requestOrderCommandType,
   combinedOrderType,
   simpleOrderStatus,
-} = require('../../../../../module/default-intelligence').dcmConfigModel;
-
+} = require('../../../../../../../module/default-intelligence').dcmConfigModel;
 /** 무안 6kW TB */
 
 class SocketIoManager {

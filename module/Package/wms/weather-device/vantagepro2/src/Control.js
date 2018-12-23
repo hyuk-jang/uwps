@@ -6,10 +6,10 @@ const Model = require('./Model');
 const mainConfig = require('./config');
 
 // const {AbstConverter, controlFormat} = require('../../../../../../module/device-protocol-converter-jh');
-const { AbstConverter, BaseModel } = require('../../../../../module/device-protocol-converter-jh');
+const { AbstConverter, BaseModel } = require('../../../../../../../module/device-protocol-converter-jh');
 // const {AbstConverter} = require('device-protocol-converter-jh');
 
-const { dccFlagModel } = require('../../../../../module/default-intelligence');
+const { dccFlagModel } = require('../../../../../../../module/default-intelligence');
 
 const Serial = require('./DeviceClient/Serial');
 
@@ -81,12 +81,12 @@ class Control {
       // 정상적인 데이터가 들어왔다고 처리
       this.hasReceivedData = true;
       this.model.onData(resultParsing.data);
-      BU.CLI(
-        'SolarRadiation',
-        this.getDeviceOperationInfo().data[BaseModel.Weathercast.BASE_KEY.SolarRadiation],
-      );
+      // BU.CLI(
+      //   'SolarRadiation',
+      //   this.getDeviceOperationInfo().data[BaseModel.Weathercast.BASE_KEY.SolarRadiation],
+      // );
     } else {
-      BU.CLI(resultParsing)
+      // BU.CLI(resultParsing)
       // BU.logFile(JSON.stringify(resultParsing));
     }
   }

@@ -2,7 +2,7 @@ const _ = require('lodash');
 const { BU } = require('base-util-jh');
 const { BM } = require('base-model-jh');
 
-const { BaseModel } = require('../../../../../module/device-protocol-converter-jh');
+const { BaseModel } = require('../../../../../../../module/device-protocol-converter-jh');
 
 const SocketServer = require('../SocketServer');
 const PowerStatusMaker = require('../PowerStatusMaker');

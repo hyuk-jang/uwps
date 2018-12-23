@@ -1,6 +1,6 @@
 const { BU } = require('base-util-jh');
 
-const AbstDeviceClient = require('../../../../../module/device-client-controller-jh');
+const AbstDeviceClient = require('../../../../../../../module/device-client-controller-jh');
 const Model = require('./Model');
 
 const mainConfig = require('./config');

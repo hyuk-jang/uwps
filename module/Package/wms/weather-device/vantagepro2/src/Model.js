@@ -5,7 +5,7 @@ const { BU, CU } = require('base-util-jh');
 
 const Control = require('./Control');
 
-const { BaseModel } = require('../../../../../module/device-protocol-converter-jh');
+const { BaseModel } = require('../../../../../../../module/device-protocol-converter-jh');
 
 const { BASE_MODEL } = BaseModel.Weathercast;
 
@@ -42,7 +42,10 @@ class Model {
    */
   onData(weathercastData) {
     // BU.CLI(weathercastData);
-    BU.CLI(this.averageStorage.dataStorage[BaseModel.Weathercast.BASE_KEY.SolarRadiation]);
+    BU.CLI(
+      'SolarRadiation',
+      this.averageStorage.dataStorage[BaseModel.Weathercast.BASE_KEY.SolarRadiation],
+    );
     weathercastData = this.averageStorage.onData(weathercastData);
 
     this.deviceData = weathercastData;

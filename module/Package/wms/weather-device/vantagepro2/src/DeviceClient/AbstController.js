@@ -5,7 +5,7 @@ const { BU, CU } = require('base-util-jh');
 
 const {
   definedControlEvent,
-} = require('../../../../../../module/default-intelligence').dccFlagModel;
+} = require('../../../../../../../../module/default-intelligence').dccFlagModel;
 
 class AbstController {
   constructor() {

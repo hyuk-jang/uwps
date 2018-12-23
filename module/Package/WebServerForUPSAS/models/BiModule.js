@@ -2,8 +2,6 @@ const _ = require('lodash');
 const { BM } = require('base-model-jh');
 const { BU } = require('base-util-jh');
 
-require('../../../module/default-intelligence');
-
 /**
  * @typedef {Object[]} weatherRowDataPacketList
  * @property {string} view_date 차트에 표현할 Date Format

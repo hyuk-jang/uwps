@@ -5,7 +5,7 @@ const Model = require('./Model');
 const mainConfig = require('./config');
 const Serial = require('./DeviceClient/Serial');
 
-require('../../../../../module/default-intelligence');
+require('../../../../../../../module/default-intelligence');
 
 class Control {
   /** @param {mainConfig} config */

@@ -3,6 +3,10 @@ const { BU } = require('base-util-jh');
 
 const Control = require('./Control');
 
+require('default-intelligence');
+// TEST
+const tempSacle = require('../../../../temp/tempSacle');
+
 class MuanTB {
   /** @param {Control} controller */
   constructor(controller) {
@@ -44,7 +48,25 @@ class MuanTB {
 
       const EARTH = '육상';
 
+      /** @type {V_INVERTER_STATUS[]} */
       const vInverterDataList = await this.biModule.getTable('v_inverter_status', { amount: 15 });
+
+      // TEST 모듈 가중치 적용 계산
+      vInverterDataList.forEach(viewInverterStatusInfo => {
+        const foundIt = _.find(tempSacle.inverterScale, {
+          inverter_seq: viewInverterStatusInfo.inverter_seq,
+        });
+        // currentItem.in_a = _.round(foundIt.scale * currentItem.in_a, 1);
+        viewInverterStatusInfo.in_w = _.round(foundIt.scale * viewInverterStatusInfo.in_w, 1);
+        // currentItem.out_a = _.round(foundIt.scale * currentItem.out_a, 1);
+        viewInverterStatusInfo.out_w = _.round(foundIt.scale * viewInverterStatusInfo.out_w, 1);
+        // currentItem.d_wh = _.round(foundIt.scale * currentItem.d_wh, 0);
+        viewInverterStatusInfo.c_wh = _.round(foundIt.scale * viewInverterStatusInfo.c_wh, 1);
+        viewInverterStatusInfo.daily_power_wh = _.round(
+          foundIt.scale * viewInverterStatusInfo.daily_power_wh,
+          0,
+        );
+      });
 
       const groupingInverterDataList = _.groupBy(vInverterDataList, 'install_place');
       // BU.CLI(groupingInverterDataList);
@@ -133,7 +155,7 @@ class MuanTB {
         }
       });
 
-      BU.CLI(dataBodyList);
+      BU.CLI('무안 현황판 데이터 정제', dataBodyList);
 
       const strDataBodyList = [];
       dataBodyList.forEach(ele => strDataBodyList.push(_.padStart(ele.toString(), 4, '0')));
@@ -144,6 +166,8 @@ class MuanTB {
       strDataBodyList.forEach(currentItem => {
         bufDataBody = Buffer.concat([bufDataBody, Buffer.from(currentItem)]);
       });
+
+      // BU.CLI(bufDataBody);
 
       // TEST
       // bufDataBody = Buffer.from([

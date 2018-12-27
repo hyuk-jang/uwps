@@ -10,7 +10,7 @@
   "dependencies": {
     "base-class-jh": "^1.0.17",
     "base-model-jh": "^1.2.5",
-    "base-util-jh": "^1.1.23",
+    "base-util-jh": "^1.2.1",
     "bluebird": "^3.5.3",
     "body-parser": "^1.18.3",
     "connect-flash": "^0.1.1",

@@ -133,8 +133,6 @@ module.exports = app => {
       webUtil.applyScaleChart(chartData, 'day');
       webUtil.mappingChartDataName(chartData, '인버터 시간별 발전량');
 
-      biModule.getTable('v_dv_sensor_data');
-
       // console.timeEnd('0.5');
 
       // console.time('1');

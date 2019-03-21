@@ -106,7 +106,7 @@ class BiDevice extends BiModule {
           ${dateFormat.selectViewDate},
           ${dateFormat.selectGroupDate},
           ROUND(AVG(num_data), 1)  AS avg_num_data
-      FROM v_dv_sensor_data
+      FROM dv_sensor_data
       WHERE node_seq IN (${node_seq})
         AND writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
         AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '20'

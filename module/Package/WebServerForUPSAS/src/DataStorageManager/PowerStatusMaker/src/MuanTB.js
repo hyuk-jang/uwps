@@ -155,7 +155,7 @@ class MuanTB {
         }
       });
 
-      BU.CLI('무안 현황판 데이터 정제', dataBodyList);
+      // BU.CLI('무안 현황판 데이터 정제', dataBodyList);
 
       const strDataBodyList = [];
       dataBodyList.forEach(ele => strDataBodyList.push(_.padStart(ele.toString(), 4, '0')));

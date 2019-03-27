@@ -21,6 +21,14 @@ const MainControl = require('./src/MainControl');
 const CONTROLLERS_PATH = `${process.cwd()}\\controllers`;
 global.CONTROLLERS_PATH = CONTROLLERS_PATH;
 
+// setInterval(() => {
+//   const used = process.memoryUsage();
+//   for (const key in used) {
+//     console.log(`${key} ${Math.round((used[key] / 1024 / 1024) * 100) / 100} MB`);
+//   }
+
+// }, 1000 * 10);
+
 // TODO: 개선 필요
 const initSetter = new InitSetter(config.init);
 global.initSetter = initSetter;

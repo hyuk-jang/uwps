@@ -126,6 +126,7 @@ class SocketServer extends EventEmitter {
             // JSON 객체로 변환
             /** @type {defaultFormatToRequest|defaultFormatToResponse} */
             const requestedDataByDataLogger = JSON.parse(strData);
+            BU.errorLog('requestedDataByDataLogger', strData);
             // BU.CLI(requestedDataByDataLogger);
 
             // isError Key가 존재하고 Number 형태라면 요청에 대한 응답이라고 판단하고 이벤트 발생
@@ -144,7 +145,7 @@ class SocketServer extends EventEmitter {
             // BU.CLI(responseDataByServer);
             socket.write(this.defaultConverter.encodingMsg(responseDataByServer));
           } catch (error) {
-            BU.logFile(error);
+            BU.errorLog('error', error);
             socket.write(
               this.defaultConverter.encodingMsg(this.defaultConverter.protocolConverter.CAN),
             );
@@ -154,7 +155,7 @@ class SocketServer extends EventEmitter {
 
         socket.on('error', err => {
           // socket.emit('close')
-          BU.logFile(err);
+          BU.errorLog('error', err);
           socket.emit('close');
         });
 
@@ -333,6 +334,7 @@ class SocketServer extends EventEmitter {
    * @param {nodeInfo[]} nodeList
    */
   compareNodeList(msInfo, nodeList) {
+    BU.CLIN(nodeList);
     try {
       /** @type {nodeInfo[]} */
       const renewalList = [];
@@ -343,7 +345,7 @@ class SocketServer extends EventEmitter {
         });
 
         // 데이터가 서로 다르다면 갱신된 데이터
-        if (!_.isEqual(nodeInfo.data, msNodeInfo.data)) {
+        if (msNodeInfo !== undefined && !_.isEqual(nodeInfo.data, msNodeInfo.data)) {
           msNodeInfo.data = nodeInfo.data;
           renewalList.push(msNodeInfo);
         }
@@ -361,6 +363,7 @@ class SocketServer extends EventEmitter {
       // BU.CLI(renewalList);
       return renewalList;
     } catch (error) {
+      BU.CLI(error);
       throw error;
     }
   }

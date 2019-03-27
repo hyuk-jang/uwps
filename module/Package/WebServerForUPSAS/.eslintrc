@@ -2,7 +2,7 @@
   "extends": ["airbnb", "prettier"],
   "plugins": ["prettier"],
   "rules": {
-    "camelcase": "off",
+    "camelcase": "warn",
     "linebreak-style": "off",
     "quotes": "error",
     "no-console": "off",
@@ -11,6 +11,7 @@
     "no-param-reassign": "off",
     "class-methods-use-this": "off",
     "consistent-return": "off",
+    "no-unused-vars": "warn",
     "prettier/prettier": "error"
   }
 }

@@ -1,5 +1,5 @@
 SELECT 
-	STRAIGHT_JOIN m.*, nsd.real_module_water_level, nsd_2.real_module_temperature
+	STRAIGHT_JOIN m.*, nsd.real_module_water_level, nsd_2.real_module_temperature, nsd_3.real_brineTemperature
  FROM
 	(
 		(
@@ -24,6 +24,7 @@ SELECT
 						ELSE id_report.interval_wh
 					END AS interval_wh,
 					wdd.avg_temp AS avg_outside_temperature, wdd.total_horizontal_solar, wdd.total_inclined_solar,
+					wdd.avg_reh, wdd.avg_ws,
 					-- kd.avg_sky, kd.avg_ws,
 					twl.water_level
 		FROM
@@ -54,7 +55,7 @@ SELECT
 								MAX(c_wh) AS max_c_wh,
 								MIN(c_wh) AS min_c_wh
 				FROM inverter_data id
-				WHERE writedate>= "2019-03-19 00:00:00" and writedate<"2019-03-21 00:00:00"
+				WHERE writedate>= "2018-08-01 00:00:00" and writedate<"2019-03-21 00:00:00"
 				GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), inverter_seq
 				ORDER BY inverter_seq, writedate
 				) AS id_group
@@ -94,8 +95,8 @@ SELECT
 							AVG(uv) AS avg_uv,
 							COUNT(*) AS first_count
 				FROM weather_device_data
-				WHERE writedate>= "2019-03-19 00:00:00" and writedate<"2019-03-21 00:00:00"
-				AND DATE_FORMAT(writedate, '%H') > '05' AND DATE_FORMAT(writedate, '%H') < '21'
+				WHERE writedate>= "2018-08-01 00:00:00" and writedate<"2019-03-21 00:00:00"
+				-- AND DATE_FORMAT(writedate, '%H') > '05' AND DATE_FORMAT(writedate, '%H') < '21'
 				GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H")
 				) AS result_wdd
 			GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H")
@@ -119,8 +120,8 @@ SELECT
 								END AS scale_sky
 				FROM kma_data
 				) kd
-			WHERE applydate>= "2019-03-19 00:00:00" and applydate<"2019-03-21 00:00:00"
-			AND DATE_FORMAT(applydate, '%H') > '05' AND DATE_FORMAT(applydate, '%H') < '21'
+			WHERE applydate>= "2018-08-01 00:00:00" and applydate<"2019-03-21 00:00:00"
+			-- AND DATE_FORMAT(applydate, '%H') > '05' AND DATE_FORMAT(applydate, '%H') < '21'
 			GROUP BY DATE_FORMAT(applydate,"%Y-%m-%d %H")
 			) AS kd
 		 ON kd.group_date = id_report.group_date
@@ -141,8 +142,8 @@ SELECT
 							DATE_FORMAT(writedate,"%Y-%m-%d %H") AS group_date,
 							ROUND(AVG(num_data), 1) AS avg_num_data
 			FROM `dv_sensor_data` AS dsd
-			WHERE writedate>="2019-03-19 00:00:00" AND writedate<"2019-03-21 00:00:00"
-			 AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '20'
+			WHERE writedate>="2018-08-01 00:00:00" AND writedate<"2019-03-21 00:00:00"
+			--  AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '20'
        AND num_data > 0
 			GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), node_seq
 			ORDER BY node_seq, writedate
@@ -164,12 +165,34 @@ SELECT
                 DATE_FORMAT(writedate,"%Y-%m-%d %H") AS group_date,
                 ROUND(AVG(num_data), 1) AS avg_num_data
         FROM `dv_sensor_data` AS dsd
-        WHERE writedate>="2019-03-19 00:00:00" AND writedate<"2019-03-21 00:00:00"
-        AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '20'
+        WHERE writedate>="2018-08-01 00:00:00" AND writedate<"2019-03-21 00:00:00"
+        -- AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '20'
         GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), node_seq
         ORDER BY node_seq, writedate
         ) AS sd
        ON sd.node_seq = dpr.node_seq	
 		  ) AS nsd_2
 		 ON nsd_2.place_seq = m.place_seq AND nsd_2.group_date = m.group_date 
+    LEFT JOIN
+		  (
+      SELECT 
+            sd.group_date, sd.avg_num_data AS real_brineTemperature, dpr.place_seq
+      FROM `v_dv_place_relation` AS dpr
+      RIGHT OUTER JOIN `relation_power` AS sub_rp
+       ON sub_rp.place_seq = dpr.place_seq AND dpr.nd_target_id = 'brineTemperature'
+      JOIN
+        (
+        SELECT 
+                node_seq,
+                DATE_FORMAT(writedate,"%Y-%m-%d %H") AS group_date,
+                ROUND(AVG(num_data), 1) AS avg_num_data
+        FROM `dv_sensor_data` AS dsd
+        WHERE writedate>="2018-08-01 00:00:00" AND writedate<"2019-03-21 00:00:00"
+        -- AND DATE_FORMAT(writedate, '%H') >= '05' AND DATE_FORMAT(writedate, '%H') < '20'
+        GROUP BY DATE_FORMAT(writedate,"%Y-%m-%d %H"), node_seq
+        ORDER BY node_seq, writedate
+        ) AS sd
+       ON sd.node_seq = dpr.node_seq	
+		  ) AS nsd_3
+		 ON nsd_3.place_seq = m.place_seq AND nsd_3.group_date = m.group_date 
   )

@@ -351,7 +351,7 @@ function executeCommand(socket, controlType, nodeId) {
   const requestMsg = {
     commandId: 'SINGLE',
     contents: {
-      requestCommandType: 'CONTROL',
+      wrapCmdType: 'CONTROL',
       nodeId,
       controlType,
       rank: 2,

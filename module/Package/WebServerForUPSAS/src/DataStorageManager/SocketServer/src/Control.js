@@ -80,7 +80,7 @@ class SocketServer extends EventEmitter {
         msDataInfo: {
           dataLoggerList: filterDataLoggerList,
           nodeList: filterNodeList,
-          simpleOrderList: [],
+          contractCmdList: [],
         },
       };
 
@@ -270,7 +270,7 @@ class SocketServer extends EventEmitter {
             this.compareNodeList(msInfo, requestedDataByDataLogger.contents);
             break;
           case COMMAND: // 명령 정보가 업데이트 되었을 경우
-            this.compareSimpleOrderList(msInfo, requestedDataByDataLogger.contents);
+            this.compareContractCmdList(msInfo, requestedDataByDataLogger.contents);
             break;
           case STAUTS: // 현황판 데이터를 요청할 경우
             this.transmitDataToClient(msInfo.msClient, msInfo.msDataInfo.statusBoard);
@@ -371,38 +371,38 @@ class SocketServer extends EventEmitter {
   /**
    * @desc dcmWsModel.transmitToServerCommandType.COMMAND 명렁 처리 메소드
    * @param {msInfo} msInfo
-   * @param {simpleOrderInfo[]} receiveSimpleOrderList
+   * @param {contractCmdInfo[]} receiveContractCmdList
    */
-  compareSimpleOrderList(msInfo, receiveSimpleOrderList) {
-    // BU.CLI(receiveSimpleOrderList);
+  compareContractCmdList(msInfo, receiveContractCmdList) {
+    // BU.CLI(receiveContractCmdList);
     try {
       // Data Logger에서 보내온 List를 전부 적용해버림
-      msInfo.msDataInfo.simpleOrderList = receiveSimpleOrderList;
+      msInfo.msDataInfo.contractCmdList = receiveContractCmdList;
 
       // // 수신 받은 노드 리스트를 순회
-      // _.forEach(receiveSimpleOrderList, simpleOrderInfo => {
-      //   const foundIndex = _.findIndex(msInfo.msDataInfo.simpleOrderList, {
-      //     uuid: simpleOrderInfo.uuid,
+      // _.forEach(receiveContractCmdList, contractCmdInfo => {
+      //   const foundIndex = _.findIndex(msInfo.msDataInfo.contractCmdList, {
+      //     uuid: contractCmdInfo.uuid,
       //   });
 
       //   // 데이터가 존재한다면 해당 명령의 변화가 생긴 것
       //   if (foundIndex !== -1) {
       //     // BU.CLI('변화가 생겼네요')
-      //     _.pullAt(msInfo.msDataInfo.simpleOrderList, foundIndex);
+      //     _.pullAt(msInfo.msDataInfo.contractCmdList, foundIndex);
       //   }
       //   // 신규 데이터는 삽입
-      //   msInfo.msDataInfo.simpleOrderList.push(simpleOrderInfo);
+      //   msInfo.msDataInfo.contractCmdList.push(contractCmdInfo);
       // });
-      // BU.CLI(msInfo.msDataInfo.simpleOrderList);
+      // BU.CLI(msInfo.msDataInfo.contractCmdList);
 
       // Observer가 해당 메소드를 가지고 있다면 전송
       this.observerList.forEach(observer => {
-        if (_.get(observer, 'updateSimpleOrderList')) {
-          observer.updateSimpleOrderList(msInfo);
+        if (_.get(observer, 'updateContractCmdList')) {
+          observer.updateContractCmdList(msInfo);
         }
       });
 
-      return msInfo.msDataInfo.simpleOrderList;
+      return msInfo.msDataInfo.contractCmdList;
     } catch (error) {
       throw error;
     }

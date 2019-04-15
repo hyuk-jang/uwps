@@ -106,8 +106,8 @@
               <table id="CMD_order_list" class="table">
                 <thead>
                   <tr>
-                    <th data-field="orderCommandType">명령 종류</th>
-                    <th data-field="orderStatus">명령 상태</th>
+                    <th data-field="reqWrapCmdType">명령 종류</th>
+                    <th data-field="complexCmdStep">명령 상태</th>
                     <th data-field="commandId">요청 ID</th>
                     <th data-field="commandName">명령 이름</th>
                   </tr>
@@ -343,13 +343,13 @@ if (navigator.platform) {
           commandId: "AUTOMATIC",
           contents: {
             /**
-             * 명령 제어 타입 (requestOrderCommandType) 
+             * 명령 제어 타입 (reqWrapCmdType) 
              * @example
              * CONTROL: 장치 제어 요청
              * CANCEL: 명령 제어 취소 요청
              * MEASURE: 명령 계측 요청
              */
-            requestCommandType: controlType,
+            wrapCmdType: controlType,
             savedCommandId: automaticId,
           }
         }
@@ -365,13 +365,13 @@ if (navigator.platform) {
           commandId: "SINGLE",
           contents: {
             /**
-             * 명령 제어 타입 (requestOrderCommandType) 
+             * 명령 제어 타입 (reqWrapCmdType) 
              * @example
              * CONTROL: 장치 제어 요청
              * CANCEL: 명령 제어 취소 요청
              * MEASURE: 명령 계측 요청
              */
-            requestCommandType: "CONTROL", // 단일 동작 제어는 모두 명령 요청으로 처리
+            wrapCmdType: "CONTROL", // 단일 동작 제어는 모두 명령 요청으로 처리
             nodeId: deviceId,
             /**
              * 장치 제어 타입 (requestDeviceControlType)
@@ -396,13 +396,13 @@ if (navigator.platform) {
           commandId: "SCENARIO",
           contents: {
             /**
-             * 명령 제어 타입 (requestOrderCommandType) 
+             * 명령 제어 타입 (reqWrapCmdType) 
              * @example
              * CONTROL: 장치 제어 요청
              * CANCEL: 명령 제어 취소 요청
              * MEASURE: 명령 계측 요청
              */
-            requestCommandType: controlType,
+            wrapCmdType: controlType,
             scenarioId: "scenario1",
             rank: 1,
           }

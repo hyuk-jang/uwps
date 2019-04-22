@@ -229,7 +229,7 @@ class SocketServer extends EventEmitter {
         }
       });
     } else {
-      responseDataByServer.errorStack = '등록되지 않은 거점입니다.';
+      responseDataByServer.message = '등록되지 않은 거점입니다.';
     }
     return responseDataByServer;
   }
@@ -260,7 +260,7 @@ class SocketServer extends EventEmitter {
       const responseDataByServer = {
         commandId: requestedDataByDataLogger.commandId,
         isError: 0,
-        errorStack: '',
+        message: '',
       };
 
       const msInfo = this.findMsInfoByClient(client);
@@ -281,14 +281,14 @@ class SocketServer extends EventEmitter {
             break;
           default:
             responseDataByServer.isError = 1;
-            responseDataByServer.errorStack = `${
+            responseDataByServer.message = `${
               requestedDataByDataLogger.commandId
             }은 등록되지 않은 명령입니다.`;
         }
         return responseDataByServer;
       }
       responseDataByServer.isError = 1;
-      responseDataByServer.errorStack = '사용자 인증이 필요합니다.';
+      responseDataByServer.message = '사용자 인증이 필요합니다.';
       return responseDataByServer;
     } catch (error) {
       throw error;

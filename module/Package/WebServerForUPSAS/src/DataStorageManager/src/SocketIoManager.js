@@ -149,16 +149,16 @@ class SocketIoManager {
 
       // 명령 상태 한글로 변경
       switch (contractCmdInfo.complexCmdStep) {
-        case contractCmdStatus.NEW:
+        case complexCmdStep.WAIT:
           pickInfo.complexCmdStep = '대기 중';
           pickInfo.index = 0;
           break;
-        case contractCmdStatus.PROCEED:
+        case complexCmdStep.PROCEED:
           pickInfo.complexCmdStep = '진행 중';
           pickInfo.index = 1;
           break;
-        case contractCmdStatus.COMPLETE:
-          pickInfo.complexCmdStep = '완료';
+        case complexCmdStep.RUNNING:
+          pickInfo.complexCmdStep = '실행 중';
           pickInfo.index = 2;
           break;
         default:

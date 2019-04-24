@@ -116,10 +116,10 @@
               <table id="CMD_order_list" class="table">
                 <thead>
                   <tr>
-                    <th data-field="reqWrapCmdType">명령 종류</th>
-                    <th data-field="complexCmdStep">명령 상태</th>
-                    <th data-field="commandId">요청 ID</th>
-                    <th data-field="commandName">명령 이름</th>
+                    <th data-field="wrapCmdType">명령 종류</th>
+                    <th data-field="wrapCmdStep">명령 상태</th>
+                    <th data-field="wrapCmdId">요청 ID</th>
+                    <th data-field="wrapCmdName">명령 이름</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -215,7 +215,8 @@
       });
 
       // 노드 관련 갱신 반영
-      socket.on("updateNodeInfo", function (nodeList) {
+      socket.on("updateNode", function (nodeList) {
+        // console.log(nodeList)
         currNodeList = nodeList;
         // draw map
         _.forEach(nodeList, nodeInfo => {
@@ -228,9 +229,10 @@
       });
 
       // 명령 관련 갱신 반영
-      socket.on("updateOrderInfo", function (orderList) {
+      socket.on("updateCommand", function (commandList) {
+        // console.log(commandList)
         $CMD_order_table.bootstrapTable('destroy').bootstrapTable({
-          data: orderList
+          data: commandList
         });
         document.getElementById("CMD_order_date").innerText = new Date().toLocaleString();
       });
@@ -247,7 +249,7 @@
           commandId: "AUTOMATIC",
           contents: {
             /**
-             * 명령 제어 타입 (reqWrapCmdType) 
+             * 명령 제어 타입 (wrapCmdType) 
              * @example
              * CONTROL: 장치 제어 요청
              * CANCEL: 명령 제어 취소 요청
@@ -269,7 +271,7 @@
           commandId: "SINGLE",
           contents: {
             /**
-             * 명령 제어 타입 (reqWrapCmdType) 
+             * 명령 제어 타입 (wrapCmdType) 
              * @example
              * CONTROL: 장치 제어 요청
              * CANCEL: 명령 제어 취소 요청
@@ -300,7 +302,7 @@
           commandId: "SCENARIO",
           contents: {
             /**
-             * 명령 제어 타입 (reqWrapCmdType) 
+             * 명령 제어 타입 (wrapCmdType) 
              * @example
              * CONTROL: 장치 제어 요청
              * CANCEL: 명령 제어 취소 요청
@@ -337,6 +339,7 @@
         }
       })
     })
+    // $("button[data-value=tableMode]").trigger("click"); // FIXME:
     $("button[data-value=structureMode]").trigger("click"); // FIXME:
   </script>
 
@@ -360,10 +363,6 @@
 
       reDrawNodeData(isChecked)
     });
-
-
-
-
 
     /**
      * isChecked: false: off(한글), true: on(영어)

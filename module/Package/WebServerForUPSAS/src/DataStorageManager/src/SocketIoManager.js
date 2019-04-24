@@ -13,7 +13,7 @@ const webUtil = require('../../../models/web.util.js');
 const Control = require('./Control');
 
 const {
-  reqWrapCmdType,
+  wrapCmdType,
   complexCmdStep,
   contractCmdStatus,
 } = require('../../../../../../../module/default-intelligence').dcmConfigModel;
@@ -57,7 +57,7 @@ class SocketIoManager {
         if (foundIt) {
           foundIt.msUserList.push(msUser);
 
-          const { contractCmdList } = foundIt.msDataInfo;
+          const { contractCmdList = [] } = foundIt.msDataInfo;
 
           let connectedStatus = 'Disconnected';
           if (foundIt.msClient instanceof net.Socket) {
@@ -67,8 +67,9 @@ class SocketIoManager {
           const pickedNodeList = this.pickNodeList(foundIt.msDataInfo);
           // BU.CLI(pickedNodeList);
           socket.emit('updateMsClientStatus', connectedStatus);
-          socket.emit('updateNodeInfo', pickedNodeList);
-          socket.emit('updateOrderInfo', this.pickContractCmdList(contractCmdList));
+          socket.emit('updateNode', pickedNodeList);
+          socket.emit('updateCommand', contractCmdList);
+          // socket.emit('updateCommand', this.pickContractCmdList(contractCmdList));
         }
       });
 
@@ -124,52 +125,49 @@ class SocketIoManager {
 
   /**
    * 노드 정보에서 UI에 보여줄 내용만을 반환
-   * @param {contractCmdInfo[]} contractCmdList
+   * @param {complexCmdWrapInfo[]} complexCmdWrapList
    */
-  pickContractCmdList(contractCmdList) {
-    const pickList = ['reqWrapCmdType', 'complexCmdStep', 'commandId', 'commandName'];
-    const returnValue = _.map(contractCmdList, contractCmdInfo => {
-      const pickInfo = _.pick(contractCmdInfo, pickList);
-
-      // 명령 타입 한글로 변경
-      switch (contractCmdInfo.reqWrapCmdType) {
-        case reqWrapCmdType.CONTROL:
-          pickInfo.reqWrapCmdType = '명령 제어';
-          break;
-        case reqWrapCmdType.CANCEL:
-          pickInfo.reqWrapCmdType = '명령 취소';
-          break;
-        case reqWrapCmdType.MEASURE:
-          pickInfo.reqWrapCmdType = '계측';
-          break;
-        default:
-          pickInfo.reqWrapCmdType = '알수없음';
-          break;
-      }
-
-      // 명령 상태 한글로 변경
-      switch (contractCmdInfo.complexCmdStep) {
-        case complexCmdStep.WAIT:
-          pickInfo.complexCmdStep = '대기 중';
-          pickInfo.index = 0;
-          break;
-        case complexCmdStep.PROCEED:
-          pickInfo.complexCmdStep = '진행 중';
-          pickInfo.index = 1;
-          break;
-        case complexCmdStep.RUNNING:
-          pickInfo.complexCmdStep = '실행 중';
-          pickInfo.index = 2;
-          break;
-        default:
-          pickInfo.complexCmdStep = '알수없음';
-          pickInfo.index = 3;
-          break;
-      }
-      return pickInfo;
-    });
-
-    return _.sortBy(returnValue, 'index');
+  pickContractCmdList(complexCmdWrapList) {
+    // const pickList = ['wrapCmdType', 'complexCmdStep', 'commandId', 'commandName'];
+    // const returnValue = _.map(complexCmdWrapList, complexCmdWrapInfo => {
+    //   const { wrapCmdType, wrapCmdStep } = complexCmdWrapInfo;
+    //   // const pickInfo = _.pick(complexCmdWrapInfo, pickList);
+    //   // 명령 타입 한글로 변경
+    //   switch (wrapCmdType) {
+    //     case wrapCmdType.CONTROL:
+    //       complexCmdWrapInfo.wrapCmdType = '명령 제어';
+    //       break;
+    //     case wrapCmdType.RESTORE:
+    //       complexCmdWrapInfo.wrapCmdType = '명령 복구';
+    //       break;
+    //     case wrapCmdType.CANCEL:
+    //       complexCmdWrapInfo.wrapCmdType = '명령 취소';
+    //       break;
+    //     case wrapCmdType.MEASURE:
+    //       complexCmdWrapInfo.wrapCmdType = '계측';
+    //       break;
+    //     default:
+    //       complexCmdWrapInfo.wrapCmdType = '알수없음';
+    //       break;
+    //   }
+    //   // 명령 상태 한글로 변경
+    //   switch (wrapCmdStep) {
+    //     case complexCmdStep.WAIT:
+    //       complexCmdWrapInfo.wrapCmdStep = '대기 중';
+    //       break;
+    //     case complexCmdStep.PROCEED:
+    //       complexCmdWrapInfo.wrapCmdStep = '진행 중';
+    //       break;
+    //     case complexCmdStep.RUNNING:
+    //       complexCmdWrapInfo.wrapCmdStep = '실행 중';
+    //       break;
+    //     default:
+    //       complexCmdWrapInfo.wrapCmdStep = '알수없음';
+    //       break;
+    //   }
+    //   return complexCmdWrapInfo;
+    // });
+    // return _.sortBy(returnValue, 'index');
   }
 
   /**
@@ -205,7 +203,7 @@ class SocketIoManager {
     const simpleNodeList = this.pickNodeList(msInfo.msDataInfo);
     // 해당 Socket Client에게로 데이터 전송
     msInfo.msUserList.forEach(clientInfo => {
-      clientInfo.socketClient.emit('updateNodeInfo', simpleNodeList);
+      clientInfo.socketClient.emit('updateNode', simpleNodeList);
     });
   }
 
@@ -213,11 +211,11 @@ class SocketIoManager {
    * 현재 수행중인 명령 리스트를 io Client로 보냄
    * @param {msInfo} msInfo
    */
-  submitOrderListToIoClient(msInfo) {
-    const pickedOrderList = this.pickContractCmdList(msInfo.msDataInfo.contractCmdList);
+  submitCommandListToIoClient(msInfo) {
+    // const pickedOrderList = this.pickContractCmdList(msInfo.msDataInfo.contractCmdList);
     // 해당 Socket Client에게로 데이터 전송
     msInfo.msUserList.forEach(clientInfo => {
-      clientInfo.socketClient.emit('updateOrderInfo', pickedOrderList);
+      clientInfo.socketClient.emit('updateCommand', msInfo.msDataInfo.contractCmdList);
     });
   }
 

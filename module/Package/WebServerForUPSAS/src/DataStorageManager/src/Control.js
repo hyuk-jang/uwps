@@ -156,7 +156,7 @@ class Control {
    * @param {msInfo} msInfo
    */
   updateContractCmdList(msInfo) {
-    this.socketIoManager.submitOrderListToIoClient(msInfo);
+    this.socketIoManager.submitCommandListToIoClient(msInfo);
   }
 
   /**

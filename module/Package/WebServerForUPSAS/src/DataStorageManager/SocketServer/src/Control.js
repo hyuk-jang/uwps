@@ -334,7 +334,7 @@ class SocketServer extends EventEmitter {
    * @param {nodeInfo[]} nodeList
    */
   compareNodeList(msInfo, nodeList) {
-    BU.CLIN(nodeList);
+    // BU.CLIN(nodeList);
     try {
       /** @type {nodeInfo[]} */
       const renewalList = [];

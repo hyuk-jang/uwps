@@ -5,13 +5,22 @@
   <%- include("../master/head.html") %>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
-  <script src="js/lodash.js"></script>
-  <script type="text/javascript" src="js/svg.js"></script>
-  <script type="text/javascript" src="js/svg.filter.js"></script>
 
-  <script type="text/javascript" src="js/jquery.panzoom.js"></script>
-  <script type="text/javascript" src="js/contents/svgMap/drawSvg.js"></script>
-  <script type="text/javascript" src="js/config/upsasConfig.js"></script>
+  <!-- 개발 토글을 위한 것. 본 서버에는 적용할 필요 없음 -->
+  <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet" />
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.7/dist/css/bootstrap-select.min.css" />
+  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.7/dist/js/bootstrap-select.min.js"></script>
+
+  <!-- SVG Map 을 생성하기 위한 필수 Library -->
+  <script src="js/drawSvg/svg.js"></script>
+  <script src="js/drawSvg/svg.filter.js"></script>
+  <script src="js/drawSvg/jquery.panzoom.js"></script>
+  <script src="js/drawSvg/jquery.mousewheel.js"></script>
+
+  <!-- SVG Map을 생성하고 관리하기 위한 Core Library -->
+  <script src="js/drawSvg/drawSvg.js"></script>
 </head>
 
 <body>
@@ -48,10 +57,11 @@
         </div>
 
         <div class="sel_box_data" id="automatic_control_div">
-          <button type="button" class="btn btn-primary" data-value="CONTROL" style="margin-bottom:3px; height:40px;" id="search">제어
+          <button type="button" class="btn btn-primary" data-value="CONTROL" style="margin-bottom:3px; height:40px;"
+            id="search">제어
             요청</button>
-          <button type="button" class="btn btn-danger" data-value="CANCEL" style="margin-left: 10px; margin-bottom:3px; height:40px;"
-            id="search">취소 요청</button>
+          <button type="button" class="btn btn-danger" data-value="CANCEL"
+            style="margin-left: 10px; margin-bottom:3px; height:40px;" id="search">취소 요청</button>
         </div>
       </div>
       <!-- 장치 제어 -->
@@ -142,14 +152,28 @@
       </div>
       <!-- structureContent -->
       <div id="structureMode">
-        <div style="display: flex; justify-content: center; flex-direction: column">
-          <div id="zoom">
-            <button id="zoom-in" class="btn btn-default btn-sm" style="margin-right: 5px"><span class="glyphicon glyphicon-zoom-in"></span>
-              Zoom-in</button>
-            <button id="zoom-out" class="btn btn-default btn-sm" style="margin-right: 5px"><span class="glyphicon glyphicon-zoom-out"></span>
-              Zoom-out</button>
-            <button id="reset" class="btn btn-default btn-sm" style="margin-right: 5px"><span class="glyphicon glyphicon-refresh"></span>
-              Reset</button>
+        <div class="">
+          <div id="zoom" style="display: flex; justify-content: center;">
+            <button id="zoom-in" class="btn btn-default btn-sm" style="margin-right: 5px">
+              <span class="glyphicon glyphicon-zoom-in"></span>
+              Zoom-in
+            </button>
+            <button id="zoom-out" class="btn btn-default btn-sm" style="margin-right: 5px">
+              <span class="glyphicon glyphicon-zoom-out"></span>
+              Zoom-out
+            </button>
+            <button id="reset" class="btn btn-default btn-sm" style="margin-right: 5px">
+              <span class="glyphicon glyphicon-refresh"></span>
+              Reset
+            </button>
+            <div style="margin-right: 5px">
+              <input id="placeNodeChangeNameToogleBtn" type="checkbox" data-toggle="toggle" />
+            </div>
+            <select class="selectpicker" id="modeSelect">
+              <option value="view">뷰 모드</option>
+              <option value="control">제어 모드</option>
+              <!-- <option value="develop">개발 모드</option> -->
+            </select>
           </div>
           <!-- canvas -->
           <div>
@@ -165,137 +189,16 @@
 
   </div>
 
+  <script src="/socket.io/socket.io.js"></script>
   <script>
-    // tabsheet
-    var $selectDomList = $("button[name=selectMode]");
-    $("button[name=selectMode]").on("click", function (event) {
-      var selectValue = $(this).data("value");
-      $selectDomList.each(function (index, ele) {
-        var $ele = $(ele);
-        var eleValue = $ele.data("value");
-        if (eleValue === selectValue) {
-          $ele.removeClass("btn-default")
-          $ele.addClass("btn-success")
-          $("#" + eleValue).removeAttr("hidden")
-        } else {
-          $ele.removeClass("btn-success")
-          $ele.addClass("btn-default")
-          $("#" + eleValue).attr("hidden", "hidden")
-        }
-      })
-    })
-    $("button[data-value=structureMode]").trigger("click"); // FIXME:
-  </script>
-
-  <script>
-    // drawing map
-    var map = <%- JSON.stringify(map) %>
-    drawSvgBasePlace('canvas');
-
-// size 재설정
-var svgMap = SVG.get('svgCanvas');
-var canvas = document.getElementById('canvas');
-canvas.style.width = svgMap.node.width.baseVal.value + 'px';
-canvas.style.height = svgMap.node.height.baseVal.value + 'px';
-var $canvas = $('#canvas')
-var matrix = 'matrix(0.4, 0, 0, 0.4, -850, -600)'
-
-var filter = "win16|win32|win64|mac";
-if (navigator.platform) {
-  if (0 > filter.indexOf(navigator.platform.toLowerCase())) {
-    // mobile
-    // panzoom
-    $canvas.panzoom({
-      disablePan: true,
-      disableZoom: true,
-      startTransform: matrix,
-    })
-    $('#zoom-out', '#zoom-in', '#reset').hide()
-  } else {
-    // pc
-    // panzoom
-    $canvas.panzoom({
-      $reset: $('#reset'),
-      cursor: "context-menu",
-      startTransform: matrix,
-    })
-
-    // mouseWheel
-    $canvas.panzoom().on('mousewheel.focal', function (e) {
-      e.preventDefault();
-      var delta = e.delta || e.originalEvent.wheelDelta;
-      var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
-      $canvas.panzoom('zoom', zoomOut, {
-        animate: false,
-        focal: e
-      });
-    })
-
-    // zoom 기능 기준점 재정의
-    $('#zoom-in').click(function (e) {
-      e.clientX = 300;
-      e.clientY = 200;
-      $canvas.panzoom('zoom', {
-        // focal: e
-      });
-    });
-    $('#zoom-out').click(function (e) {
-      e.clientX = 300;
-      e.clientY = 200;
-      $canvas.panzoom('zoom', 'zoomOut', {
-        focal: e,
-      });
-    });
-  }
-}
-  </script>
-
-  <script>
-    $("#single_control_cate_list").on("change", function (event) {
-      return setDeviceInfoList();
-    })
-
-    // 장치 카테고리 설정
-    function setDomDeviceType() {
-      var deviceTypeList = _.map(deviceInfoList, "template")
-      var single_control_device_list = document.getElementById("single_control_cate_list");
-      single_control_device_list.innerHTML = deviceTypeList;
-    }
-
-    function setDeviceInfoList() {
-      var deviceGroup;
-      var category = $("#single_control_cate_list").val();
-
-      var domInfo = _.find(deviceInfoList, {
-        type: category
-      })
-      var single_control_device_list = document.getElementById("single_control_device_list");
-      single_control_device_list.innerHTML = domInfo.list;
-    }
-
-    var deviceInfoList;
-    $(document).ready(function () {
-      var automaticDom = <%- JSON.stringify(automaticControlList) %>
-      $('#automatic_control_list').html(automaticDom);
-
-      deviceInfoList = <%- JSON.stringify(deviceInfoList) %>;
-
-      setDomDeviceType();
-      setDeviceInfoList()
-    })
-
-    // $("#single_control_device_list").trigger('click');
-  </script>
-
-
-  <script src="/socket.io/socket.io.js" defer></script>
-  <script defer>
     // 초기 페이지에 접속하면 자동으로 데이터를 갱신하기 위함
     var $CMD_order_table = $('#CMD_order_list');
     var $MS_node_table = $('#MS_node_list');
 
+    var socket;
+    var currNodeList = [];
     $(function () {
-      var socket = io();
+      socket = io();
       bindingClickEventNode(socket)
 
 
@@ -313,6 +216,7 @@ if (navigator.platform) {
 
       // 노드 관련 갱신 반영
       socket.on("updateNodeInfo", function (nodeList) {
+        currNodeList = nodeList;
         // draw map
         _.forEach(nodeList, nodeInfo => {
           showNodeData(nodeInfo.node_id, nodeInfo.data)
@@ -411,6 +315,164 @@ if (navigator.platform) {
       })
     });
   </script>
+
+
+
+  <script>
+    // tabsheet
+    var $selectDomList = $("button[name=selectMode]");
+    $("button[name=selectMode]").on("click", function (event) {
+      var selectValue = $(this).data("value");
+      $selectDomList.each(function (index, ele) {
+        var $ele = $(ele);
+        var eleValue = $ele.data("value");
+        if (eleValue === selectValue) {
+          $ele.removeClass("btn-default")
+          $ele.addClass("btn-success")
+          $("#" + eleValue).removeAttr("hidden")
+        } else {
+          $ele.removeClass("btn-success")
+          $ele.addClass("btn-default")
+          $("#" + eleValue).attr("hidden", "hidden")
+        }
+      })
+    })
+    $("button[data-value=structureMode]").trigger("click"); // FIXME:
+  </script>
+
+  <script>
+    // drawing map
+    var map = <%- JSON.stringify(map) %>
+    drawSvgBasePlace('canvas');
+
+    setPanzoom();
+
+
+    //모드 선택 설렉트 박스 and 한/영 토글 버튼
+    $('select, #placeNodeChangeNameToogleBtn').change(() => {
+      const selectedModeVal = $('select').selectpicker('val');
+      const isChecked = $('#placeNodeChangeNameToogleBtn').prop('checked'); // 체크 상태 false: off, true: on
+
+      $(`#canvas`).empty(); // svg가 그려진 공간 초기화
+      drawSvgBasePlace('canvas', isChecked); // 초기화 후 다시 그리기 (체크 상태 포함)
+
+      bindingClickEventNode(socket, selectedModeVal); // 장치, 센서 클릭 이벤트 다시 바인딩
+
+      reDrawNodeData(isChecked)
+    });
+
+
+
+
+
+    /**
+     * isChecked: false: off(한글), true: on(영어)
+     */
+    function reDrawNodeData(isChecked) {
+      _.forEach(currNodeList, nodeInfo => {
+        showNodeData(nodeInfo.node_id, nodeInfo.data, isChecked)
+      })
+    }
+
+    // panzoom 옵션 세팅
+    function setPanzoom() {
+      const svgMap = SVG.get('svgCanvas');
+      const canvas = document.getElementById('canvas');
+      const $canvas = $('#canvas');
+      const matrix = 'matrix(0.4, 0, 0, 0.4, -850, -600)';
+      const filter = 'win16|win32|win64|mac';
+
+      // 맵 size 재설정
+      canvas.style.width = svgMap.node.width.baseVal.value + 'px';
+      canvas.style.height = svgMap.node.height.baseVal.value + 'px';
+
+      //모바일, pc 접속 분별하여 zoom in/out 활셩 여부 설정
+      if (navigator.platform) {
+        if (0 > filter.indexOf(navigator.platform.toLowerCase())) {
+          // mobile
+          // panzoom
+          $canvas.panzoom({
+            disablePan: true,
+            disableZoom: true,
+            startTransform: matrix,
+          });
+          $('#zoom-out', '#zoom-in', '#reset').hide();
+        } else {
+          // pc
+          // panzoom
+          $canvas.panzoom({
+            $reset: $('#reset'),
+            cursor: 'context-menu',
+            startTransform: matrix,
+          });
+
+          // mouseWheel
+          $canvas.panzoom().on('mousewheel.focal', function (e) {
+            e.preventDefault();
+            const delta = e.delta || e.originalEvent.wheelDelta;
+            const zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+            $canvas.panzoom('zoom', zoomOut, {
+              animate: false,
+              focal: e,
+            });
+          });
+
+          // zoom 기능 기준점 재정의
+          $('#zoom-in').click(function (e) {
+            $canvas.panzoom('zoom', {});
+          });
+          $('#zoom-out').click(function (e) {
+            $canvas.panzoom('zoom', 'zoomOut', {});
+          });
+        }
+      }
+    }
+  </script>
+
+  <script>
+    $("#single_control_cate_list").on("change", function (event) {
+      return setDeviceInfoList();
+    })
+
+    // 장치 카테고리 설정
+    function setDomDeviceType() {
+      var deviceTypeList = _.map(deviceInfoList, "template")
+      var single_control_device_list = document.getElementById("single_control_cate_list");
+      single_control_device_list.innerHTML = deviceTypeList;
+    }
+
+    function setDeviceInfoList() {
+      var deviceGroup;
+      var category = $("#single_control_cate_list").val();
+
+      var domInfo = _.find(deviceInfoList, {
+        type: category
+      })
+      var single_control_device_list = document.getElementById("single_control_device_list");
+      single_control_device_list.innerHTML = domInfo.list;
+    }
+
+    var deviceInfoList;
+    $(document).ready(function () {
+      var automaticDom = <%- JSON.stringify(automaticControlList) %>
+      $('#automatic_control_list').html(automaticDom);
+
+      deviceInfoList = <%- JSON.stringify(deviceInfoList) %>;
+
+      setDomDeviceType();
+      setDeviceInfoList()
+
+      // 시작시 개발 모드로 세팅
+      $('#modeSelect')
+        .val('control')
+        .trigger('change');
+    })
+
+    // $("#single_control_device_list").trigger('click');
+  </script>
+
+
+
 
 
   <%- include("../master/footer.html") %>

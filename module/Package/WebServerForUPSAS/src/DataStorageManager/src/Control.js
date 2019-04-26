@@ -147,7 +147,7 @@ class Control {
    * @param {nodeInfo[]} renewalList 갱신된 노드. 차후에 속도에 문제가 된다면 갱신된 노드만 적용토록 해야함.
    */
   updateNodeList(msInfo, renewalList) {
-    this.socketIoManager.submitNodeListToIoClient(msInfo);
+    this.socketIoManager.submitNodeList(msInfo);
   }
 
   /**
@@ -156,16 +156,20 @@ class Control {
    * @param {msInfo} msInfo
    */
   updateContractCmdList(msInfo) {
-    this.socketIoManager.submitCommandListToIoClient(msInfo);
+    this.socketIoManager.submitCommandList(msInfo);
   }
 
   /**
    * FIXME: 브라우저를 통해 DataLogger로 명령을 요청한 결과를 추적하고 싶다면 해당 브라우저 명령 리스트를 관리하고 이 메소드에서 처리해야함.
+   * FIXME: 요청한 브라우저에게만 명령 처리 결과를 반영해 주어야함
    * 현재는 명령 추적 하지 않음.
    * @desc SocketServer Observer Method Implement
    * @param {msInfo} msInfo
-   * @param {defaultFormatToResponse} requestedDataByDataLogger
+   * @param {defaultFormatToResponse} execCommandResultInfo
    */
-  responsedDataFromDataLogger(msInfo, requestedDataByDataLogger) {}
+  responsedExecCommand(msInfo, execCommandResultInfo) {
+    // BU.CLI(execCommandResultInfo);
+    this.socketIoManager.submitExecCommandResult(msInfo, execCommandResultInfo);
+  }
 }
 module.exports = Control;

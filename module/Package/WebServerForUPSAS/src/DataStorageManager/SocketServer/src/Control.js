@@ -133,8 +133,8 @@ class SocketServer extends EventEmitter {
             if (_.isNumber(_.get(requestedDataByDataLogger, 'isError'))) {
               const msInfo = this.findMsInfoByClient(socket);
               return this.observerList.forEach(observer => {
-                if (_.get(observer, 'responsedDataFromDataLogger')) {
-                  observer.responsedDataFromDataLogger(msInfo, requestedDataByDataLogger);
+                if (_.get(observer, 'responsedExecCommand')) {
+                  observer.responsedExecCommand(msInfo, requestedDataByDataLogger);
                 }
               });
             }

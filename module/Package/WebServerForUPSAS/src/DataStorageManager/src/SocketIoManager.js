@@ -199,7 +199,7 @@ class SocketIoManager {
    * 등록되어져 있는 노드 리스트를 io Client로 보냄.
    * @param {msInfo} msInfo
    */
-  submitNodeListToIoClient(msInfo) {
+  submitNodeList(msInfo) {
     const simpleNodeList = this.pickNodeList(msInfo.msDataInfo);
     // 해당 Socket Client에게로 데이터 전송
     msInfo.msUserList.forEach(clientInfo => {
@@ -211,12 +211,26 @@ class SocketIoManager {
    * 현재 수행중인 명령 리스트를 io Client로 보냄
    * @param {msInfo} msInfo
    */
-  submitCommandListToIoClient(msInfo) {
+  submitCommandList(msInfo) {
     // const pickedOrderList = this.pickContractCmdList(msInfo.msDataInfo.contractCmdList);
     // 해당 Socket Client에게로 데이터 전송
     msInfo.msUserList.forEach(clientInfo => {
       clientInfo.socketClient.emit('updateCommand', msInfo.msDataInfo.contractCmdList);
     });
+  }
+
+  /**
+   * 현재 수행중인 명령 리스트를 io Client로 보냄
+   * @param {msInfo} msInfo
+   * @param {defaultFormatToResponse} execCommandResultInfo
+   */
+  submitExecCommandResult(msInfo, execCommandResultInfo) {
+    // const pickedOrderList = this.pickContractCmdList(msInfo.msDataInfo.contractCmdList);
+
+    msInfo.msUserList.forEach(clientInfo => {
+      clientInfo.socketClient.emit('resultExecCommand', execCommandResultInfo.message);
+    });
+    // 해당 Socket Client에게로 데이터 전송
   }
 
   /**

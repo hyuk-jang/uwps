@@ -40,6 +40,11 @@
         <p>장치 연결 상태:
           <span id="device_connected_stauts"></span>
         </p>
+        <h2>
+          <span>명령 처리 결과:</span>
+          <span id="test_alert" style="color: red"></span>
+
+        </h2>
       </div>
       <!-- 명령 제어 -->
       <div class="row row_width  top_box">
@@ -237,6 +242,14 @@
         document.getElementById("CMD_order_date").innerText = new Date().toLocaleString();
       });
 
+      // FIXME: 오류를 보기위하여 임시
+      // 명령 요청 결과 Alert
+      socket.on("resultExecCommand", function (message) {
+        // console.log(commandList)
+        document.getElementById("test_alert").innerText = message;
+      });
+
+
       // TODO: socket.emit 함수 생성 및 장치 연결 중일 때만 emit하도록 해주는 함수 구현
       // 저장된 명령을 실행하고자 할 경우 (requestMsg는 명령 전송 객체 Key에 쓰이므로 임의 변경 불가)
       $("#automatic_control_div > button").on("click", function () {
@@ -339,8 +352,8 @@
         }
       })
     })
-    // $("button[data-value=tableMode]").trigger("click"); // FIXME:
-    $("button[data-value=structureMode]").trigger("click"); // FIXME:
+    $("button[data-value=tableMode]").trigger("click"); // FIXME:
+    // $("button[data-value=structureMode]").trigger("click"); // FIXME:
   </script>
 
   <script>

@@ -222,6 +222,7 @@
       // 노드 관련 갱신 반영
       socket.on("updateNode", function (nodeList) {
         // console.log(nodeList)
+        var nodeList = _.isArray(nodeList) && nodeList.length > 0 ? nodeList : [];
         currNodeList = nodeList;
         // draw map
         _.forEach(nodeList, nodeInfo => {
@@ -236,6 +237,8 @@
       // 명령 관련 갱신 반영
       socket.on("updateCommand", function (commandList) {
         // console.log(commandList)
+        var commandList = _.isArray(commandList) && commandList.length > 0 ? commandList : [];
+
         $CMD_order_table.bootstrapTable('destroy').bootstrapTable({
           data: commandList
         });

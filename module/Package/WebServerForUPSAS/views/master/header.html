@@ -7,7 +7,7 @@
     <div class="container-fluid container-fluid_st">
       <div class="navbar-header">
         <a class="navbar-brand navbar-brand_st" href="/">
-          <img src="image/kepco-01.png" />
+          <img width="30" height="30" src="/image/sm_logo.png" />
           <h4>&nbsp;&nbsp; 수중 태양광 발전 시스템 모니터링</h4>
           <!-- <img src="image/logo_w-04_180.png" /> -->
         </a>
@@ -19,13 +19,11 @@
         </li>
         <li class="<%= matchingMenu(2,menuNum)%>">
           <a href="/structure">
-            <i class="fa  fa-sitemap fa-home_st" aria-hidden="true"></i>구성도</a
-          >
+            <i class="fa  fa-sitemap fa-home_st" aria-hidden="true"></i>구성도</a>
         </li>
         <li class="<%= matchingMenu(3,menuNum)%>">
           <a href="/connector">
-            <i class="fa fa-object-group fa-home_st" aria-hidden="true"></i>접속반</a
-          >
+            <i class="fa fa-object-group fa-home_st" aria-hidden="true"></i>접속반</a>
         </li>
         <li class="<%= matchingMenu(4,menuNum)%>">
           <a href="/inverter"> <i class="fa fa-server fa-home_st" aria-hidden="true"></i>인버터</a>
@@ -35,16 +33,14 @@
         </li>
         <li class="<%= matchingMenu(6,menuNum)%>">
           <a href="/report">
-            <i class="fa fa-pencil-square-o fa-home_st" aria-hidden="true"></i>보고서</a
-          >
+            <i class="fa fa-pencil-square-o fa-home_st" aria-hidden="true"></i>보고서</a>
         </li>
         <li class="<%= matchingMenu(7,menuNum)%>">
           <a href="/alarm"> <i class="fa fa-bullhorn fa-home_st" aria-hidden="true"></i>경보</a>
         </li>
         <li class="<%= matchingMenu(8,menuNum)%>">
           <a href="http://smtb.smsoft.co.kr:7502" target="_blank">
-            <i class="fa fa-camera-retro fa-home_st" aria-hidden="true"></i>cctv</a
-          >
+            <i class="fa fa-camera-retro fa-home_st" aria-hidden="true"></i>cctv</a>
         </li>
       </ul>
     </div>
@@ -53,7 +49,7 @@
       <div class="nav_row_st">
         <div class="nav_row_st_img">
           <!-- <img src="image/logo.png" /> -->
-          <img src="image/con_p.png" /> <span>6kW급 테스트베드</span>
+          <img src="image/con_p.png" /> <span>100kW급 테스트베드</span>
         </div>
 
         <div class="nav_row_st_right">
@@ -63,13 +59,13 @@
             var week = new Array('일', '월', '화', '수', '목', '금', '토');
             $('#today').html(
               today.getFullYear() +
-                '.' +
-                (today.getMonth() + 1) +
-                '.' +
-                today.getDate() +
-                '(' +
-                week[today.getDay()] +
-                ')',
+              '.' +
+              (today.getMonth() + 1) +
+              '.' +
+              today.getDate() +
+              '(' +
+              week[today.getDay()] +
+              ')',
             );
           </script>
           <span>날씨</span>
@@ -77,12 +73,7 @@
           <img src="image/weather_<%- weatherCastInfo.wf %>.png" />
           <!-- <img src="image/weather_1.png" /> -->
 
-          <input
-            type="text"
-            class="form-control"
-            style="text-align: center"
-            value="<%- weatherCastInfo.temp %>"
-          />
+          <input type="text" class="form-control" style="text-align: center" value="<%- weatherCastInfo.temp %>" />
           <span class="Temperature">℃</span>
         </div>
       </div>

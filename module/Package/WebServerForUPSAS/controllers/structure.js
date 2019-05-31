@@ -45,10 +45,11 @@ module.exports = app => {
     asyncHandler(async (req, res) => {
       /** @type {V_MEMBER} */
       const userInfo = req.locals.user;
-      BU.CLIN(userInfo);
+      // BU.CLIN(userInfo);
 
       /** @type {MAIN[]} */
-      const mainRows = await biModule.getTable('main', { main_seq: userInfo.main_seq });
+      // const mainRows = await biModule.getTable('main', { main_seq: userInfo.main_seq });
+      const mainRows = await biModule.getTable('main', { main_seq: 2 });
 
       if (_.isEmpty(mainRows)) {
         return res.render('./structure/diagram.html', req.locals);

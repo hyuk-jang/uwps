@@ -868,7 +868,7 @@ const map = {
     },
   },
   setInfo: {
-    mainInfo: { main_seq: 1, uuid: 'aaaaa' },
+    mainInfo: { main_seq: 2, uuid: 'bbbbb' },
     dccConstructorList: [
       {
         dccId: 'DCC_001',

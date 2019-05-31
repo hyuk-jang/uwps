@@ -49,8 +49,8 @@
 
 
   <script>
-    var map = <%- JSON.stringify(map) %>
-    drawSvgBasePlace('canvas');
+    var map = < % -JSON.stringify(map) % >
+      drawSvgBasePlace('canvas');
 
     // size 재설정
     var svgMap = SVG.get('svgCanvas');
@@ -117,7 +117,7 @@
       // 접속한 사용자의 정보를 보내줌.
       socket.emit("certifySocket", {
         sessionID: "<%- sessionID %>",
-        sessionUserInfo: <%- JSON.stringify(user) %>
+        sessionUserInfo: < % -JSON.stringify(user) % >
       });
 
       // 노드 관련 갱신 반영

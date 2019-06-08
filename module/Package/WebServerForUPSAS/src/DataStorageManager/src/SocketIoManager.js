@@ -232,52 +232,5 @@ class SocketIoManager {
     });
     // 해당 Socket Client에게로 데이터 전송
   }
-
-  /**
-   * 장치 목록 및 장치 데이터 전송
-   * @param {Session} session
-   */
-  getDeviceList(session) {
-    const msInfo = this.findMainStorageBySocketClient(session);
-
-    const deviceInfoList = [
-      // {
-      //   type: '',
-      //   list: [],
-      //   template: '',
-      // },
-    ];
-
-    const compiledDeviceType = _.template(
-      '<option value="<%= nd_target_id %>"> <%= nd_target_name %></option>',
-    );
-
-    msInfo.msDataInfo.nodeList.forEach(nodeInfo => {
-      const { nd_target_id, nd_target_name, nc_is_sensor, node_id, node_name } = nodeInfo;
-      // 센서가 아닌 장비만 등록
-      if (nc_is_sensor === 0) {
-        let foundIt = _.find(deviceInfoList, { type: nd_target_id });
-
-        if (_.isEmpty(foundIt)) {
-          // const onOffList = ['pump'];
-          foundIt = {
-            type: nd_target_id,
-            list: [],
-            template: compiledDeviceType({ nd_target_id, nd_target_name }),
-            controlType: [],
-          };
-          deviceInfoList.push(foundIt);
-        }
-        const compiledDeviceList = _.template(
-          '<option value="<%= node_id %>"><%= node_name %></option>',
-        );
-
-        foundIt.list.push(compiledDeviceList({ node_id, node_name }));
-      }
-    });
-
-    // BU.CLI(deviceInfoList);
-    return deviceInfoList;
-  }
 }
 module.exports = SocketIoManager;

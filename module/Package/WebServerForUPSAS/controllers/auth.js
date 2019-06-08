@@ -33,8 +33,8 @@ module.exports = app => {
             url: `http://localhost:${process.env.WEB_UPSAS_PORT}/auth/login`,
             headers: req.headers,
             form: {
-              userid: 'tester',
-              password: 'smsoft',
+              userid: process.env.DEV_USER_ID,
+              password: process.env.DEV_USER_PW,
             },
           },
           (err, httpResponse, msg) => res.redirect(`/${process.env.DEV_PAGE}`),

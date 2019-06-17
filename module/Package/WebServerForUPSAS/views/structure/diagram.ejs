@@ -49,8 +49,8 @@
 
 
   <script>
-    var map = <%- JSON.stringify(map) %>;
-    drawSvgBasePlace('canvas');
+    var map = < % -JSON.stringify(map) % >
+      drawSvgBasePlace('canvas');
 
     // size 재설정
     var svgMap = SVG.get('svgCanvas');
@@ -58,14 +58,7 @@
     canvas.style.width = svgMap.node.width.baseVal.value + 'px';
     canvas.style.height = svgMap.node.height.baseVal.value + 'px';
     var $canvas = $('#canvas')
-    
-    const {
-        width,
-        height
-      } = map.drawInfo.frame.mapInfo;
-
-    const matrix = `matrix(0.4, 0, 0, 0.4, ${width - width * 1.27}, ${height - height * 1.3})`;
-
+    var matrix = 'matrix(0.4, 0, 0, 0.4, -850, -600)'
 
     var filter = "win16|win32|win64|mac";
     if (navigator.platform) {
@@ -124,7 +117,7 @@
       // 접속한 사용자의 정보를 보내줌.
       socket.emit("certifySocket", {
         sessionID: "<%- sessionID %>",
-        sessionUserInfo: <%- JSON.stringify(user) %>
+        sessionUserInfo: < % -JSON.stringify(user) % >
       });
 
       // 노드 관련 갱신 반영
@@ -148,13 +141,7 @@
       const svgMap = SVG.get('svgCanvas');
       const canvas = document.getElementById('canvas');
       const $canvas = $('#canvas');
-      
-      const {
-        width,
-        height
-      } = map.drawInfo.frame.mapInfo;
-      const matrix = `matrix(0.4, 0, 0, 0.4, ${width - width * 1.27}, ${height - height * 1.3})`;
-
+      const matrix = 'matrix(0.4, 0, 0, 0.4, -850, -600)';
       const filter = 'win16|win32|win64|mac';
 
       // 맵 size 재설정

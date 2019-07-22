@@ -55,6 +55,7 @@ module.exports = app => {
       const viewPowerProfileList = req.locals.viewPowerProfile;
 
       const inverterSeqList = _.map(viewPowerProfileList, 'inverter_seq');
+      const inverterWhere = inverterSeqList.length ? { inverter_seq: inverterSeqList } : null;
       const photovoltaicSeqList = _.map(viewPowerProfileList, 'photovoltaic_seq');
 
       // console.time('0');
@@ -179,9 +180,8 @@ module.exports = app => {
       // BU.CLI(validModuleStatusList);
       // 금일 발전 현황
       // 인버터 현재 발전 현황
-      const inverterDataList = await biModule.getTable('v_inverter_status', {
-        inverter_seq: inverterSeqList,
-      });
+      const inverterDataList = await biModule.getTable('v_inverter_status', inverterWhere);
+      // BU.CLI(inverterDataList);
 
       // 인버터 데이터 목록에 모듈 온도를 확장
       await biDevice.extendsPlaceDeviceData(inverterDataList, 'moduleRearTemperature');

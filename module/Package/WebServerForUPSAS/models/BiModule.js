@@ -159,11 +159,12 @@ class BiModule extends BM {
    */
   async getModuleStatus(photovoltaic_seq) {
     let returnValue = [];
-    if (_.isNumber(photovoltaic_seq) || _.isArray(photovoltaic_seq)) {
-      returnValue = await this.getTable('v_module_status', { photovoltaic_seq }, false);
-      return returnValue;
-    }
-    returnValue = await this.getTable('v_module_status');
+    const where =
+      _.isNumber(photovoltaic_seq) || (_.isArray(photovoltaic_seq) && photovoltaic_seq.length)
+        ? { photovoltaic_seq }
+        : null;
+
+    returnValue = await this.getTable('v_module_status', where);
     return returnValue;
 
     // let sql = `
@@ -479,17 +480,17 @@ class BiModule extends BM {
 
   /**
    * 인버터 총 누적 발전량을 구함
-   * @param {number[]=} inverter_seq_list
+   * @param {number[]=} inverterSeqList
    */
-  getInverterCumulativePower(inverter_seq_list) {
+  getInverterCumulativePower(inverterSeqList) {
     let sql = `
       SELECT
         inverter_seq,
         ROUND(MAX(c_wh) / 10, 1) AS max_c_wh
       FROM inverter_data
       `;
-    if (typeof inverter_seq_list === 'number' || Array.isArray(inverter_seq_list)) {
-      sql += ` WHERE inverter_seq IN (${inverter_seq_list})`;
+    if (_.isNumber(inverterSeqList) || (_.isArray(inverterSeqList) && inverterSeqList.length)) {
+      sql += ` WHERE inverter_seq IN (${inverterSeqList})`;
     }
     sql += `        
     GROUP BY inverter_seq
@@ -525,7 +526,7 @@ class BiModule extends BM {
         FROM inverter_data
         WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${searchRange.strEndDate}"
         `;
-    if (Array.isArray(inverter_seq_list)) {
+    if (_.isArray(inverter_seq_list) && inverter_seq_list.length) {
       sql += ` AND inverter_seq IN (${inverter_seq_list})`;
     }
     sql += `        
@@ -585,10 +586,10 @@ class BiModule extends BM {
   /**
    * 인버터 발전량 구해옴
    * @param {searchRange} searchRange  검색 옵션
-   * @param {number[]} inverter_seq
+   * @param {number[]} inverterSeq
    * @return {{inverter_seq: number, group_date: string, avg_in_a: number, avg_in_v: number, avg_in_w: number, avg_out_a: number, avg_out_v: number, avg_out_w: number, avg_p_f: number, max_c_wh: number, min_c_wh: number, interval_power: number, chart_color: string, chart_sort_rank: number, total_count: number}[]}
    */
-  getInverterTrend(searchRange, inverter_seq) {
+  getInverterTrend(searchRange, inverterSeq) {
     // BU.CLI(searchRange);
     searchRange = searchRange || this.getSearchRange();
     const dateFormat = this.makeDateFormatForReport(searchRange, 'writedate');
@@ -629,7 +630,11 @@ class BiModule extends BM {
             WHERE writedate>= "${searchRange.strStartDate}" and writedate<"${
       searchRange.strEndDate
     }"
-    AND id.inverter_seq IN (${inverter_seq})
+    ${
+      _.isNumber(inverterSeq) || (_.isArray(inverterSeq) && inverterSeq.length)
+        ? `AND id.inverter_seq IN (${inverterSeq})`
+        : ''
+    }
       GROUP BY ${dateFormat.firstGroupByFormat}, id.inverter_seq
       ORDER BY id.inverter_seq, writedate) AS id_group
       LEFT OUTER JOIN inverter ivt

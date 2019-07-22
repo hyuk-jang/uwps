@@ -107,7 +107,9 @@ function showNodeData(nodeDefId, data = '', isChangePlaceNodeName = false) {
   ).innerHTML += `<tspan id="nodeData" class ="${nodeDefId}" value="${data}" x="${
     foundSvgTextInfo.textX
   }" style="${style}" dx="${dx}" dy="${dy}">${data}</tspan>`; // data 표시
-  foundNodeTextChild.get(0).innerHTML += `<tspan>${dataUnit}</tspan>`; // data 단위 표시
+  if (_.isString(dataUnit)) {
+    foundNodeTextChild.get(0).innerHTML += `<tspan>${dataUnit}</tspan>`; // data 단위 표시
+  }
 }
 
 /**

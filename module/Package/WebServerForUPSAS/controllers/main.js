@@ -6,6 +6,7 @@ const { BU, DU } = require('base-util-jh');
 const BiModule = require('../models/BiModule.js');
 const BiDevice = require('../models/BiDevice');
 const webUtil = require('../models/web.util');
+const SolarPowerCalc = require('../models/SolarPowerCalc.js');
 
 // TEST
 const tempSacle = require('../temp/tempSacle');
@@ -40,6 +41,10 @@ module.exports = app => {
 
       // 로그인 한 사용자가 관리하는 염전의 동네예보 위치 정보에 맞는 현재 날씨 데이터를 추출
       const currWeatherCastInfo = await biModule.getCurrWeatherCast(user.weather_location_seq);
+      const weahterLocationInfo = await biModule.getWeatherLocation(user.weather_location_seq);
+
+      req.locals.currWeatherCastInfo = currWeatherCastInfo; // FIXME:
+      req.locals.weahterLocationInfo = weahterLocationInfo; // FIXME:
       req.locals.weatherCastInfo = webUtil.convertWeatherCast(currWeatherCastInfo);
       next();
     }),
@@ -171,9 +176,7 @@ module.exports = app => {
       );
       validModuleStatusList.forEach(moduleInfo => {
         const moduleData = moduleInfo.data;
-        moduleData.module_name = `${moduleData.install_place} ${moduleData.target_name} (${
-          moduleData.module_type
-        })`;
+        moduleData.module_name = `${moduleData.install_place} ${moduleData.target_name} (${moduleData.module_type})`;
       });
 
       // console.timeEnd('1');
@@ -229,7 +232,32 @@ module.exports = app => {
         ),
         hasAlarm: false, // TODO 알람 정보 작업 필요
       };
+
+      // FIXME:
+      const { latitude } = req.locals.weahterLocationInfo; // 위치
+      const { sky, ws, temp } = req.locals.currWeatherCastInfo; // 기상 데이터
+
+      // 모듈 총 용량
+      const moduleCapacity = _(viewPowerProfileList)
+        .filter({ pv_install_place: '수중' })
+        .map('pv_amount')
+        .sum();
+
+      // 발전 예측에 필요한 정보
+      const powerNecessaryInfo = {
+        latitude,
+        moduleCapacity,
+        moduleWide: 38,
+        sky,
+        ws,
+        temp,
+      };
+
+      const powerPredictionInfo = new SolarPowerCalc(powerNecessaryInfo);
+      // BU.CLI(powerPredictionInfo);
       // BU.CLI(chartData);
+
+      req.locals.powerPredictionInfo = powerPredictionInfo; // FIXME:
       req.locals.dailyPowerChartData = chartData;
       req.locals.moduleStatusList = validModuleStatusList;
       req.locals.powerGenerationInfo = powerGenerationInfo;

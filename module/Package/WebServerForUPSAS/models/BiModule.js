@@ -264,6 +264,24 @@ class BiModule extends BM {
   }
 
   /**
+   * FIXME:
+   * 기상청의 날씨 API를 가져올 위치값 테이블 가져옴 
+   * @param {number} weatherLocationSeq 기상청 동네 예보 위치 seq
+   */
+  async getWeatherLocation(weatherLocationSeq) {
+    const sql = `
+      SELECT *              
+       FROM weather_location 
+      WHERE weather_location_seq = ${weatherLocationSeq}
+    `;
+    const weatherLocationList = await this.db.single(sql, '', false);
+    if (weatherLocationList.length) {
+      return _.head(weatherLocationList);
+    }
+    return {};
+  }
+
+  /**
    * 검색 종류와 검색 기간에 따라 계산 후 검색 조건 객체 반환
    * @param {string} searchType min10, hour, day, month, year, range
    * @param {string} start_date '', undefined, 'YYYY', 'YYYY-MM', 'YYYY-MM-DD'

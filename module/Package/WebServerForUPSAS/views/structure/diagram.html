@@ -1,197 +1,150 @@
 ﻿<!DOCTYPE html>
 <html>
+  <head>
+    <%- include("../master/head.html") %>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
 
-<head>
-  <%- include("../master/head.html") %>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.js"></script> -->
 
-  <!-- 개발 토글을 위한 것. 본 서버에는 적용할 필요 없음 -->
-  <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet" />
-  <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.7/dist/css/bootstrap-select.min.css" />
-  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.7/dist/js/bootstrap-select.min.js"></script>
+    <!-- 개발 토글을 위한 것. 본 서버에는 적용할 필요 없음 -->
+    <link
+      href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.7/dist/css/bootstrap-select.min.css"
+    />
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.7/dist/js/bootstrap-select.min.js"></script>
 
-  <!-- SVG Map 을 생성하기 위한 필수 Library -->
-  <script src="js/drawSvg/svg.js"></script>
-  <script src="js/drawSvg/svg.filter.js"></script>
-  <script src="js/drawSvg/jquery.panzoom.js"></script>
-  <script src="js/drawSvg/jquery.mousewheel.js"></script>
+    <!-- SVG Map 을 생성하기 위한 필수 Library -->
+    <script src="js/drawSvg/svg.js"></script>
+    <script src="js/drawSvg/svg.filter.js"></script>
+    <script src="js/drawSvg/jquery.panzoom.js"></script>
+    <script src="js/drawSvg/jquery.mousewheel.js"></script>
 
-  <!-- SVG Map을 생성하고 관리하기 위한 Core Library -->
-  <script src="js/drawSvg/drawSvg.js"></script>
-</head>
+    <!-- SVG Map을 생성하고 관리하기 위한 Core Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.js"></script>
+    <script type="text/babel" src="js/drawSvg/drawSvg.js"></script>
+  </head>
 
-<body>
-  <!--네비-->
-  <%- include("../master/header.html") %>
-  <!--메인-->
-  <div class="jumbotron text-center jumbotron_line">
-    <div class="row row_st_line min_h_780">
-      <div id="zoom" style="display: flex; justify-content: center;">
-        <button id="zoom-in" class="btn btn-default btn-sm" style="margin-right: 5px"><span
-            class="glyphicon glyphicon-zoom-in"></span>
-          Zoom-in</button>
-        <button id="zoom-out" class="btn btn-default btn-sm" style="margin-right: 5px"><span
-            class="glyphicon glyphicon-zoom-out"></span>
-          Zoom-out</button>
-        <button id="reset" class="btn btn-default btn-sm" style="margin-right: 5px"><span
-            class="glyphicon glyphicon-refresh"></span>
-          Reset</button>
-      </div>
-      <!-- canvas -->
-      <div>
-        <div id="canvas" style=" display: flex; justify-content: center; margin: 5px"></div>
+  <body>
+    <!--네비-->
+    <%- include("../master/header.html") %>
+    <!--메인-->
+    <div class="jumbotron text-center jumbotron_line">
+      <div class="row row_st_line min_h_780">
+        <div id="zoom" style="display: flex; justify-content: center;">
+          <button id="zoom-in" class="btn btn-default btn-sm" style="margin-right: 5px">
+            <span class="glyphicon glyphicon-zoom-in"></span> Zoom-in
+          </button>
+          <button id="zoom-out" class="btn btn-default btn-sm" style="margin-right: 5px">
+            <span class="glyphicon glyphicon-zoom-out"></span> Zoom-out
+          </button>
+          <button id="reset" class="btn btn-default btn-sm" style="margin-right: 5px">
+            <span class="glyphicon glyphicon-refresh"></span> Reset
+          </button>
+        </div>
+        <!-- canvas -->
+        <div>
+          <div id="canvas" style=" display: flex; justify-content: center; margin: 5px"></div>
+        </div>
       </div>
     </div>
-  </div>
 
+    <script>
+      var map = <%- JSON.stringify(map) %>
 
-  <script>
-    var map = <%- JSON.stringify(map) %>
-    drawSvgBasePlace('canvas');
+        drawSvgBasePlace('canvas');
+      setPanzoom()
 
-    // size 재설정
-    var svgMap = SVG.get('svgCanvas');
-    var canvas = document.getElementById('canvas');
-    canvas.style.width = svgMap.node.width.baseVal.value + 'px';
-    canvas.style.height = svgMap.node.height.baseVal.value + 'px';
-    var $canvas = $('#canvas')
-    var matrix = 'matrix(0.4, 0, 0, 0.4, -850, -600)'
+      // panzoom 옵션 세팅
+      function setPanzoom() {
+          const svgMap = SVG.get('svgCanvas');
+          const canvas = document.getElementById('canvas');
+          const $canvas = $('#canvas');
+          //FIXME:
+          const { width, height } = map.drawInfo.frame.mapInfo;
+          const matrix = `matrix(0.4, 0, 0, 0.4, ${width - width * 1.27}, ${height - height * 1.3})`;
+          const filter = 'win16|win32|win64|mac';
 
-    var filter = "win16|win32|win64|mac";
-    if (navigator.platform) {
-      if (0 > filter.indexOf(navigator.platform.toLowerCase())) {
-        // mobile
-        // panzoom
-        $canvas.panzoom({
-          disablePan: true,
-          disableZoom: true,
-          startTransform: matrix,
-        })
-        $('#zoom-out', '#zoom-in', '#reset').hide()
-      } else {
-        // pc
-        // panzoom
-        $canvas.panzoom({
-          $reset: $('#reset'),
-          cursor: "context-menu",
-          startTransform: matrix,
-        })
+          // 맵 size 재설정
+          canvas.style.width = svgMap.node.width.baseVal.value + 'px';
+          canvas.style.height = svgMap.node.height.baseVal.value + 'px';
 
-        // mouseWheel
-        $canvas.panzoom().on('mousewheel.focal', function (e) {
-          e.preventDefault();
-          var delta = e.delta || e.originalEvent.wheelDelta;
-          var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
-          $canvas.panzoom('zoom', zoomOut, {
-            animate: false,
-            focal: e
-          });
-        })
+          //모바일, pc 접속 분별하여 zoom in/out 활셩 여부 설정
+          if (navigator.platform) {
+            if (0 > filter.indexOf(navigator.platform.toLowerCase())) {
+              // mobile
+              // panzoom
+              $canvas.panzoom({
+                disablePan: true,
+                disableZoom: true,
+                startTransform: matrix,
+              });
+              $('#zoom-out', '#zoom-in', '#reset').hide();
+            } else {
+              // pc
+              // panzoom
+              $canvas.panzoom({
+                $reset: $('#reset'),
+                cursor: 'context-menu',
+                startTransform: matrix,
+              });
 
-        // zoom 기능 기준점 재정의
-        $('#zoom-in').click(function (e) {
-          e.clientX = 300;
-          e.clientY = 200;
-          $canvas.panzoom('zoom', {
-            // focal: e
-          });
-        });
-        $('#zoom-out').click(function (e) {
-          e.clientX = 300;
-          e.clientY = 200;
-          $canvas.panzoom('zoom', 'zoomOut', {
-            focal: e,
-          });
-        });
-      }
-    }
-  </script>
+              // mouseWheel
+              $canvas.panzoom().on('mousewheel.focal', function(e) {
+                e.preventDefault();
+                const delta = e.delta || e.originalEvent.wheelDelta;
+                const zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+                $canvas.panzoom('zoom', zoomOut, {
+                  animate: false,
+                  focal: e,
+                });
+              });
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    $(function () {
-      var socket = io();
-      // 접속한 사용자의 정보를 보내줌.
-      socket.emit("certifySocket", {
-        sessionID: "<%- sessionID %>",
-        sessionUserInfo: <%- JSON.stringify(user) %>
-      });
-
-      // 노드 관련 갱신 반영
-      socket.on("updateNode", function (nodeList) {
-        _.forEach(nodeList, nodeInfo => {
-          // console.log(nodeInfo.node_id, nodeInfo.data)
-          showNodeData(nodeInfo.node_id, nodeInfo.data)
-        })
-        // $MS_node_table.bootstrapTable('destroy').bootstrapTable({
-        //     data: nodeList
-        // });
-        // document.getElementById("CMD_node_date").innerText = new Date().toLocaleString();
-      });
-
-    })
-
-
-    setPanzoom();
-
-    function setPanzoom() {
-      const svgMap = SVG.get('svgCanvas');
-      const canvas = document.getElementById('canvas');
-      const $canvas = $('#canvas');
-      const matrix = 'matrix(0.4, 0, 0, 0.4, -850, -600)';
-      const filter = 'win16|win32|win64|mac';
-
-      // 맵 size 재설정
-      canvas.style.width = svgMap.node.width.baseVal.value + 'px';
-      canvas.style.height = svgMap.node.height.baseVal.value + 'px';
-
-      //모바일, pc 접속 분별하여 zoom in/out 활셩 여부 설정
-      if (navigator.platform) {
-        if (0 > filter.indexOf(navigator.platform.toLowerCase())) {
-          // mobile
-          // panzoom
-          $canvas.panzoom({
-            disablePan: true,
-            disableZoom: true,
-            startTransform: matrix,
-          });
-          $('#zoom-out', '#zoom-in', '#reset').hide();
-        } else {
-          // pc
-          // panzoom
-          $canvas.panzoom({
-            $reset: $('#reset'),
-            cursor: 'context-menu',
-            startTransform: matrix,
-          });
-
-          // mouseWheel
-          $canvas.panzoom().on('mousewheel.focal', function (e) {
-            e.preventDefault();
-            const delta = e.delta || e.originalEvent.wheelDelta;
-            const zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
-            $canvas.panzoom('zoom', zoomOut, {
-              animate: false,
-              focal: e,
-            });
-          });
-
-          // zoom 기능 기준점 재정의
-          $('#zoom-in').click(function (e) {
-            $canvas.panzoom('zoom', {});
-          });
-          $('#zoom-out').click(function (e) {
-            $canvas.panzoom('zoom', 'zoomOut', {});
-          });
+              // zoom 기능 기준점 재정의
+              $('#zoom-in').click(function(e) {
+                $canvas.panzoom('zoom', {});
+              });
+              $('#zoom-out').click(function(e) {
+                $canvas.panzoom('zoom', 'zoomOut', {});
+              });
+            }
+          }
         }
-      }
-    }
-  </script>
+    </script>
 
-  <%- include("../master/footer.html") %>
-</body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      $(function () {
+        var socket = io();
+        // 접속한 사용자의 정보를 보내줌.
+        socket.emit("certifySocket", {
+          sessionID: "<%- sessionID %>",
+          sessionUserInfo: <%- JSON.stringify(user) %>
+        });
 
+        // 노드 관련 갱신 반영
+        socket.on("updateNode", function (nodeList) {
+          _.forEach(nodeList, nodeInfo => {
+            // console.log(nodeInfo.node_id, nodeInfo.data)
+            showNodeData(nodeInfo.node_id, nodeInfo.data)
+          })
+          // $MS_node_table.bootstrapTable('destroy').bootstrapTable({
+          //     data: nodeList
+          // });
+          // document.getElementById("CMD_node_date").innerText = new Date().toLocaleString();
+        });
+
+      })
+    </script>
+
+    <%- include("../master/footer.html") %>
+  </body>
 </html>

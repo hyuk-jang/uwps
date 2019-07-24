@@ -4,7 +4,7 @@
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  font-family: "NanumGothic", "나눔고딕", "NanumGothicWeb", "맑은 고딕", "Malgun Gothic", Dotum;
+  font-family: 'NanumGothic', '나눔고딕', 'NanumGothicWeb', '맑은 고딕', 'Malgun Gothic', Dotum;
 }
 ul li {
   list-style: none;
@@ -141,7 +141,7 @@ footer {
 
 /*콘텐츠*/
 .jumbotron_st {
-  background-image: url("../image/bg.png");
+  background-image: url('../image/bg.png');
   margin: 0 auto;
   padding: 40px 0;
 }
@@ -280,6 +280,38 @@ footer {
   float: left;
   width: 105px;
   height: 32px;
+  border-radius: 3px;
+  color: #bcbcbc;
+  text-align: right;
+  border: 1px solid #bcbcbc;
+  padding: 0 5px 0 0;
+}
+/*FIXME:*/
+.power_test > label {
+  float: left;
+  width: 40px;
+  height: 20px;
+  border-radius: 3px;
+  color: #bcbcbc;
+  border: 1px solid #bcbcbc;
+  padding: 0 5px 0 0;
+}
+/*FIXME:*/
+.power_test > select {
+  float: left;
+  /* width: 65px; */
+  height: 20;
+  /* border-radius: 3px; */
+  color: #bcbcbc;
+  text-align: right;
+  border: 1px solid #bcbcbc;
+  padding: 0 5px 0 0;
+}
+/*FIXME:*/
+.power_test > input {
+  float: left;
+  width: 105px;
+  height: 20;
   border-radius: 3px;
   color: #bcbcbc;
   text-align: right;

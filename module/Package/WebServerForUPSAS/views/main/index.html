@@ -1,7 +1,6 @@
 ﻿<html lang="kr">
   <head>
     <%- include("../master/head.html") %>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/6.1.19/browser.min.js"></script>
     <script src="js/hichart/highcharts.src.js"></script>
     <script src="js/hichart/highcharts-more.js"></script>
     <script src="js/hichart/solid-gauge.js"></script>
@@ -73,16 +72,17 @@
             <div class="col-xs-6 power_3in">
               <img src="image/sun_03.png" />
               <p style="font-size: 12px">명일발전량</p>
-              <select class="form-control input-group-addon" id="selector" onchange="test(this)">
-              </select>
-              <input
-                class="col-xs-12 input-group"
-                id="solarPower"
-                type="text"
-                name="kWh"
-                readonly
-                value=""
-              />
+              <div class="input-group  power_test">
+                <label class="input-group-addon">수위</label>
+                <select
+                  class="form-control"
+                  id="selector"
+                  onchange="changeSolarPower(this.selectedIndex)"
+                  style="width:65px; border-radius:3px; text-align: right;"
+                >
+                </select>
+                <input id="solarPower" type="text" name="kWh" readonly value="" />
+              </div>
             </div>
             <div class="col-xs-6 power_3in">
               <img src="image/sun_03.png" />
@@ -542,21 +542,21 @@
       }
     </script>
     <!-- 발전량 예측 FIXME:-->
-    <script type="text/babel">
+    <script>
       var powerPredictionInfo = <%- JSON.stringify(powerPredictionInfo) %>
 
       powerPredictionInfo.waterLevels.forEach(function(waterLevel){
-        // $('#selector').append(`<option>${val}</option>`)
         $('#selector').append('<option>'+waterLevel+'</option>')
       });
 
-      var selected = $('#selector option').index($('#selector option:selected'))
-      $('input #solarPower').val(powerPredictionInfo.solarPowers[0])
-
+      $(document).ready(function(){
+        var selectedWaterLevelIndex = $('#selector option').index($('#selector option:selected'))
+        changeSolarPower(selectedWaterLevelIndex)
+      })
 
       //FIXME:
-      function test(selected){
-        var solarPower = powerPredictionInfo.solarPowers[selected.selectedIndex]
+      function changeSolarPower(selectedWaterLevelIndex){
+        var solarPower = powerPredictionInfo.solarPowers[selectedWaterLevelIndex]
         $('#solarPower').val(solarPower+' kWh')
       }
     </script>

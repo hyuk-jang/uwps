@@ -254,7 +254,7 @@ class SolarPowerCalc {
   /**
    * 발전 효율 계산 (%)
    * @param {Object} powerPredictionInfo
-   * @param {number} powerPredictionInfo.waterLevel 수위 (cm)
+   * @param {number} powerPredictionInfo.waterLevels 수위 (cm)
    * @param {number} powerPredictionInfo.temp 기온 (℃)
    * @param {number} powerPredictionInfo.moduleWide 모듈 면적 (m^2)
    * @param {number} powerPredictionInfo.moduleCapacity 모듈 용량 (w)
@@ -262,7 +262,7 @@ class SolarPowerCalc {
    * @param {number} powerPredictionInfo.maxSunshineHours 가조시간 (h)
    */
   calcSolarPower(powerPredictionInfo, solarRadiation) {
-    const { moduleWide, temp, waterLevel, moduleCapacity } = powerPredictionInfo;
+    const { moduleWide, temp, waterLevels, moduleCapacity } = powerPredictionInfo;
     const solarPowers = [];
     const airMass = _.multiply(moduleWide, 1.293); // 공기의 질량
     const waterEvaporation = this.calcWaterEvaporation(powerPredictionInfo); // 증발량
@@ -280,8 +280,8 @@ class SolarPowerCalc {
       .divide(1000)
       .value();
 
-    _.forEach(waterLevel, value => {
-      const waterLevelLoss = 0.98 ** value; // 수위에 대한 효율 감소
+    _.forEach(waterLevels, waterLevel => {
+      const waterLevelLoss = 0.98 ** waterLevel; // 수위에 대한 효율 감소
       const powerEfficiency = _.chain(reducedTemperature)
         .multiply(0.004977)
         .multiply(-1)

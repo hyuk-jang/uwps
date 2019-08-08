@@ -24,14 +24,12 @@ class BiDevice extends BiModule {
       _.map(receiveObjList, receiveDataInfo => _.get(receiveDataInfo, 'place_seq')),
       null,
     );
+
+    const where = placeSeqList.length ? { place_seq: placeSeqList } : null;
     // BU.CLI(placeSeqList);
     // 추출된 seqList를 기준으로 장소 관계를 불러옴
     /** @type {V_DV_PLACE_RELATION[]} */
-    const placeList = await this.getTable(
-      'v_dv_place_relation',
-      { place_seq: placeSeqList },
-      false,
-    );
+    const placeList = await this.getTable('v_dv_place_relation', where, true);
     return placeList;
   }
 
